@@ -1,0 +1,22 @@
+<document>
+    <properties>
+        <author email="rgettman@users.sourceforge.net">Randy Gettman</author>
+        <title>JEXL Flags</title>
+    </properties>
+    <body>
+        <section name="JEXL Flags">
+            <p>JETT uses an internal "JEXL Engine", supplied by the Apache Commons JEXL library, to
+            evaluate the expressions.  The <code>ExcelTransformer</code> passes two flags through
+            to the JexlEngine, "silent" and "lenient".  The "silent" flag tells the JexlEngine not
+            to write errors to standard output.  The "lenient" flag tells the JexlEngine to allow
+            such things as converting nulls to zeroes, NullPointerExceptions to null, etc.
+            Otherwise, JEXL might throw an Exception or write a log message to standard output.</p>
+            <p>JETT exposes control of these flags through methods in the
+            <code>ExcelTransformer</code> class.</p>
+            <source>
+public void setLenient(boolean lenient);
+public void setSilent(boolean silent);
+            </source>
+        </section>
+    </body>
+</document>

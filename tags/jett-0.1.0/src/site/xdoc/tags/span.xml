@@ -1,0 +1,85 @@
+<document>
+    <properties>
+        <author email="rgettman@users.sourceforge.net">Randy Gettman</author>
+        <title>Span Tag</title>
+    </properties>
+    <body>
+        <section name="The Span Tag">
+            <p>The "span" tag allows merged regions to have their length or width dynamically
+            specified with a factor.  This tag must be bodiless.  It is usually used close to --
+            but not inside of -- a <a href="looping.html">looping tag</a> so that it can match the
+            displayed height or width of a nearby Collection.</p>
+            <h1>Attributes</h1>
+            <ul>
+                <li><strong>factor: int</strong> Required.  This is the factor with which to
+                multiply the height of the merged region in which this tag is contained.  For
+                example, if the merged region is 2 cells tall, and the factor is 3, then content
+                below the merged region is shifted downard, and the merged region is grown to a
+                height of 6 cells.  If there is no merged region, then the cell is treated as if it
+                was a merged region of height 1 and width 1, and a new merged region is created if
+                necessary.  This value must not be negative.  If it is zero, then the block (and
+                any merged region) is removed and content below is shifted up to overwrite the
+                block.</li>
+                <li><strong>value: Object</strong> Required.  The value of the cell after
+                processing.</li>
+                <li><strong>expandRight: Boolean</strong> Optional.  If true, then expand to the
+                right instead of downward.  Content to the right of the merged region will be
+                shifted to the right to make way for the bigger merged region.  Default: false
+                (downward).</li>
+            </ul>
+        </section>
+        <section name="Example">
+            <p>A <code>List</code> of <code>Employees</code> inside a <code>Department</code> is
+            available in the beans map.  There are 2 employees in the department.</p>
+            <table style="width: 750px;">
+                <tr>
+                    <td class="bold" style="width: 250px;">Department</td>
+                    <td class="bold" style="width: 500px;" colspan="2">Employees</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;" rowspan="2">&lt;jt:span factor="${dept.employees.size}" value="${dept.name}"/&gt;</td>
+                    <td style="width: 250px;">&lt;jt:forEach items="${dept.employees}" var="${emp}"&gt;First: ${emp.firstName}</td>
+                    <td style="width: 250px;">Last: ${emp.lastName}</td>
+                </tr>
+                <tr>
+                    <td class="right" style="width: 250px;">Salary:</td>
+                    <td style="width: 250px;">${emp.salary}&lt;/jt:forEach&gt;</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">&nbsp;</td>
+                    <td style="width: 250px;">&nbsp;</td>
+                    <td style="width: 250px;">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">&nbsp;</td>
+                    <td style="width: 250px;">&nbsp;</td>
+                    <td style="width: 250px;">&nbsp;</td>
+                </tr>
+            </table>
+            <p>...gets transformed into...</p>
+             <table style="width: 750px;">
+                <tr>
+                    <td style="width: 250px; font-weight: bold;">Department</td>
+                    <td style="width: 500px; font-weight: bold;" colspan="2">Employees</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;" rowspan="4">Cartoon Characters</td>
+                    <td style="width: 250px;">First: Bugs</td>
+                    <td style="width: 250px;">Last: Bunny</td>
+                </tr>
+                <tr>
+                    <td class="right" style="width: 250px;">Salary:</td>
+                    <td style="width: 250px;">$1500</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">First: Elmer</td>
+                    <td style="width: 250px;">Last: Fudd</td>
+                </tr>
+                <tr>
+                    <td class="right" style="width: 250px;">Salary:</td>
+                    <td style="width: 250px;">$800</td>
+                </tr>
+            </table>
+        </section>
+    </body>
+</document>
