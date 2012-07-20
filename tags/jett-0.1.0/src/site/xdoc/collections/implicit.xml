@@ -1,0 +1,216 @@
+<document>
+    <properties>
+        <author email="rgettman@users.sourceforge.net">Randy Gettman</author>
+        <title>Implicit Collections Processing</title>
+    </properties>
+    <body>
+        <section name="Implicit Collections Processing">
+            <p>Explicit collections processing takes place by using the
+            <a href="../tags/forEach.html">ForEach</a> and <a href="../tags/multiForEach.html">
+            MultiForEach</a> tags.  However, use of the tags can clutter the text box used for each
+            cell.</p>
+            <p>If JETT detects that an Expression contains operations on a <code>Collection</code>,
+            then it processes an implicit <a href="../tags/multiForEach.html">MultiForEach</a> tag.
+            By default, <em>implicit collections processing</em> occurs on the entire row where the
+            collection or collections are found.</p>
+            <p>In this example, "employees" is a List of Employees.  The List doesn't have the
+            properties "lastName", "firstName", "salary", and "manager" (methods
+            <code>getLastName()</code>,  <code>getFirstName()</code>, <code>getSalary()</code>, and
+            <code>getManager()</code>).  The implicit collections processing gets these properties
+            from each item of the "employees" list.</p>
+            <table style="width: 750px;">
+                <tr>
+                    <td class="bold" style="width: 250px;">Employee</td>
+                    <td class="bold" style="width: 150px;">Salary</td>
+                    <td class="bold" style="width: 350px;">Manager</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">${employees.lastName}, ${employees.firstName}</td>
+                    <td style="width: 150px;">${employees.salary}</td>
+                    <td style="width: 350px;">&lt;jt:if test="${employees.getManager() != null}" then="${employees.manager.lastName}, ${employees.manager.firstName}"/&gt;</td>
+                </tr>
+            </table>
+            <p>...gets transformed into...</p>
+            <table style="width: 750px;">
+                 <tr>
+                    <td class="bold" style="width: 250px;">Employee</td>
+                    <td class="bold" style="width: 150px;">Salary</td>
+                    <td class="bold" style="width: 350px;">Manager</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Stack, Robert</td>
+                    <td style="width: 150px;">$1000.00</td>
+                    <td style="width: 350px;">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Queue, Suzie</td>
+                    <td style="width: 150px;">$900.00</td>
+                    <td style="width: 350px;">Stack, Robert</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Fudd, Elmer</td>
+                    <td style="width: 150px;">$800.00</td>
+                    <td style="width: 350px;">Stack, Robert</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Bunny, Bugs</td>
+                    <td style="width: 150px;">$1500.00</td>
+                    <td style="width: 350px;">&nbsp;</td>
+                </tr>
+            </table>
+        </section>
+        <section name="Changing Behavior with Metadata">
+            <p>To change the default behavior of implicit collections processing, include
+            <em>metadata</em> at the end of an Expression that contains a reference to a
+            Collection.  Metadata may influence the affected block of cells, either restricting the
+            affected columns, including additional rows, or both.  To include metadata, append the
+            string "?@" plus key/value pairs to the end of the Expression, separated by semicolons.</p>
+            <h1>Metadata Keys</h1>
+            <ul>
+                <li><strong>left: int</strong> Optional.  Specify exactly how many cells to the
+                left of the current cell to include in implicit collections processing, defaulting
+                to zero.</li>
+                <li><strong>right: int</strong> Optional.  Specify exactly how many cells to the
+                right of the current cell to include in implicit collections processing, defaulting
+                to zero.</li>
+                <li>If neither "left" nor "right" is present, then JETT will include the entire row
+                of data for implicit collections processing.</li>
+                <li><strong>extraRows: int</strong> Optional.  Specify how many extra rows are to
+                be included in the block for implicit collections processing below the current row,
+                defaulting to zero.</li>
+                <li><strong>copyRight: Boolean</strong> Optional.  If true, then the block will be
+                copied to the right, instead of downward.  Default: false (downward).  This acts
+                just like the "copyRight" attribute of <a href="../tags/looping.html">looping
+                tags</a>.</li>
+                <li><strong>fixed: Boolean</strong> Optional.  If true, then the content outside of
+                the block will not be shifted out of the way to make room for additional data.
+                Default: false (shifting will occur).  This acts just like the "fixed" attribute of
+                <a href="../tags/looping.html">looping tags</a>.</li>
+            </ul>
+            <p>Once JETT has determined the desired block of cells, it will scan the entire block
+            for any references to any Collections in any Expression.  Then, it will process an
+            implicit "multiForEach" tag on the entire block.</p>
+            <p>In this example, notice how "Company: Whatsit" is not copied with the rest of the
+            block.</p>
+            <table style="width: 750px;">
+                <tr>
+                    <td class="bold" style="width: 100px;">Company: Whatsit</td>
+                    <td class="bold" style="width: 100px;">First Name:</td>
+                    <td style="width: 225px;">${employees.firstName}?@extraRows=1;left=1;right=2</td>
+                    <td class="bold" style="width: 100px;">Last Name:</td>
+                    <td style="width: 225px;">${employees.lastName}</td>
+                </tr>
+                <tr>
+                    <td style="width: 100px;">&nbsp;</td>
+                    <td class="bold" style="width: 100px;">Salary:</td>
+                    <td style="width: 225px;">${employees.salary}</td>
+                    <td class="bold" style="width: 100px;">Manager:</td>
+                    <td style="width: 225px;">&lt;jt:if test="${employees.getManager() != null}" then="${employees.managerlastName}, ${emmployees.manager.firstName}"/&gt;</td>
+                </tr>
+            </table>
+            <p>...gets transformed into...</p>
+            <table style="width: 750px;">
+                <tr>
+                    <td class="bold" style="width: 100px;">Company: Whatsit</td>
+                    <td class="bold" style="width: 100px;">First Name:</td>
+                    <td style="width: 225px;">Robert</td>
+                    <td class="bold" style="width: 100px;">Last Name:</td>
+                    <td style="width: 225px;">Stack</td>
+                </tr>
+                <tr>
+                    <td style="width: 100px;">&nbsp;</td>
+                    <td class="bold" style="width: 100px;">Salary:</td>
+                    <td style="width: 225px;">$1000.00</td>
+                    <td class="bold" style="width: 100px;">Manager:</td>
+                    <td style="width: 225px;">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td class="bold" style="width: 100px;">&nbsp;</td>
+                    <td class="bold" style="width: 100px;">First Name:</td>
+                    <td style="width: 225px;">Suzie</td>
+                    <td class="bold" style="width: 100px;">Last Name:</td>
+                    <td style="width: 225px;">Queue</td>
+                </tr>
+                <tr>
+                    <td style="width: 100px;">&nbsp;</td>
+                    <td class="bold" style="width: 100px;">Salary:</td>
+                    <td style="width: 225px;">$900.00</td>
+                    <td class="bold" style="width: 100px;">Manager:</td>
+                    <td style="width: 225px;">Stack, Robert</td>
+                </tr>
+                <tr>
+                    <td class="bold" style="width: 100px;">&nbsp;</td>
+                    <td class="bold" style="width: 100px;">First Name:</td>
+                    <td style="width: 225px;">Elmer</td>
+                    <td class="bold" style="width: 100px;">Last Name:</td>
+                    <td style="width: 225px;">Fudd</td>
+                </tr>
+                <tr>
+                    <td style="width: 100px;">&nbsp;</td>
+                    <td class="bold" style="width: 100px;">Salary:</td>
+                    <td style="width: 225px;">$800.00</td>
+                    <td class="bold" style="width: 100px;">Manager:</td>
+                    <td style="width: 225px;">Stack, Robert</td>
+                </tr>
+                <tr>
+                    <td class="bold" style="width: 100px;">&nbsp;</td>
+                    <td class="bold" style="width: 100px;">First Name:</td>
+                    <td style="width: 225px;">Bugs</td>
+                    <td class="bold" style="width: 100px;">Last Name:</td>
+                    <td style="width: 225px;">Bunny</td>
+                </tr>
+                <tr>
+                    <td style="width: 100px;">&nbsp;</td>
+                    <td class="bold" style="width: 100px;">Salary:</td>
+                    <td style="width: 225px;">$1500.00</td>
+                    <td class="bold" style="width: 100px;">Manager:</td>
+                    <td style="width: 225px;">&nbsp;</td>
+                </tr>
+            </table>
+        </section>
+        <section name="Turn Off Implicit Collections Processing">
+            <p>To access Collection items explicitly in an Expression, it is desirable to turn off
+            implicit collections processing on a collection name basis.  To do this, use the
+            following method available in the <code>ExcelTransformer</code> class:</p>
+            <source>
+public void turnOffImplicitCollectionProcessing(String collName);
+            </source>
+            <p>In this example, the following code is run before the transform method:</p>
+            <source>
+transformer.turnOffImplicitCollectionProcessing("employees");
+            </source>
+            <table style="width: 500px;">
+                <tr>
+                    <td style="width: 250px;">The highest ranked employee is:</td>
+                    <td style="width: 250px;">${employees.get(0).fullName}</td>
+                </tr>
+            </table>
+            <p>... gets transformed into...</p>
+            <table style="width: 500px;">
+                <tr>
+                    <td style="width: 250px;">The highest ranked employee is:</td>
+                    <td style="width: 250px;">Bugs Bunny</td>
+                </tr>
+            </table>
+            <p>If implicit collections processing was allowed to occur on the "employees"
+            collection, then four rows would be generated, one for each employee, each attempting
+            to call "get(0)" directly on the Employee object, resulting in an error.</p>
+            <p>However, certain properties and method calls on Collections are recognized to be
+            actual Collections operations, so if any of the following operations are performed on a
+            Collection, then implicit collections processing does not occur:</p>
+            <ul>
+                <li>capacity</li>
+                <li>contains</li>
+                <li>element</li>
+                <li>equals</li>
+                <li>get</li>
+                <li>hashCode</li>
+                <li>indexOf</li>
+                <li>isEmpty</li>
+                <li>lastIndexOf</li>
+                <li>size</li>
+                <li>toString</li>
+            </ul>
+        </section>
+    </body>
+</document>
