@@ -1,0 +1,56 @@
+<document>
+    <properties>
+        <author email="rgettman@users.sourceforge.net">Randy Gettman</author>
+        <title>JEXL Expressions</title>
+    </properties>
+    <body>
+        <section name="Apache Commons JEXL Expressions">
+            <p>JETT leverages <a href="http://commons.apache.org/">Apache Commons JEXL</a> to
+            evaluate JEXL ("Java Expression Language") Expressions contained in the template
+            spreadsheet.  JETT interprets everything between "${" and "}" to be a JEXL Expression.
+            The JEXL Expression is evaluated as the result of getting the property "property" from
+            the bean "beanName", which is retrieved from the bean Map with the key "beanName".
+            JETT replaces the Expression with the result of the evaluation.  In this example, a
+            ValueObject is a JETT user's own type, not a JETT built-in type.</p>
+            <source>
+Map&lt;String, Object&gt; beans = new HashMap&lt;String, Object&gt;();
+ValueObject beanName = new ValueObject();
+beanName.setProperty("Hello, World!");
+beans.put("beanName", beanName);
+            </source>
+            <p>If the template spreadsheet contains this cell...</p>
+            <table style="width: 175px;">
+                <tr><td>${beanName.property}</td></tr>
+            </table>
+            <p>...then it gets transformed into...</p>
+            <table style="width: 175px;">
+                <tr><td>Hello, World!</td></tr>
+            </table>
+        </section>
+        <section name="Complex Expressions">
+            <p>Bean property accesses may be chained to any desired length.  All Excel formatting
+            is preserved, including Rich Text formatting, normal font formatting, number and date
+            formatting, text color, cell background, cell alignments, cell borders, column widths,
+            row heights, text wrapping, and merged cell regions.  Features such as drawings,
+            charts, and macros are preserved as much as possible. JEXL supports a
+            <a href="http://commons.apache.org/jexl/reference/syntax.html">rich expression language</a>
+            that includes array access, list access, map access, math operators, comparison
+            operators, explicit method calling, and more.</p>
+            <table style="width: 750px;">
+                <tr>
+                    <td style="width: 150px;"><span class="boldText">${n}</span>^2 is <span class="redText">${n * n}</span></td>
+                    <td class="yellow" style="width: 450px;">${country.state.county.city.name}, ${country.state.code}</td>
+                    <td style="width: 150px;">${change * 100}%</td>
+                </tr>
+            </table>
+            <p>...gets transformed into...</p>
+            <table style="width: 750px;">
+                <tr>
+                    <td style="width: 150px;"><span class="boldText">5</span>^2 is <span class="redText">25</span></td>
+                    <td class="yellow" style="width: 450px;">Los Angeles, CA</td>
+                    <td style="width: 150px;">25.00%</td>
+                </tr>
+            </table>
+        </section>
+    </body>
+</document>
