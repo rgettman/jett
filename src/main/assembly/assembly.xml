@@ -12,6 +12,8 @@
                 <include>jett-core/LICENSE.txt</include>
                 <include>jett-core/src/main/**</include>
                 <include>jett-core/src/test/**</include>
+                <include>jett-core/templates/**</include>
+                <include>jett-core/output/**</include>
             </includes>
         </fileSet>
         <fileSet>
