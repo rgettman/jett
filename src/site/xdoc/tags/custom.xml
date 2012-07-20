@@ -1,0 +1,287 @@
+<document>
+    <properties>
+        <author email="rgettman@users.sourceforge.net">Randy Gettman</author>
+        <title>Custom Tag Libraries</title>
+    </properties>
+    <body>
+        <section name="Custom Tag Libraries">
+            <p>The developer can supply a custom Tag Library that can supplement the "tag"
+            functionality that JETT supports.  The developer supplies a class that implements the
+            <code>TagLibrary</code> interface, which defines one method:</p>
+            <source>
+public Map&lt;String, Class&lt;? extends Tag&gt;&gt; getTagMap();
+            </source>
+            <p>This method returns a <code>Map</code> that maps the name of the tag (e.g. "if") to
+            the tag class object that defines the tag's functionality (e.g.
+            <code>IfTag.class</code>).</p>
+        </section>
+        <section name="Creating a Custom Tag">
+            <p>The developer creates a custom tag by implementing the <code>Tag</code> interface,
+            although it is easier to subclass the abstract class <code>BaseTag</code>, which
+            implements <code>Tag</code> and provides a lot of boiler-plate Tag code.  See "AggTag",
+            "IfTag", "NullTag", "SpanTag", and "TotalTag" for examples about how to implement tags
+            by subclassing "BaseTag".</p>
+            <p>To subclass "BaseTag", implement the following abstract methods:</p>
+            <ul>
+                <li><code>public String getName()</code> - Return the tag's name as a String.</li>
+                <li><code>protected List&lt;String&gt; getRequiredAttributes()</code> - Return a
+                list of required attribute names.  If all required attributes are not found, then
+                <code>BaseTag</code> throws a <code>TagParseException</code>.</li>
+                <li><code>protected List&lt;String&gt; getOptionalAttributes()</code> - Return a
+                list of optional attribute names.  If an attribute in the tag is not listed in the
+                required attributes or the optional attributes, then <code>BaseTag</code> throws a
+                <code>TagParseException</code>.</li>
+                <li><code>public void validateAttributes()</code> - Validate attributes and values.
+                Throw a <code>TagParseException</code> if any attribute input is not valid.</li>
+                <li><code>public boolean process()</code> - Implement the logic of the Tag in this
+                method.  All Tags have access to the <code>TagContext</code> object through the
+                inherited "getContext()" method.  The TagContext object allows access to the
+                current <code>Sheet</code> object, the containing <code>Block</code> object, the
+                <code>Map</code> of beans, the <code>List</code> of registered
+                <a href="../other/cell_listeners.html"><code>CellListeners</code></a>, and a
+                <code>Map</code> of <code>Cells</code> that have already been processed.  Call
+                BaseTag's "removeBlock()" method to delete the tag's Block (and shift Cells over).
+                To transform the body Cells of the tag's Block, create a
+                <code>BlockTransformer</code>, pass it a new <code>TagContext</code>, and call the
+                "transform()" method.  Return a <code>boolean</code> indicating whether the first
+                Cell of the block was processed.  (It may not be processed if the "process" method
+                removes or clears the Block.)</li>
+            </ul>
+        </section>
+        <section name="Creating a Custom Looping Tag">
+            <p>For a repeating tag, the developer may want to subclass the abstract class
+            <code>BaseLoopTag</code>, which subclasses <code>BaseTag</code>.  This abstract class
+            defines the "process" method, but in doing so, it uses the Template Method Pattern to
+            provide additional abstract methods as "hooks" to assist the "process" method in
+            processing the loop.  See the code for "ForEachTag", "MultiForEachTag", and "ForTag"
+            for examples about how to implement repeating tags by subclassing "BaseLoopTag".  Here
+            are the abstract methods to implement:</p>
+            <ul>
+                <li><code>protected abstract List&lt;String&gt; getCollectionNames()</code> -
+                Return a possibly null List of Collection names on which the tag is processing.
+                This is only used to determine if any Collections are marked as
+                <a href="../collections/fixed_size.html">"fixed size collections"</a>, and that
+                information is used to determine whether to shift other content out of the way, to
+                make room for additional copied blocks.</li>
+                <li><code>protected abstract int getNumIterations()</code> - Return the number of
+                iterations to be run.</li>
+                <li><code>protected abstract Iterator&lt;?&gt; getLoopIterator()</code> - Return an
+                <code>Iterator</code> object that can iterate over a collection of items.</li>
+                <li><code>protected abstract void beforeBlockProcessed(TagContext context, Block currBlock, Object item, int index)</code>
+                - Before the current iteration's Block is processed, this method is called, to
+                prepare the Block for processing.</li>
+                <li><code>protected abstract void afterBlockProcessed(TagContext context, Block currBlock, Object item, int index)</code>
+                - After the current iteration's Block is processed, this method is called, to clean
+                up after Block processing.</li>
+            </ul>
+        </section>
+        <section name="Example">
+            <p>In JETT's JUnit tests, there is code for the custom "AddOneTag", a custom tag that
+            subclasses BaseTag.</p>
+            <source>
+package net.sf.jett.test.model;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Sheet;
+
+import net.sf.jett.expression.Expression;
+import net.sf.jett.exception.TagParseException;
+import net.sf.jett.tag.BaseTag;
+import net.sf.jett.tag.Block;
+import net.sf.jett.tag.TagContext;
+import net.sf.jett.util.SheetUtil;
+
+/**
+ * An &lt;code&gt;AddOneTag&lt;/code&gt; is a custom &lt;code&gt;Tag&lt;/code&gt; that adds 1 to the
+ * numeric "value" attribute.  The main purpose of this &lt;code&gt;Tag&lt;/code&gt; is to
+ * demonstrate custom tags and custom tag libraries.
+ *
+ * &lt;br&gt;Attributes:
+ * &lt;ul&gt;
+ * &lt;li&gt;value (required): &lt;code&gt;Number&lt;/code&gt;
+ * &lt;/ul&gt;
+ */
+public class AddOneTag extends BaseTag
+{
+   /**
+    * Attribute for specifying the value.
+    */
+   public static final String ATTR_VALUE = "value";
+
+   private static final List&lt;String&gt; REQ_ATTRS =
+      new ArrayList&lt;String&gt;(Arrays.asList(ATTR_VALUE));
+
+   private double myValue;
+
+   /**
+    * Returns this &lt;code&gt;Tag's&lt;/code&gt; name.
+    * @return This &lt;code&gt;Tag's&lt;/code&gt; name.
+    */
+   public String getName()
+   {
+      return "addOne";
+   }
+
+   /**
+    * Returns a &lt;code&gt;List&lt;/code&gt; of required attribute names.
+    * @return A &lt;code&gt;List&lt;/code&gt; of required attribute names.
+    */
+   protected List&lt;String&gt; getRequiredAttributes()
+   {
+      return REQ_ATTRS;
+   }
+
+   /**
+    * Returns a &lt;code&gt;List&lt;/code&gt; of optional attribute names.
+    * @return A &lt;code&gt;List&lt;/code&gt; of optional attribute names.
+    */
+   protected List&lt;String&gt; getOptionalAttributes()
+   {
+      return null;
+   }
+
+   /**
+    * Validates the attributes for this &lt;code&gt;Tag&lt;/code&gt;.  Some optional
+    * attributes are only valid for bodiless tags, and others are only valid
+    * for tags without bodies.
+    */
+   public void validateAttributes()
+   {
+      TagContext context = getContext();
+      Map&lt;String, Object&gt; beans = context.getBeans();
+      Map&lt;String, String&gt; attributes = getAttributes();
+
+      if (!isBodiless())
+         throw new TagParseException("AddOne tags must not have a body.");
+
+      String attrValue = attributes.get(ATTR_VALUE);
+      if (attrValue != null)
+      {
+         Object value = Expression.evaluateString(attrValue, beans);
+         if (value != null)
+         {
+            if (value instanceof Number)
+               myValue = ((Number) value).doubleValue();
+            else
+            {
+               try
+               {
+                  myValue = Double.parseDouble(value.toString());
+               }
+               catch (NumberFormatException e)
+               {
+                  throw new TagParseException("AddOneTag: Value not a number: \"" + attrValue + "\".", e);
+               }
+            }
+         }
+         else
+            throw new TagParseException("AddOneTag: Null value found: \"" + attrValue + "\".");
+      }
+   }
+
+   /**
+    * Replace the cell's content with the value plus one.
+    * @return &lt;code&gt;true&lt;/code&gt;, this cell's content was processed.
+    */
+   public boolean process()
+   {
+      TagContext context = getContext();
+      Sheet sheet = context.getSheet();
+      Block block = context.getBlock();
+
+      // Replace the bodiless tag text with the proper result.
+      Cell cell = sheet.getRow(block.getTopRowNum()).getCell(block.getLeftColNum());
+      SheetUtil.setCellValue(cell, myValue + 1);
+
+      return true;
+   }
+}
+            </source>
+            <p>In JETT's JUnit tests, there is code for the "CustomTagLibrary", a custom tag
+            library that implements <code>TagLibrary</code>.</p>
+            <source>
+package net.sf.jett.test.model;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import net.sf.jett.tag.Tag;
+import net.sf.jett.tag.TagLibrary;
+
+/**
+ * The &lt;code&gt;CustomTagLibrary&lt;/code&gt; is for testing the custom tag libraries
+ * feature.
+ */
+public class CustomTagLibrary implements TagLibrary
+{
+   private static CustomTagLibrary theLibrary = new CustomTagLibrary();
+
+   private Map&lt;String, Class&lt;? extends Tag&gt;&gt; myTagMap;
+
+   /**
+    * Singleton constructor.
+    */
+   private CustomTagLibrary()
+   {
+      myTagMap = new HashMap&lt;String, Class&lt;? extends Tag&gt;&gt;();
+      myTagMap.put("addOne", AddOneTag.class);
+   }
+
+   /**
+    * Returns the singleton instance of a &lt;code&gt;CustomTagLibrary&lt;/code&gt;.
+    * @return The &lt;code&gt;CustomTagLibrary&lt;/code&gt;.
+    */
+   public static CustomTagLibrary getCustomTagLibrary()
+   {
+      return theLibrary;
+   }
+
+   /**
+    * Returns the &lt;code&gt;Map&lt;/code&gt; of tag names to tag &lt;code&gt;Class&lt;/code&gt;
+    * objects.
+    * @return A &lt;code&gt;Map&lt;/code&gt; of tag names to tag &lt;code&gt;Class&lt;/code&gt;
+    *    objects.
+    */
+   public Map&lt;String, Class&lt;? extends Tag&gt;&gt; getTagMap()
+   {
+      return myTagMap;
+   }
+}
+            </source>
+            <p>Prior to transformation, call the proper <code>ExcelTransformer</code> method to
+            register a custom Tag Library:</p>
+            <source>
+ExcelTransformer transformer = new ExcelTransformer();
+CustomTagLibrary library = CustomTagLibrary.getCustomTagLibrary();
+transformer.registerTagLibrary("custom", library);
+            </source>
+            <p>Here is the example template.  During transformation, the "num" bean contains 3.14.</p>
+            <table style="width: 500px;">
+                <tr>
+                    <td style="width: 250px;">Demo addOne tag, custom namespace:</td>
+                    <td style="width: 250px;">&lt;custom:addOne value="5"/&gt;</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Pass variable:</td>
+                    <td style="width: 250px;">&lt;custom:addOne value="${num}"/&gt;</td>
+                </tr>
+            </table>
+            <p>... gets transformed into...</p>
+            <table style="width: 500px;">
+                <tr>
+                    <td style="width: 250px;">Demo addOne tag, custom namespace:</td>
+                    <td style="width: 250px;">6</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Pass variable:</td>
+                    <td style="width: 250px;">4.14</td>
+                </tr>
+            </table>
+        </section>
+    </body>
+</document>
