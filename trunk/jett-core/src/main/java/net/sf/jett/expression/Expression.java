@@ -49,7 +49,6 @@ public class Expression
     */
    public static final String END_EXPR = "}";
 
-
    private String myExpression;
 
    /**
@@ -217,7 +216,9 @@ public class Expression
                else
                {
                   // No additional children.  The Expression simply evaluates
-                  // to a Collection.  
+                  // to a Collection.
+                  if (DEBUG)
+                     System.err.println("      fCN: Just a collection: \"" + collectionName + "\".");
                   return null;
                }
 
@@ -383,7 +384,15 @@ public class Expression
       if (value.startsWith(Expression.BEGIN_EXPR) && value.endsWith(Expression.END_EXPR) && expressions.size() == 1)
       {
          Expression expression = new Expression(value.substring(2, value.length() - 1));
-         return expression.evaluate(beans);
+         Object result = expression.evaluate(beans);
+         if (result instanceof String)
+         {
+            return RichTextStringUtil.replaceAll(richTextString, helper, value, (String) result, true);
+         }
+         else
+         {
+            return result;
+         }
       }
       else
       {
@@ -465,7 +474,12 @@ public class Expression
          {
             String replaceMe = value.substring(beginIdx, endIdx + 1);
             //System.err.println("  Replacing \"" + replaceMe + "\" with...");
-            String replaceWith = expr.evaluate(beans).toString();
+            Object result = expr.evaluate(beans);
+            String replaceWith = "";
+            if (result != null)
+            {
+               replaceWith = expr.evaluate(beans).toString();
+            }
             //System.err.println("  \"" + replaceWith + "\".");
             value = value.replace(replaceMe, replaceWith);
          }

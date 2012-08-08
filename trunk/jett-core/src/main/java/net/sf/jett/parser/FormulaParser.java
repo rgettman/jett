@@ -18,13 +18,15 @@ public class FormulaParser
 {
    private static final boolean DEBUG = false;
 
-   private static final String CELL_REF_PATTERN = "[A-Za-z]+[1-9][0-9]*(\\|\\|.*)?";
+   private static final String CELL_REF_PATTERN = "[A-Za-z]+[1-9][0-9]*";
 
    private String myFormulaText;
    private List<CellRef> myCellReferences;
    private String mySheetName;
    private String myCellReference;
+   private String myDefaultValue;
    private boolean amIInsideSingleQuotes;
+   private boolean amIExpectingADefaultValue;
 
    /**
     * Create a <code>FormulaParser</code>.
@@ -63,7 +65,9 @@ public class FormulaParser
       myCellReferences = new ArrayList<CellRef>();
       mySheetName = null;
       myCellReference = null;
+      myDefaultValue = null;
       amIInsideSingleQuotes = false;
+      amIExpectingADefaultValue = false;
    }
 
    /**
@@ -86,67 +90,63 @@ public class FormulaParser
             // Ignore.
             break;
          case TOKEN_STRING:
-            // For now, store it in the cell reference field.  Upon finding an
-            // exclamation,  the value will be stored in the sheet name field.
-            myCellReference = scanner.getCurrLexeme();
+            if (amIExpectingADefaultValue)
+            {
+               // Default value.
+               if (myDefaultValue == null)
+                  myDefaultValue = scanner.getCurrLexeme();
+               else
+                  myDefaultValue += scanner.getCurrLexeme();
+               amIExpectingADefaultValue = false;
+            }
+            else
+            {
+               // For now, store it in the cell reference field.  Upon finding an
+               // exclamation, the value will be stored in the sheet name field.
+               myCellReference = scanner.getCurrLexeme();
+            }
+            if (DEBUG)
+               System.err.println("  FP: Token String: \"" + scanner.getCurrLexeme() + "\".");
             break;
          case TOKEN_EXCLAMATION:
-            // If we had text from before the "!", it's the sheet reference.
+            // If we had text from before the "!", then the text that's
+            // currently in "myCellReference" it really the sheet reference.
             // Move it to the sheet name field.
+            if (myCellReference == null)
+               throw new FormulaParseException("Sheet name delimiter (\"!\") found with no sheet name: " + myFormulaText);
+            if (amIExpectingADefaultValue)
+               throw new FormulaParseException("Sheet name delimiter (\"!\") found while expecting a default value: " + myFormulaText);
             mySheetName = myCellReference;
             break;
          case TOKEN_LEFT_PAREN:
             // This can turn a potential cell reference into a function call!
             mySheetName = null;
+            myCellReference = null;
             break;
+         case TOKEN_OPERATOR:
+            if (amIExpectingADefaultValue && scanner.getCurrLexeme().charAt(0) == '-')
+            {
+               // Allow a "-" to indicate a negative default value.
+               myDefaultValue = "-";
+               break;
+            }
+            // FALLTHROUGH
          case TOKEN_RIGHT_PAREN:
          case TOKEN_COMMA:
          case TOKEN_DOUBLE_QUOTE:
             // Just delimiters between strings.  Validate the cell reference.
-            if (DEBUG)
-               System.err.println("  FP: Trying to match \"" + myCellReference + "\".");
-            if (myCellReference != null && myCellReference.matches(CELL_REF_PATTERN))
-            {
-               CellRef ref;
-               String cellReference;
-               int pipesIdx = myCellReference.indexOf(CellRef.DEFAULT_VALUE_IND);
-
-               if (pipesIdx != -1)
-                  cellReference = myCellReference.substring(0, pipesIdx);
-               else
-                  cellReference = myCellReference;
-               if (DEBUG)
-                  System.err.println("    FP: Cell Reference is \"" + cellReference + "\".");
-               if (mySheetName != null)
-                  ref = new CellRef(mySheetName + "!" + cellReference);
-               else
-                  ref = new CellRef(cellReference);
-               if (pipesIdx != -1)
-               {
-                  String defaultValue = myCellReference.substring(pipesIdx + 2);
-                  if (DEBUG)
-                     System.err.println("    FP: Default value found is \"" + defaultValue + "\".");
-                  ref.setDefaultValue(defaultValue);
-               }
-
-               if (DEBUG)
-                  System.err.println("    FP: Cell Reference detected: " + ref.formatAsString());
-               // Don't add duplicates.
-               if (!myCellReferences.contains(ref))
-               {
-                  if (DEBUG)
-                     System.err.println("      FP: Not in list, adding ref: row=" + ref.getRow() +
-                        ", col=" + ref.getCol() + ", rowAbs=" + ref.isRowAbsolute() + ", colAbs=" +
-                        ref.isColAbsolute() + ".");
-                  myCellReferences.add(ref);
-               }
-            }
-            mySheetName = null;
-            myCellReference = null;
+            addCellReferenceIfFound();
             break;
          case TOKEN_SINGLE_QUOTE:
             // Must keep track of whether a sheet reference occurs within single quotes.
             amIInsideSingleQuotes = !amIInsideSingleQuotes;
+            break;
+         case TOKEN_DOUBLE_PIPE:
+            if (amIExpectingADefaultValue)
+               throw new FormulaParseException("Cannot have two default values for a cell reference: " + myFormulaText);
+            if (myCellReference == null)
+               throw new FormulaParseException("Default value indicator (\"||\") found without a cell reference: " + myFormulaText);
+            amIExpectingADefaultValue = true;
             break;
          default:
             throw new FormulaParseException("Parse error occurred: " + myFormulaText);
@@ -156,9 +156,55 @@ public class FormulaParser
          if (token == FormulaScanner.Token.TOKEN_EOI)
             break;
       }
-      // Found end of input before attribute value found.
+      // Found end of input but something else was expected.
       if (token.getCode() < 0)
          throw new FormulaParseException("Found end of input while scanning formula text: " + myFormulaText);
+      // Don't forget any last cell reference!
+      addCellReferenceIfFound();
+   }
+
+   /**
+    * If there is a valid cell reference, and it's not a duplicate, then add it
+    * to the list.  Always null-out the cell reference, sheet name, and default
+    * value.
+    * @since 0.2.0
+    */
+   private void addCellReferenceIfFound()
+   {
+      if (DEBUG)
+         System.err.println("  FP: Trying to match \"" + myCellReference + "\".");
+      if (myCellReference != null && myCellReference.matches(CELL_REF_PATTERN))
+      {
+         CellRef ref;
+
+         if (DEBUG)
+            System.err.println("    FP: Cell Reference is \"" + myCellReference + "\".");
+         if (mySheetName != null)
+            ref = new CellRef(mySheetName + "!" + myCellReference);
+         else
+            ref = new CellRef(myCellReference);
+         if (myDefaultValue != null)
+         {
+            if (DEBUG)
+               System.err.println("    FP: Default value found is \"" + myDefaultValue + "\".");
+            ref.setDefaultValue(myDefaultValue);
+         }
+
+         if (DEBUG)
+            System.err.println("    FP: Cell Reference detected: " + ref.formatAsString());
+         // Don't add duplicates.
+         if (!myCellReferences.contains(ref))
+         {
+            if (DEBUG)
+               System.err.println("      FP: Not in list, adding ref: row=" + ref.getRow() +
+                  ", col=" + ref.getCol() + ", rowAbs=" + ref.isRowAbsolute() + ", colAbs=" +
+                  ref.isColAbsolute() + ".");
+            myCellReferences.add(ref);
+         }
+      }
+      mySheetName = null;
+      myCellReference = null;
+      myDefaultValue = null;
    }
 
    /**

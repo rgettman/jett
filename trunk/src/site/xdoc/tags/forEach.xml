@@ -24,8 +24,9 @@
                 the block of cells is copied for the extra non-existent items, but the cells are
                 left blank.  For example, if the Collection has 7 items, and the limit is 10, then
                 10 rows are produced, one for each of the 7 items, and 3 additional blank rows.</li>
-                <li><strong>indexVar: String</strong> Optional.  This specifies a integer "counter"
-                variable name to be exposed in the beans map.  This variable starts at index zero.</li>
+                <li><strong>indexVar: String</strong> Optional.  This specifies an integer
+                "counter" variable name to be exposed in the beans map.  This variable starts at
+                index zero.</li>
             </ul>
         </section>
         <section name="Examples">
@@ -135,8 +136,8 @@
             </table>
         </section>
         <section name="Limit Example">
-            <p>Here's an example that uses the "limit" attribute, both with a limit less than the
-            collection size, and more than the collection size.</p>
+            <p>Here's an example that uses the "limit" attribute, once with a limit less than the
+            collection size, and once with a limit more than the collection size.</p>
             <table style="width: 750px;">
                 <tr>
                     <td class="bold" style="width: 250px;">Employee</td>

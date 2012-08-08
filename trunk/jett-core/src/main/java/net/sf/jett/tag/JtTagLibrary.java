@@ -19,8 +19,11 @@ public class JtTagLibrary implements TagLibrary
    {
       myTagMap = new HashMap<String, Class<? extends Tag>>();
       myTagMap.put("agg"         , AggTag.class);
+      myTagMap.put("comment"     , CommentTag.class);
       myTagMap.put("for"         , ForTag.class);
       myTagMap.put("forEach"     , ForEachTag.class);
+      myTagMap.put("group"       , GroupTag.class);
+      myTagMap.put("hyperlink"   , HyperlinkTag.class);
       myTagMap.put("if"          , IfTag.class);
       myTagMap.put("multiForEach", MultiForEachTag.class);
       myTagMap.put("null"        , NullTag.class);

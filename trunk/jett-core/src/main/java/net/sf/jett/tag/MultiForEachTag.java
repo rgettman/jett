@@ -7,6 +7,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.poi.ss.usermodel.RichTextString;
+
 import net.sf.jett.exception.TagParseException;
 import net.sf.jett.expression.Expression;
 import net.sf.jett.util.SheetUtil;
@@ -134,8 +136,8 @@ public class MultiForEachTag extends BaseLoopTag
       TagContext context = getContext();
       Map<String, Object> beans = context.getBeans();
 
-      Map<String, String> attributes = getAttributes();
-      String attrCollExpressions = attributes.get(ATTR_COLLECTIONS);
+      Map<String, RichTextString> attributes = getAttributes();
+      String attrCollExpressions = attributes.get(ATTR_COLLECTIONS).getString();
       String[] collExpressions = attrCollExpressions.split(SPEC_SEP);
       myCollections = new ArrayList<Collection<Object>>();
       myCollectionNames = new ArrayList<String>();
@@ -166,7 +168,7 @@ public class MultiForEachTag extends BaseLoopTag
       }
 
       myVarNames = new ArrayList<String>();
-      String attrVarNames = attributes.get(ATTR_VARS);
+      String attrVarNames = attributes.get(ATTR_VARS).getString();
       String[] varExpressions = attrVarNames.split(SPEC_SEP);
       for (String varExpression : varExpressions)
       {
@@ -178,7 +180,8 @@ public class MultiForEachTag extends BaseLoopTag
       if (myCollections.size() != myVarNames.size())
          throw new TagParseException("The number of collections and the number of variable names must be the same.");
 
-      String attrIndexVarName = attributes.get(ATTR_INDEXVAR);
+      RichTextString rtsIndexVarName = attributes.get(ATTR_INDEXVAR);
+      String attrIndexVarName = (rtsIndexVarName != null) ? rtsIndexVarName.getString() : null;
       if (attrIndexVarName != null)
          myIndexVarName = Expression.evaluateString(attrIndexVarName, beans).toString();
 
@@ -192,7 +195,8 @@ public class MultiForEachTag extends BaseLoopTag
       }
 
       myLimit = 0;
-      String strLimit = attributes.get(ATTR_LIMIT);
+      RichTextString rtsAttrLimit = attributes.get(ATTR_LIMIT);
+      String strLimit = (rtsAttrLimit != null) ? rtsAttrLimit.getString() : null;
       if (strLimit != null)
       {
          try

@@ -5,10 +5,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.junit.Test;
 import static org.junit.Assert.*;
+
+import net.sf.jett.util.RichTextStringUtil;
 
 /**
  * This JUnit Test class tests the evaluation of the "null" tag in bodiless and
@@ -56,8 +60,11 @@ public class NullTagTest extends TestCase
    protected void check(Workbook workbook)
    {
       Sheet sheet = workbook.getSheetAt(0);
-      assertEquals("${doesNotExist}", getStringCellValue(sheet, 2, 0));
-      assertEquals("${doesNotExistEither}", getStringCellValue(sheet, 4, 0));
+      assertEquals("${doesNotExist}", TestUtility.getStringCellValue(sheet, 2, 0));
+      RichTextString rts = TestUtility.getRichTextStringCellValue(sheet, 2, 0);
+      Font font = TestUtility.convertToFont(RichTextStringUtil.getFontAtIndex(rts, 0), workbook);
+      assertEquals("ff0000", TestUtility.getFontColorString(workbook, font));
+      assertEquals("${doesNotExistEither}", TestUtility.getStringCellValue(sheet, 4, 0));
    }
 
    /**

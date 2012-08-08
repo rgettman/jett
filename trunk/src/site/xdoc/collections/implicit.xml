@@ -86,10 +86,36 @@
                 the block will not be shifted out of the way to make room for additional data.
                 Default: false (shifting will occur).  This acts just like the "fixed" attribute of
                 <a href="../tags/looping.html">looping tags</a>.</li>
+                <li><strong>pastEndAction: String</strong> Optional.  Determines what happens to
+                Cells that reference Collections that are exhausted and beyond iteration.  This
+                acts just like the "pastEndAction" attribute of
+                <a href="../tags/looping.html">looping tags</a>.  Here are the possible values:</li>
+                <ul>
+                    <li><em>clear</em> This works just like the "elseAction" attribute of the
+                    <a href="../tags/if.html">if tag</a>: remove the contents of the cells.
+                    This is the default.</li>
+                    <li><em>remove</em> This works just like the "elseAction" attribute of the
+                    <a href="../tags/if.html">if tag</a>: remove the cells, including cell contents,
+                    formatting, borders, and merged regions.</li>
+                </ul>
+                <li><strong>groupDir: String</strong> Optional.  Create an Excel Group (Outline)
+                on the resultant rows or columns.  This acts just like the "groupDir" attribute of
+                <a href="../tags/looping.html">looping tags</a>.  Here are the possible values:</li>
+                <ul>
+                    <li><em>rows</em> Create an Excel Group (Outline) out of the resultant
+                    rows.</li>
+                    <li><em>cols</em> Create an Excel Group (Outline) out of the resultant
+                    columns.</li>
+                    <li><em>none</em> Do not create an Excel Group (Outline).  This is the default.</li>
+                </ul>
+                <li><strong>collapse: boolean</strong> Optional.  This works just like the
+                "collapse" attribute of <a href="../tags/looping.html">looping tags</a>: This
+                determines whether the Excel Group (Outline) created is in a collapsed state.  The
+                default is <code>false</code> (not collapsed).</li>
             </ul>
             <p>Once JETT has determined the desired block of cells, it will scan the entire block
             for any references to any Collections in any Expression.  Then, it will process an
-            implicit "multiForEach" tag on the entire block.</p>
+            implicit <a href="../tags/multiForEach.html">multiForEach tag</a> on the entire block.</p>
             <p>In this example, notice how "Company: Whatsit" is not copied with the rest of the
             block.</p>
             <table style="width: 750px;">

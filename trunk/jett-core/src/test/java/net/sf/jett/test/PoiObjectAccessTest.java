@@ -57,16 +57,16 @@ public class PoiObjectAccessTest extends TestCase
    protected void check(Workbook workbook)
    {
       Sheet poiObjects = workbook.getSheetAt(0);
-      assertEquals("Number of Sheets: 2", getStringCellValue(poiObjects, 0, 0));
-      assertTrue(isCellBlank(poiObjects, 1, 0));
-      assertTrue(isCellBlank(poiObjects, 2, 0));
+      assertEquals("Number of Sheets: 2", TestUtility.getStringCellValue(poiObjects, 0, 0));
+      assertTrue(TestUtility.isCellBlank(poiObjects, 1, 0));
+      assertTrue(TestUtility.isCellBlank(poiObjects, 2, 0));
       assertEquals("JETT Header - First Sheet", poiObjects.getHeader().getCenter());
       assertEquals("Last Modified: 2012 Jun 20", poiObjects.getFooter().getRight());
 
       Sheet second = workbook.getSheetAt(1);
-      assertEquals("Number of Sheets: 2", getStringCellValue(second, 0, 0));
-      assertTrue(isCellBlank(second, 1, 0));
-      assertTrue(isCellBlank(second, 2, 0));
+      assertEquals("Number of Sheets: 2", TestUtility.getStringCellValue(second, 0, 0));
+      assertTrue(TestUtility.isCellBlank(second, 1, 0));
+      assertTrue(TestUtility.isCellBlank(second, 2, 0));
       assertEquals("JETT Header - Second Sheet", second.getHeader().getCenter());
       assertEquals("Last Modified: 2012 Jun 20", second.getFooter().getRight());
    }

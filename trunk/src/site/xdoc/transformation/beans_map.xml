@@ -50,6 +50,23 @@ catch (InvalidFormatException e)
    System.err.println("InvalidFormatException reading " + inPath + ": " + e.getMessage();
 }
             </source>
+            <p>Alternatively, JETT can handle the reading and writing of Excel files, if it is
+            supplied with the input (template) and output (resultant) filenames.</p>
+            <source>
+try
+{
+   ExcelTransformer transformer = new ExcelTransformer();
+   transformer.transform(inPath, outPath, beans);
+}
+catch (IOException e)
+{
+   System.err.println("IOException reading " + inPath + ": " + e.getMessage());
+}
+catch (InvalidFormatException e)
+{
+   System.err.println("InvalidFormatException reading " + inPath + ": " + e.getMessage();
+}
+            </source>
         </section>
     </body>
 </document>

@@ -11,13 +11,23 @@
 List&lt;String&gt; templateSheetNames = new ArrayList&lt;String&gt;();
 List&lt;String&gt; sheetNames = new ArrayList&lt;String&gt;();
 List&lt;Map&lt;String, Object&gt;&gt; beansList = new ArrayList&lt;Map&lt;String, Object&gt;&gt;();
-// Populate each list here with the same number of objects.
+// Populate each list here with the same number of objects, before calling "transform".
 Workbook workbook = transformer.transform(fileIn, templateSheetNames, sheetNames, beansList);
+            </source>
+            <p>It is also possible to let JETT handle the reading and writing of the Excel files
+            when supplying different beans Maps to different Sheets.  Use another overloaded
+            "transform" method in ExcelTransformer:</p>
+            <source>
+List&lt;String&gt; templateSheetNames = new ArrayList&lt;String&gt;();
+List&lt;String&gt; sheetNames = new ArrayList&lt;String&gt;();
+List&lt;Map&lt;String, Object&gt;&gt; beansList = new ArrayList&lt;Map&lt;String, Object&gt;&gt;();
+// Populate each list here with the same number of objects, before calling "transform".
+transformer.transform(inPath, outPath, templateSheetNames, sheetNames, beansList);
             </source>
         </section>
         <section name="Cloning Sheets">
             <p>It is also possible to specify that a certain sheet in the template spreadsheet
-            should be cloned, with a differet Map of beans supplied to each cloned Sheet.</p>
+            should be cloned, with a different Map of beans supplied to each cloned Sheet.</p>
             <p>To specify that a Sheet should be cloned, include multiple copies of the same
             template sheet name in the "templateSheetNames" list, along with unique sheet names in
             the "sheetNames" list, and separate maps of beans for each Sheet.</p>

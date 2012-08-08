@@ -8,8 +8,9 @@ import java.util.Map;
 import net.sf.jagg.AggregateValue;
 import net.sf.jagg.Aggregations;
 import net.sf.jagg.Aggregator;
-import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.RichTextString;
+import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
 import net.sf.jett.exception.TagParseException;
@@ -94,15 +95,16 @@ public class TotalTag extends BaseTag
 
       TagContext context = getContext();
       Map<String, Object> beans = context.getBeans();
-      Map<String, String> attributes = getAttributes();
+      Map<String, RichTextString> attributes = getAttributes();
 
-      String attrItems = attributes.get(ATTR_ITEMS);
+      String attrItems = attributes.get(ATTR_ITEMS).getString();
       Object items = Expression.evaluateString(attrItems, beans);
       if (!(items instanceof List))
          throw new TagParseException("The \"items\" expression is not a List: " + attrItems);
       myList = (List<Object>) items;
 
-      String attrParallelism = attributes.get(ATTR_PARALLEL);
+      RichTextString rtsParallelism = attributes.get(ATTR_PARALLEL);
+      String attrParallelism = (rtsParallelism != null) ? rtsParallelism.getString() : null;
       if (attrParallelism != null)
       {
          String parallelism = Expression.evaluateString(attrParallelism, beans).toString();
@@ -120,7 +122,7 @@ public class TotalTag extends BaseTag
          }
       }
 
-      String aggSpec = Expression.evaluateString(attributes.get(ATTR_VALUE), beans).toString();
+      String aggSpec = Expression.evaluateString(attributes.get(ATTR_VALUE).getString(), beans).toString();
       myAggregator = Aggregator.getAggregator(aggSpec);
    }
 
@@ -147,7 +149,7 @@ public class TotalTag extends BaseTag
       // Replace the bodiless tag text with the proper result.
       Row row = sheet.getRow(block.getTopRowNum());
       Cell cell = row.getCell(block.getLeftColNum());
-      SheetUtil.setCellValue(cell, value);
+      SheetUtil.setCellValue(cell, value, getAttributes().get(ATTR_VALUE));
 
       BlockTransformer transformer = new BlockTransformer();
       transformer.transform(context, getWorkbookContext());

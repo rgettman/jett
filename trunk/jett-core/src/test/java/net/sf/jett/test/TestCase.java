@@ -1,27 +1,22 @@
 package net.sf.jett.test;
 
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.IOException;
-import java.io.File;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.RichTextString;
-import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 import net.sf.jett.transform.ExcelTransformer;
-import net.sf.jett.util.SheetUtil;
 
 /**
  * A <code>TestCase</code> is the superclass for all JETT JUnit test classes.
@@ -40,6 +35,7 @@ public abstract class TestCase
    private static final String OUTPUT_SUFFIX = "Result";
    private static final String XLS_EXT = ".xls";
    private static final String XLSX_EXT = ".xlsx";
+   private static final String FILES_IND = "Files";
 
    private boolean amISetup = false;
    private Map<String, Object> myBeansMap;
@@ -62,8 +58,8 @@ public abstract class TestCase
          throw new RuntimeException("Couldn't create output directory: " + OUTPUT_DIR);
       }
       String excelNameBase = getExcelNameBase();
-      genericTest(OUTPUT_DIR + excelNameBase + OUTPUT_SUFFIX + XLS_EXT,
-                  TEMPLATES_DIR + excelNameBase + TEMPLATE_SUFFIX + XLS_EXT);
+      genericTest(TEMPLATES_DIR + excelNameBase + TEMPLATE_SUFFIX + XLS_EXT,
+                  OUTPUT_DIR + excelNameBase + OUTPUT_SUFFIX + XLS_EXT);
    }
 
    /**
@@ -81,155 +77,49 @@ public abstract class TestCase
          throw new RuntimeException("Couldn't create output directory: " + OUTPUT_DIR);
       }
       String excelNameBase = getExcelNameBase();
-      genericTest(OUTPUT_DIR + excelNameBase + OUTPUT_SUFFIX + XLSX_EXT,
-                  TEMPLATES_DIR + excelNameBase + TEMPLATE_SUFFIX + XLSX_EXT);
+      genericTest(TEMPLATES_DIR + excelNameBase + TEMPLATE_SUFFIX + XLSX_EXT,
+                  OUTPUT_DIR + excelNameBase + OUTPUT_SUFFIX + XLSX_EXT);
    }
 
+
    /**
-    * Gets the string value from a particular <code>Cell</code> on the given
-    * <code>Sheet</code>.  As a helper method, it is meant to be called from
-    * within the <code>check</code> method.
-    * @param sheet The <code>Sheet</code>.
-    * @param row The 0-based row index.
-    * @param col The 0-based column index.
-    * @return The string value, as a <code>String</code>.
-    * @see #check
+    * Tests the .xls template spreadsheet.  This is meant to have the
+    * <code>@Test</code> annotation in all concrete subclasses.  Also, each
+    * concrete subclass should simply call <code>super.testXls</code>.
+    * @throws IOException If an I/O error occurs.
+    * @throws InvalidFormatException If the input spreadsheet is invalid.
+    * @since 0.2.0
     */
-   protected String getStringCellValue(Sheet sheet, int row, int col)
+   public void testXlsFiles() throws IOException, InvalidFormatException
    {
-      Row r = sheet.getRow(row);
-      if (r != null)
+      File fOutputDir = new File(OUTPUT_DIR);
+      if (!fOutputDir.exists() && !fOutputDir.mkdirs())
       {
-         Cell c = r.getCell(col);
-         if (c != null)
-            return c.getStringCellValue();
+         throw new RuntimeException("Couldn't create output directory: " + OUTPUT_DIR);
       }
-      return null;
+      String excelNameBase = getExcelNameBase();
+      genericTestFiles(TEMPLATES_DIR + excelNameBase + TEMPLATE_SUFFIX + XLS_EXT,
+                       OUTPUT_DIR + excelNameBase + FILES_IND + OUTPUT_SUFFIX + XLS_EXT);
    }
 
    /**
-    * Gets the <code>RichTextString</code> value from a particular
-    * <code>Cell</code> on the given <code>Sheet</code>.  As a helper method,
-    * it is meant to be called from within the <code>check</code> method.
-    * @param sheet The <code>Sheet</code>.
-    * @param row The 0-based row index.
-    * @param col The 0-based column index.
-    * @return The <code>RichTextStringValue</code>.
-    * @see #check
+    * Tests the .xlsx template spreadsheet.  This is meant to have the
+    * <code>@Test</code> annotation in all concrete subclasses.  Also, each
+    * concrete subclass should simply call <code>super.testXlsx</code>.
+    * @throws IOException If an I/O error occurs.
+    * @throws InvalidFormatException If the input spreadsheet is invalid.
+    * @since 0.2.0
     */
-   protected RichTextString getRichTextStringCellValue(Sheet sheet, int row, int col)
+   public void testXlsxFiles() throws IOException, InvalidFormatException
    {
-      Row r = sheet.getRow(row);
-      if (r != null)
+      File fOutputDir = new File(OUTPUT_DIR);
+      if (!fOutputDir.exists() && !fOutputDir.mkdirs())
       {
-         Cell c = r.getCell(col);
-         if (c != null)
-            return c.getRichStringCellValue();
+         throw new RuntimeException("Couldn't create output directory: " + OUTPUT_DIR);
       }
-      return null;
-   }
-
-   /**
-    * Gets the numeric value from a particular <code>Cell</code> on the given
-    * <code>Sheet</code>.  As a helper method, it is meant to be called from
-    * within the <code>check</code> method.
-    * @param sheet The <code>Sheet</code>.
-    * @param row The 0-based row index.
-    * @param col The 0-based column index.
-    * @return The numeric value, as a <code>double</code>.
-    * @see #check
-    */
-   protected double getNumericCellValue(Sheet sheet, int row, int col)
-   {
-      Row r = sheet.getRow(row);
-      if (r != null)
-      {
-         Cell c = r.getCell(col);
-         if (c != null)
-            return c.getNumericCellValue();
-      }
-      return Double.NaN;
-   }
-
-   /**
-    * Gets the string formula value from a particular <code>Cell</code> on the
-    * given <code>Sheet</code>.  As a helper method, it is meant to be called
-    * from within the <code>check</code> method.
-    * @param sheet The <code>Sheet</code>.
-    * @param row The 0-based row index.
-    * @param col The 0-based column index.
-    * @return The string formula value.
-    * @see #check
-    */
-   protected String getFormulaCellValue(Sheet sheet, int row, int col)
-   {
-      Row r = sheet.getRow(row);
-      if (r != null)
-      {
-         Cell c = r.getCell(col);
-         if (c != null)
-            return c.getCellFormula();
-      }
-      return null;
-   }
-
-   /**
-    * Determines whether the <code>Cell</code> on the given <code>Sheet</code>
-    * at the given row and column indexes is blank: either it doesn't exist, or
-    * it exists and the cell type is blank.  As a helper method, it is meant to
-    * be called from within the <code>check</code> method.
-    * @param sheet The <code>Sheet</code>.
-    * @param row The 0-based row index.
-    * @param col The 0-based column index.
-    * @return Whether the <code>Cell</code> is blank.
-    * @see #check
-    */
-   protected boolean isCellBlank(Sheet sheet, int row, int col)
-   {
-      return SheetUtil.isCellBlank(sheet, row, col);
-   }
-
-   /**
-    * Determines whether the <code>CellRangeAddress</code>, representing a
-    * "merged region", exists in the given <code>Sheet</code>.  As a helper
-    * method, it is meant to be called from within the <code>check</code>
-    * method.
-    * @param sheet The <code>Sheet</code>.
-    * @param region A <code>CellRangeAddress</code>.
-    * @return <code>true</code> if the given region exists in the given sheet,
-    *    <code>false</code> otherwise.
-    * @see #check
-    */
-   protected boolean isMergedRegionPresent(Sheet sheet, CellRangeAddress region)
-   {
-      for (int i = 0; i < sheet.getNumMergedRegions(); i++)
-      {
-         CellRangeAddress candidate = sheet.getMergedRegion(i);
-         if (candidate.getFirstRow() == region.getFirstRow() &&
-             candidate.getLastRow() == region.getLastRow() &&
-             candidate.getFirstColumn() == region.getFirstColumn() &&
-            candidate.getLastColumn() == region.getLastColumn())
-         {
-            return true;
-         }
-      }
-      return false;
-   }
-
-   /**
-    * Returns the <code>Cell</code> (if any), on the given <code>Sheet</code>,
-    * at the given row and column indexes.
-    * @param sheet The <code>Sheet</code>.
-    * @param row The 0-based row index.
-    * @param col The 0-based column index.
-    * @return The <code>Cell</code> or <code>null</code> if it doesn't exist.
-    */
-   protected Cell getCell(Sheet sheet, int row, int col)
-   {
-      Row r = sheet.getRow(row);
-      if (r != null)
-         return r.getCell(col);
-      return null;
+      String excelNameBase = getExcelNameBase();
+      genericTestFiles(TEMPLATES_DIR + excelNameBase + TEMPLATE_SUFFIX + XLSX_EXT,
+                       OUTPUT_DIR + excelNameBase + FILES_IND + OUTPUT_SUFFIX + XLSX_EXT);
    }
 
    /**
@@ -247,8 +137,8 @@ public abstract class TestCase
       Workbook workbook;
       try
       {
-         fileOut = new FileOutputStream(inFilename);
-         fileIn = new BufferedInputStream(new FileInputStream(outFilename));
+         fileOut = new FileOutputStream(outFilename);
+         fileIn = new BufferedInputStream(new FileInputStream(inFilename));
 
          ExcelTransformer transformer = new ExcelTransformer();
          setupTransformer(transformer);
@@ -279,11 +169,35 @@ public abstract class TestCase
          }
 
          // Becomes invalid after write().
-         if (workbook instanceof XSSFWorkbook)
-            check(workbook);
+         Error error = null;
+         RuntimeException exception = null;
+         try
+         {
+            if (workbook instanceof XSSFWorkbook)
+               check(workbook);
+         }
+         catch (RuntimeException e)
+         {
+            exception = e;
+         }
+         catch (Error e)
+         {
+            error = e;
+         }
 
          workbook.write(fileOut);
          fileOut.close();
+
+         if (error != null)
+         {
+            error.printStackTrace();
+            fail();
+         }
+         if (exception != null)
+         {
+            exception.printStackTrace();
+            throw exception;
+         }
 
          // Check HSSF after writing to see errors.
          if (workbook instanceof HSSFWorkbook)
@@ -307,6 +221,66 @@ public abstract class TestCase
    }
 
    /**
+    * Runs the actual test on Excel files, from input template filename to
+    * output filename.
+    * @param inFilename The input filename.
+    * @param outFilename The output filename.
+    * @throws IOException If an I/O error occurs.
+    * @throws InvalidFormatException If the input spreadsheet is invalid.
+    * @since 0.2.0
+    */
+   protected void genericTestFiles(String inFilename, String outFilename)
+      throws IOException, InvalidFormatException
+   {
+      InputStream fileIn = null;
+      Workbook workbook;
+      try
+      {
+         ExcelTransformer transformer = new ExcelTransformer();
+         setupTransformer(transformer);
+         if (isMultipleBeans())
+         {
+            if (!amISetup)
+            {
+               myTemplateSheetNames = getListOfTemplateSheetNames();
+               myResultSheetNames = getListOfResultSheetNames();
+               myListOfBeansMaps = getListOfBeansMaps();
+               amISetup = true;
+            }
+            assertNotNull(myTemplateSheetNames);
+            assertNotNull(myResultSheetNames);
+            assertNotNull(myListOfBeansMaps);
+            transformer.transform(inFilename, outFilename,
+               myTemplateSheetNames, myResultSheetNames, myListOfBeansMaps);
+         }
+         else
+         {
+            if (!amISetup)
+            {
+               myBeansMap = getBeansMap();
+               amISetup = true;
+            }
+            assertNotNull(myBeansMap);
+            transformer.transform(inFilename, outFilename, myBeansMap);
+         }
+
+         fileIn = new BufferedInputStream(new FileInputStream(outFilename));
+         workbook = WorkbookFactory.create(fileIn);
+
+         check(workbook);
+      }
+      finally
+      {
+         try
+         {
+            if (fileIn != null)
+               fileIn.close();
+         }
+         catch (IOException ignored) {}
+      }
+   }
+
+   /**
     * Returns the Excel name base for the template and resultant spreadsheets
     * for this test.
     * @return The Excel name base for this test.
@@ -323,15 +297,10 @@ public abstract class TestCase
 
    /**
     * Validate the newly created resultant <code>Workbook</code> with JUnit
-    * assertions.  Helper methods are available to extract values or determine
-    * facts from <code>Cells</code>.
+    * assertions.  Helper methods are available in the <code>TestUtility</code>
+    * class.
     * @param workbook A <code>Workbook</code>.
-    * @see #getCell
-    * @see #getFormulaCellValue
-    * @see #getNumericCellValue
-    * @see #getStringCellValue
-    * @see #isCellBlank
-    * @see #isMergedRegionPresent
+    * @see TestUtility
     */
    protected abstract void check(Workbook workbook);
 

@@ -7,7 +7,7 @@
         <section name="Comparison of JETT to jXLS">
         <p>JETT is similar to jXLS, because JETT performs the same function -- translating Excel
         template spreadsheets into spreadsheets with the desired data populated.  Here, JETT
-        0.1.0 is compared with the latest version of jXLS, 1.0:</p>
+        0.2.0 is compared with the latest version of jXLS, 1.0:</p>
         <table style="width: 750px;">
             <tr>
                 <th style="width: 200px">Feature</th>
@@ -50,6 +50,12 @@
                         <li><code>left=n</code> and/or <code>right=n</code> Include other columns
                         to the left and/or the right in the repeating block.</li>
                         <li><code>extraRows=n</code> Include extra rows in each repeating block.</li>
+                        <li><code>pastEndAction=action</code> State what action is to be taken when
+                        processing Collections with less data than other Collections.</li>
+                        <li><code>groupDir=dir</code> Create an Excel Group (Outline) with rows or
+                        columns on the processed data.</li>
+                        <li><code>collapse=true/false</code> When creating an Excel Group
+                        (Outline), decide whether to collapse the group.</li>
                     </ul>
                 </td>
             </tr>
@@ -97,17 +103,24 @@
             </tr>
             <tr>
                 <td>Transform (Basic)</td>
-                <td>transformer.<br/>transformXLS(String srcFilePath, Map beanParams, String destFilePath);
-                <br/>transformer.<br/>transformXLS(InputStream is, Map beanParams);</td>
-                <td>transformer.<br/>transform(InputStream is, Map&lt;String, Object&gt; beans);</td>
+                <td><ul>
+                    <li>transformer.<br/>transformXLS(String srcFilePath, Map beanParams, String destFilePath);</li>
+                    <li>transformer.<br/>transformXLS(InputStream is, Map beanParams);</li></ul></td>
+                <td><ul>
+                    <li>transformer.<br/>transform(InputStream is, Map&lt;String, Object&gt; beans);</li>
+                    <li>transformer.transform(String inFilename, String outFilename, Map&lt;String, Object&gt; beans)</li></ul></td>
             </tr>
             <tr>
                 <td>Transform One Template Sheet Into Many Result Sheets</td>
-                <td>transformer.<br/>transformMultipleSheetsList(
+                <td><ul>
+                    <li>transformer.<br/>transformMultipleSheetsList(
                 <br/>InputStream is, List objects, List newSheetNames,
-                String beanName, Map beanParams, int startSheetNum);</td>
-                <td>transformer.<br/>transform(InputStream is, List&lt;String&gt; templateSheetNamesList,
-                List&lt;String&gt; newSheetNamesList, List&lt;Map&lt;String, Object&gt;&gt; beansList);</td>
+                String beanName, Map beanParams, int startSheetNum);</li></ul></td>
+                <td><ul>
+                    <li>transformer.<br/>transform(InputStream is, List&lt;String&gt; templateSheetNamesList,
+                List&lt;String&gt; newSheetNamesList, List&lt;Map&lt;String, Object&gt;&gt; beansList);</li>
+                    <li>transformer.<br/>transform(String inFilename, String outFilename, List&lt;String&gt; templateSheetNamesList,
+                List&lt;String&gt; newSheetNamesList, List&lt;Map&lt;String, Object&gt;&gt; beansList)</li></ul></td>
             </tr>
             <tr>
                 <td>Fixed Collection Names</td>
@@ -161,6 +174,7 @@
                         <li>No <code>fixed</code> atttribute, but one can use the "fixed size
                         collection" feature.</li>
                         <li>No <code>pastEndAction</code> attribute.</li>
+                        <li>No <code>groupDir</code> or <code>collapse</code> attributes.</li>
                     </ul>
                 </td>
                 <td>
@@ -179,6 +193,10 @@
                         way; assume that the spreadsheet has "room" for the collection content.</li>
                         <li><code>pastEndAction</code> attribute - Controls what happens when the
                         iterations proceeds beyond the end of a Collection.</li>
+                        <li><code>groupDir</code> attribute - After processing, create an Excel
+                        Group (Outline) around all of the processed data, in rows or columns.</li>
+                        <li><code>collapse</code> attribute - If creating an Excel Group (Outline),
+                        decide whether to collapse the group.</li>
                     </ul>
                 </td>
             </tr>
@@ -216,8 +234,56 @@
             </tr>
             <tr>
                 <td>Grouping Excel Rows</td>
-                <td>jx:outline tag</td>
+                <td>
+                    <p>jx:outline tag, grouping rows only</p>
+                    <ul>
+                        <li><code>detail</code> attribute - Whether to show the newly created Excel
+                        Group (Outline) as uncollapsed.</li>
+                    </ul>
+                </td>
+                <td>
+                    <p>jt:group tag, grouping rows or columns</p>
+                    <ul>
+                        <li><code>groupDir</code> attribute - Whether to create the Excel Group
+                        (Outline) in rows or columns.</li>
+                        <li><code>collapse</code> attribute - Whether to show the newly created
+                        Excel Group (Outline) as collapsed.</li>
+                    </ul>
+                    <p>It is also possible to create an Excel Group (Outline) around a dynamically
+                    determined range of rows or columns with looping tags such as "forEach".</p>
+                </td>
+            </tr>
+            <tr>
+                <td>Excel Comment Creation</td>
                 <td>Not supported</td>
+                <td>
+                    <p>jt:comment tag</p>
+                    <ul>
+                        <li><code>value</code> attribute - The normal content of the Cell in which
+                        to create a Comment.</li>
+                        <li><code>author</code> attribute - Specify the author of the comment.</li>
+                        <li><code>comment</code> attribute - Specify the content of the comment.</li>
+                        <li><code>visible</code> attribute - Control whether the comment is
+                        initially visible.</li>
+                    </ul>
+                    <p>Because JETT is built on Apache POI, creating Comments on a Sheet will most
+                    likely corrupt any pre-existing Charts or other Drawings, but only for .xls
+                    spreadsheets (97-2003 versions).</p>
+                </td>
+            </tr>
+            <tr>
+                <td>Hyperlink Creation</td>
+                <td>Not supported</td>
+                <td>
+                    <p>jt:hyperlink tag</p>
+                    <ul>
+                        <li><code>type</code> attribute - Control the type of the hyperlink:
+                        <em>url</em>, <em>email</em>, <em>file</em>, or <em>doc</em>.</li>
+                        <li><code>address</code> attribute - The address of the hyperlink.</li>
+                        <li><code>value</code> attribute - The contents of the Cell with the
+                        hyperlink, acting as the label for the hyperlink.</li>
+                    </ul>
+                </td>
             </tr>
             <tr>
                 <td>Expression Output</td>
@@ -273,7 +339,8 @@
             <tr>
                 <td>Expose JEXL Engine Properties</td>
                 <td>Not supported.</td>
-                <td>Silent and Lenient flags are exposed.</td>
+                <td>Silent and Lenient flags are exposed.  Controlling the size of the JEXL Engine
+                parse cache is exposed.  Adding JEXL custom namespace functions is exposed.</td>
             </tr>
         </table>
         </section>

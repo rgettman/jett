@@ -3,6 +3,8 @@ package net.sf.jett.tag;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.poi.ss.usermodel.RichTextString;
+
 import net.sf.jett.exception.TagParseException;
 import net.sf.jett.parser.TagParser;
 import net.sf.jett.transform.WorkbookContext;
@@ -28,6 +30,8 @@ public class TagLibraryRegistry
     * the given namespace.
     * @param namespace The namespace.
     * @param library The <code>TagLibrary</code> to register.
+    * @throws IllegalArgumentException If the namespace has already been
+    *    registered.
     */
    public void registerTagLibrary(String namespace, TagLibrary library)
    {
@@ -57,7 +61,7 @@ public class TagLibraryRegistry
          return null;
       String namespace = parser.getNamespace();
       String tagName = parser.getTagName();
-      Map<String, String> attributes = parser.getAttributes();
+      Map<String, RichTextString> attributes = parser.getAttributes();
       if (namespace == null || tagName == null)
          return null;
       TagLibrary library = myRegistry.get(namespace);

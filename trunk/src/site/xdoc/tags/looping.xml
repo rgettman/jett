@@ -17,7 +17,7 @@
                 <li><a href="forEach.html">"forEach" tag</a></li>
                 <li><a href="multiForEach.html">"multiForEach" tag</a></li>
             </ul>
-            <p>All looping tags support a few common attributes:</p>
+            <p>All looping tags support several common attributes:</p>
             <h1>Attributes</h1>
             <ul>
                 <li><strong>copyRight: Boolean</strong> Optional.  Normally, content below the
@@ -42,6 +42,21 @@
                     <a href="if.html">if tag</a>: remove the cells, including cell contents,
                     formatting, borders, and merged regions.</li>
                 </ul>
+                <li><strong>groupDir: String</strong> Optional.  This works just like the
+                "groupDir" attribute of the <a href="group.html">group tag</a>: if specified, then
+                JETT will create an Excel Group (Outline) out of the resultant rows or columns.
+                Here are the possible values:</li>
+                <ul>
+                    <li><em>rows</em> Create an Excel Group (Outline) out of the resultant
+                    rows.</li>
+                    <li><em>cols</em> Create an Excel Group (Outline) out of the resultant
+                    columns.</li>
+                    <li><em>none</em> Do not create an Excel Group (Outline).  This is the default.</li>
+                </ul>
+                <li><strong>collapse: boolean</strong> Optional.  This works just like the
+                "collapse" attribute of the <a href="group.html">group tag</a>: This determines
+                whether the Excel Group (Outline) created is in a collapsed state.  The default is
+                <code>false</code> (not collapsed).</li>
             </ul>
         </section>
     </body>

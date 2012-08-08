@@ -1,14 +1,15 @@
 package net.sf.jett.tag;
 
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.util.CellRangeAddress;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.RichTextString;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.util.CellRangeAddress;
 
 import net.sf.jett.exception.TagParseException;
 import net.sf.jett.expression.Expression;
@@ -24,7 +25,7 @@ import net.sf.jett.util.SheetUtil;
  * <br>Attributes:
  * <ul>
  * <li>factor (required): <code>int</code>
- * <li>value (required): <code>String</code>
+ * <li>value (required): <code>RichTextString</code>
  * <li>expandRight (optional): <code>boolean</code>
  * </ul>
  */
@@ -52,7 +53,7 @@ public class SpanTag extends BaseTag
 
    private int myFactor = 1;
    private boolean amIExplicitlyExpandingRight = false;
-   private String myValue;
+   private RichTextString myValue;
 
    /**
     * Returns this <code>Tag's</code> name.
@@ -90,7 +91,7 @@ public class SpanTag extends BaseTag
    {
       TagContext context = getContext();
       Map<String, Object> beans = context.getBeans();
-      Map<String, String> attributes = getAttributes();
+      Map<String, RichTextString> attributes = getAttributes();
       Block block = context.getBlock();
 
       if (!isBodiless())
@@ -98,7 +99,7 @@ public class SpanTag extends BaseTag
 
       myValue = attributes.get(ATTR_VALUE);
 
-      String attrFactor = attributes.get(ATTR_FACTOR);
+      String attrFactor = attributes.get(ATTR_FACTOR).getString();
       if (attrFactor != null)
       {
          Object factor = Expression.evaluateString(attrFactor, beans);
@@ -112,7 +113,8 @@ public class SpanTag extends BaseTag
             throw new TagParseException("SpanTag: factor must be a non-negative integer: " + attrFactor);
       }
 
-      String attrExpandRight = attributes.get(ATTR_EXPAND_RIGHT);
+      RichTextString rtsExpandRight = attributes.get(ATTR_EXPAND_RIGHT);
+      String attrExpandRight = (rtsExpandRight != null) ? rtsExpandRight.getString() : null;
       if (attrExpandRight != null)
       {
          Object expandRight = Expression.evaluateString(attrExpandRight, beans);

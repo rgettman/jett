@@ -5,7 +5,7 @@
     </properties>
     <body>
         <section name="Apache Commons JEXL Expressions">
-            <p>JETT leverages <a href="http://commons.apache.org/">Apache Commons JEXL</a> to
+            <p>JETT leverages <a href="http://commons.apache.org/jexl/">Apache Commons JEXL</a> to
             evaluate JEXL ("Java Expression Language") Expressions contained in the template
             spreadsheet.  JETT interprets everything between "${" and "}" to be a JEXL Expression.
             The JEXL Expression is evaluated as the result of getting the property "property" from
@@ -51,6 +51,8 @@ beans.put("beanName", beanName);
                     <td style="width: 150px;">25.00%</td>
                 </tr>
             </table>
+            <p>It is also possible to <a href="../misc/jexl_settings.html">register functions in
+            custom namespaces</a>, to reference custom functions within JEXL.</p>
         </section>
     </body>
 </document>

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Sheet;
 
 import net.sf.jett.exception.TagParseException;
@@ -16,7 +17,7 @@ import net.sf.jett.util.SheetUtil;
  */
 public abstract class BaseTag implements Tag
 {
-   private Map<String, String> myAttributes;
+   private Map<String, RichTextString> myAttributes;
    private TagContext myContext;
    private WorkbookContext myWorkbookContext;
    private boolean amIBodiless;
@@ -26,7 +27,7 @@ public abstract class BaseTag implements Tag
     * (possibly empty) <code>Map</code> of attribute names and values.
     * @param attributes A <code>Map</code> of attribute names and values.
     */
-   public void setAttributes(Map<String, String> attributes)
+   public void setAttributes(Map<String, RichTextString> attributes)
    {
       myAttributes = attributes;
    }
@@ -35,7 +36,7 @@ public abstract class BaseTag implements Tag
     * Returns the <code>Map</code> of attribute names and attribute values.
     * @return The <code>Map</code> of attribute names and attribute values.
     */
-   public Map<String, String> getAttributes()
+   public Map<String, RichTextString> getAttributes()
    {
       return myAttributes;
    }
@@ -117,7 +118,7 @@ public abstract class BaseTag implements Tag
     */
    public void checkAttributes()
    {
-      Map<String, String> attributes = getAttributes();
+      Map<String, RichTextString> attributes = getAttributes();
       List<String> required = getRequiredAttributes();
       List<String> optional = getOptionalAttributes();
       // Ensure all required attributes are found.

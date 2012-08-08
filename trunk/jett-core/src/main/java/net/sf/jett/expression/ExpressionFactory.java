@@ -6,14 +6,20 @@ import java.util.Map;
 import org.apache.commons.jexl2.JexlEngine;
 
 /**
- * An <code>ExpressionFactory</code> is a singleton factory class that creates
- * and uses a <code>JexlEngine</code> to create JEXL <code>Expressions</code>.
+ * <p>An <code>ExpressionFactory</code> is a singleton factory class that
+ * creates and uses a <code>JexlEngine</code> to create JEXL
+ * <code>Expressions</code>.</p>
+ *
+ * <p>It passes through several items to the JEXL Engine, including "silent"
+ * and "lenient" flags, the JEXL parse cache size, and JEXL namespace function
+ * objects (including jAgg functionality).</p>
  */
 public class ExpressionFactory
 {
    private static final ExpressionFactory theFactory = new ExpressionFactory();
 
    private JexlEngine myEngine;
+   private Map<String, Object> myFuncs = new HashMap<String, Object>();
 
    /**
     * Singleton constructor.
@@ -23,9 +29,9 @@ public class ExpressionFactory
       myEngine = new JexlEngine();
       myEngine.setLenient(true);
       myEngine.setSilent(false);
-      Map<String, Object> funcs = new HashMap<String, Object>();
-      myEngine.setFunctions(funcs);
-      funcs.put("jagg", JaggFuncs.class);
+      myFuncs = new HashMap<String, Object>();
+      myEngine.setFunctions(myFuncs);
+      myFuncs.put("jagg", JaggFuncs.class);
    }
 
    /**
@@ -68,6 +74,38 @@ public class ExpressionFactory
    public boolean isSilent()
    {
       return myEngine.isSilent();
+   }
+
+   /**
+    * Sets the size of the Expression cache to be used inside the JEXL Engine.
+    * @param size The size of the cache.
+    * @since 0.2.0
+    */
+   public void setCache(int size)
+   {
+      myEngine.setCache(size);
+   }
+
+   /**
+    * Registers an object under the given namespace in the JEXL Engine.  Each
+    * public method in the object's class is exposed as a "function" available
+    * in the JEXL Engine.  To use instance methods, pass an instance of the
+    * object.  To use class methods, pass a <code>Class</code> object.
+    * @param namespace The namespace.
+    * @param funcsObject An object (or a <code>Class</code>) containing the
+    *    methods to expose as JEXL Engine functions.
+    * @throws IllegalArgumentException If the namespace has already been
+    *    registered.
+    * @since 0.2.0
+    */
+   public void registerFuncs(String namespace, Object funcsObject)
+   {
+      if (myFuncs.get(namespace) != null)
+      {
+         throw new IllegalArgumentException("A functions object with namespace \"" +
+            namespace + "\" has already been registered.");
+      }
+      myFuncs.put(namespace, funcsObject);
    }
 
    /**

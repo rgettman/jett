@@ -4,8 +4,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.RichTextString;
 
 import net.sf.jett.exception.TagParseException;
+import net.sf.jett.util.RichTextStringUtil;
 
 /**
  * A <code>TagParser</code> parses one JETT XML tag, either a begin tag or an
@@ -33,12 +35,14 @@ public class TagParser
 
    private Cell myCell;
    private String myCellText;
+   private RichTextString myCellRichTextString;
+   private int myStartIdx;
    private String myNamespace;
    private String myTagName;
    private boolean amIATag;
    private boolean amIEndTag;
    private boolean amIBodiless;
-   private Map<String, String> myAttributes = new HashMap<String, String>();
+   private Map<String, RichTextString> myAttributes = new HashMap<String, RichTextString>();
    private int myTagStartIdx;
    private int myTagEndIdx;
 
@@ -61,6 +65,8 @@ public class TagParser
    {
       myCell = cell;
       setCellText(cell.getStringCellValue().substring(startIdx));
+      myStartIdx = startIdx;
+      myCellRichTextString = cell.getRichStringCellValue();
    }
 
    /**
@@ -179,7 +185,12 @@ public class TagParser
                // Add newly complete attribute name/value pair.
                if (attrName == null)
                   throw new TagParseException("Value found without attribute name: " + myCellText);
-               myAttributes.put(attrName, scanner.getCurrLexeme());
+               // Store the RichTextString attribute value.
+               int pos = myStartIdx + scanner.getNextPosition();
+               RichTextString attrValue = RichTextStringUtil.substring(myCellRichTextString,
+                  myCell.getSheet().getWorkbook().getCreationHelper(),
+                  pos - scanner.getCurrLexeme().length(), pos);
+               myAttributes.put(attrName, attrValue);
                attrName = null;
             }
             else
@@ -303,7 +314,7 @@ public class TagParser
     * is returned as <code>["attr1"=>"value1", "attr2"=>"value2"]</code>.
     * @return A <code>Map</code> of attribute names and attribute values.
     */
-   public Map<String, String> getAttributes()
+   public Map<String, RichTextString> getAttributes()
    {
       return myAttributes;
    }

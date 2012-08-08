@@ -103,4 +103,24 @@ public class Team
          return 0;
       return (double) myWins / ((double) myWins + myLosses);
    }
+
+   /**
+    * The string representation.
+    * @return The string representation.
+    * @since 0.2.0
+    */
+   public String toString()
+   {
+      StringBuilder buf = new StringBuilder();
+      buf.append(myCity);
+      buf.append(" ");
+      buf.append(myName);
+      buf.append(" (");
+      buf.append(myWins);
+      buf.append("-");
+      buf.append(myLosses);
+      buf.append(")");
+      return buf.toString();
+
+   }
 }

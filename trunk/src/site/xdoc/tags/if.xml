@@ -365,11 +365,13 @@
         </section>
         <section name="Bodiless If">
             <p>In the bodiless form, the "if" tag also requires a "then" tag, and it can accept an
-            optional "else" tag.</p>
+            optional "else" tag.  Rich Text String formatting is supported in the "then" and "else"
+            attributes.</p>
             <table style="width: 750px;">
                 <tr>
                     <td style="width: 150px;">&nbsp;</td>
-                    <td style="width: 450px;">&lt;jt:if test="${condition}" then="${value1}" else="${value2}"/&gt;</td>
+                    <td style="width: 450px;">&lt;jt:if test="${condition}" then="<span class="greenText">${value1}</span>"
+                        else="<span class="redText">${value2}</span>"/&gt;</td>
                     <td style="width: 150px;">&nbsp;</td>
                 </tr>
             </table>
@@ -377,7 +379,7 @@
             <table style="width: 750px;">
                 <tr>
                     <td style="width: 150px;">&nbsp;</td>
-                    <td style="width: 450px;">Result1</td>
+                    <td style="width: 450px;"><span class="greenText">Result1</span></td>
                     <td style="width: 150px;">&nbsp;</td>
                 </tr>
             </table>
@@ -385,7 +387,7 @@
             <table style="width: 750px;">
                 <tr>
                     <td style="width: 150px;">&nbsp;</td>
-                    <td style="width: 450px;">Result2</td>
+                    <td style="width: 450px;"><span class="redText">Result2</span></td>
                     <td style="width: 150px;">&nbsp;</td>
                 </tr>
             </table>

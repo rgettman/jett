@@ -29,6 +29,10 @@ th
 {
     color: red;
 }
+.greenText
+{
+    color: green;
+}
 .bold
 {
     font-weight: bold;

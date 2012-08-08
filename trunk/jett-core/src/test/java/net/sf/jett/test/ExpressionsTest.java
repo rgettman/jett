@@ -45,6 +45,30 @@ public class ExpressionsTest extends TestCase
    }
 
    /**
+    * Tests the .xls template spreadsheet.
+    * @throws java.io.IOException If an I/O error occurs.
+    * @throws org.apache.poi.openxml4j.exceptions.InvalidFormatException If the input spreadsheet is invalid.
+    * @since 0.2.0
+    */
+   @Test
+   public void testXlsFiles() throws IOException, InvalidFormatException
+   {
+      super.testXlsFiles();
+   }
+
+   /**
+    * Tests the .xlsx template spreadsheet.
+    * @throws IOException If an I/O error occurs.
+    * @throws InvalidFormatException If the input spreadsheet is invalid.
+    * @since 0.2.0
+    */
+   @Test
+   public void testXlsxFiles() throws IOException, InvalidFormatException
+   {
+      super.testXlsxFiles();
+   }
+
+   /**
     * Returns the Excel name base for the template and resultant spreadsheets
     * for this test.
     * @return The Excel name base for this test.
@@ -62,22 +86,24 @@ public class ExpressionsTest extends TestCase
    protected void check(Workbook workbook)
    {
       Sheet sheet = workbook.getSheetAt(0);
-      assertEquals("Cell A3", getStringCellValue(sheet, 2, 0));
-      assertEquals(3.14, getNumericCellValue(sheet, 2, 2), DELTA);
-      assertEquals("Hello World!", getStringCellValue(sheet, 3, 1));
-      assertEquals("JETT", getStringCellValue(sheet, 4, 1));
-      assertEquals("JETT: Hello World!", getStringCellValue(sheet, 5, 1));
-      assertEquals("Springfield", getStringCellValue(sheet, 7, 2));
-      assertEquals("Isotopes", getStringCellValue(sheet, 8, 2));
-      assertEquals(38, getNumericCellValue(sheet, 9, 2), DELTA);
-      assertEquals(4, getNumericCellValue(sheet, 10, 2), DELTA);
+      assertEquals("Cell A3", TestUtility.getStringCellValue(sheet, 2, 0));
+      assertEquals(3.14, TestUtility.getNumericCellValue(sheet, 2, 2), DELTA);
+      assertEquals("Hello World!", TestUtility.getStringCellValue(sheet, 3, 1));
+      assertEquals("JETT", TestUtility.getStringCellValue(sheet, 4, 1));
+      assertEquals("JETT: Hello World!", TestUtility.getStringCellValue(sheet, 5, 1));
+      assertEquals("Springfield Isotopes (38-4)", TestUtility.getStringCellValue(sheet, 6, 2));
+      assertEquals("Springfield", TestUtility.getStringCellValue(sheet, 7, 2));
+      assertEquals("Isotopes", TestUtility.getStringCellValue(sheet, 8, 2));
+      assertEquals(38, TestUtility.getNumericCellValue(sheet, 9, 2), DELTA);
+      assertEquals(4, TestUtility.getNumericCellValue(sheet, 10, 2), DELTA);
+      assertEquals("[1, 3, 7, 10, 11, 23]", TestUtility.getStringCellValue(sheet, 11, 1));
       double numberListAvg = (double) (1 + 3 + 7 + 10 + 11 + 23) / 6;
-      assertEquals(numberListAvg, getNumericCellValue(sheet, 12, 1), DELTA);
+      assertEquals(numberListAvg, TestUtility.getNumericCellValue(sheet, 12, 1), DELTA);
                   //         10        20        30        40        50        60        70        80        90       100
                   //01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
       assertEquals("I can use bold, italic, underline, strikeout, different fonts, superscript, and subscript within one cell!",
-         getStringCellValue(sheet, 14, 0));
-      RichTextString rts = getRichTextStringCellValue(sheet, 14, 0);
+         TestUtility.getStringCellValue(sheet, 14, 0));
+      RichTextString rts = TestUtility.getRichTextStringCellValue(sheet, 14, 0);
       assertEquals(106, rts.length());
 
       int formattingRunIndices[] = new int[]

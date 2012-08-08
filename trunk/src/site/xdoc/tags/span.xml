@@ -14,14 +14,14 @@
                 <li><strong>factor: int</strong> Required.  This is the factor with which to
                 multiply the height of the merged region in which this tag is contained.  For
                 example, if the merged region is 2 cells tall, and the factor is 3, then content
-                below the merged region is shifted downard, and the merged region is grown to a
+                below the merged region is shifted downward, and the merged region is grown to a
                 height of 6 cells.  If there is no merged region, then the cell is treated as if it
                 was a merged region of height 1 and width 1, and a new merged region is created if
                 necessary.  This value must not be negative.  If it is zero, then the block (and
                 any merged region) is removed and content below is shifted up to overwrite the
                 block.</li>
                 <li><strong>value: Object</strong> Required.  The value of the cell after
-                processing.</li>
+                processing.  Rich Text String formatting is supported for this attribute.</li>
                 <li><strong>expandRight: Boolean</strong> Optional.  If true, then expand to the
                 right instead of downward.  Content to the right of the merged region will be
                 shifted to the right to make way for the bigger merged region.  Default: false
@@ -37,7 +37,8 @@
                     <td class="bold" style="width: 500px;" colspan="2">Employees</td>
                 </tr>
                 <tr>
-                    <td style="width: 250px;" rowspan="2">&lt;jt:span factor="${dept.employees.size}" value="${dept.name}"/&gt;</td>
+                    <td style="width: 250px;" rowspan="2">&lt;jt:span factor="${dept.employees.size}"
+                        value="Dept. Name: <span class="boldText">${dept.name}</span>"/&gt;</td>
                     <td style="width: 250px;">&lt;jt:forEach items="${dept.employees}" var="${emp}"&gt;First: ${emp.firstName}</td>
                     <td style="width: 250px;">Last: ${emp.lastName}</td>
                 </tr>
@@ -63,7 +64,7 @@
                     <td style="width: 500px; font-weight: bold;" colspan="2">Employees</td>
                 </tr>
                 <tr>
-                    <td style="width: 250px;" rowspan="4">Cartoon Characters</td>
+                    <td style="width: 250px;" rowspan="4">Dept. Name: <span class="boldText">Cartoon Characters</span></td>
                     <td style="width: 250px;">First: Bugs</td>
                     <td style="width: 250px;">Last: Bunny</td>
                 </tr>

@@ -2,6 +2,8 @@ package net.sf.jett.tag;
 
 import java.util.Map;
 
+import org.apache.poi.ss.usermodel.RichTextString;
+
 import net.sf.jett.transform.WorkbookContext;
 
 /**
@@ -26,7 +28,7 @@ public interface Tag
     * (possibly empty) <code>Map</code> of attribute names and values.
     * @param attributes A <code>Map</code> of attribute names and values.
     */
-   public void setAttributes(Map<String, String> attributes);
+   public void setAttributes(Map<String, RichTextString> attributes);
 
    /**
     * Sets whether this <code>Tag</code> is bodiless.
@@ -46,7 +48,7 @@ public interface Tag
     * A <code>Tag</code> can retrieve its attributes by calling this method.
     * @return A <code>Map</code> of attribute names and attribute values.
     */
-   public Map<String, String> getAttributes();
+   public Map<String, RichTextString> getAttributes();
 
    /**
     * Sets the <code>TagContext</code> to which the <code>Tag</code> is
