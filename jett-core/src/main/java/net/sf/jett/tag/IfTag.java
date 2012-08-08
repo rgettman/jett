@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
@@ -21,8 +22,8 @@ import net.sf.jett.util.SheetUtil;
  * <br>Attributes:
  * <ul>
  * <li>test (required): <code>boolean</code>
- * <li>then (optional, bodiless only): <code>String</code>
- * <li>else (optional, bodiless only): <code>String</code>
+ * <li>then (optional, bodiless only): <code>RichTextString</code>
+ * <li>else (optional, bodiless only): <code>RichTextString</code>
  * <li>elseAction (optional, body only): <code>String</code>
  * </ul>
  */
@@ -123,10 +124,11 @@ public class IfTag extends BaseTag
    {
       TagContext context = getContext();
       Map<String, Object> beans = context.getBeans();
-      Map<String, String> attributes = getAttributes();
+      Map<String, RichTextString> attributes = getAttributes();
       Block block = context.getBlock();
 
-      String attrElseAction = attributes.get(ATTR_ELSE_ACTION);
+      RichTextString rtsElseAction = attributes.get(ATTR_ELSE_ACTION);
+      String attrElseAction = (rtsElseAction != null) ? rtsElseAction.getString() : null;
       if (attrElseAction != null)
       {
          String elseAction = Expression.evaluateString(attrElseAction, beans).toString();
@@ -164,8 +166,8 @@ public class IfTag extends BaseTag
       Block block = context.getBlock();
       Map<String, Object> beans = context.getBeans();
 
-      Map<String, String> attributes = getAttributes();
-      String testValue = attributes.get(ATTR_TEST);
+      Map<String, RichTextString> attributes = getAttributes();
+      String testValue = attributes.get(ATTR_TEST).getString();
       Object test = Expression.evaluateString(testValue, beans);
       boolean condition;
       if (test instanceof Boolean)
@@ -175,7 +177,7 @@ public class IfTag extends BaseTag
 
       if (isBodiless())
       {
-         String result;
+         RichTextString result;
          if (condition)
             result = attributes.get(ATTR_THEN);
          else
@@ -183,7 +185,7 @@ public class IfTag extends BaseTag
          // Replace the bodiless tag text with the proper result.
          Row row = sheet.getRow(block.getTopRowNum());
          Cell cell = row.getCell(block.getLeftColNum());
-         SheetUtil.setCellValue(cell, result);
+         SheetUtil.setCellValue(cell, result, result);
 
          BlockTransformer transformer = new BlockTransformer();
          transformer.transform(context, getWorkbookContext());

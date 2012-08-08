@@ -5,6 +5,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.poi.ss.usermodel.RichTextString;
+
 import net.sf.jagg.AggregateValue;
 import net.sf.jagg.Aggregations;
 import net.sf.jagg.Aggregator;
@@ -125,15 +127,15 @@ public class AggTag extends BaseTag
 
       TagContext context = getContext();
       Map<String, Object> beans = context.getBeans();
-      Map<String, String> attributes = getAttributes();
+      Map<String, RichTextString> attributes = getAttributes();
 
-      String attrItems = attributes.get(ATTR_ITEMS);
+      String attrItems = attributes.get(ATTR_ITEMS).getString();
       Object items = Expression.evaluateString(attrItems, beans);
       if (!(items instanceof List))
          throw new TagParseException("The \"items\" expression is not a List: " + attrItems);
       myList = (List<Object>) items;
 
-      String attrAggs = attributes.get(ATTR_AGGS);
+      String attrAggs = attributes.get(ATTR_AGGS).getString();
       Object aggs = Expression.evaluateString(attrAggs, beans);
       // Allow delimited list in a String, or an actual List.
       if (aggs instanceof String)
@@ -154,11 +156,12 @@ public class AggTag extends BaseTag
          throw new TagParseException("Attribute \"" + ATTR_AGGS +
             "\" must be a delimited String of, or a List of, Aggregator specification Strings.");
 
-      String attrAggsVar = attributes.get(ATTR_AGGS_VAR);
+      RichTextString strAggsVar = attributes.get(ATTR_AGGS_VAR);
+      String attrAggsVar = (strAggsVar != null) ? strAggsVar.getString() : null;
       if (attrAggsVar != null)
          myAggsVar = Expression.evaluateString(attrAggsVar, beans).toString();
 
-      String attrValuesVar = attributes.get(ATTR_VALUES_VAR);
+      String attrValuesVar = attributes.get(ATTR_VALUES_VAR).getString();
       myValuesVar = Expression.evaluateString(attrValuesVar, beans).toString();
 
       myGroupByProps = new ArrayList<String>();
@@ -181,7 +184,8 @@ public class AggTag extends BaseTag
                "\" must be a delimited String of, or a List of, \"group by\" property Strings.");
       }
 
-      String attrParallelism = attributes.get(ATTR_PARALLEL);
+      RichTextString rtsParallelism = attributes.get(ATTR_PARALLEL);
+      String attrParallelism = (rtsParallelism != null) ? rtsParallelism.getString() : null;
       if (attrParallelism != null)
       {
          String parallelism = Expression.evaluateString(attrParallelism, beans).toString();

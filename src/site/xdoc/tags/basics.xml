@@ -20,8 +20,11 @@
             <p>Here are all the tags in the JETT Tag Library:</p>
             <ul>
                 <li><a href="agg.html">&lt;jt:agg&gt;</a></li>
+                <li><a href="comment.html">&lt;jt:comment&gt;</a></li>
                 <li><a href="for.html">&lt;jt:for&gt;</a></li>
                 <li><a href="forEach.html">&lt;jt:forEach&gt;</a></li>
+                <li><a href="group.html">&lt;jt:group&gt;</a></li>
+                <li><a href="hyperlink.html">&lt;jt:hyperlink&gt;</a></li>
                 <li><a href="if.html">&lt;jt:if&gt;</a></li>
                 <li><a href="multiForEach.html">&lt;jt:multiForEach&gt;</a></li>
                 <li><a href="null.html">&lt;jt:null&gt;</a></li>

@@ -1,5 +1,8 @@
 package net.sf.jett.transform;
 
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,8 +16,8 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 
 import net.sf.jett.event.CellListener;
-import net.sf.jett.expression.ExpressionFactory;
 import net.sf.jett.expression.Expression;
+import net.sf.jett.expression.ExpressionFactory;
 import net.sf.jett.formula.CellRef;
 import net.sf.jett.formula.Formula;
 import net.sf.jett.tag.JtTagLibrary;
@@ -28,24 +31,42 @@ import net.sf.jett.util.FormulaUtil;
  * in the form of <em>beans</em>.  This class is the entry point API for JETT.
  * </p>
  *
- * <p>There are two main methods that accomplish all of the work, both with the
+ * <p>There are four main methods that accomplish all of the work, all with the
  * overloaded name "transform":</p>
  * <ul>
+ * <li><code>public void transform(String inFilename, String outFilename, Map<String, Object> beans)
+ *    throws IOException, InvalidFormatException</code>
  * <li><code>public Workbook transform(InputStream is, Map&lt;String, Object&gt; beans)
+ *    throws IOException, InvalidFormatException</code>
+ * <li><code>public void transform(String inFilename, String outFilename, List<String> templateSheetNamesList,
+      List<String> newSheetNamesList, List<Map<String, Object>> beansList)
       throws IOException, InvalidFormatException</code>
  * <li><code>public Workbook transform(InputStream is, List&lt;String&gt; templateSheetNamesList, List&lt;String&gt; newSheetNamesList,
  *    List&lt;Map&lt;tring, Object&gt;&gt; beansList) throws IOException, InvalidFormatException</code>
  * </ul>
- * <p>The first method is for transforming a template workbook using data to be
- * exposed across the entire workbook, and the second method is for
- * transforming a template workbook with separate data exposed for each
- * worksheet.</p>
+ * <p>The first method reads the template spreadsheet from the input filename,
+ * applies the bean values across all sheets, and writes the transformed
+ * spreadsheet to the output filename.</p>
+ * <p>The second method reads the template spreadsheet from the given input
+ * stream (usually a file), applies the bean values across all sheets, and
+ * returs a <code>Workbook</code> object representing the transformed
+ * spreadsheet, which can be written to a file if desired.  The first method
+ * calls the second method to do its work.</p>
+ * <p>The third method reads the template spreadsheet from the input filename,
+ * applies specific bean values to specific sheets, and writes the transformed
+ * spreadsheet to the output filename.</p>
+ * <p>The fourth method reads the template spreadsheet from the given input
+ * stream (usually a file), applies specific bean values to specific sheets,
+ * and returs a <code>Workbook</code> object representing the transformed
+ * spreadsheet, which can be written to a file if desired.  The third method
+ * calls the fourth method to do its work.</p>
  * <p>The <code>ExcelTransformer</code>'s settings can be changed with the
  * other public methods of this class, including recognizing custom tag
  * libraries, adding <code>CellListeners</code>, using fixed size collections,
- * turning off implicit collections processing, and passing <code>silent</code>
- * and <code>lenient</code> flags through to the underlying expression
- * processor.</p>
+ * turning off implicit collections processing, passing <code>silent</code> and
+ * <code>lenient</code> flags through to the underlying JEXL Engine,
+ * passing a cache size to the internal JEXL Engine, and passing namespace
+ * objects to register custom functions in the JEXL Engine.</p>
  */
 public class ExcelTransformer
 {
@@ -74,6 +95,8 @@ public class ExcelTransformer
     * namespace.
     * @param namespace The namespace associated with the tag library.
     * @param library The <code>TagLibrary</code>.
+    * @throws IllegalArgumentException If the namespace has already been
+    *    registered.
     */
    public void registerTagLibrary(String namespace, TagLibrary library)
    {
@@ -105,11 +128,11 @@ public class ExcelTransformer
 
    /**
     * The caller is stating that it will be explicitly accessing item(s) in the
-    * named <code>Collection</code>, so implicit "for each" collection
-    * processing should NOT be performed on this collection.  Implicit "for
-    * each" processing will still occur on other <code>Collections</code>.
+    * named <code>Collection</code>, so implicit collections processing should
+    * NOT be performed on this collection.  Implicit collections processing
+    * will still occur on <code>Collections</code> known by other names.
     * @param collName The name of the <code>Collection</code> on which NOT to
-    *    perform implicit "for each" collection processing.
+    *    perform implicit collections processing.
     */
    public void turnOffImplicitCollectionProcessing(String collName)
    {
@@ -136,6 +159,73 @@ public class ExcelTransformer
    {
       ExpressionFactory factory = ExpressionFactory.getExpressionFactory();
       factory.setSilent(silent);
+   }
+
+   /**
+    * Creates and uses a JEXL Expression cache of the given size.  The given
+    * value is passed through to the JEXL Engine.  The JEXL Engine establishes
+    * a parse cache; it's not a result cache.
+    * @param size The size of the JEXL Expression cache.
+    * @since 0.2.0
+    */
+   public void setCache(int size)
+   {
+      ExpressionFactory factory = ExpressionFactory.getExpressionFactory();
+      factory.setCache(size);
+   }
+
+   /**
+    * Registers an object under the given namespace in the internal JEXL
+    * Engine.  Each public method in the object's class is exposed as a
+    * "function" available in the JEXL Engine.  To use instance methods, pass
+    * an instance of the object.  To use class methods, pass a
+    * <code>Class</code> object.
+    * @param namespace The namespace used to access the functions object.
+    * @param funcsObject An object (or a <code>Class</code>) containing the
+    *    methods to expose as JEXL Engine functions.
+    * @throws IllegalArgumentException If the namespace has already been
+    *    registered.
+    * @since 0.2.0
+    */
+   public void registerFuncs(String namespace, Object funcsObject)
+   {
+      ExpressionFactory factory = ExpressionFactory.getExpressionFactory();
+      factory.registerFuncs(namespace, funcsObject);
+   }
+
+   /**
+    * Transforms the template Excel spreadsheet represented by the given input
+    * filename.  Applies the given <code>Map</code> of beans to all sheets.
+    * Writes the resultant Excel spreadsheet to the given output filename.
+    * @param inFilename The template spreadsheet filename.
+    * @param outFilename The resultant spreadsheet filename.
+    * @param beans The <code>Map</code> of bean names to bean objects.
+    * @throws IOException If there is a problem reading or writing any Excel
+    *    spreadsheet.
+    * @throws InvalidFormatException If there is a problem creating a
+    *    <code>Workbook</code> object.
+    * @since 0.2.0
+    */
+   public void transform(String inFilename, String outFilename, Map<String, Object> beans)
+      throws IOException, InvalidFormatException
+   {
+      FileOutputStream fileOut = null;
+      InputStream fileIn = null;
+      Workbook workbook;
+      try
+      {
+         fileOut = new FileOutputStream(outFilename);
+         fileIn = new BufferedInputStream(new FileInputStream(inFilename));
+         workbook = transform(fileIn, beans);
+         workbook.write(fileOut);
+      }
+      finally
+      {
+         if (fileIn != null)
+            try { fileIn.close(); } catch (IOException ignored) {}
+         if (fileOut != null)
+            try { fileOut.close(); } catch (IOException ignored) {}
+      }
    }
 
    /**
@@ -172,6 +262,55 @@ public class ExcelTransformer
          replaceFormulas(workbook, context, sheetTransformer);
       }
       return workbook;
+   }
+
+   /**
+    * Transforms the template Excel spreadsheet represented by the given input
+    * filename.  If a sheet name is represented <em>n</em> times in the list of
+    * template sheet names, then it will cloned to make <em>n</em> total copies
+    * and the clones will receive the corresponding sheet name from the list of
+    * sheet names.  Each resulting sheet has a corresponding <code>Map</code>
+    * of bean names to bean values exposed to it. Writes the resultant Excel
+    * spreadsheet to the given output filename.
+    * @param inFilename The template spreadsheet filename.
+    * @param outFilename The resultant spreadsheet filename.
+    * @param templateSheetNamesList A <code>List</code> of template sheet
+    *    names, with duplicates indicating to clone sheets.
+    * @param newSheetNamesList A <code>List</code> of resulting sheet names
+    *    corresponding to the template sheet names list.
+    * @param beansList A <code>List</code> of <code>Maps</code> representing
+    *    the beans map exposed to each resulting sheet.
+    * @throws IOException If there is a problem reading or writing any Excel
+    *    spreadsheet.
+    * @throws InvalidFormatException If there is a problem creating a
+    *    <code>Workbook</code> object.
+    * @since 0.2.0
+    */
+   public void transform(String inFilename, String outFilename, List<String> templateSheetNamesList,
+      List<String> newSheetNamesList, List<Map<String, Object>> beansList)
+      throws IOException, InvalidFormatException
+   {
+      FileOutputStream fileOut = null;
+      InputStream fileIn = null;
+      Workbook workbook;
+      try
+      {
+         fileOut = new FileOutputStream(outFilename);
+         fileIn = new BufferedInputStream(new FileInputStream(inFilename));
+         workbook = transform(fileIn, templateSheetNamesList, newSheetNamesList, beansList);
+         workbook.write(fileOut);
+      }
+      finally
+      {
+         if (fileIn != null)
+         {
+            try { fileIn.close(); } catch (IOException ignored) {}
+         }
+         if (fileOut != null)
+         {
+            try { fileOut.close(); } catch (IOException ignored) {}
+         }
+      }
    }
 
    /**

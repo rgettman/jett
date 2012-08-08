@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Stack;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Row;
@@ -110,9 +111,9 @@ public class CellTransformer
                // Evaluate.
                if (DEBUG_GENERAL)
                   System.err.println("  CT: Transforming string cell.");
-               Object result = Expression.evaluateString(richString,
-                  sheet.getWorkbook().getCreationHelper(), beans);
-               newValue = SheetUtil.setCellValue(cell, result);
+               CreationHelper helper = sheet.getWorkbook().getCreationHelper();
+               Object result = Expression.evaluateString(richString, helper, beans);
+               newValue = SheetUtil.setCellValue(cell, result, richString);
             }
          }
          break;
@@ -197,6 +198,7 @@ public class CellTransformer
       context.setBlock(newBlock);
       context.setSheet(cell.getSheet());
       context.setProcessedCellsMap(processedCells);
+      context.setDrawing(cellContext.getDrawing());
 
       Tag tag = registry.createTag(parser, context, workbookContext);
       if (tag == null)

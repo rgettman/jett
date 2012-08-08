@@ -54,18 +54,18 @@ public class TotalTagTest extends TestCase
    protected void check(Workbook workbook)
    {
       Sheet total = workbook.getSheetAt(0);
-      assertEquals(58, getNumericCellValue(total, 1, 1), DELTA);
-      assertEquals(17, getNumericCellValue(total, 1, 2), DELTA);
-      assertEquals(38070496, getNumericCellValue(total, 2, 1), DELTA);
-      assertEquals(1998257, getNumericCellValue(total, 2, 2), DELTA);
-      assertEquals(180979, getNumericCellValue(total, 3, 1), DELTA);
-      assertEquals(16106, getNumericCellValue(total, 3, 2), DELTA);
-      assertEquals(404224, getNumericCellValue(total, 4, 1), DELTA);
-      assertEquals(284401, getNumericCellValue(total, 4, 2), DELTA);
-      assertEquals(1222, getNumericCellValue(total, 5, 1), DELTA);
-      assertEquals(971, getNumericCellValue(total, 5, 2), DELTA);
-      assertEquals(51960, getNumericCellValue(total, 6, 1), DELTA);
-      assertEquals(47001, getNumericCellValue(total, 6, 2), DELTA);
+      assertEquals(58, TestUtility.getNumericCellValue(total, 1, 1), DELTA);
+      assertEquals(17, TestUtility.getNumericCellValue(total, 1, 2), DELTA);
+      assertEquals(38070496, TestUtility.getNumericCellValue(total, 2, 1), DELTA);
+      assertEquals(1998257, TestUtility.getNumericCellValue(total, 2, 2), DELTA);
+      assertEquals(180979, TestUtility.getNumericCellValue(total, 3, 1), DELTA);
+      assertEquals(16106, TestUtility.getNumericCellValue(total, 3, 2), DELTA);
+      assertEquals(404224, TestUtility.getNumericCellValue(total, 4, 1), DELTA);
+      assertEquals(284401, TestUtility.getNumericCellValue(total, 4, 2), DELTA);
+      assertEquals(1222, TestUtility.getNumericCellValue(total, 5, 1), DELTA);
+      assertEquals(971, TestUtility.getNumericCellValue(total, 5, 2), DELTA);
+      assertEquals(51960, TestUtility.getNumericCellValue(total, 6, 1), DELTA);
+      assertEquals(47001, TestUtility.getNumericCellValue(total, 6, 2), DELTA);
    }
 
    /**

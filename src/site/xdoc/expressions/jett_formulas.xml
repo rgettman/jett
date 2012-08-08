@@ -12,7 +12,7 @@
             transformation on all Sheets has completed, JETT goes back and replaces all JETT
             formulas with Excel formulas.  Consecutive cells are recognized and merged into Excel
             ranges, e.g. "B2, B3, B4" gets merged into "B2:B4".  JETT formula cell references may
-            includes sheet references, e.g. "Sheet2!C4", "'With Spaces'!B5".  JETT does not verify
+            include sheet references, e.g. "Sheet2!C4", "'With Spaces'!B5".  JETT does not verify
             the existence of the Excel formula name.</p>
             <p>Here's an example, which uses <a href="../collections/implicit.html">implicit
             collections processing</a>.  Note that the cell containing "${employees.salary}" is

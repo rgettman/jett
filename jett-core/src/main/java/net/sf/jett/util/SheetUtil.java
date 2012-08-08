@@ -3,7 +3,9 @@ package net.sf.jett.util;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 import org.apache.poi.ss.usermodel.Cell;
@@ -13,6 +15,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellReference;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
 
 import net.sf.jett.formula.Formula;
 import net.sf.jett.tag.Block;
@@ -473,8 +476,24 @@ public class SheetUtil
     */
    public static Object setCellValue(Cell cell, Object value)
    {
+      return setCellValue(cell, value, null);
+   }
+
+   /**
+    * Sets the cell value on the given <code>Cell</code> to the given
+    * <code>value</code>, regardless of data type.
+    * @param cell The <code>Cell</code> on which to set the value.
+    * @param value The value.
+    * @param origRichString The original <code>RichTextString</code>, to be
+    *    used to set the <code>CellStyle</code> if the value isn't some kind of
+    *    string (<code>String</code> or <code>RichTextString</code>).
+    * @return The actual value set in the <code>Cell</code>.
+    */
+   public static Object setCellValue(Cell cell, Object value, RichTextString origRichString)
+   {
       CreationHelper helper = cell.getSheet().getWorkbook().getCreationHelper();
       Object newValue = value;
+      boolean applyStyle = true;
       if (value == null)
       {
          newValue = helper.createRichTextString("");
@@ -485,9 +504,13 @@ public class SheetUtil
       {
          newValue = helper.createRichTextString(value.toString());
          cell.setCellValue((RichTextString) newValue);
+         applyStyle = false;
       }
       else if (value instanceof RichTextString)
+      {
          cell.setCellValue((RichTextString) value);
+         applyStyle = false;
+      }
       else if (value instanceof Double)
          cell.setCellValue((Double) value);
       else if (value instanceof Integer)
@@ -508,6 +531,11 @@ public class SheetUtil
       {
          newValue = helper.createRichTextString(value.toString());
          cell.setCellValue((RichTextString) newValue);
+         applyStyle = false;
+      }
+      if (applyStyle)
+      {
+         RichTextStringUtil.applyFont(origRichString, cell);
       }
       return newValue;
    }
@@ -1515,6 +1543,108 @@ public class SheetUtil
                      value, helper, collExpr, itemName));
                }
             }
+         }
+      }
+   }
+
+   /**
+    * Group all rows on the sheet between the "begin" and "end" indices,
+    * inclusive.  Optionally collapse the rows.
+    * @param sheet The <code>Sheet</code> on which to group the rows.
+    * @param begin The 0-based index of the start row of the group.
+    * @param end The 0-based index of the end row of the group.
+    * @param collapse Whether to collapse the group.
+    * @since 0.2.0
+    */
+   public static void groupRows(Sheet sheet, int begin, int end, boolean collapse)
+   {
+      if (DEBUG)
+         System.err.println("groupRows: " + sheet.getSheetName() + ", (" + begin +
+            " - " + end + "), collapse: " + collapse);
+      sheet.groupRow(begin, end);
+      if (collapse)
+      {
+         if (sheet instanceof XSSFSheet)
+         {
+            // XSSFSheet - Must manually collapse the rows.
+            for (int r = begin; r <= end; r++)
+            {
+               Row row = sheet.getRow(r);
+               if (row == null)
+                  row = sheet.createRow(r);
+               row.setZeroHeight(true);
+            }
+         }
+         else
+         {
+            // HSSFSheet - setRowGroupCollapsed works.
+            sheet.setRowGroupCollapsed(begin, true);
+         }
+      }
+   }
+
+   /**
+    * Group all columns on the sheet between the "begin" and "end" indices,
+    * inclusive.  Optionally collapse the columns.
+    * @param sheet The <code>Sheet</code> on which to group the columns.
+    * @param begin The 0-based index of the start column of the group.
+    * @param end The 0-based index of the end column of the group.
+    * @param collapse Whether to collapse the group.
+    * @since 0.2.0
+    */
+   public static void groupColumns(Sheet sheet, int begin, int end, boolean collapse)
+   {
+      if (DEBUG)
+         System.err.println("groupColumns: " + sheet.getSheetName() + ", (" + begin +
+            " - " + end + "), collapse: " + collapse);
+      // XSSFSheets will collapse the columns on "groupColumn".
+      // Store the column widths to restore them after "groupColumn".
+      Map<Integer, Integer> colWidths = new HashMap<Integer, Integer>();
+      if (sheet instanceof XSSFSheet)
+      {
+         if (DEBUG)
+            System.err.println("Def. col width = " + sheet.getDefaultColumnWidth());
+         for (int c = begin; c <= end; c++)
+         {
+            int w = sheet.getColumnWidth(c);
+            if (DEBUG)
+               System.err.println("Col " + c + ", w " + w);
+            colWidths.put(c, w);
+         }
+      }
+      if (sheet instanceof XSSFSheet)
+      {
+         // When nested, XSSFSheet's groupColumn doesn't do the whole range.
+         for (int c = begin; c <= end; c++)
+         {
+            sheet.groupColumn(c, c);
+            int w = colWidths.get(c);
+            if (DEBUG)
+               System.err.println("Setting Col " + c + ", to width " + w);
+            sheet.setColumnWidth(c, w);
+         }
+      }
+      else
+      {
+         // HSSFSheet works as expected.
+         sheet.groupColumn(begin, end);
+      }
+      if (collapse)
+      {
+         if (sheet instanceof XSSFSheet)
+         {
+            // XSSFSheet - Must manually collapse the columns.
+            for (int c = begin; c <= end; c++)
+            {
+               if (DEBUG)
+                  System.err.println("Setting Col " + c + " hidden");
+               sheet.setColumnHidden(c, true);
+            }
+         }
+         else
+         {
+            // HSSFSheet - setColumnGroupCollapsed works.
+            sheet.setColumnGroupCollapsed(begin, true);
          }
       }
    }

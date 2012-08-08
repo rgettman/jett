@@ -38,7 +38,7 @@ public Map&lt;String, Class&lt;? extends Tag&gt;&gt; getTagMap();
                 inherited "getContext()" method.  The TagContext object allows access to the
                 current <code>Sheet</code> object, the containing <code>Block</code> object, the
                 <code>Map</code> of beans, the <code>List</code> of registered
-                <a href="../other/cell_listeners.html"><code>CellListeners</code></a>, and a
+                <a href="../misc/cell_listeners.html"><code>CellListeners</code></a>, and a
                 <code>Map</code> of <code>Cells</code> that have already been processed.  Call
                 BaseTag's "removeBlock()" method to delete the tag's Block (and shift Cells over).
                 To transform the body Cells of the tag's Block, create a
@@ -87,6 +87,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Sheet;
 
 import net.sf.jett.expression.Expression;
@@ -154,12 +155,12 @@ public class AddOneTag extends BaseTag
    {
       TagContext context = getContext();
       Map&lt;String, Object&gt; beans = context.getBeans();
-      Map&lt;String, String&gt; attributes = getAttributes();
+      Map&lt;String, RichTextString&gt; attributes = getAttributes();
 
       if (!isBodiless())
          throw new TagParseException("AddOne tags must not have a body.");
 
-      String attrValue = attributes.get(ATTR_VALUE);
+      String attrValue = attributes.get(ATTR_VALUE).getString();
       if (attrValue != null)
       {
          Object value = Expression.evaluateString(attrValue, beans);
@@ -196,7 +197,7 @@ public class AddOneTag extends BaseTag
 
       // Replace the bodiless tag text with the proper result.
       Cell cell = sheet.getRow(block.getTopRowNum()).getCell(block.getLeftColNum());
-      SheetUtil.setCellValue(cell, myValue + 1);
+      SheetUtil.setCellValue(cell, myValue + 1, getAttributes().get(ATTR_VALUE));
 
       return true;
    }

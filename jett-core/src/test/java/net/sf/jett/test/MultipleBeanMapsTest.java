@@ -41,6 +41,30 @@ public class MultipleBeanMapsTest extends TestCase
    }
 
    /**
+    * Tests the .xls template spreadsheet.
+    * @throws java.io.IOException If an I/O error occurs.
+    * @throws org.apache.poi.openxml4j.exceptions.InvalidFormatException If the input spreadsheet is invalid.
+    * @since 0.2.0
+    */
+   @Test
+   public void testXlsFiles() throws IOException, InvalidFormatException
+   {
+      super.testXlsFiles();
+   }
+
+   /**
+    * Tests the .xlsx template spreadsheet.
+    * @throws IOException If an I/O error occurs.
+    * @throws InvalidFormatException If the input spreadsheet is invalid.
+    * @since 0.2.0
+    */
+   @Test
+   public void testXlsxFiles() throws IOException, InvalidFormatException
+   {
+      super.testXlsxFiles();
+   }
+
+   /**
     * Returns the Excel name base for the template and resultant spreadsheets
     * for this test.
     * @return The Excel name base for this test.
@@ -59,36 +83,36 @@ public class MultipleBeanMapsTest extends TestCase
    {
       Sheet atlantic = workbook.getSheetAt(0);
       assertEquals("Atlantic", atlantic.getSheetName());
-      assertEquals("Division: Atlantic", getStringCellValue(atlantic, 0, 0));
-      assertEquals("Boston", getStringCellValue(atlantic, 2, 0));
+      assertEquals("Division: Atlantic", TestUtility.getStringCellValue(atlantic, 0, 0));
+      assertEquals("Boston", TestUtility.getStringCellValue(atlantic, 2, 0));
       Sheet central = workbook.getSheetAt(1);
       assertEquals("Central", central.getSheetName());
-      assertEquals("Division: Central", getStringCellValue(central, 0, 0));
-      assertEquals("Chicago", getStringCellValue(central, 2, 0));
+      assertEquals("Division: Central", TestUtility.getStringCellValue(central, 0, 0));
+      assertEquals("Chicago", TestUtility.getStringCellValue(central, 2, 0));
       Sheet southeast = workbook.getSheetAt(2);
       assertEquals("Southeast", southeast.getSheetName());
-      assertEquals("Division: Southeast", getStringCellValue(southeast, 0, 0));
-      assertEquals("Miami", getStringCellValue(southeast, 2, 0));
+      assertEquals("Division: Southeast", TestUtility.getStringCellValue(southeast, 0, 0));
+      assertEquals("Miami", TestUtility.getStringCellValue(southeast, 2, 0));
       Sheet northwest = workbook.getSheetAt(3);
       assertEquals("Northwest", northwest.getSheetName());
-      assertEquals("Division: Northwest", getStringCellValue(northwest, 0, 0));
-      assertEquals("Oklahoma City", getStringCellValue(northwest, 2, 0));
+      assertEquals("Division: Northwest", TestUtility.getStringCellValue(northwest, 0, 0));
+      assertEquals("Oklahoma City", TestUtility.getStringCellValue(northwest, 2, 0));
       Sheet pacific = workbook.getSheetAt(4);
       assertEquals("Pacific", pacific.getSheetName());
-      assertEquals("Division: Pacific", getStringCellValue(pacific, 0, 0));
-      assertEquals("Los Angeles", getStringCellValue(pacific, 2, 0));
+      assertEquals("Division: Pacific", TestUtility.getStringCellValue(pacific, 0, 0));
+      assertEquals("Los Angeles", TestUtility.getStringCellValue(pacific, 2, 0));
       Sheet southwest = workbook.getSheetAt(5);
       assertEquals("Southwest", southwest.getSheetName());
-      assertEquals("Division: Southwest", getStringCellValue(southwest, 0, 0));
-      assertEquals("San Antonio", getStringCellValue(southwest, 2, 0));
+      assertEquals("Division: Southwest", TestUtility.getStringCellValue(southwest, 0, 0));
+      assertEquals("San Antonio", TestUtility.getStringCellValue(southwest, 2, 0));
       Sheet empty = workbook.getSheetAt(6);
       assertEquals("Empty", empty.getSheetName());
-      assertEquals("Division: Empty", getStringCellValue(empty, 0, 0));
-      assertTrue(isCellBlank(empty, 2, 0));
+      assertEquals("Division: Empty", TestUtility.getStringCellValue(empty, 0, 0));
+      assertTrue(TestUtility.isCellBlank(empty, 2, 0));
       Sheet ofTheirOwn = workbook.getSheetAt(7);
       assertEquals("Of Their Own", ofTheirOwn.getSheetName());
-      assertEquals("Division: Of Their Own", getStringCellValue(ofTheirOwn, 0, 0));
-      assertEquals("Harlem", getStringCellValue(ofTheirOwn, 2, 0));
+      assertEquals("Division: Of Their Own", TestUtility.getStringCellValue(ofTheirOwn, 0, 0));
+      assertEquals("Harlem", TestUtility.getStringCellValue(ofTheirOwn, 2, 0));
    }
 
    /**

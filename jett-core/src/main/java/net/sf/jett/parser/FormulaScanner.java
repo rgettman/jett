@@ -22,6 +22,8 @@ public class FormulaScanner
       TOKEN_LEFT_PAREN(14),
       TOKEN_RIGHT_PAREN(15),
       TOKEN_COMMA(16),
+      TOKEN_DOUBLE_PIPE(17),
+      TOKEN_OPERATOR(18),
       TOKEN_EOI(99);
 
       private int myCode;
@@ -42,7 +44,13 @@ public class FormulaScanner
       }
    }
 
-   private static final String PUNCT_CHARS_NOT_AS_STRING = "'!(),";
+   /**
+    * <p>! for sheet!cellRef</p>
+    * <p>() for function calls</p>
+    * <p>, for parameter separation</p>
+    * <p>=<>&+*-/^% for Excel operators</p>
+    */
+   private static final String PUNCT_CHARS_NOT_AS_STRING = "'!(),=<>&+*-/^%|";
 
    private String myFormulaText;
    private int myOffset;
@@ -188,6 +196,39 @@ public class FormulaScanner
             // Right Paren.
             iTokenLength = 1;
             tokenType = Token.TOKEN_RIGHT_PAREN;
+         }
+         else if (myFormulaText.charAt(iStartOfToken) == '|')
+         {
+            // Pipe.
+            if (iStartOfToken + 1 < myFormulaText.length() &&
+                myFormulaText.charAt(iStartOfToken + 1) == '|')
+            {
+               // Double pipe for default value.
+               iTokenLength = 2;
+               tokenType = Token.TOKEN_DOUBLE_PIPE;
+            }
+            else
+            {
+               // Just treat a single pipe as if it were an operator.
+               iTokenLength = 1;
+               tokenType = Token.TOKEN_OPERATOR;
+            }
+         }
+         else if (myFormulaText.charAt(iStartOfToken) == '=' ||
+                  myFormulaText.charAt(iStartOfToken) == '<' ||
+                  myFormulaText.charAt(iStartOfToken) == '>' ||
+                  myFormulaText.charAt(iStartOfToken) == '&' ||
+                  myFormulaText.charAt(iStartOfToken) == '+' ||
+                  myFormulaText.charAt(iStartOfToken) == '*' ||
+                  myFormulaText.charAt(iStartOfToken) == '-' ||
+                  myFormulaText.charAt(iStartOfToken) == '/' ||
+                  myFormulaText.charAt(iStartOfToken) == '^' ||
+                  myFormulaText.charAt(iStartOfToken) == '%'
+                 )
+         {
+            // Excel Operators
+            iTokenLength = 1;
+            tokenType = Token.TOKEN_OPERATOR;
          }
          else if (Character.isWhitespace(myFormulaText.charAt(iStartOfToken)))
          {

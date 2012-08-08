@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Sheet;
 
 import net.sf.jett.expression.Expression;
@@ -73,12 +74,12 @@ public class AddOneTag extends BaseTag
    {
       TagContext context = getContext();
       Map<String, Object> beans = context.getBeans();
-      Map<String, String> attributes = getAttributes();
+      Map<String, RichTextString> attributes = getAttributes();
 
       if (!isBodiless())
          throw new TagParseException("AddOne tags must not have a body.");
 
-      String attrValue = attributes.get(ATTR_VALUE);
+      String attrValue = attributes.get(ATTR_VALUE).getString();
       if (attrValue != null)
       {
          Object value = Expression.evaluateString(attrValue, beans);
@@ -115,7 +116,7 @@ public class AddOneTag extends BaseTag
 
       // Replace the bodiless tag text with the proper result.
       Cell cell = sheet.getRow(block.getTopRowNum()).getCell(block.getLeftColNum());
-      SheetUtil.setCellValue(cell, myValue + 1);
+      SheetUtil.setCellValue(cell, myValue + 1, getAttributes().get(ATTR_VALUE));
 
       return true;
    }

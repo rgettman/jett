@@ -1,0 +1,38 @@
+<document>
+    <properties>
+        <author email="rgettman@users.sourceforge.net">Randy Gettman</author>
+        <title>Change Log for JETT</title>
+    </properties>
+    <body>
+        <section name="jAgg 0.2.0 (Beta) Released - 03 May 2012">
+            <p>New in JETT 0.2.0:</p>
+            <ul>
+                <li>New tags: <a href="tags/comment.html">"comment"</a> to create Excel Comments on
+                Cells, <a href="tags/group.html">"group"</a> to define Excel Groups (Outlines), and
+                <a href="tags/hyperlink.html">"hyperlink"</a> to create Hyperlinks on Cells.</li>
+                <li>It is now possible to create Excel Groups (Outlines) on dynamically placed data
+                using <a href="tags/looping.html">looping tags</a> such as the
+                <a href="tags/forEach.html">forEach tag</a>.  It is also possible to specify new
+                metadata to create Excel Groups using <a href="collections/implicit.html">Implicit
+                Collections Processing</a>.</li>
+                <li>JETT has supported Rich Text using Expressions, but now it supports Rich Text
+                inside certain appropriate tag attributes that are used as actual Cell contents.</li>
+                <li>It is now possible to supply <a href="misc/jexl_settings.html">custom functions</a>
+                into a custom JEXL namespace, which can result in such Expressions as
+                <code>${custom:method(param)}</code>.</li>
+                <li>Additional convenience "transform" methods in the <code>ExcelTransformer</code>
+                class allow the developer to specify input and output filenames, and to let JETT
+                handle the reading and writing of the Excel files.</li>
+                <li>Lots of JUnit test cases have been added for all the new features, and for lots
+                of old features that needed them.</li>
+                <li>Two bugs are fixed relating to JETT Formulas.  One bug did not pick up the cell
+                reference if it was at the end of the JETT Formula, and another bug did not allow
+                negative default values to be supplied in a formula cell reference.  Both bugs are
+                now fixed.</li>
+            </ul>
+        </section>
+        <section name="JETT 0.1.0 (Beta) Released - 20 Jul 2012">
+            <p>This is the initial release of JETT.</p>
+        </section>
+    </body>
+</document>

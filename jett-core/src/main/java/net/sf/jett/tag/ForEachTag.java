@@ -7,6 +7,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.poi.ss.usermodel.RichTextString;
+
 import net.sf.jett.exception.TagParseException;
 import net.sf.jett.expression.Expression;
 
@@ -132,8 +134,8 @@ public class ForEachTag extends BaseLoopTag
       TagContext context = getContext();
       Map<String, Object> beans = context.getBeans();
 
-      Map<String, String> attributes = getAttributes();
-      String attrItems = attributes.get(ATTR_ITEMS);
+      Map<String, RichTextString> attributes = getAttributes();
+      String attrItems = attributes.get(ATTR_ITEMS).getString();
       Object items = Expression.evaluateString(attrItems, beans);
       if (items == null)
       {
@@ -155,15 +157,16 @@ public class ForEachTag extends BaseLoopTag
       if (DEBUG)
          System.err.println("ForEachTag: Collection \"" + attrItems + "\" has size " + myCollection.size());
 
-      String attrVarName = attributes.get(ATTR_VAR);
+      String attrVarName = attributes.get(ATTR_VAR).getString();
       myVarName = Expression.evaluateString(attrVarName, beans).toString();
 
-      String attrIndexVarName = attributes.get(ATTR_INDEXVAR);
+      RichTextString rtsIndexVarName = attributes.get(ATTR_INDEXVAR);
+      String attrIndexVarName = (rtsIndexVarName != null) ? rtsIndexVarName.getString() : null;
       if (attrIndexVarName != null)
          myIndexVarName = Expression.evaluateString(attrIndexVarName, beans).toString();
 
-      String strCondition = attributes.get(ATTR_WHERE);
-
+      RichTextString rtsCondition = attributes.get(ATTR_WHERE);
+      String strCondition = (rtsCondition != null) ? rtsCondition.getString() : null;
       if (strCondition != null)
       {
          // Create a new Collection containing only those items where the given
@@ -187,7 +190,8 @@ public class ForEachTag extends BaseLoopTag
          myCollection = newCollection;
       }
 
-      String strLimit = attributes.get(ATTR_LIMIT);
+      RichTextString rtsLimit = attributes.get(ATTR_LIMIT);
+      String strLimit = (rtsLimit != null) ? rtsLimit.getString() : null;
       if (strLimit != null)
       {
          try

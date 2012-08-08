@@ -69,8 +69,8 @@ public class CustomTagLibraryTest extends TestCase
    protected void check(Workbook workbook)
    {
       Sheet custom = workbook.getSheetAt(0);
-      assertEquals(6, getNumericCellValue(custom, 0, 1), DELTA);
-      assertEquals(4.14, getNumericCellValue(custom, 1, 1), DELTA);
+      assertEquals(6, TestUtility.getNumericCellValue(custom, 0, 1), DELTA);
+      assertEquals(4.14, TestUtility.getNumericCellValue(custom, 1, 1), DELTA);
    }
 
    /**

@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Sheet;
 
 import net.sf.jett.exception.TagParseException;
@@ -24,6 +25,8 @@ import net.sf.jett.util.SheetUtil;
  * <li>copyRight (optional): <code>boolean</code>
  * <li>fixed (optional): <code>boolean</code>
  * <li>pastEndAction (optional): <code>String</code>
+ * <li>groupDir (optional): <code>String</code>
+ * <li>collapse (optional): <code>boolean</code>
  * </ul>
  */
 public abstract class BaseLoopTag extends BaseTag
@@ -42,8 +45,26 @@ public abstract class BaseLoopTag extends BaseTag
    /**
     * Attribute for specifying the "past end action", an action for dealing
     * with content beyond the range of looping content.
+    * @see #PAST_END_ACTION_CLEAR
+    * @see #PAST_END_ACTION_REMOVE
     */
    public static final String ATTR_PAST_END_ACTION = "pastEndAction";
+   /**
+    * Attribute for specifying the direction of the grouping.  This defaults to
+    * no grouping.
+    * @since 0.2.0
+    * @see #GROUP_DIR_ROWS
+    * @see #GROUP_DIR_COLS
+    * @see #GROUP_DIR_NONE
+    */
+   public static final String ATTR_GROUP_DIR = "groupDir";
+   /**
+    * Attribute for specifying whether the group should be displayed collapsed.
+    * The default is <code>false</code>, for not collapsed.  It is ignored if
+    * neither rows nor columns are being grouped.
+    * @since 0.2.0
+    */
+   public static final String ATTR_COLLAPSE = "collapse";
 
    /**
     * The "past end action" value to clear the content of cells.
@@ -55,12 +76,32 @@ public abstract class BaseLoopTag extends BaseTag
     */
    public static final String PAST_END_ACTION_REMOVE = "remove";
 
+   /**
+    * The "group dir" value to specify that columns should be grouped.
+    * @since 0.2.0
+    */
+   public static final String GROUP_DIR_COLS = "cols";
+   /**
+    * The "group dir" value to specify that rows should be grouped.
+    * @since 0.2.0
+    */
+   public static final String GROUP_DIR_ROWS = "rows";
+   /**
+    * The "group dir" value to specify that neither rows nor columns should be
+    * grouped.
+    * @since 0.2.0
+    */
+   public static final String GROUP_DIR_NONE = "none";
+
    private static final List<String> OPT_ATTRS =
-      new ArrayList<String>(Arrays.asList(ATTR_COPY_RIGHT, ATTR_FIXED, ATTR_PAST_END_ACTION));
+      new ArrayList<String>(Arrays.asList(ATTR_COPY_RIGHT, ATTR_FIXED, ATTR_PAST_END_ACTION,
+         ATTR_GROUP_DIR, ATTR_COLLAPSE));
 
    private boolean amIExplicitlyCopyingRight = false;
    private boolean amIFixed = false;
    private PastEndAction myPastEndAction = PastEndAction.CLEAR_CELL;
+   private Block.Direction myGroupDir;
+   private boolean amICollapsed;
 
    /**
     * There are no required attributes that all <code>BaseLoopTags</code>
@@ -82,7 +123,8 @@ public abstract class BaseLoopTag extends BaseTag
    }
 
    /**
-    * Ensure that the past end action (if specified) is a valid value.
+    * Ensure that the past end action (if specified) is a valid value.  Ensure
+    * that the group direction (if specified) is a valid value.
     * @throws TagParseException If the attribute values are illegal or
     *    unacceptable.
     */
@@ -90,10 +132,11 @@ public abstract class BaseLoopTag extends BaseTag
    {
       TagContext context = getContext();
       Map<String, Object> beans = context.getBeans();
-      Map<String, String> attributes = getAttributes();
+      Map<String, RichTextString> attributes = getAttributes();
       Block block = context.getBlock();
 
-      String attrCopyRight = attributes.get(ATTR_COPY_RIGHT);
+      RichTextString rtsCopyRight = attributes.get(ATTR_COPY_RIGHT);
+      String attrCopyRight = (rtsCopyRight != null) ? rtsCopyRight.getString() : null;
       if (attrCopyRight != null)
       {
          Object copyRight = Expression.evaluateString(attrCopyRight, beans);
@@ -108,7 +151,8 @@ public abstract class BaseLoopTag extends BaseTag
       if (amIExplicitlyCopyingRight)
          block.setDirection(Block.Direction.HORIZONTAL);
 
-      String attrFixed = attributes.get(ATTR_FIXED);
+      RichTextString rtsFixed = attributes.get(ATTR_FIXED);
+      String attrFixed = (rtsFixed != null) ? rtsFixed.getString() : null;
       if (attrFixed != null)
       {
          Object fixed = Expression.evaluateString(attrFixed, beans);
@@ -121,7 +165,8 @@ public abstract class BaseLoopTag extends BaseTag
          }
       }
 
-      String attrPastEndAction = attributes.get(ATTR_PAST_END_ACTION);
+      RichTextString rtsPastEndAction = attributes.get(ATTR_PAST_END_ACTION);
+      String attrPastEndAction = (rtsPastEndAction != null) ? rtsPastEndAction.getString() : null;
       if (attrPastEndAction != null)
       {
          Object pastEndAction = Expression.evaluateString(attrPastEndAction, beans);
@@ -138,6 +183,37 @@ public abstract class BaseLoopTag extends BaseTag
          }
          else
             throw new TagParseException("Past end action can't be null: " + attrPastEndAction);
+      }
+
+      RichTextString rtsGroupDir = attributes.get(ATTR_GROUP_DIR);
+      String attrGroupDir = (rtsGroupDir != null) ? rtsGroupDir.getString() : null;
+      if (attrGroupDir != null)
+      {
+         String groupDir = Expression.evaluateString(attrGroupDir, beans).toString().toLowerCase();
+         if (GROUP_DIR_ROWS.equals(groupDir))
+            myGroupDir = Block.Direction.VERTICAL;
+         else if (GROUP_DIR_COLS.equals(groupDir))
+            myGroupDir = Block.Direction.HORIZONTAL;
+         else if (GROUP_DIR_NONE.equals(groupDir))
+            myGroupDir = Block.Direction.NONE;
+         else
+            throw new TagParseException("Unknown group direction: " + groupDir +
+                  " found at " + attrGroupDir);
+      }
+      else
+      {
+         myGroupDir = Block.Direction.NONE;
+      }
+
+      RichTextString rtsCollapse = attributes.get(ATTR_COLLAPSE);
+      String attrCollapse = (rtsCollapse != null) ? rtsCollapse.getString() : null;
+      if (attrCollapse != null)
+      {
+         Object test = Expression.evaluateString(attrCollapse, beans);
+         if (test instanceof Boolean)
+            amICollapsed = (Boolean) test;
+         else
+            amICollapsed = Boolean.parseBoolean(test.toString());
       }
    }
 
@@ -299,6 +375,7 @@ public abstract class BaseLoopTag extends BaseTag
             blockContext.setBeans(beans);
             blockContext.setBlock(currBlock);
             blockContext.setProcessedCellsMap(context.getProcessedCellsMap());
+            blockContext.setDrawing(context.getDrawing());
             if (DEBUG)
                System.err.println("  Block Before: " + currBlock);
             right = currBlock.getRightColNum();
@@ -330,8 +407,38 @@ public abstract class BaseLoopTag extends BaseTag
             // End of loop processing.
             index++;
          }
+
+         // Grouping - only if there was at least one item to process.
+         groupRowsOrCols(sheet, context.getBlock(), blocksToProcess.get(blocksToProcess.size() - 1));
       }
       return true;
+   }
+
+   /**
+    * Decide to and place an Excel Group for rows, columns, or nothing,
+    * depending on attribute settings and the first and last
+    * <code>Blocks</code>.
+    * @param sheet The <code>Sheet</code> on which to group rows or columns.
+    * @param first The first <code>Block</code>.
+    * @param last The last <code>Block</code>.
+    */
+   private void groupRowsOrCols(Sheet sheet, Block first, Block last)
+   {
+      int begin, end;
+      switch(myGroupDir)
+      {
+      case VERTICAL:
+         begin = first.getTopRowNum();
+         end = last.getBottomRowNum();
+         SheetUtil.groupRows(sheet, begin, end, amICollapsed);
+         break;
+      case HORIZONTAL:
+         begin = first.getLeftColNum();
+         end = last.getRightColNum();
+         SheetUtil.groupColumns(sheet, begin, end, amICollapsed);
+         break;
+      // Do nothing on NONE.
+      }
    }
 
    /**

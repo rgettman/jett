@@ -5,12 +5,29 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.poi.hssf.usermodel.HSSFFont;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Color;
+import org.apache.poi.ss.usermodel.Comment;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.RichTextString;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFColor;
+import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.junit.Ignore;
 
+import net.sf.jett.tag.HyperlinkTag;
 import net.sf.jett.test.model.County;
 import net.sf.jett.test.model.Division;
+import net.sf.jett.test.model.HyperlinkData;
 import net.sf.jett.test.model.State;
 import net.sf.jett.test.model.Team;
+import net.sf.jett.util.SheetUtil;
 
 /**
  * This utility class supplies beans maps for possibly multiple tests.
@@ -146,6 +163,18 @@ public class TestUtility
     */
    public static Map<String, Object> getSpecificDivisionData(int code)
    {
+      return getSpecificDivisionData(code, "division");
+   }
+
+   /**
+    * Get a beans map with only one <code>Division</code>, determined by the
+    * <code>code</code> argument.  The name is "division".
+    * @param code Determines with division, 0-7.
+    * @param name This becomes the bean name of the <code>Division</code>.
+    * @return A <code>Division</code>, or <code>null</code> if out of range.
+    */
+   public static Map<String, Object> getSpecificDivisionData(int code, String name)
+   {
       Map<String, Object> beans = new HashMap<String, Object>();
       Division division = null;
       switch(code)
@@ -175,7 +204,7 @@ public class TestUtility
          division = getOfTheirOwnDivision();
          break;
       }
-      beans.put("division", division);
+      beans.put(name, division);
       return beans;
    }
 
@@ -358,5 +387,307 @@ public class TestUtility
       harlem.setCity("Harlem"); harlem.setName("Globetrotters"); harlem.setWins(21227); harlem.setLosses(341);
       ofTheirOwn.addTeam(harlem);
       return ofTheirOwn;
+   }
+
+   /**
+    * Gets a beans map with <code>HyperlinkData</code> data, exposed as
+    * "hyperlinks".
+    *
+    * @return A <code>Map</code> of <code>HyperlinkData</code> beans.
+    */
+   public static Map<String, Object> getHyperlinkData()
+   {
+      Map<String, Object> beans = new HashMap<String, Object>();
+      List<HyperlinkData> hyperlinks = new ArrayList<HyperlinkData>();
+      hyperlinks.add(new HyperlinkData(
+         HyperlinkTag.TYPE_URL, "http://jett.sourceforge.net", "JETT on SourceForge"));
+      hyperlinks.add(new HyperlinkData(
+         HyperlinkTag.TYPE_EMAIL, "mailto:jett-users@lists.sourceforge.net", "Email jett-users"));
+      hyperlinks.add(new HyperlinkData(
+         HyperlinkTag.TYPE_FILE, "../templates/HyperlinkTagTemplate.xlsx", "Template For This Test (.xlsx)"));
+      hyperlinks.add(new HyperlinkData(
+         HyperlinkTag.TYPE_DOC, "'Target Sheet'!B3", "Intra-spreadsheet Link"));
+      beans.put("hyperlinks", hyperlinks);
+      return beans;
+   }
+
+   /**
+    * Gets the string value from a particular <code>Cell</code> on the given
+    * <code>Sheet</code>.
+    * @param sheet The <code>Sheet</code>.
+    * @param row The 0-based row index.
+    * @param col The 0-based column index.
+    * @return The string value, as a <code>String</code>.
+    */
+   public static String getStringCellValue(Sheet sheet, int row, int col)
+   {
+      Row r = sheet.getRow(row);
+      if (r != null)
+      {
+         Cell c = r.getCell(col);
+         if (c != null)
+            return c.getStringCellValue();
+      }
+      return null;
+   }
+
+   /**
+    * Gets the <code>RichTextString</code> value from a particular
+    * <code>Cell</code> on the given <code>Sheet</code>.
+    * @param sheet The <code>Sheet</code>.
+    * @param row The 0-based row index.
+    * @param col The 0-based column index.
+    * @return The <code>RichTextStringValue</code>.
+    * @since 0.2.0
+    */
+   public static RichTextString getRichTextStringCellValue(Sheet sheet, int row, int col)
+   {
+      Row r = sheet.getRow(row);
+      if (r != null)
+      {
+         Cell c = r.getCell(col);
+         if (c != null)
+            return c.getRichStringCellValue();
+      }
+      return null;
+   }
+
+   /**
+    * Gets the numeric value from a particular <code>Cell</code> on the given
+    * <code>Sheet</code>.
+    * @param sheet The <code>Sheet</code>.
+    * @param row The 0-based row index.
+    * @param col The 0-based column index.
+    * @return The numeric value, as a <code>double</code>.
+    */
+   public static double getNumericCellValue(Sheet sheet, int row, int col)
+   {
+      Row r = sheet.getRow(row);
+      if (r != null)
+      {
+         Cell c = r.getCell(col);
+         if (c != null)
+            return c.getNumericCellValue();
+      }
+      return Double.NaN;
+   }
+
+   /**
+    * Gets the string formula value from a particular <code>Cell</code> on the
+    * given <code>Sheet</code>.
+    * @param sheet The <code>Sheet</code>.
+    * @param row The 0-based row index.
+    * @param col The 0-based column index.
+    * @return The string formula value.
+    */
+   public static String getFormulaCellValue(Sheet sheet, int row, int col)
+   {
+      Row r = sheet.getRow(row);
+      if (r != null)
+      {
+         Cell c = r.getCell(col);
+         if (c != null)
+            return c.getCellFormula();
+      }
+      return null;
+   }
+
+   /**
+    * Determines whether the <code>Cell</code> on the given <code>Sheet</code>
+    * at the given row and column indexes is blank: either it doesn't exist, or
+    * it exists and the cell type is blank.
+    * @param sheet The <code>Sheet</code>.
+    * @param row The 0-based row index.
+    * @param col The 0-based column index.
+    * @return Whether the <code>Cell</code> is blank.
+    */
+   public static boolean isCellBlank(Sheet sheet, int row, int col)
+   {
+      return SheetUtil.isCellBlank(sheet, row, col);
+   }
+
+   /**
+    * Gets the <code>Comment</code> value, if any, from a particular
+    * <code>Cell</code> on the given <code>Sheet</code>.
+    * @param sheet The <code>Sheet</code>.
+    * @param row The 0-based row index.
+    * @param col The 0-based column index.
+    * @return The string formula value.
+    * @since 0.2.0
+    */
+   public static Comment getComment(Sheet sheet, int row, int col)
+   {
+      Row r = sheet.getRow(row);
+      if (r != null)
+      {
+         Cell c = r.getCell(col);
+         if (c != null)
+            return c.getCellComment();
+      }
+      return null;
+   }
+
+   /**
+    * Determines whether the <code>CellRangeAddress</code>, representing a
+    * "merged region", exists in the given <code>Sheet</code>.
+    * @param sheet The <code>Sheet</code>.
+    * @param region A <code>CellRangeAddress</code>.
+    * @return <code>true</code> if the given region exists in the given sheet,
+    *    <code>false</code> otherwise.
+    */
+   public static boolean isMergedRegionPresent(Sheet sheet, CellRangeAddress region)
+   {
+      for (int i = 0; i < sheet.getNumMergedRegions(); i++)
+      {
+         CellRangeAddress candidate = sheet.getMergedRegion(i);
+         if (candidate.getFirstRow() == region.getFirstRow() &&
+             candidate.getLastRow() == region.getLastRow() &&
+             candidate.getFirstColumn() == region.getFirstColumn() &&
+            candidate.getLastColumn() == region.getLastColumn())
+         {
+            return true;
+         }
+      }
+      return false;
+   }
+
+   /**
+    * Helper method to get an actual <code>Font</code>, regardless of which
+    * kind of <code>Workbook</code> it came from.
+    * @param result The result of a call to
+    *    <code>RichTextStringUtil.getFontAtIndex</code>.
+    * @param workbook A <code>Workbook</code>.
+    * @return A <code>Font</code>.
+    */
+   public static Font convertToFont(Object result, Workbook workbook)
+   {
+      Font font;
+      if (workbook instanceof HSSFWorkbook)
+      {
+         font = workbook.getFontAt((Short) result);
+      }
+      else
+      {
+         font = (XSSFFont) result;
+      }
+      return font;
+   }
+
+   /**
+    * Returns the cell foreground color, as a hex string, on the given
+    * <code>Sheet</code>, at the given row and column indexes.
+    * @param sheet The <code>Sheet</code>.
+    * @param row The 0-based row index.
+    * @param col The 0-based column index.
+    * @return The cell foreground color, as a hex string.
+    * @since 0.2.0
+    */
+   public static String getCellForegroundColorString(Sheet sheet, int row, int col)
+   {
+      Row r = sheet.getRow(row);
+      if (r != null)
+      {
+         Cell c = r.getCell(col);
+         if (c != null)
+         {
+            Color color = c.getCellStyle().getFillForegroundColorColor();
+            if (color instanceof HSSFColor)
+            {
+               HSSFColor hssfColor = (HSSFColor) color;
+               return getHSSFColorHexString(hssfColor);
+            }
+            else if (color instanceof XSSFColor)
+            {
+               XSSFColor xssfColor = (XSSFColor) color;
+               return getXSSFColorHexString(xssfColor);
+            }
+            else
+            {
+               throw new IllegalArgumentException("Unexpected type of Color for cell on sheet " +
+                  sheet.getSheetName() + ", row " + row + ", col " + col);
+            }
+         }
+      }
+      return null;
+   }
+
+   /**
+    * Returns the font color, as a hex string, on the given
+    * <code>Font</code>.
+    * @param workbook The <code>Workbook</code> on which the <code>Font</code>
+    *    is found.
+    * @param font A <code>Font</code>.
+    * @return The font color, as a hex string.
+    */
+   public static String getFontColorString(Workbook workbook, Font font)
+   {
+      if (font instanceof HSSFFont)
+      {
+         HSSFColor hssfColor = ((HSSFFont) font).getHSSFColor((HSSFWorkbook) workbook);
+         return getHSSFColorHexString(hssfColor);
+      }
+      else if (font instanceof XSSFFont)
+      {
+         XSSFColor xssfColor = ((XSSFFont) font).getXSSFColor();
+         return getXSSFColorHexString(xssfColor);
+      }
+      else
+      {
+         throw new IllegalArgumentException("Unexpected type of Font: " + font.getClass().getName());
+      }
+   }
+
+   /**
+    * Get the hex string for a <code>HSSFColor</code>.
+    * @param hssfColor A <code>HSSFColor</code>.
+    * @return The hex string.
+    */
+   private static String getHSSFColorHexString(HSSFColor hssfColor)
+   {
+      short[] shorts = hssfColor.getTriplet();
+      StringBuilder hexString = new StringBuilder();
+      for (short s : shorts)
+      {
+         String twoHex = Integer.toHexString(0x000000FF & s);
+         if (twoHex.length() == 1)
+            hexString.append('0');
+         hexString.append(twoHex);
+      }
+      return hexString.toString();
+   }
+
+   /**
+    * Get the hex string for a <code>XSSFColor</code>.
+    * @param xssfColor A <code>XSSFColor</code>.
+    * @return The hex string.
+    */
+   private static String getXSSFColorHexString(XSSFColor xssfColor)
+   {
+      byte[] bytes = xssfColor.getRgb();
+      StringBuilder hexString = new StringBuilder();
+      for (byte b : bytes)
+      {
+         String twoHex = Integer.toHexString(0x000000FF & b);
+         if (twoHex.length() == 1)
+            hexString.append('0');
+         hexString.append(twoHex);
+      }
+      return hexString.toString();
+   }
+
+   /**
+    * Returns the <code>Cell</code> (if any), on the given <code>Sheet</code>,
+    * at the given row and column indexes.
+    * @param sheet The <code>Sheet</code>.
+    * @param row The 0-based row index.
+    * @param col The 0-based column index.
+    * @return The <code>Cell</code> or <code>null</code> if it doesn't exist.
+    */
+   public static Cell getCell(Sheet sheet, int row, int col)
+   {
+      Row r = sheet.getRow(row);
+      if (r != null)
+         return r.getCell(col);
+      return null;
    }
 }

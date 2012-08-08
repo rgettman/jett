@@ -2,11 +2,12 @@ package net.sf.jett.transform;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Iterator;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -16,6 +17,7 @@ import net.sf.jett.expression.ExpressionFactory;
 import net.sf.jett.parser.MetadataParser;
 import net.sf.jett.tag.BaseLoopTag;
 import net.sf.jett.tag.Block;
+import net.sf.jett.tag.GroupTag;
 import net.sf.jett.tag.MultiForEachTag;
 import net.sf.jett.tag.TagContext;
 import net.sf.jett.util.RichTextStringUtil;
@@ -47,6 +49,7 @@ public class CollectionsTransformer
       Map<String, Object> beans = cellContext.getBeans();
       Map<String, Cell> processedCells = cellContext.getProcessedCellsMap();
       Sheet sheet = cell.getSheet();
+      CreationHelper helper = sheet.getWorkbook().getCreationHelper();
 
       MetadataParser parser = null;
       RichTextString richString = cell.getRichStringCellValue();
@@ -67,7 +70,7 @@ public class CollectionsTransformer
          parser.parse();
          // Remove the metadata text from the Cell.
          RichTextString metadataRemoved = RichTextStringUtil.replaceAll(richString,
-            sheet.getWorkbook().getCreationHelper(), MetadataParser.BEGIN_METADATA + metadataExpr, "");
+            helper, MetadataParser.BEGIN_METADATA + metadataExpr, "");
          SheetUtil.setCellValue(cell, metadataRemoved);
       }
 
@@ -79,6 +82,9 @@ public class CollectionsTransformer
       int bottom = top;
       boolean copyRight = false;
       boolean fixed = false;
+      String pastEndAction = BaseLoopTag.PAST_END_ACTION_CLEAR;
+      String groupDir = GroupTag.GROUP_DIR_NONE;
+      boolean collapse = false;
       if (parser != null)
       {
          bottom += parser.getExtraRows();
@@ -94,6 +100,9 @@ public class CollectionsTransformer
          }
          copyRight = parser.isCopyingRight();
          fixed = parser.isFixed();
+         pastEndAction = parser.getPastEndAction();
+         groupDir = parser.getGroupDir();
+         collapse = parser.isCollapsingGroup();
       }
       Block containingBlock = new Block(parentBlock, left, right, top, bottom);
       if (DEBUG)
@@ -169,15 +178,16 @@ public class CollectionsTransformer
       context.setBlock(containingBlock);
       context.setSheet(sheet);
       context.setProcessedCellsMap(processedCells);
+      context.setDrawing(cellContext.getDrawing());
 
       // Create an implicit MultiForEach tag.
       MultiForEachTag tag = new MultiForEachTag();
       tag.setContext(context);
       tag.setWorkbookContext(workbookContext);
       // Set the Tag's attributes.
-      Map<String, String> attributes = new HashMap<String, String>();
+      Map<String, RichTextString> attributes = new HashMap<String, RichTextString>();
       StringBuilder buf = new StringBuilder();
-      // Construct the "collections" attribute.
+      // Construct the attributes.
       for (int i = 0; i < collectionNames.size(); i++)
       {
          if (i > 0)
@@ -186,8 +196,8 @@ public class CollectionsTransformer
          buf.append(collectionNames.get(i));
          buf.append(Expression.END_EXPR);
       }
-      attributes.put(MultiForEachTag.ATTR_COLLECTIONS, buf.toString());
-      // Construct the "vars" attribute.
+      attributes.put(MultiForEachTag.ATTR_COLLECTIONS, helper.createRichTextString(buf.toString()));
+
       buf.setLength(0);
       for (int i = 0; i < vars.size(); i++)
       {
@@ -195,11 +205,15 @@ public class CollectionsTransformer
             buf.append(MultiForEachTag.SPEC_SEP);
          buf.append(vars.get(i));
       }
-      attributes.put(MultiForEachTag.ATTR_VARS, buf.toString());
+      attributes.put(MultiForEachTag.ATTR_VARS, helper.createRichTextString(buf.toString()));
       if (copyRight)
-         attributes.put(BaseLoopTag.ATTR_COPY_RIGHT, "true");
+         attributes.put(BaseLoopTag.ATTR_COPY_RIGHT, helper.createRichTextString("true"));
       if (fixed)
-         attributes.put(BaseLoopTag.ATTR_FIXED, "true");
+         attributes.put(BaseLoopTag.ATTR_FIXED, helper.createRichTextString("true"));
+      attributes.put(BaseLoopTag.ATTR_PAST_END_ACTION, helper.createRichTextString(pastEndAction));
+      attributes.put(BaseLoopTag.ATTR_GROUP_DIR, helper.createRichTextString(groupDir));
+      if (collapse)
+         attributes.put(BaseLoopTag.ATTR_COLLAPSE, helper.createRichTextString("true"));
 
       if (DEBUG)
       {

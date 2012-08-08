@@ -32,6 +32,9 @@
         <menu name="Tags">
             <item name="Basics" href="tags/basics.html"/>
             <item name="&amp;lt;jt:agg&amp;gt; Tag" href="tags/agg.html"/>
+            <item name="&amp;lt;jt:comment&amp;gt; Tag" href="tags/comment.html"/>
+            <item name="&amp;lt;jt:group&amp;gt; Tag" href="tags/group.html"/>
+            <item name="&amp;lt;jt:hyperlink&amp;gt; Tag" href="tags/hyperlink.html"/>
             <item name="&amp;lt;jt:if&amp;gt; Tag" href="tags/if.html"/>
             <item name="&amp;lt;jt:null&amp;gt; Tag" href="tags/null.html"/>
             <item name="&amp;lt;jt:span&amp;gt; Tag" href="tags/span.html"/>
@@ -48,7 +51,7 @@
         </menu>
         <menu name="Miscellaneous">
             <item name="Cell Listeners" href="misc/cell_listeners.html"/>
-            <item name="JEXL Flags" href="misc/jexl_flags.html"/>
+            <item name="JEXL Settings" href="misc/jexl_settings.html"/>
             <item name="Working With Charts" href="misc/charts.html"/>
         </menu>
         <menu ref="reports"/>

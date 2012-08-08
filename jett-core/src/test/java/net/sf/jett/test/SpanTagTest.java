@@ -5,11 +5,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import net.sf.jett.util.RichTextStringUtil;
 
 /**
  * This JUnit Test class tests the evaluation of the "span" tag (always
@@ -57,58 +60,65 @@ public class SpanTagTest extends TestCase
    protected void check(Workbook workbook)
    {
       Sheet vert = workbook.getSheetAt(0);
-      assertEquals("Case vert cell factor=3", getStringCellValue(vert, 0, 0));
-      assertTrue(isMergedRegionPresent(vert, new CellRangeAddress(0, 2, 0, 0)));
-      assertEquals("Case vert row factor=3", getStringCellValue(vert, 0, 1));
-      assertTrue(isMergedRegionPresent(vert, new CellRangeAddress(0, 2, 1, 6)));
-      assertEquals("Case vert col factor=3", getStringCellValue(vert, 3, 0));
-      assertTrue(isMergedRegionPresent(vert, new CellRangeAddress(3, 20, 0, 0)));
-      assertEquals("Case vert block factor=3", getStringCellValue(vert, 3, 1));
-      assertTrue(isMergedRegionPresent(vert, new CellRangeAddress(3, 20, 1, 6)));
-      assertEquals("After1", getStringCellValue(vert, 21, 0));
-      assertEquals("After2", getStringCellValue(vert, 21, 6));
+      assertEquals("Case vert cell factor=3", TestUtility.getStringCellValue(vert, 0, 0));
+      assertTrue(TestUtility.isMergedRegionPresent(vert, new CellRangeAddress(0, 2, 0, 0)));
+      assertEquals("Case vert row factor=3", TestUtility.getStringCellValue(vert, 0, 1));
+      assertTrue(TestUtility.isMergedRegionPresent(vert, new CellRangeAddress(0, 2, 1, 6)));
+      assertEquals("Case vert col factor=3", TestUtility.getStringCellValue(vert, 3, 0));
+      assertTrue(TestUtility.isMergedRegionPresent(vert, new CellRangeAddress(3, 20, 0, 0)));
+      assertEquals("Case vert block factor=3", TestUtility.getStringCellValue(vert, 3, 1));
+      RichTextString rts = TestUtility.getRichTextStringCellValue(vert, 3, 1);
+      Font font = TestUtility.convertToFont(RichTextStringUtil.getFontAtIndex(rts, 0), workbook);
+      assertTrue((font == null) || "000000".equals(TestUtility.getFontColorString(workbook, font)));
+      font = TestUtility.convertToFont(RichTextStringUtil.getFontAtIndex(rts, 22), workbook);
+      assertTrue((font == null) || "000000".equals(TestUtility.getFontColorString(workbook, font)));
+      font = TestUtility.convertToFont(RichTextStringUtil.getFontAtIndex(rts, 23), workbook);
+      assertEquals("008000", TestUtility.getFontColorString(workbook, font));
+      assertTrue(TestUtility.isMergedRegionPresent(vert, new CellRangeAddress(3, 20, 1, 6)));
+      assertEquals("After1", TestUtility.getStringCellValue(vert, 21, 0));
+      assertEquals("After2", TestUtility.getStringCellValue(vert, 21, 6));
 
-      assertEquals("Case vert cell factor=1", getStringCellValue(vert, 22, 0));
-      assertFalse(isMergedRegionPresent(vert, new CellRangeAddress(22, 22, 0, 0)));
-      assertEquals("Case vert row factor=1", getStringCellValue(vert, 22, 1));
-      assertTrue(isMergedRegionPresent(vert, new CellRangeAddress(22, 22, 1, 6)));
-      assertEquals("Case vert col factor=1", getStringCellValue(vert, 23, 0));
-      assertTrue(isMergedRegionPresent(vert, new CellRangeAddress(23, 28, 0, 0)));
-      assertEquals("Case vert block factor=1", getStringCellValue(vert, 23, 1));
-      assertTrue(isMergedRegionPresent(vert, new CellRangeAddress(23, 28, 1, 6)));
-      assertEquals("After3", getStringCellValue(vert, 29, 0));
-      assertEquals("After4", getStringCellValue(vert, 29, 6));
+      assertEquals("Case vert cell factor=1", TestUtility.getStringCellValue(vert, 22, 0));
+      assertFalse(TestUtility.isMergedRegionPresent(vert, new CellRangeAddress(22, 22, 0, 0)));
+      assertEquals("Case vert row factor=1", TestUtility.getStringCellValue(vert, 22, 1));
+      assertTrue(TestUtility.isMergedRegionPresent(vert, new CellRangeAddress(22, 22, 1, 6)));
+      assertEquals("Case vert col factor=1", TestUtility.getStringCellValue(vert, 23, 0));
+      assertTrue(TestUtility.isMergedRegionPresent(vert, new CellRangeAddress(23, 28, 0, 0)));
+      assertEquals("Case vert block factor=1", TestUtility.getStringCellValue(vert, 23, 1));
+      assertTrue(TestUtility.isMergedRegionPresent(vert, new CellRangeAddress(23, 28, 1, 6)));
+      assertEquals("After3", TestUtility.getStringCellValue(vert, 29, 0));
+      assertEquals("After4", TestUtility.getStringCellValue(vert, 29, 6));
 
-      assertEquals("After5", getStringCellValue(vert, 30, 0));
-      assertEquals("After6", getStringCellValue(vert, 30, 6));
+      assertEquals("After5", TestUtility.getStringCellValue(vert, 30, 0));
+      assertEquals("After6", TestUtility.getStringCellValue(vert, 30, 6));
 
       assertEquals(7, vert.getNumMergedRegions());
 
       Sheet horiz = workbook.getSheetAt(1);
-      assertEquals("Case horiz cell factor=3", getStringCellValue(horiz, 0, 0));
-      assertTrue(isMergedRegionPresent(horiz, new CellRangeAddress(0, 0, 0, 2)));
-      assertEquals("Case horiz row factor=3", getStringCellValue(horiz, 0, 3));
-      assertTrue(isMergedRegionPresent(horiz, new CellRangeAddress(0, 0, 3, 20)));
-      assertEquals("Case horiz col factor=3", getStringCellValue(horiz, 1, 0));
-      assertTrue(isMergedRegionPresent(horiz, new CellRangeAddress(1, 6, 0, 2)));
-      assertEquals("Case horiz block factor=3", getStringCellValue(horiz, 1, 3));
-      assertTrue(isMergedRegionPresent(horiz, new CellRangeAddress(1, 6, 3, 20)));
-      assertEquals("After1", getStringCellValue(horiz, 0, 21));
-      assertEquals("After2", getStringCellValue(horiz, 6, 21));
+      assertEquals("Case horiz cell factor=3", TestUtility.getStringCellValue(horiz, 0, 0));
+      assertTrue(TestUtility.isMergedRegionPresent(horiz, new CellRangeAddress(0, 0, 0, 2)));
+      assertEquals("Case horiz row factor=3", TestUtility.getStringCellValue(horiz, 0, 3));
+      assertTrue(TestUtility.isMergedRegionPresent(horiz, new CellRangeAddress(0, 0, 3, 20)));
+      assertEquals("Case horiz col factor=3", TestUtility.getStringCellValue(horiz, 1, 0));
+      assertTrue(TestUtility.isMergedRegionPresent(horiz, new CellRangeAddress(1, 6, 0, 2)));
+      assertEquals("Case horiz block factor=3", TestUtility.getStringCellValue(horiz, 1, 3));
+      assertTrue(TestUtility.isMergedRegionPresent(horiz, new CellRangeAddress(1, 6, 3, 20)));
+      assertEquals("After1", TestUtility.getStringCellValue(horiz, 0, 21));
+      assertEquals("After2", TestUtility.getStringCellValue(horiz, 6, 21));
 
-      assertEquals("Case horiz cell factor=1", getStringCellValue(horiz, 0, 22));
-      assertFalse(isMergedRegionPresent(horiz, new CellRangeAddress(0, 0, 22, 22)));
-      assertEquals("Case horiz row factor=1", getStringCellValue(horiz, 0, 23));
-      assertTrue(isMergedRegionPresent(horiz, new CellRangeAddress(0, 0, 23, 28)));
-      assertEquals("Case horiz col factor=1", getStringCellValue(horiz, 1, 22));
-      assertTrue(isMergedRegionPresent(horiz, new CellRangeAddress(1, 6, 22, 22)));
-      assertEquals("Case horiz block factor=1", getStringCellValue(horiz, 1, 23));
-      assertTrue(isMergedRegionPresent(horiz, new CellRangeAddress(1, 6, 23, 28)));
-      assertEquals("After3", getStringCellValue(horiz, 0, 29));
-      assertEquals("After4", getStringCellValue(horiz, 6, 29));
+      assertEquals("Case horiz cell factor=1", TestUtility.getStringCellValue(horiz, 0, 22));
+      assertFalse(TestUtility.isMergedRegionPresent(horiz, new CellRangeAddress(0, 0, 22, 22)));
+      assertEquals("Case horiz row factor=1", TestUtility.getStringCellValue(horiz, 0, 23));
+      assertTrue(TestUtility.isMergedRegionPresent(horiz, new CellRangeAddress(0, 0, 23, 28)));
+      assertEquals("Case horiz col factor=1", TestUtility.getStringCellValue(horiz, 1, 22));
+      assertTrue(TestUtility.isMergedRegionPresent(horiz, new CellRangeAddress(1, 6, 22, 22)));
+      assertEquals("Case horiz block factor=1", TestUtility.getStringCellValue(horiz, 1, 23));
+      assertTrue(TestUtility.isMergedRegionPresent(horiz, new CellRangeAddress(1, 6, 23, 28)));
+      assertEquals("After3", TestUtility.getStringCellValue(horiz, 0, 29));
+      assertEquals("After4", TestUtility.getStringCellValue(horiz, 6, 29));
 
-      assertEquals("After5", getStringCellValue(horiz, 0, 30));
-      assertEquals("After6", getStringCellValue(horiz, 6, 30));
+      assertEquals("After5", TestUtility.getStringCellValue(horiz, 0, 30));
+      assertEquals("After6", TestUtility.getStringCellValue(horiz, 6, 30));
 
       assertEquals(7, horiz.getNumMergedRegions());
    }

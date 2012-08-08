@@ -1,6 +1,8 @@
 package net.sf.jett.parser;
 
 import net.sf.jett.exception.MetadataParseException;
+import net.sf.jett.tag.BaseLoopTag;
+import net.sf.jett.tag.GroupTag;
 
 /**
  * A <code>MetadataParser</code> parses metadata at the end of cell text.
@@ -33,6 +35,23 @@ public class MetadataParser
     */
    public static final String VAR_NAME_FIXED = "fixed";
    /**
+    * Metadata variable name specifying the "past end action" to take whenever
+    * a <code>Collection</code> is exhausted before the end of iteration.
+    * @since 0.2.0
+    */
+   public static final String VAR_NAME_PAST_END_ACTION = "pastEndAction";
+   /**
+    * Metadata variable name specifying to create an Excel grouping for rows,
+    * columns, or no grouping.
+    * @since 0.2.0
+    */
+   public static final String VAR_NAME_GROUP_DIR = "groupDir";
+   /**
+    * Metadata variable name specifying whether any Excelt grouping created
+    * should be collapsed, defaulting to <code>false</code>.
+    */
+   public static final String VAR_NAME_COLLAPSE = "collapse";
+   /**
     * Determines the beginning of metadata text.
     */
    public static final String BEGIN_METADATA = "?@";
@@ -45,6 +64,9 @@ public class MetadataParser
    private boolean amICopyingRight;
    private boolean amIFixed;
    private boolean amIIExpectingAValue;
+   private String myPastEndActionValue = BaseLoopTag.PAST_END_ACTION_CLEAR;
+   private String myGroupDir;
+   private boolean amICollapsingGroup;
 
    /**
     * Create a <code>MetadataParser</code>.
@@ -87,6 +109,9 @@ public class MetadataParser
       amICopyingRight = false;
       amIFixed = false;
       amIIExpectingAValue = false;
+      myPastEndActionValue = BaseLoopTag.PAST_END_ACTION_CLEAR;
+      myGroupDir = GroupTag.GROUP_DIR_NONE;
+      amICollapsingGroup = false;
    }
 
    /**
@@ -186,6 +211,31 @@ public class MetadataParser
                   if (DEBUG)
                      System.err.println("MDP: amIFixed set to " + amIFixed);
                }
+               else if (VAR_NAME_PAST_END_ACTION.equals(varName))
+               {
+                  myPastEndActionValue = value;
+                  if (!BaseLoopTag.PAST_END_ACTION_REMOVE.equals(value) &&
+                      !BaseLoopTag.PAST_END_ACTION_CLEAR.equals(value))
+                  {
+                     throw new MetadataParseException("Unrecognized pastEndAction value: " + value);
+                  }
+               }
+               else if (VAR_NAME_GROUP_DIR.equals(varName))
+               {
+                  myGroupDir = value;
+                  if (!GroupTag.GROUP_DIR_ROWS.equals(value) &&
+                      !GroupTag.GROUP_DIR_COLS.equals(value) &&
+                      !GroupTag.GROUP_DIR_NONE.equals(value))
+                  {
+                     throw new MetadataParseException("Unrecognized groupDir value: " + value);
+                  }
+               }
+               else if (VAR_NAME_COLLAPSE.equals(varName))
+               {
+                  amICollapsingGroup = Boolean.parseBoolean(value);
+                  if (DEBUG)
+                     System.err.println("MDP: amICollapsingGroup set to " + amICollapsingGroup);
+               }
                else
                {
                   throw new MetadataParseException("Unrecognized variable name: \"" +
@@ -215,6 +265,8 @@ public class MetadataParser
          token = scanner.getNextToken();
       }
       // Found end of input before attribute value found.
+      if (varName != null)
+         throw new MetadataParseException("Found end of metadata before equals sign: " + myMetadataText);
       if (amIIExpectingAValue)
          throw new MetadataParseException("Found end of metadata before variable value: " + myMetadataText);
       if (token.getCode() < 0)
@@ -276,5 +328,44 @@ public class MetadataParser
    public boolean isFixed()
    {
       return amIFixed;
+   }
+
+   /**
+    * Returns the "past end action" value, which defaults to
+    * <code>BaseLoopTag.PAST_END_ACTION_CLEAR</code>.
+    * @return The "past end action" value.
+    * @see BaseLoopTag#PAST_END_ACTION_CLEAR
+    * @see BaseLoopTag#PAST_END_ACTION_REMOVE
+    * @since 0.2.0
+    */
+   public String getPastEndAction()
+   {
+      return myPastEndActionValue;
+   }
+
+   /**
+    * Returns the "group dir" value, which defaults to
+    * <code>GroupTag.GROUP_DIR_NONE</code>.
+    * @return The "group dir" value.
+    * @see GroupTag#GROUP_DIR_NONE
+    * @see GroupTag#GROUP_DIR_ROWS
+    * @see GroupTag#GROUP_DIR_COLS
+    * @since 0.2.0
+    */
+   public String getGroupDir()
+   {
+      return myGroupDir;
+   }
+
+   /**
+    * Returns whether the Excel group to be created will be collapsed.
+    * @return Whether the Excel group to be created will be collapsed.  If the
+    *    "group direction" is "none", then this will always be
+    *    <code>false</code>.
+    * @since 0.2.0
+    */
+   public boolean isCollapsingGroup()
+   {
+      return !myGroupDir.equals(GroupTag.GROUP_DIR_NONE) && amICollapsingGroup;
    }
 }

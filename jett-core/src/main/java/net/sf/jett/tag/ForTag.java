@@ -6,6 +6,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.poi.ss.usermodel.RichTextString;
+
 import net.sf.jett.exception.TagParseException;
 import net.sf.jett.expression.Expression;
 
@@ -114,10 +116,10 @@ public class ForTag extends BaseLoopTag
       TagContext context = getContext();
       Map<String, Object> beans = context.getBeans();
 
-      Map<String, String> attributes = getAttributes();
-      String attrVar = attributes.get(ATTR_VAR);
+      Map<String, RichTextString> attributes = getAttributes();
+      String attrVar = attributes.get(ATTR_VAR).getString();
       myVarName = Expression.evaluateString(attrVar, beans).toString();
-      String attrStart = attributes.get(ATTR_START);
+      String attrStart = attributes.get(ATTR_START).getString();
       try
       {
          myStart = Integer.parseInt(Expression.evaluateString(attrStart, beans).toString());
@@ -126,7 +128,7 @@ public class ForTag extends BaseLoopTag
       {
          throw new TagParseException("Start value must be an integer: " + attrStart, e);
       }
-      String attrEnd = attributes.get(ATTR_END);
+      String attrEnd = attributes.get(ATTR_END).getString();
       try
       {
          myEnd = Integer.parseInt(Expression.evaluateString(attrEnd, beans).toString());
@@ -135,7 +137,8 @@ public class ForTag extends BaseLoopTag
       {
          throw new TagParseException("End value must be an integer: " + attrEnd, e);
       }
-      String attrStep = attributes.get(ATTR_STEP);
+      RichTextString rtsStep = attributes.get(ATTR_STEP);
+      String attrStep = (rtsStep != null) ? rtsStep.getString() : null;
       if (attrStep == null)
       {
          myStep = 1;

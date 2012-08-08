@@ -17,7 +17,7 @@ import net.sf.jett.util.SheetUtil;
  *
  * <br>Attributes:
  * <ul>
- * <li>text (required, bodiless only): <code>String</code>
+ * <li>text (required, bodiless only): <code>RichTextString</code>
  * </ul>
  */
 public class NullTag extends BaseTag
