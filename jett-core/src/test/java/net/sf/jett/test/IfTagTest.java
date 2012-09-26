@@ -16,6 +16,8 @@ import static org.junit.Assert.*;
 /**
  * This JUnit Test class tests the evaluation of the "if" tag in entire rows,
  * block area, and bodiless modes.
+ *
+ * @author Randy Gettman
  */
 public class IfTagTest extends TestCase
 {

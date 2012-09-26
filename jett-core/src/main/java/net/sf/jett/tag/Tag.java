@@ -14,6 +14,8 @@ import net.sf.jett.transform.WorkbookContext;
  *
  * <p>Any concrete subclass of <code>Tag</code> must have a public, no-argument
  * constructor.</p>
+ *
+ * @author Randy Gettman
  */
 public interface Tag
 {
@@ -79,26 +81,21 @@ public interface Tag
    public WorkbookContext getWorkbookContext();
 
    /**
-    * Checks the <code>Tag's</code> attributes to ensure that:
-    * <ol>
-    * <li>All required attributes are present, and
-    * <li>All attributes present are recognized.
-    * </ol>
-    * A <code>TagParseException</code> is thrown if both conditions above are
-    * not met.
-    * @throws net.sf.jett.exception.TagParseException If the above listed
-    *    conditions are not met.
-    */
-   public void checkAttributes();
-
-   /**
-    * Process this <code>Tag</code>.  The logic of the <code>Tag</code> is
-    * performed in this method.
+    * <p>Validates all attributes and attribute values.  Processes this
+    * <code>Tag</code>.</p>
+    * <p>For 0.3.0, the methods "checkAttributes" and "process" were removed
+    * and replace by this method, to allow for additional logic.  The methods
+    * still exist in <code>BaseTag</code>, where they are called by a concrete
+    * <code>processTag</code> method.</p>
     * @return <code>true</code> if the <code>Cell</code> containing this
     *    <code>Tag</code> was transformed, <code>false</code> if it needs to be
     *    transformed again.  This may happen if the <code>Block</code>
     *    associated with the <code>Tag</code> was removed.
+    * @throws net.sf.jett.exception.TagParseException If all required
+    *    attributes are not present, if there is an unrecognized attribute or
+    *    attribute value, or if any tag data is unacceptable in any other way.
+    * @since 0.3.0
     */
-   public boolean process();
+   public boolean processTag();
 }
 

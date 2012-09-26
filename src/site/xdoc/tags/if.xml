@@ -10,6 +10,7 @@
             which conditionally processes an entire block of cells.</p>
             <h1>Attributes</h1>
             <ul>
+                <li>The "if" tag supports all <a href="basics.html">base tag attributes</a>.</li>
                 <li><strong>test: Boolean</strong> Required.  This is the test condition.  A JEXL
                 Expression can evaluate to the boolean values <code>true</code> or
                 <code>false</code>, or the string literals "true" or "false".</li>

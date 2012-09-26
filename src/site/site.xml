@@ -51,6 +51,8 @@
         </menu>
         <menu name="Miscellaneous">
             <item name="Cell Listeners" href="misc/cell_listeners.html"/>
+            <item name="Tag Listeners" href="misc/tag_listeners.html"/>
+            <item name="Tag Loop Listeners" href="misc/tag_loop_listeners.html"/>
             <item name="JEXL Settings" href="misc/jexl_settings.html"/>
             <item name="Working With Charts" href="misc/charts.html"/>
         </menu>

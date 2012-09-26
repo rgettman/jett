@@ -1,5 +1,7 @@
 package net.sf.jett.tag;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -7,20 +9,50 @@ import java.util.Set;
 import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Sheet;
 
+import net.sf.jett.event.TagEvent;
+import net.sf.jett.event.TagListener;
 import net.sf.jett.exception.TagParseException;
 import net.sf.jett.transform.WorkbookContext;
+import net.sf.jett.util.AttributeUtil;
 import net.sf.jett.util.SheetUtil;
 
 /**
  * The abstract class <code>BaseTag</code> provides common functionality to all
  * <code>Tags</code>.
+ *
+ * <br>Attributes:
+ * <ul>
+ * <li>onProcessed (optional): <code>TagListener</code>
+ * </ul>
+ *
+ * @author Randy Gettman
  */
 public abstract class BaseTag implements Tag
 {
+   private static final boolean DEBUG = false;
+
+   /**
+    * Attribute for specifying a <code>TagListener</code> to listen for
+    * <code>TagEvents</code>.
+    */
+   public static final String ATTR_ON_PROCESSED = "onProcessed";
+
+   private static final List<String> OPT_ATTRS =
+      new ArrayList<String>(Arrays.asList(ATTR_ON_PROCESSED));
+
    private Map<String, RichTextString> myAttributes;
    private TagContext myContext;
    private WorkbookContext myWorkbookContext;
    private boolean amIBodiless;
+   private TagListener myTagListener;
+
+   /**
+    * Separates expressions in attributes that take multiple values.  This was
+    * originally defined as the same value in multiple sub-classes, but was
+    * moved to BaseTag for 0.3.0.
+    * @since 0.3.0
+    */
+   public static final String SPEC_SEP = ";";
 
    /**
     * When a <code>Tag</code> is created, the attributes are passed in via a
@@ -147,6 +179,48 @@ public abstract class BaseTag implements Tag
    }
 
    /**
+    * <p>Validates all attributes and attribute values.  Processes this
+    * <code>Tag</code>.</p>
+    * <p>For 0.3.0, the methods "checkAttributes" and "process" were removed
+    * and replaced by this method, to allow for additional logic.</p>
+    * @return <code>true</code> if the <code>Cell</code> containing this
+    *    <code>Tag</code> was transformed, <code>false</code> if it needs to be
+    *    transformed again.  This may happen if the <code>Block</code>
+    *    associated with the <code>Tag</code> was removed.
+    * @throws net.sf.jett.exception.TagParseException If all required
+    *    attributes are not present, if there is an unrecognized attribute or
+    *    attribute value, or if any tag data is unacceptable in any other way.
+    * @since 0.3.0
+    */
+   public boolean processTag()
+   {
+      checkAttributes();
+      boolean processed = process();
+      fireTagEvent();
+      return processed;
+   }
+
+   /**
+    * If there is a <code>TagListener</code>, then create and fire a
+    * <code>TagEvent</code>, with beans, block, and sheet taken from the
+    * decorated <code>BaseTag</code>.
+    */
+   private void fireTagEvent()
+   {
+      if (myTagListener != null)
+      {
+         TagEvent tagEvent = new TagEvent();
+         TagContext context = getContext();
+         tagEvent.setBeans(context.getBeans());
+         tagEvent.setBlock(context.getBlock());
+         if (DEBUG)
+            System.err.println("BT.fireTagEvent: context's Block is " + context.getBlock());
+         tagEvent.setSheet(context.getSheet());
+         myTagListener.onTagProcessed(tagEvent);
+      }
+   }
+
+   /**
     * Removes the <code>Block</code> of <code>Cells</code> associated with this
     * <code>Tag</code>.  This can be called by subclasses if it determines that
     * its <code>Block</code> needs to be removed and not processed.
@@ -157,6 +231,7 @@ public abstract class BaseTag implements Tag
       Block block = context.getBlock();
       Sheet sheet = context.getSheet();
       SheetUtil.removeBlock(sheet, block, getWorkbookContext());
+      block.collapse();
    }
 
    /**
@@ -171,6 +246,7 @@ public abstract class BaseTag implements Tag
       Block block = context.getBlock();
       Sheet sheet = context.getSheet();
       SheetUtil.deleteBlock(sheet, block, getWorkbookContext());
+      block.collapse();
    }
 
    /**
@@ -184,25 +260,63 @@ public abstract class BaseTag implements Tag
       Block block = context.getBlock();
       Sheet sheet = context.getSheet();
       SheetUtil.clearBlock(sheet, block, getWorkbookContext());
+      block.collapse();
    }
 
    /**
-    * Returns a <code>List</code> of required attribute names.
+    * Returns a <code>List</code> of required attribute names.  Subclasses that
+    * want to add to this list must override this method, call
+    * <code>super.getRequiredAttributes</code>, and add their own required
+    * attributes.
     * @return A <code>List</code> of required attribute names.
     */
-   protected abstract List<String> getRequiredAttributes();
+   protected List<String> getRequiredAttributes()
+   {
+      return new ArrayList<String>();
+   }
 
    /**
-    * Returns a <code>List</code> of optional attribute names.
+    * Returns a <code>List</code> of optional attribute names.  Subclasses that
+    * want to add to this list must override this method, call
+    * <code>super.getOptionalAttributes</code>, and add their own optional
+    * attributes.
     * @return A <code>List</code> of optional attribute names.
     */
-   protected abstract List<String> getOptionalAttributes();
+   protected List<String> getOptionalAttributes()
+   {
+      return OPT_ATTRS;
+   }
 
    /**
     * Validates the attributes according to <code>Tag</code>-specific rules.
+    * Subclasses that want to add to validate their own attributes, as well as
+    * these attributes, must override this method, call
+    * <code>super.validateAttributes</code>, and then validate their own
+    * attributes.
     * @throws TagParseException If the attribute values are illegal or
     *    unacceptable.
     */
-   protected abstract void validateAttributes() throws TagParseException;
+   protected void validateAttributes() throws TagParseException
+   {
+      TagContext context = getContext();
+      Map<String, Object> beans = context.getBeans();
+      Map<String, RichTextString> attributes = getAttributes();
+
+      myTagListener = AttributeUtil.evaluateObject(attributes.get(ATTR_ON_PROCESSED), beans, ATTR_ON_PROCESSED,
+         TagListener.class, null);
+
+      if (DEBUG)
+         System.err.println("BT.vA: myTagListener is " + ((myTagListener != null) ? myTagListener.toString() : " null"));
+   }
+
+   /**
+    * Process this <code>Tag</code>.  The logic of the <code>Tag</code> is
+    * performed in this method.
+    * @return <code>true</code> if the <code>Cell</code> containing this
+    *    <code>Tag</code> was transformed, <code>false</code> if it needs to be
+    *    transformed again.  This may happen if the <code>Block</code>
+    *    associated with the <code>Tag</code> was removed.
+    */
+   public abstract boolean process();
 }
 

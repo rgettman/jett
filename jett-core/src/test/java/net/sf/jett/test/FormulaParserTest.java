@@ -11,6 +11,8 @@ import net.sf.jett.parser.FormulaParser;
 
 /**
  * This JUnit Test class tests the <code>FormulaParser</code>.
+ *
+ * @author Randy Gettman
  * @since 0.2.0
  */
 public class FormulaParserTest

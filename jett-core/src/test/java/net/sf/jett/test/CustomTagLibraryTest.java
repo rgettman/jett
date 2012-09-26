@@ -15,6 +15,8 @@ import net.sf.jett.transform.ExcelTransformer;
 
 /**
  * This JUnit Test class tests the custom tag library feature of JETT.
+ *
+ * @author Randy Gettman
  */
 public class CustomTagLibraryTest extends TestCase
 {

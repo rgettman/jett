@@ -13,6 +13,8 @@ import org.apache.commons.jexl2.JexlEngine;
  * <p>It passes through several items to the JEXL Engine, including "silent"
  * and "lenient" flags, the JEXL parse cache size, and JEXL namespace function
  * objects (including jAgg functionality).</p>
+ *
+ * @author Randy Gettman
  */
 public class ExpressionFactory
 {

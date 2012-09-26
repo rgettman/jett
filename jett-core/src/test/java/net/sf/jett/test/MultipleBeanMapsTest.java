@@ -15,6 +15,8 @@ import static org.junit.Assert.*;
 /**
  * This JUnit Test class tests the ability of <code>ExcelTransformer</code> to
  * supply different bean maps to cloned <code>Sheets</code>.
+ *
+ * @author Randy Gettman
  */
 public class MultipleBeanMapsTest extends TestCase
 {

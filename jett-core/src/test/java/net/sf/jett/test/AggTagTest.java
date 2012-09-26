@@ -14,6 +14,8 @@ import static org.junit.Assert.*;
 
 /**
  * This JUnit Test class tests the evaluation of the "agg" tag.
+ *
+ * @author Randy Gettman
  */
 public class AggTagTest extends TestCase
 {

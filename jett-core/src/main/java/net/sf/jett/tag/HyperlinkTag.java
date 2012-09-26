@@ -13,8 +13,8 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
 import net.sf.jett.exception.TagParseException;
-import net.sf.jett.expression.Expression;
 import net.sf.jett.transform.BlockTransformer;
+import net.sf.jett.util.AttributeUtil;
 import net.sf.jett.util.SheetUtil;
 
 /**
@@ -26,11 +26,13 @@ import net.sf.jett.util.SheetUtil;
  *
  * <p>Attributes:</p>
  * <ul>
+ * <li><em>Inherits all attributes from {@link BaseTag}.</em>
  * <li>type (optional): <code>String</code>
  * <li>address (required): <code>String</code>
  * <li>value (required): <code>RichTextString</code>
  * </ul>
  *
+ * @author Randy Gettman
  * @since 0.2.0
  */
 public class HyperlinkTag extends BaseTag
@@ -96,18 +98,24 @@ public class HyperlinkTag extends BaseTag
     * Returns a <code>List</code> of required attribute names.
     * @return A <code>List</code> of required attribute names.
     */
+   @Override
    protected List<String> getRequiredAttributes()
    {
-      return REQ_ATTRS;
+      List<String> reqAttrs = super.getRequiredAttributes();
+      reqAttrs.addAll(REQ_ATTRS);
+      return reqAttrs;
    }
 
    /**
     * Returns a <code>List</code> of optional attribute names.
     * @return A <code>List</code> of optional attribute names.
     */
+   @Override
    protected List<String> getOptionalAttributes()
    {
-      return OPT_ATTRS;
+      List<String> optAttrs = super.getOptionalAttributes();
+      optAttrs.addAll(OPT_ATTRS);
+      return optAttrs;
    }
 
    /**
@@ -117,6 +125,7 @@ public class HyperlinkTag extends BaseTag
    @SuppressWarnings("unchecked")
    public void validateAttributes() throws TagParseException
    {
+      super.validateAttributes();
       if (!isBodiless())
          throw new TagParseException("Hyperlink tags must not have a body.");
 
@@ -124,12 +133,9 @@ public class HyperlinkTag extends BaseTag
       Map<String, Object> beans = context.getBeans();
       Map<String, RichTextString> attributes = getAttributes();
 
-      RichTextString rtsType = attributes.get(ATTR_TYPE);
-      String attrType = (rtsType != null) ? rtsType.getString().toLowerCase() : null;
-      if (attrType != null)
-      {
-         String type = Expression.evaluateString(attrType, beans).toString();
-         if (TYPE_URL.equals(type))
+      String type = AttributeUtil.evaluateStringSpecificValues(attributes.get(ATTR_TYPE), beans, ATTR_TYPE,
+         Arrays.asList(TYPE_URL, TYPE_EMAIL, TYPE_FILE, TYPE_DOC), TYPE_URL);
+      if (TYPE_URL.equals(type))
             myLinkType = Hyperlink.LINK_URL;
          else if (TYPE_EMAIL.equals(type))
             myLinkType = Hyperlink.LINK_EMAIL;
@@ -137,21 +143,8 @@ public class HyperlinkTag extends BaseTag
             myLinkType = Hyperlink.LINK_FILE;
          else if (TYPE_DOC.equals(type))
             myLinkType = Hyperlink.LINK_DOCUMENT;
-         else
-            throw new TagParseException("Unknown link type: " + type +
-                  " found at " + attrType);
-      }
-      else
-      {
-         myLinkType = Hyperlink.LINK_URL;
-      }
 
-      String attrAddress = attributes.get(ATTR_ADDRESS).toString();
-      Object address = Expression.evaluateString(attrAddress, beans);
-      if (address != null && address.toString().length() > 0)
-         myAddress = address.toString();
-      else
-         throw new TagParseException("Address of Hyperlink cannot be null or empty: " + attrAddress);
+      myAddress = AttributeUtil.evaluateStringNotNull(attributes.get(ATTR_ADDRESS), beans, ATTR_ADDRESS, null);
 
       myValue = attributes.get(ATTR_VALUE);
    }

@@ -9,6 +9,8 @@ import net.sf.jett.tag.TagLibrary;
 /**
  * The <code>CustomTagLibrary</code> is for testing the custom tag libraries
  * feature.
+ * 
+ * @author Randy Gettman
  */
 public class CustomTagLibrary implements TagLibrary
 {

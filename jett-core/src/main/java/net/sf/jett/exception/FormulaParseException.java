@@ -3,6 +3,8 @@ package net.sf.jett.exception;
 /**
  * A <code>FormulaParseException</code> occurs when there is an error parsing
  * formula text.
+ *
+ * @author Randy Gettman
  */
 public class FormulaParseException extends ParseException
 {

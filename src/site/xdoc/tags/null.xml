@@ -11,6 +11,7 @@
             could result.</p>
             <h1>Attributes</h1>
             <ul>
+                <li>The "null" tag supports all <a href="basics.html">base tag attributes</a>.</li>
                 <li><strong>text: List</strong> Required, bodiless only.  The text not to be
                 evaluated, which gets left in the cell.  Rich Text String formatting is preserved.</li>
             </ul>

@@ -1,10 +1,14 @@
 package net.sf.jett.formula;
 
+import org.apache.poi.ss.usermodel.Cell;
+
 /**
  * A <code>CellRefRange</code> is a <code>CellRef</code>, representing a range.
  * The inherited attributes represent the upper-left corner of a block of
  * cells.  An additional internal <code>CellRef</code> represents the bottom-
  * right corner of the block of cells.
+ *
+ * @author Randy Gettman
  */
 public class CellRefRange extends CellRef
 {
@@ -25,12 +29,10 @@ public class CellRefRange extends CellRef
       super(pRow, pCol);
    }
 
-   // The CellRef constructor (Cell) is commented out because it calls
-   // the CellReference constructor (Cell) which exists in POI 3.7.
-//   public CellRefRange(Cell cell)
-//   {
-//      super(cell);
-//   }
+   public CellRefRange(Cell cell)
+   {
+      super(cell);
+   }
 
    public CellRefRange(int pRow, int pCol, boolean pAbsRow, boolean pAbsCol)
    {

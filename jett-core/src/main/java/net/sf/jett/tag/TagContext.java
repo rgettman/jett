@@ -9,6 +9,8 @@ import org.apache.poi.ss.usermodel.Sheet;
 /**
  * A <code>TagContext</code> object represents the context associated with a
  * <code>Tag</code>.
+ *
+ * @author Randy Gettman
  */
 public class TagContext
 {

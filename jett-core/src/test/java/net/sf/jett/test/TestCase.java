@@ -20,6 +20,8 @@ import net.sf.jett.transform.ExcelTransformer;
 
 /**
  * A <code>TestCase</code> is the superclass for all JETT JUnit test classes.
+ *
+ * @author Randy Gettman
  */
 public abstract class TestCase
 {

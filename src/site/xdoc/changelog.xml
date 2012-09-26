@@ -4,7 +4,48 @@
         <title>Change Log for JETT</title>
     </properties>
     <body>
-        <section name="jAgg 0.2.0 (Beta) Released - 03 May 2012">
+        <section name="JETT 0.3.0 (Beta) Released - 26 Sep 2012">
+            <p>New in JETT 0.3.0:</p>
+            <ul>
+                <li><code>TagListeners</code> may now be created, which get called when any tag
+                is finished processing.  All <code>Tags</code> that subclass <code>BaseTag</code>
+                now support the <code>onProcessed</code> attribute for specifying
+                <code>TagListeners</code>.</li>
+                <li><code>TagLoopListeners</code> may now be created, which get called when every
+                loop of a looping tag (<code>Tags</code> that subclass <code>BaseLoopTag</code>)
+                is finished processing.  All <code>Tags</code> that subclass
+                <code>BaseLoopTag</code> now support the <code>onLoopProcessed</code> attribute for
+                specifying <code>TagLoopListeners</code>.</li>
+                <li>There are 2 new attributes for <a href="tags/forEach.html">forEach</a> tags:</li>
+                <ul>
+                    <li><code>groupBy</code> supports separating the collection into separate
+                    groups with identical properties for further processing.</li>
+                    <li><code>orderBy</code> supports ordering the collection items before
+                    displaying them.</li>
+                </ul>
+                <li>For <a href="collections/implicit.html">Implicit Collections Processing</a>,
+                4 additional metadata keys are added:</li>
+                <ul>
+                    <li><code>indexVar</code> supports a zero-based looping variable name that
+                    works just like the same-named attribute on the
+                    <a href="tags/multiForEach.html">multiForEach</a> tag.</li>
+                    <li><code>limit</code> supports a limit to the number of collection items
+                    processed that works like the same-named attribute on the
+                    <a href="tags/multiForEach.html">multiForEach</a> tag.</li>
+                    <li><code>onProcessed</code> supports <code>TagListeners</code> just the same
+                    as all <code>BaseTags</code> do.</li>
+                    <li><code>onLoopProcessed</code> supports <code>TagLoopListeners</code> just
+                    the same as all looping tags do.</li>
+                </ul>
+                <li>A bug was fixed in Formulas processing.  If a JETT formula is specified in
+                the middle of a Cell's text, because tag text preceded it, JETT will no longer
+                throw an uncaught Exception.</li>
+                <li>Lots of JUnit test cases have been added for all the new features.</li>
+                <li>This is the first JETT release to be submitted to the Sonatype OSS Maven
+                Repository, which will make JETT available in the Maven Central Repository.</li>
+            </ul>
+        </section>
+        <section name="JETT 0.2.0 (Beta) Released - 08 Aug 2012">
             <p>New in JETT 0.2.0:</p>
             <ul>
                 <li>New tags: <a href="tags/comment.html">"comment"</a> to create Excel Comments on

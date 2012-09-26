@@ -5,6 +5,8 @@ import java.util.List;
 
 /**
  * A <code>Division</code> represents a division with many teams.
+ * 
+ * @author Randy Gettman
  */
 public class Division
 {

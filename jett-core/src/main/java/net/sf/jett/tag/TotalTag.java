@@ -14,8 +14,8 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
 import net.sf.jett.exception.TagParseException;
-import net.sf.jett.expression.Expression;
 import net.sf.jett.transform.BlockTransformer;
+import net.sf.jett.util.AttributeUtil;
 import net.sf.jett.util.SheetUtil;
 
 /**
@@ -25,10 +25,13 @@ import net.sf.jett.util.SheetUtil;
  *
  * <br>Attributes:
  * <ul>
+ * <li><em>Inherits all attributes from {@link BaseTag}.</em>
  * <li>items (required): <code>List</code>
  * <li>value (required): <code>String</code>
  * <li>parallel (optional): <code>int</code>
  * </ul>
+ *
+ * @author Randy Gettman
  */
 public class TotalTag extends BaseTag
 {
@@ -68,7 +71,9 @@ public class TotalTag extends BaseTag
     */
    protected List<String> getRequiredAttributes()
    {
-      return REQ_ATTRS;
+      List<String> reqAttrs = super.getRequiredAttributes();
+      reqAttrs.addAll(REQ_ATTRS);
+      return reqAttrs;
    }
 
    /**
@@ -77,7 +82,9 @@ public class TotalTag extends BaseTag
     */
    protected List<String> getOptionalAttributes()
    {
-      return OPT_ATTRS;
+      List<String> optAttrs = super.getOptionalAttributes();
+      optAttrs.addAll(OPT_ATTRS);
+      return optAttrs;
    }
 
    /**
@@ -90,6 +97,7 @@ public class TotalTag extends BaseTag
    @SuppressWarnings("unchecked")
    public void validateAttributes() throws TagParseException
    {
+      super.validateAttributes();
       if (!isBodiless())
          throw new TagParseException("Total tags must not have a body.");
 
@@ -97,32 +105,12 @@ public class TotalTag extends BaseTag
       Map<String, Object> beans = context.getBeans();
       Map<String, RichTextString> attributes = getAttributes();
 
-      String attrItems = attributes.get(ATTR_ITEMS).getString();
-      Object items = Expression.evaluateString(attrItems, beans);
-      if (!(items instanceof List))
-         throw new TagParseException("The \"items\" expression is not a List: " + attrItems);
-      myList = (List<Object>) items;
+      myList = AttributeUtil.evaluateObject(attributes.get(ATTR_ITEMS), beans, ATTR_ITEMS, List.class,
+         new ArrayList<Object>(0));
 
-      RichTextString rtsParallelism = attributes.get(ATTR_PARALLEL);
-      String attrParallelism = (rtsParallelism != null) ? rtsParallelism.getString() : null;
-      if (attrParallelism != null)
-      {
-         String parallelism = Expression.evaluateString(attrParallelism, beans).toString();
-         try
-         {
-            myParallelism = Integer.parseInt(parallelism);
-         }
-         catch (NumberFormatException e)
-         {
-            throw new TagParseException("Parallel attribute must be an integer: " + parallelism);
-         }
-         if (myParallelism <= 0)
-         {
-            throw new TagParseException("Parallel attribute must be positive: " + parallelism);
-         }
-      }
+      myParallelism = AttributeUtil.evaluatePositiveInt(attributes.get(ATTR_PARALLEL), beans, ATTR_PARALLEL, 1);
 
-      String aggSpec = Expression.evaluateString(attributes.get(ATTR_VALUE).getString(), beans).toString();
+      String aggSpec = AttributeUtil.evaluateString(attributes.get(ATTR_VALUE), beans, null);
       myAggregator = Aggregator.getAggregator(aggSpec);
    }
 

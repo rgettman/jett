@@ -5,6 +5,8 @@ package net.sf.jett.event;
  * a <code>Cell</code> as it's being transformed, with access to the
  * <code>Cell</code>, the current <code>Map</code> of beans, and the old and
  * new values for the <code>Cell</code>.
+ *
+ * @author Randy Gettman
  */
 public interface CellListener
 {

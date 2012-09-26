@@ -12,6 +12,8 @@ import org.apache.poi.ss.usermodel.Sheet;
 
 /**
  * This JUnit Test class tests the evaluation of the "group" tag.
+ *
+ * @author Randy Gettman
  */
 public class GroupTagTest extends TestCase
 {

@@ -2,6 +2,8 @@ package net.sf.jett.parser;
 
 /**
  * A <code>FormulaScanner</code> scans formula text and returns tokens.
+ *
+ * @author Randy Gettman
  */
 public class FormulaScanner
 {

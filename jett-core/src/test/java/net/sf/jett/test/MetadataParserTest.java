@@ -8,6 +8,8 @@ import net.sf.jett.parser.MetadataParser;
 
 /**
  * This JUnit Test class tests the <code>MetadataParser</code>.
+ *
+ * @author Randy Gettman
  * @since 0.2.0
  */
 public class MetadataParserTest
@@ -24,12 +26,12 @@ public class MetadataParserTest
       parser.parse();
 
       assertTrue(parser.isDefiningCols());
-      assertEquals(1, parser.getExtraRows());
-      assertEquals(2, parser.getColsLeft());
-      assertEquals(3, parser.getColsRight());
+      assertEquals("1", parser.getExtraRows());
+      assertEquals("2", parser.getColsLeft());
+      assertEquals("3", parser.getColsRight());
       assertEquals("clear", parser.getPastEndAction());
-      assertTrue(parser.isCopyingRight());
-      assertTrue(parser.isFixed());
+      assertEquals("true", parser.getCopyingRight());
+      assertEquals("true", parser.getFixed());
    }
 
    /**
@@ -45,12 +47,12 @@ public class MetadataParserTest
       parser.parse();
 
       assertFalse(parser.isDefiningCols());
-      assertEquals(0, parser.getExtraRows());
-      assertEquals(0, parser.getColsLeft());
-      assertEquals(0, parser.getColsRight());
+      assertNull(parser.getExtraRows());
+      assertNull(parser.getColsLeft());
+      assertNull(parser.getColsRight());
       assertEquals("clear", parser.getPastEndAction());
-      assertFalse(parser.isCopyingRight());
-      assertFalse(parser.isFixed());
+      assertNull(parser.getCopyingRight());
+      assertNull(parser.getFixed());
    }
 
    /**
@@ -65,97 +67,6 @@ public class MetadataParserTest
       parser.parse();
 
       assertEquals("remove", parser.getPastEndAction());
-   }
-
-   /**
-    * If there is a bad past end action value, ensure that a
-    * <code>MetadataParseException</code> is thrown.
-    */
-   @Test(expected = MetadataParseException.class)
-   public void testBadPastEndActionValue()
-   {
-      String metadata = "pastEndAction=badvalue";
-
-      MetadataParser parser = new MetadataParser(metadata);
-      parser.parse();
-   }
-
-   /**
-    * If there is a non-numeric value for extra rows, ensure that a
-    * <code>MetadataParseException</code> is thrown.
-    */
-   @Test(expected = MetadataParseException.class)
-   public void testNonNumericExtraRows()
-   {
-      String metadata = "extraRows=blah";
-
-      MetadataParser parser = new MetadataParser(metadata);
-      parser.parse();
-   }
-
-   /**
-    * If there is a negative value for extra rows, ensure that a
-    * <code>MetadataParseException</code> is thrown.
-    */
-   @Test(expected = MetadataParseException.class)
-   public void testNegativeExtraRows()
-   {
-      String metadata = "extraRows=-1";
-
-      MetadataParser parser = new MetadataParser(metadata);
-      parser.parse();
-   }
-
-   /**
-    * If there is a non-numeric value for left cols, ensure that a
-    * <code>MetadataParseException</code> is thrown.
-    */
-   @Test(expected = MetadataParseException.class)
-   public void testNonNumericLeftCols()
-   {
-      String metadata = "left=blah";
-
-      MetadataParser parser = new MetadataParser(metadata);
-      parser.parse();
-   }
-
-   /**
-    * If there is a negative value for left cols, ensure that a
-    * <code>MetadataParseException</code> is thrown.
-    */
-   @Test(expected = MetadataParseException.class)
-   public void testNegativeLeftCols()
-   {
-      String metadata = "left=-1";
-
-      MetadataParser parser = new MetadataParser(metadata);
-      parser.parse();
-   }
-
-   /**
-    * If there is a non-numeric value for right cols, ensure that a
-    * <code>MetadataParseException</code> is thrown.
-    */
-   @Test(expected = MetadataParseException.class)
-   public void testNonNumericRightCols()
-   {
-      String metadata = "right=blah";
-
-      MetadataParser parser = new MetadataParser(metadata);
-      parser.parse();
-   }
-
-   /**
-    * If there is a negative value for right cols, ensure that a
-    * <code>MetadataParseException</code> is thrown.
-    */
-   @Test(expected = MetadataParseException.class)
-   public void testNegativeRightCols()
-   {
-      String metadata = "right=-1";
-
-      MetadataParser parser = new MetadataParser(metadata);
-      parser.parse();
    }
 
    /**
@@ -241,19 +152,6 @@ public class MetadataParserTest
    }
 
    /**
-    * If there is a bad past group direction value, ensure that a
-    * <code>MetadataParseException</code> is thrown.
-    */
-   @Test(expected = MetadataParseException.class)
-   public void testBadGroupDirValue()
-   {
-      String metadata = "groupDir=badvalue";
-
-      MetadataParser parser = new MetadataParser(metadata);
-      parser.parse();
-   }
-
-   /**
     * Test the "none" group direction value.
     */
    @Test
@@ -296,20 +194,6 @@ public class MetadataParserTest
    }
 
    /**
-    * Test the "collapse" value without "groupDir".
-    */
-   @Test
-   public void testCollapseNoGroupDir()
-   {
-      String metadata = "collapse=true";
-
-      MetadataParser parser = new MetadataParser(metadata);
-      parser.parse();
-
-      assertFalse(parser.isCollapsingGroup());
-   }
-
-   /**
     * Test the "collapse" value with "groupDir" "none".
     */
    @Test
@@ -320,7 +204,8 @@ public class MetadataParserTest
       MetadataParser parser = new MetadataParser(metadata);
       parser.parse();
 
-      assertFalse(parser.isCollapsingGroup());
+      assertEquals("none", parser.getGroupDir());
+      assertEquals("true", parser.getCollapsingGroup());
    }
 
    /**
@@ -334,7 +219,8 @@ public class MetadataParserTest
       MetadataParser parser = new MetadataParser(metadata);
       parser.parse();
 
-      assertTrue(parser.isCollapsingGroup());
+      assertEquals("rows", parser.getGroupDir());
+      assertEquals("true", parser.getCollapsingGroup());
    }
 
    /**
@@ -348,21 +234,8 @@ public class MetadataParserTest
       MetadataParser parser = new MetadataParser(metadata);
       parser.parse();
 
-      assertTrue(parser.isCollapsingGroup());
-   }
-
-   /**
-    * Test the "copyRight" value without "left" or "right".
-    */
-   @Test
-   public void testCopyRightNoLeftRight()
-   {
-      String metadata = "copyRight=true";
-
-      MetadataParser parser = new MetadataParser(metadata);
-      parser.parse();
-
-      assertFalse(parser.isCopyingRight());
+      assertEquals("cols", parser.getGroupDir());
+      assertEquals("true", parser.getCollapsingGroup());
    }
 
    /**
@@ -376,7 +249,8 @@ public class MetadataParserTest
       MetadataParser parser = new MetadataParser(metadata);
       parser.parse();
 
-      assertTrue(parser.isCopyingRight());
+      assertEquals("1", parser.getColsLeft());
+      assertEquals("true", parser.getCopyingRight());
    }
 
    /**
@@ -390,6 +264,97 @@ public class MetadataParserTest
       MetadataParser parser = new MetadataParser(metadata);
       parser.parse();
 
-      assertTrue(parser.isCopyingRight());
+      assertEquals("1", parser.getColsRight());
+      assertEquals("true", parser.getCopyingRight());
+   }
+
+   /**
+    * Tests the creation of a <code>TagLoopListener</code> with a class name.
+    * @since 0.3.0
+    */
+   @Test
+   public void testLoopListenerClass()
+   {
+      String metadata = "onLoopProcessed=net.sf.jett.test.model.BlockShadingLoopListener";
+
+      MetadataParser parser = new MetadataParser(metadata);
+      parser.parse();
+
+      assertEquals("net.sf.jett.test.model.BlockShadingLoopListener", parser.getTagLoopListener());
+   }
+
+   /**
+    * Tests the retrieval of a <code>TagLoopListener</code> from the beans map.
+    * @since 0.3.0
+    */
+   @Test
+   public void testLoopListenerInstance()
+   {
+      String metadata = "onLoopProcessed=${blockShadingLoopListener}";
+
+      MetadataParser parser = new MetadataParser(metadata);
+      parser.parse();
+
+      assertEquals("${blockShadingLoopListener}", parser.getTagLoopListener());
+   }
+
+   /**
+    * Tests the creation of a <code>TagListener</code> with a class name.
+    * @since 0.3.0
+    */
+   @Test
+   public void testListenerClass()
+   {
+      String metadata = "onProcessed=net.sf.jett.test.model.BoldTagListener";
+
+      MetadataParser parser = new MetadataParser(metadata);
+      parser.parse();
+
+      assertEquals("net.sf.jett.test.model.BoldTagListener", parser.getTagListener());
+   }
+
+   /**
+    * Tests the retrieval of a <code>TagListener</code> from the beans map.
+    * @since 0.3.0
+    */
+   @Test
+   public void testListenerInstance()
+   {
+      String metadata = "onProcessed=${boldTagListener}";
+
+      MetadataParser parser = new MetadataParser(metadata);
+      parser.parse();
+
+      assertEquals("${boldTagListener}", parser.getTagListener());
+   }
+
+   /**
+    * Tests the "looping" variable name.
+    * @since 0.3.0
+    */
+   @Test
+   public void testIndexVarName()
+   {
+      String metadata = "indexVar=index";
+
+      MetadataParser parser = new MetadataParser(metadata);
+      parser.parse();
+
+      assertEquals("index", parser.getIndexVarName());
+   }
+
+   /**
+    * Tests the limit variable name.
+    * @since 0.3.0
+    */
+   @Test
+   public void testLimit()
+   {
+      String metadata = "limit=10";
+
+      MetadataParser parser = new MetadataParser(metadata);
+      parser.parse();
+
+      assertEquals("10", parser.getLimit());
    }
 }

@@ -31,6 +31,15 @@
                 <li><a href="span.html">&lt;jt:span&gt;</a></li>
                 <li><a href="total.html">&lt;jt:total&gt;</a></li>
             </ul>
+            <p>All tags in the JETT Tag Library, and any custom tags that subclass
+            <code>BaseTag</code>, support the following common attribute:</p>
+            <h1>Attributes</h1>
+            <ul>
+                <li><strong>onProcessed: TagListener</strong> Optional.  Specify a
+                <code>TagListener</code> that will be called when the tag's processing has
+                finished.  Alternatively, a fully-qualified Java class name may be specified here,
+                and JETT will instantiate one, provided it has a no-argument public constructor.</li>
+            </ul>
             <p>Additionally, <a href="custom.html">custom tag libraries</a> may be registered
             with the <code>ExcelTransformer</code> prior to transformation, to allow the processing
             of custom tags.</p>

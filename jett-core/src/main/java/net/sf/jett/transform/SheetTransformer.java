@@ -5,15 +5,15 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 
 import net.sf.jett.formula.Formula;
+import net.sf.jett.parser.FormulaParser;
 import net.sf.jett.tag.Block;
 import net.sf.jett.tag.TagContext;
 import net.sf.jett.util.FormulaUtil;
 import net.sf.jett.util.SheetUtil;
-import net.sf.jett.parser.FormulaParser;
 
 /**
  * A <code>SheetTransformer</code> knows how to transform one
@@ -23,6 +23,8 @@ import net.sf.jett.parser.FormulaParser;
  * responsible for gathering all <code>Formulas</code> at the beginning, and
  * replacing all <code>Formulas</code> with Excel Formulas at the end.  It also
  * exposes the "sheet" object in the "beans" <code>Map</code>.
+ *
+ * @author Randy Gettman
  */
 public class SheetTransformer
 {
@@ -107,11 +109,13 @@ public class SheetTransformer
                            // Grab the formula, begin and end tokens and all, e.g. $[SUM(C3)]
                            cellText = cellText.substring(startIdx, endIdx + Formula.END_FORMULA.length());
                            // Formula text is cell text without the begin and end tokens.
-                           String formulaText = cellText.substring(startIdx + Formula.BEGIN_FORMULA.length(), endIdx);
+                           String formulaText = cellText.substring(Formula.BEGIN_FORMULA.length(), endIdx - startIdx);
                            parser.setFormulaText(formulaText);
                            parser.parse();
                            Formula formula = new Formula(cellText, parser.getCellReferences());
                            String key = sheetName + "!" + cellText;
+                           if (DEBUG)
+                              System.err.println("ST.gF: Formula found: " + key + " => " + formula);
                            formulaMap.put(key, formula);
                         }
                      }

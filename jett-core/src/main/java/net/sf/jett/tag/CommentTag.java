@@ -36,11 +36,14 @@ import net.sf.jett.util.SheetUtil;
  *
  * <br>Attributes:
  * <ul>
+ * <li><em>Inherits all attributes from {@link BaseTag}.</em>
  * <li>value (required): <code>RichTextString</code>
  * <li>author (required): <code>String</code>
  * <li>comment (required): <code>RichTextString</code>
  * <li>visible (optional): <code>boolean</code>
  * </ul>
+ *
+ * @author Randy Gettman
  * @since 0.2.0
  */
 public class CommentTag extends BaseTag
@@ -90,7 +93,9 @@ public class CommentTag extends BaseTag
     */
    protected List<String> getRequiredAttributes()
    {
-      return REQ_ATTRS;
+      List<String> reqAttrs = super.getRequiredAttributes();
+      reqAttrs.addAll(REQ_ATTRS);
+      return reqAttrs;
    }
 
    /**
@@ -99,7 +104,9 @@ public class CommentTag extends BaseTag
     */
    protected List<String> getOptionalAttributes()
    {
-      return OPT_ATTRS;
+      List<String> optAttrs = super.getOptionalAttributes();
+      optAttrs.addAll(OPT_ATTRS);
+      return optAttrs;
    }
 
    /**
@@ -109,6 +116,7 @@ public class CommentTag extends BaseTag
    @SuppressWarnings("unchecked")
    public void validateAttributes() throws TagParseException
    {
+      super.validateAttributes();
       if (!isBodiless())
          throw new TagParseException("Comment tags must not have a body.");
 

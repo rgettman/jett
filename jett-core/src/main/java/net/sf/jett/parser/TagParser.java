@@ -13,6 +13,8 @@ import net.sf.jett.util.RichTextStringUtil;
  * A <code>TagParser</code> parses one JETT XML tag, either a begin tag or an
  * end tag, including the tag namespace (if any), the tag name, and any
  * attributes.
+ *
+ * @author Randy Gettman
  */
 public class TagParser
 {

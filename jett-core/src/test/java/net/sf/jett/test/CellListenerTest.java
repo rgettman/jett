@@ -18,6 +18,8 @@ import net.sf.jett.transform.ExcelTransformer;
 
 /**
  * This JUnit Test class tests the <code>CellListener</code> feature of JETT.
+ *
+ * @author Randy Gettman
  */
 public class CellListenerTest extends TestCase
 {

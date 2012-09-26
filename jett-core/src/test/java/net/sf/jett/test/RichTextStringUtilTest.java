@@ -23,6 +23,8 @@ import net.sf.jett.util.RichTextStringUtil;
 
 /**
  * This JUnit Test class tests the <code>RichTextStringUtil</code> class.
+ *
+ * @author Randy Gettman
  */
 public class RichTextStringUtilTest
 {

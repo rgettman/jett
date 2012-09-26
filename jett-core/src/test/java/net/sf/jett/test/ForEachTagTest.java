@@ -1,6 +1,7 @@
 package net.sf.jett.test;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -13,6 +14,8 @@ import static org.junit.Assert.*;
 /**
  * This JUnit Test class tests the evaluation of the "forEach" tag in entire
  * rows, block area, and bodiless modes.
+ *
+ * @author Randy Gettman
  */
 public class ForEachTagTest extends TestCase
 {
@@ -291,6 +294,85 @@ public class ForEachTagTest extends TestCase
             assertFalse(groupCols.isColumnHidden(c));
          }
       }
+
+      // Note different order of divisions imposed by the "group by".
+      Sheet groupBy = workbook.getSheetAt(9);
+      assertEquals("Division: Atlantic", TestUtility.getStringCellValue(groupBy, 0, 0));
+      assertEquals("Boston", TestUtility.getStringCellValue(groupBy, 2, 0));
+      assertEquals("Division: Central", TestUtility.getStringCellValue(groupBy, 7, 0));
+      assertEquals("Bulls", TestUtility.getStringCellValue(groupBy, 9, 1));
+      assertEquals("Division: Northwest", TestUtility.getStringCellValue(groupBy, 14, 0));
+      assertEquals("Timberwolves", TestUtility.getStringCellValue(groupBy, 20, 1));
+      assertEquals("Division: Of Their Own", TestUtility.getStringCellValue(groupBy, 21, 0));
+      assertEquals(21227, TestUtility.getNumericCellValue(groupBy, 23, 2), DELTA);
+      assertEquals("Division: Pacific", TestUtility.getStringCellValue(groupBy, 24, 0));
+      assertEquals(52, TestUtility.getNumericCellValue(groupBy, 30, 3), DELTA);
+      assertEquals("Division: Southeast", TestUtility.getStringCellValue(groupBy, 31, 0));
+      assertEquals(30, TestUtility.getNumericCellValue(groupBy, 36, 2), DELTA);
+      assertEquals("Division: Southwest", TestUtility.getStringCellValue(groupBy, 38, 0));
+      assertEquals("Houston", TestUtility.getStringCellValue(groupBy, 44, 0));
+
+      Sheet orderBy = workbook.getSheetAt(10);
+      assertEquals("Southwest", TestUtility.getStringCellValue(orderBy, 1, 0));
+      assertEquals(38.0 / (38 + 35), TestUtility.getNumericCellValue(orderBy, 1, 5), DELTA);
+      assertEquals("Southwest", TestUtility.getStringCellValue(orderBy, 5, 0));
+      assertEquals(57.0 / (57 + 16), TestUtility.getNumericCellValue(orderBy, 5, 5), DELTA);
+      assertEquals("Southeast", TestUtility.getStringCellValue(orderBy, 6, 0));
+      assertEquals(17.0 / (17 + 55), TestUtility.getNumericCellValue(orderBy, 6, 5), DELTA);
+      assertEquals("Southeast", TestUtility.getStringCellValue(orderBy, 10, 0));
+      assertEquals(51.0 / (51 + 22), TestUtility.getNumericCellValue(orderBy, 10, 5), DELTA);
+      assertEquals("Pacific", TestUtility.getStringCellValue(orderBy, 11, 0));
+      assertEquals(20.0 / (20 + 52), TestUtility.getNumericCellValue(orderBy, 11, 5), DELTA);
+      assertEquals("Pacific", TestUtility.getStringCellValue(orderBy, 15, 0));
+      assertEquals(53.0 / (53 + 20), TestUtility.getNumericCellValue(orderBy, 15, 5), DELTA);
+      assertEquals("Of Their Own", TestUtility.getStringCellValue(orderBy, 16, 0));
+      assertEquals(21227.0 / (21227 + 341), TestUtility.getNumericCellValue(orderBy, 16, 5), DELTA);
+      assertEquals("Northwest", TestUtility.getStringCellValue(orderBy, 17, 0));
+      assertEquals(17.0 / (17 + 57), TestUtility.getNumericCellValue(orderBy, 17, 5), DELTA);
+      assertEquals("Northwest", TestUtility.getStringCellValue(orderBy, 21, 0));
+      assertEquals(48.0 / (48 + 24), TestUtility.getNumericCellValue(orderBy, 21, 5), DELTA);
+      assertEquals("Central", TestUtility.getStringCellValue(orderBy, 22, 0));
+      assertEquals(14.0 / (14 + 58), TestUtility.getNumericCellValue(orderBy, 22, 5), DELTA);
+      assertEquals("Central", TestUtility.getStringCellValue(orderBy, 26, 0));
+      assertEquals(53.0 / (53 + 19), TestUtility.getNumericCellValue(orderBy, 26, 5), DELTA);
+      assertEquals("Atlantic", TestUtility.getStringCellValue(orderBy, 27, 0));
+      assertEquals(20.0 / (20 + 53), TestUtility.getNumericCellValue(orderBy, 27, 5), DELTA);
+      assertEquals("Atlantic", TestUtility.getStringCellValue(orderBy, 31, 0));
+      assertEquals(51.0 / (51 + 21), TestUtility.getNumericCellValue(orderBy, 31, 5), DELTA);
+
+      assertEquals("Division: Southwest", TestUtility.getStringCellValue(orderBy, 0, 8));
+      assertEquals("Rockets", TestUtility.getStringCellValue(orderBy, 2, 9));
+      assertEquals(38.0 / (38 + 35), TestUtility.getNumericCellValue(orderBy, 2, 12), DELTA);
+      assertEquals("Spurs", TestUtility.getStringCellValue(orderBy, 6, 9));
+      assertEquals(57.0 / (57 + 16), TestUtility.getNumericCellValue(orderBy, 6, 12), DELTA);
+      assertEquals("Division: Southeast", TestUtility.getStringCellValue(orderBy, 7, 8));
+      assertEquals("Wizards", TestUtility.getStringCellValue(orderBy, 9, 9));
+      assertEquals(17.0 / (17 + 55), TestUtility.getNumericCellValue(orderBy, 9, 12), DELTA);
+      assertEquals("Heat", TestUtility.getStringCellValue(orderBy, 13, 9));
+      assertEquals(51.0 / (51 + 22), TestUtility.getNumericCellValue(orderBy, 13, 12), DELTA);
+      assertEquals("Division: Pacific", TestUtility.getStringCellValue(orderBy, 14, 8));
+      assertEquals("Kings", TestUtility.getStringCellValue(orderBy, 16, 9));
+      assertEquals(20.0 / (20 + 52), TestUtility.getNumericCellValue(orderBy, 16, 12), DELTA);
+      assertEquals("Lakers", TestUtility.getStringCellValue(orderBy, 20, 9));
+      assertEquals(53.0 / (53 + 20), TestUtility.getNumericCellValue(orderBy, 20, 12), DELTA);
+      assertEquals("Division: Of Their Own", TestUtility.getStringCellValue(orderBy, 21, 8));
+      assertEquals("Globetrotters", TestUtility.getStringCellValue(orderBy, 23, 9));
+      assertEquals(21227.0 / (21227 + 341), TestUtility.getNumericCellValue(orderBy, 23, 12), DELTA);
+      assertEquals("Division: Northwest", TestUtility.getStringCellValue(orderBy, 24, 8));
+      assertEquals("Timberwolves", TestUtility.getStringCellValue(orderBy, 26, 9));
+      assertEquals(17.0 / (17 + 57), TestUtility.getNumericCellValue(orderBy, 26, 12), DELTA);
+      assertEquals("Thunder", TestUtility.getStringCellValue(orderBy, 30, 9));
+      assertEquals(48.0 / (48 + 24), TestUtility.getNumericCellValue(orderBy, 30, 12), DELTA);
+      assertEquals("Division: Central", TestUtility.getStringCellValue(orderBy, 31, 8));
+      assertEquals("Cavaliers", TestUtility.getStringCellValue(orderBy, 33, 9));
+      assertEquals(14.0 / (14 + 58), TestUtility.getNumericCellValue(orderBy, 33, 12), DELTA);
+      assertEquals("Bulls", TestUtility.getStringCellValue(orderBy, 37, 9));
+      assertEquals(53.0 / (53 + 19), TestUtility.getNumericCellValue(orderBy, 37, 12), DELTA);
+      assertEquals("Division: Atlantic", TestUtility.getStringCellValue(orderBy, 38, 8));
+      assertEquals("Raptors", TestUtility.getStringCellValue(orderBy, 40, 9));
+      assertEquals(20.0 / (20 + 53), TestUtility.getNumericCellValue(orderBy, 40, 12), DELTA);
+      assertEquals("Celtics", TestUtility.getStringCellValue(orderBy, 44, 9));
+      assertEquals(51.0 / (51 + 21), TestUtility.getNumericCellValue(orderBy, 44, 12), DELTA);
    }
 
    /**
@@ -309,6 +391,9 @@ public class ForEachTagTest extends TestCase
     */
    protected Map<String, Object> getBeansMap()
    {
-      return TestUtility.getDivisionData();
+      Map<String, Object> beans = new HashMap<String, Object>();
+      beans.putAll(TestUtility.getDivisionData());
+      beans.putAll(TestUtility.getTeamsData());
+      return beans;
    }
 }

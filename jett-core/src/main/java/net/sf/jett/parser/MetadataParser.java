@@ -1,16 +1,14 @@
 package net.sf.jett.parser;
 
 import net.sf.jett.exception.MetadataParseException;
-import net.sf.jett.tag.BaseLoopTag;
-import net.sf.jett.tag.GroupTag;
 
 /**
  * A <code>MetadataParser</code> parses metadata at the end of cell text.
+ *
+ * @author Randy Gettman
  */
 public class MetadataParser
 {
-   private static boolean DEBUG = false;
-
    /**
     * Metadata variable name for extra rows in the Block.
     */
@@ -47,26 +45,56 @@ public class MetadataParser
     */
    public static final String VAR_NAME_GROUP_DIR = "groupDir";
    /**
-    * Metadata variable name specifying whether any Excelt grouping created
+    * Metadata variable name specifying whether any Excel grouping created
     * should be collapsed, defaulting to <code>false</code>.
+    * @since 0.2.0
     */
    public static final String VAR_NAME_COLLAPSE = "collapse";
+   /**
+    * Metadata variable name specifying a <code>TagLoopListener</code> to
+    * listen for <code>TagLoopEvents</code>.
+    * @since 0.3.0
+    */
+   public static final String VAR_NAME_ON_LOOP_PROCESSED = "onLoopProcessed";
+   /**
+    * Metadata variable name specifying a <code>TagListener</code> to listen
+    * for <code>TagEvents</code>.
+    * @since 0.3.0
+    */
+   public static final String VAR_NAME_ON_PROCESSED = "onProcessed";
+   /**
+    * Metadata variable name specifying the name of the zero-based "looping"
+    * variable.
+    * @since 0.3.0
+    */
+   public static final String VAR_NAME_INDEXVAR = "indexVar";
+   /**
+    * Metadata variable name specifying a limit to the number of iterations
+    * processed.
+    * @since 0.3.0
+    */
+   public static final String VAR_NAME_LIMIT = "limit";
+
    /**
     * Determines the beginning of metadata text.
     */
    public static final String BEGIN_METADATA = "?@";
 
+   private boolean amIExpectingAValue;
    private String myMetadataText;
-   private int myExtraRows;
-   private int myColsLeft;
-   private int myColsRight;
+   private String myExtraRows;
+   private String myColsLeft;
+   private String myColsRight;
    private boolean amIDefiningCols;
-   private boolean amICopyingRight;
-   private boolean amIFixed;
-   private boolean amIIExpectingAValue;
-   private String myPastEndActionValue = BaseLoopTag.PAST_END_ACTION_CLEAR;
+   private String myCopyingRight;
+   private String myFixed;
+   private String myPastEndActionValue;
    private String myGroupDir;
-   private boolean amICollapsingGroup;
+   private String myCollapsingGroup;
+   private String myTagLoopListener;
+   private String myTagListener;
+   private String myIndexVarName;
+   private String myLimit;
 
    /**
     * Create a <code>MetadataParser</code>.
@@ -102,16 +130,20 @@ public class MetadataParser
     */
    private void reset()
    {
-      myExtraRows = 0;  // Default value for no extra rows.
-      myColsLeft = 0;  // Default value for no extra columns left.
-      myColsRight = 0;  // Default value for no extra columns right.
+      amIExpectingAValue = false;
+      myExtraRows = null;
+      myColsLeft = null;
+      myColsRight = null;
       amIDefiningCols = false;
-      amICopyingRight = false;
-      amIFixed = false;
-      amIIExpectingAValue = false;
-      myPastEndActionValue = BaseLoopTag.PAST_END_ACTION_CLEAR;
-      myGroupDir = GroupTag.GROUP_DIR_NONE;
-      amICollapsingGroup = false;
+      myCopyingRight = null;
+      myFixed = null;
+      myPastEndActionValue = null;
+      myGroupDir = null;
+      myCollapsingGroup = null;
+      myTagLoopListener = null;
+      myTagListener = null;
+      myIndexVarName = null;
+      myLimit = null;
    }
 
    /**
@@ -135,106 +167,60 @@ public class MetadataParser
             // Ignore.
             break;
          case TOKEN_STRING:
-            if (amIIExpectingAValue)
+            if (amIExpectingAValue)
             {
-               String value = scanner.getCurrLexeme();
+               String lexeme = scanner.getCurrLexeme();
 
                // Add newly complete variable name/value pair.
                if (VAR_NAME_EXTRA_ROWS.equals(varName))
                {
-                  try
-                  {
-                     myExtraRows = Integer.parseInt(value);
-                     if (DEBUG)
-                        System.err.println("MDP: myExtraRows set to " + myExtraRows);
-                  }
-                  catch (NumberFormatException e)
-                  {
-                     throw new MetadataParseException("Value for variable \"" +
-                        VAR_NAME_EXTRA_ROWS + "\" must be an integer: " + value, e);
-                  }
-                  if (myExtraRows < 0)
-                  {
-                     throw new MetadataParseException("Value for variable \"" +
-                        VAR_NAME_EXTRA_ROWS + "\" must not be negative: " + value);
-                  }
+                  myExtraRows = lexeme;
                }
                else if (VAR_NAME_LEFT.equals(varName))
                {
-                  try
-                  {
-                     myColsLeft = Integer.parseInt(value);
-                     amIDefiningCols = true;
-                     if (DEBUG)
-                        System.err.println("MDP: myColsLeft set to " + myColsLeft);
-                  }
-                  catch (NumberFormatException e)
-                  {
-                     throw new MetadataParseException("Value for variable \"" +
-                        VAR_NAME_LEFT + "\" must be an integer: " + value, e);
-                  }
-                  if (myColsLeft < 0)
-                  {
-                     throw new MetadataParseException("Value for variable \"" +
-                        VAR_NAME_LEFT + "\" must not be negative: " + value);
-                  }
+                  myColsLeft = lexeme;
+                  amIDefiningCols = true;
                }
                else if (VAR_NAME_RIGHT.equals(varName))
                {
-                  try
-                  {
-                     myColsRight = Integer.parseInt(value);
-                     amIDefiningCols = true;
-                     if (DEBUG)
-                        System.err.println("MDP: myColsRight set to " + myColsRight);
-                  }
-                  catch (NumberFormatException e)
-                  {
-                     throw new MetadataParseException("Value for variable \"" +
-                        VAR_NAME_RIGHT + "\" must be an integer: " + value, e);
-                  }
-                  if (myColsRight < 0)
-                  {
-                     throw new MetadataParseException("Value for variable \"" +
-                        VAR_NAME_RIGHT + "\" must not be negative: " + value);
-                  }
+                  myColsRight = lexeme;
+                  amIDefiningCols = true;
                }
                else if (VAR_NAME_COPY_RIGHT.equals(varName))
                {
-                  amICopyingRight = Boolean.parseBoolean(value);
-                  if (DEBUG)
-                     System.err.println("MDP: amICopyingRight set to " + amICopyingRight);
+                  myCopyingRight = lexeme;
                }
                else if (VAR_NAME_FIXED.equals(varName))
                {
-                  amIFixed = Boolean.parseBoolean(value);
-                  if (DEBUG)
-                     System.err.println("MDP: amIFixed set to " + amIFixed);
+                  myFixed = lexeme;
                }
                else if (VAR_NAME_PAST_END_ACTION.equals(varName))
                {
-                  myPastEndActionValue = value;
-                  if (!BaseLoopTag.PAST_END_ACTION_REMOVE.equals(value) &&
-                      !BaseLoopTag.PAST_END_ACTION_CLEAR.equals(value))
-                  {
-                     throw new MetadataParseException("Unrecognized pastEndAction value: " + value);
-                  }
+                  myPastEndActionValue = lexeme;
                }
                else if (VAR_NAME_GROUP_DIR.equals(varName))
                {
-                  myGroupDir = value;
-                  if (!GroupTag.GROUP_DIR_ROWS.equals(value) &&
-                      !GroupTag.GROUP_DIR_COLS.equals(value) &&
-                      !GroupTag.GROUP_DIR_NONE.equals(value))
-                  {
-                     throw new MetadataParseException("Unrecognized groupDir value: " + value);
-                  }
+                  myGroupDir = lexeme;
                }
                else if (VAR_NAME_COLLAPSE.equals(varName))
                {
-                  amICollapsingGroup = Boolean.parseBoolean(value);
-                  if (DEBUG)
-                     System.err.println("MDP: amICollapsingGroup set to " + amICollapsingGroup);
+                  myCollapsingGroup = lexeme;
+               }
+               else if (VAR_NAME_ON_LOOP_PROCESSED.equals(varName))
+               {
+                  myTagLoopListener = lexeme;
+               }
+               else if (VAR_NAME_ON_PROCESSED.equals(varName))
+               {
+                  myTagListener = lexeme;
+               }
+               else if (VAR_NAME_INDEXVAR.equals(varName))
+               {
+                  myIndexVarName = lexeme;
+               }
+               else if (VAR_NAME_LIMIT.equals(varName))
+               {
+                  myLimit = lexeme;
                }
                else
                {
@@ -242,7 +228,7 @@ public class MetadataParser
                      varName + "\".");
                }
                varName = null;
-               amIIExpectingAValue = false;
+               amIExpectingAValue = false;
             }
             else
                varName = scanner.getCurrLexeme();
@@ -250,7 +236,7 @@ public class MetadataParser
          case TOKEN_EQUALS:
             if (varName == null)
                throw new MetadataParseException("Variable name missing before \"=\": " + myMetadataText);
-            amIIExpectingAValue = true;
+            amIExpectingAValue = true;
             break;
          case TOKEN_SEMICOLON:
             // Just a delimiter between var/value pairs.
@@ -266,36 +252,37 @@ public class MetadataParser
       }
       // Found end of input before attribute value found.
       if (varName != null)
-         throw new MetadataParseException("Found end of metadata before equals sign: " + myMetadataText);
-      if (amIIExpectingAValue)
+         throw new MetadataParseException("Found end of metadata before equals sign at \"" +
+            varName + "\": " + myMetadataText);
+      if (amIExpectingAValue)
          throw new MetadataParseException("Found end of metadata before variable value: " + myMetadataText);
       if (token.getCode() < 0)
          throw new MetadataParseException("Found end of input while scanning metadata value: " + myMetadataText);
    }
 
    /**
-    * Returns the number of extra rows to add to the <code>Block</code>.
-    * @return The number of extra rows to add to the <code>Block</code>.
+    * Returns the "extra rows" lexeme.
+    * @return The "extra rows" lexeme.
     */
-   public int getExtraRows()
+   public String getExtraRows()
    {
       return myExtraRows;
    }
 
    /**
-    * Returns the number of columns to add to the left of the <code>Block</code>.
-    * @return The number of columns to add to the left of the <code>Block</code>.
+    * Returns the "columns left" lexeme.
+    * @return The "columns left" lexeme.
     */
-   public int getColsLeft()
+   public String getColsLeft()
    {
       return myColsLeft;
    }
 
    /**
-    * Returns the number of columns to add to the right of the <code>Block</code>.
-    * @return The number of columns to add to the right of the <code>Block</code>.
+    * Returns the "columns right" lexeme.
+    * @return The "columns right" lexeme.
     */
-   public int getColsRight()
+   public String getColsRight()
    {
       return myColsRight;
    }
@@ -310,32 +297,26 @@ public class MetadataParser
    }
 
    /**
-    * Returns whether the implicit block will be copied right instead of down.
-    * The variables "copyRight" and either "left" or "right" must be specified
-    * for this to return <code>true</code>.
-    * @return Whether the implicit block will be copied right instead of down.
+    * Returns the "copy right" lexeme.
+    * @return The "copy right" lexeme.
     */
-   public boolean isCopyingRight()
+   public String getCopyingRight()
    {
-      return isDefiningCols() && amICopyingRight;
+      return myCopyingRight;
    }
 
    /**
-    * Returns whether the implicit block is "fixed", that is, not shifting
-    * other content out of the way, like the "fixed collection name" feature.
-    * @return Whether the implicit block is fixed.
+    * Returns the "fixed" lexeme.
+    * @return The "fixed" lexeme.
     */
-   public boolean isFixed()
+   public String getFixed()
    {
-      return amIFixed;
+      return myFixed;
    }
 
    /**
-    * Returns the "past end action" value, which defaults to
-    * <code>BaseLoopTag.PAST_END_ACTION_CLEAR</code>.
-    * @return The "past end action" value.
-    * @see BaseLoopTag#PAST_END_ACTION_CLEAR
-    * @see BaseLoopTag#PAST_END_ACTION_REMOVE
+    * Returns the "past end action" lexeme.
+    * @return The "past end action" lexeme.
     * @since 0.2.0
     */
    public String getPastEndAction()
@@ -344,12 +325,8 @@ public class MetadataParser
    }
 
    /**
-    * Returns the "group dir" value, which defaults to
-    * <code>GroupTag.GROUP_DIR_NONE</code>.
-    * @return The "group dir" value.
-    * @see GroupTag#GROUP_DIR_NONE
-    * @see GroupTag#GROUP_DIR_ROWS
-    * @see GroupTag#GROUP_DIR_COLS
+    * Returns the "group dir" lexeme.
+    * @return The "group dir" lexeme.
     * @since 0.2.0
     */
    public String getGroupDir()
@@ -358,14 +335,52 @@ public class MetadataParser
    }
 
    /**
-    * Returns whether the Excel group to be created will be collapsed.
-    * @return Whether the Excel group to be created will be collapsed.  If the
-    *    "group direction" is "none", then this will always be
-    *    <code>false</code>.
+    * Returns the "collapse" lexeme.
+    * @return The "collapse" lexeme.
     * @since 0.2.0
     */
-   public boolean isCollapsingGroup()
+   public String getCollapsingGroup()
    {
-      return !myGroupDir.equals(GroupTag.GROUP_DIR_NONE) && amICollapsingGroup;
+      return myCollapsingGroup;
+   }
+
+   /**
+    * Returns the "tag loop listener" lexeme.
+    * @return The "tag loop listener" lexeme.
+    * @since 0.3.0
+    */
+   public String getTagLoopListener()
+   {
+      return myTagLoopListener;
+   }
+
+   /**
+    * Returns the "tag listener" lexeme.
+    * @return The "tag listener" lexeme.
+    * @since 0.3.0
+    */
+   public String getTagListener()
+   {
+      return myTagListener;
+   }
+
+   /**
+    * Returns the "looping" variable name.
+    * @return The "looping" variable name.
+    * @since 0.3.0
+    */
+   public String getIndexVarName()
+   {
+      return myIndexVarName;
+   }
+
+   /**
+    * Returns the "limit" lexeme.
+    * @return The "limit" lexeme.
+    * @since 0.3.0
+    */
+   public String getLimit()
+   {
+      return myLimit;
    }
 }

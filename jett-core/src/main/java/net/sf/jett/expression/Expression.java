@@ -27,6 +27,8 @@ import net.sf.jett.util.RichTextStringUtil;
  * <code>Expressions</code> may be created in a cell.  Here in JETT,
  * <code>Expressions</code> are built from the text found in between "${" and
  * "}".</p>
+ *
+ * @author Randy Gettman
  */
 public class Expression
 {

@@ -112,6 +112,23 @@
                 "collapse" attribute of <a href="../tags/looping.html">looping tags</a>: This
                 determines whether the Excel Group (Outline) created is in a collapsed state.  The
                 default is <code>false</code> (not collapsed).</li>
+                <li><strong>indexVar: int</strong> Optional.  Expose a zero-based "looping"
+                variable name in the beans map.  This acts just like the "indexVar" attribute of
+                the <a href="../tags/forEach.html">forEach tag</a> and of the
+                <a href="../tags/multiForEach.html">multiForEach tag</a>.</li>
+                <li><strong>limit: int</strong> Optional.  Limit the number of collection items
+                displayed to this number, for all collections found.  This acts just like the
+                "limit" attribute of the <a href="../tags/forEach.html">forEach tag</a> and of the
+                <a href="../tags/multiForEach.html">multiForEach tag</a>.</li>
+                <li><strong>onProcessed</strong> Optional.  Specify a <code>TagListener</code> or a
+                fully-qualified Java class name so that a <code>TagListener</code> will be called
+                when processing is complete.  This acts just like the "onProcessed" attribute of
+                all <a href="../tags/basics.html">built-in tags</a>.</li>
+                <li><strong>onLoopProcessed</strong> Optional.  Specify a
+                <code>TagLoopListener</code> or a fully-qualified Java class name so that a
+                <code>TagLoopListener</code> will be called each time a loop iteration has been
+                processed.  This acts just like the "onLoopProcessed" attribute of
+                <a href="../tags/looping.html">looping tags</a>.</li>
             </ul>
             <p>Once JETT has determined the desired block of cells, it will scan the entire block
             for any references to any Collections in any Expression.  Then, it will process an

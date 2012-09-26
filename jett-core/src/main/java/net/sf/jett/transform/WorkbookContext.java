@@ -11,6 +11,8 @@ import net.sf.jett.tag.TagLibraryRegistry;
 /**
  * A <code>WorkbookContext</code> object holds data relevant to the context of
  * a <code>Workbook</code>.
+ *
+ * @author Randy Gettman
  */
 public class WorkbookContext
 {

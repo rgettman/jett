@@ -11,6 +11,8 @@ import static org.junit.Assert.*;
 
 /**
  * This JUnit Test class tests the evaluation of the "multiForEach" tag.
+ *
+ * @author Randy Gettman
  */
 public class MultiForEachTagTest extends TestCase
 {

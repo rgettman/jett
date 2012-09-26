@@ -16,6 +16,8 @@ import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 /**
  * The <code>RichTextStringUtil</code> utility class provides methods for
  * RichTextString manipulation.
+ *
+ * @author Randy Gettman
  */
 public class RichTextStringUtil
 {

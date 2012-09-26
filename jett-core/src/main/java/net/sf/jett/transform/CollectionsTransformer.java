@@ -12,12 +12,13 @@ import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
+import net.sf.jett.exception.TagParseException;
 import net.sf.jett.expression.Expression;
 import net.sf.jett.expression.ExpressionFactory;
 import net.sf.jett.parser.MetadataParser;
 import net.sf.jett.tag.BaseLoopTag;
+import net.sf.jett.tag.BaseTag;
 import net.sf.jett.tag.Block;
-import net.sf.jett.tag.GroupTag;
 import net.sf.jett.tag.MultiForEachTag;
 import net.sf.jett.tag.TagContext;
 import net.sf.jett.util.RichTextStringUtil;
@@ -27,6 +28,8 @@ import net.sf.jett.util.SheetUtil;
  * A <code>CollectionsTransformer</code> knows how to perform implicit
  * collections processing on a group of <code>Collections</code>, processing an
  * implicit <code>MultiForEachTag</code>.
+ *
+ * @author Randy Gettman
  */
 public class CollectionsTransformer
 {
@@ -58,8 +61,7 @@ public class CollectionsTransformer
       if (metadataIndIdx != -1)
       {
          // Evaluate any Expressions in the metadata.
-         String metadataExpr = value.substring(metadataIndIdx + MetadataParser.BEGIN_METADATA.length());
-         String metadata = Expression.evaluateString(metadataExpr, beans).toString();
+         String metadata = value.substring(metadataIndIdx + MetadataParser.BEGIN_METADATA.length());
          if (DEBUG)
          {
             System.err.println("  CT: Metadata found: " + metadata + " on sheet " + sheet.getSheetName() +
@@ -70,7 +72,7 @@ public class CollectionsTransformer
          parser.parse();
          // Remove the metadata text from the Cell.
          RichTextString metadataRemoved = RichTextStringUtil.replaceAll(richString,
-            helper, MetadataParser.BEGIN_METADATA + metadataExpr, "");
+            helper, MetadataParser.BEGIN_METADATA + metadata, "");
          SheetUtil.setCellValue(cell, metadataRemoved);
       }
 
@@ -80,29 +82,52 @@ public class CollectionsTransformer
       int right = parentBlock.getRightColNum();
       int top = cell.getRowIndex();
       int bottom = top;
-      boolean copyRight = false;
-      boolean fixed = false;
-      String pastEndAction = BaseLoopTag.PAST_END_ACTION_CLEAR;
-      String groupDir = GroupTag.GROUP_DIR_NONE;
-      boolean collapse = false;
+      String copyRight = null;
+      String fixed = null;
+      String pastEndAction = null;
+      String groupDir = null;
+      String collapse = null;
+      String tagLoopListener = null;
+      String tagListener = null;
+      String indexVarName = null;
+      String limit = null;
       if (parser != null)
       {
-         bottom += parser.getExtraRows();
+         // Gather parser properties.
+         String lexeme = parser.getExtraRows();
+         if (lexeme != null)
+         {
+            bottom += evaluateInt(lexeme, beans, "extraRows");
+         }
+         lexeme = parser.getColsLeft();
+         if (lexeme != null)
+         {
+            left = cell.getColumnIndex() - evaluateInt(lexeme, beans, "left");
+         }
+         lexeme = parser.getColsRight();
+         if (lexeme != null)
+         {
+            right = cell.getColumnIndex() + evaluateInt(lexeme, beans, "right");
+         }
+
+         copyRight = parser.getCopyingRight();
+         fixed = parser.getFixed();
+         pastEndAction = parser.getPastEndAction();
+         groupDir = parser.getGroupDir();
+         collapse = parser.getCollapsingGroup();
+         tagLoopListener = parser.getTagLoopListener();
+         tagListener = parser.getTagListener();
+         indexVarName = parser.getIndexVarName();
+         limit = parser.getLimit();
+
          if (parser.isDefiningCols())
          {
-            left = cell.getColumnIndex() - parser.getColsLeft();
-            right = cell.getColumnIndex() + parser.getColsRight();
             // Column range can't go outside parent's column range.
             if (left < parentBlock.getLeftColNum())
                left = parentBlock.getLeftColNum();
             if (right > parentBlock.getRightColNum())
                right = parentBlock.getRightColNum();
          }
-         copyRight = parser.isCopyingRight();
-         fixed = parser.isFixed();
-         pastEndAction = parser.getPastEndAction();
-         groupDir = parser.getGroupDir();
-         collapse = parser.isCollapsingGroup();
       }
       Block containingBlock = new Block(parentBlock, left, right, top, bottom);
       if (DEBUG)
@@ -150,27 +175,25 @@ public class CollectionsTransformer
 
       // Determine if any of the collection names we found are marked as
       // "fixed".
-      if (!fixed)
+      // Remove all collection names not found.
+      for (Iterator<String> itr = fixedSizeCollNamesCopy.iterator(); itr.hasNext(); )
       {
-         // Remove all collection names not found.
-         for (Iterator<String> itr = fixedSizeCollNamesCopy.iterator(); itr.hasNext(); )
-         {
-            String fixedSizeCollName = itr.next();
-            if (DEBUG)
-               System.err.println("  CollT: fixed size collection name: " + fixedSizeCollName);
-            if (!collectionNames.contains(fixedSizeCollName))
-               itr.remove();
-         }
-         fixed = !fixedSizeCollNamesCopy.isEmpty();
+         String fixedSizeCollName = itr.next();
          if (DEBUG)
-         {
-            if (fixed)
-               System.err.println("CollT: Setting implicit tag to fixed: " + fixed +
-                  " based on fixed size collection name: " + fixedSizeCollNamesCopy.get(0));
-            else
-               System.err.println("CollT: Setting implicit tag to fixed: " + fixed +
-                  " based on no fixed size collection names found.");
-         }
+            System.err.println("  CollT: fixed size collection name: " + fixedSizeCollName);
+         if (!collectionNames.contains(fixedSizeCollName))
+            itr.remove();
+      }
+      if (!fixedSizeCollNamesCopy.isEmpty())
+         fixed = "true";
+      if (DEBUG)
+      {
+         if (!fixedSizeCollNamesCopy.isEmpty())
+            System.err.println("CollT: Setting implicit tag to fixed: " + fixed +
+               " based on fixed size collection name: " + fixedSizeCollNamesCopy.get(0));
+         else
+            System.err.println("CollT: Setting implicit tag to fixed: " + fixed +
+               " based on no fixed size collection names found.");
       }
 
       TagContext context = new TagContext();
@@ -206,15 +229,24 @@ public class CollectionsTransformer
          buf.append(vars.get(i));
       }
       attributes.put(MultiForEachTag.ATTR_VARS, helper.createRichTextString(buf.toString()));
-      if (copyRight)
-         attributes.put(BaseLoopTag.ATTR_COPY_RIGHT, helper.createRichTextString("true"));
-      if (fixed)
-         attributes.put(BaseLoopTag.ATTR_FIXED, helper.createRichTextString("true"));
-      attributes.put(BaseLoopTag.ATTR_PAST_END_ACTION, helper.createRichTextString(pastEndAction));
-      attributes.put(BaseLoopTag.ATTR_GROUP_DIR, helper.createRichTextString(groupDir));
-      if (collapse)
-         attributes.put(BaseLoopTag.ATTR_COLLAPSE, helper.createRichTextString("true"));
-
+      if (copyRight != null)
+         attributes.put(BaseLoopTag.ATTR_COPY_RIGHT, helper.createRichTextString(copyRight));
+      if (fixed != null)
+         attributes.put(BaseLoopTag.ATTR_FIXED, helper.createRichTextString(fixed));
+      if (pastEndAction != null)
+         attributes.put(BaseLoopTag.ATTR_PAST_END_ACTION, helper.createRichTextString(pastEndAction));
+      if (groupDir != null)
+         attributes.put(BaseLoopTag.ATTR_GROUP_DIR, helper.createRichTextString(groupDir));
+      if (collapse != null)
+         attributes.put(BaseLoopTag.ATTR_COLLAPSE, helper.createRichTextString(collapse));
+      if (tagLoopListener != null)
+         attributes.put(BaseLoopTag.ATTR_ON_LOOP_PROCESSED, helper.createRichTextString(tagLoopListener));
+      if (tagListener != null)
+         attributes.put(BaseTag.ATTR_ON_PROCESSED, helper.createRichTextString(tagListener));
+      if (indexVarName != null)
+         attributes.put(MultiForEachTag.ATTR_INDEXVAR, helper.createRichTextString(indexVarName));
+      if (limit != null)
+         attributes.put(MultiForEachTag.ATTR_LIMIT, helper.createRichTextString(limit));
       if (DEBUG)
       {
          for (String attribute : attributes.keySet())
@@ -226,9 +258,42 @@ public class CollectionsTransformer
       tag.setBodiless(false);
 
       // Process the implicit MultiForEach tag.
-      tag.checkAttributes();
       // No need to remove the non-existent tag text.
-      tag.process();
+      tag.processTag();
+   }
+
+   /**
+    * Evaluates the given expression, given the <code>Map</code> of bean names
+    * to bean values, expecting an integer value for the given key.
+    * @param lexeme The expression.
+    * @param beans A <code>Map</code> of bean names to bean values.
+    * @param keyName The key name.
+    * @return The integer value.
+    */
+   private int evaluateInt(String lexeme, Map<String, Object> beans, String keyName)
+   {
+      Object obj = Expression.evaluateString(lexeme, beans);
+      int change;
+      if (obj instanceof Number)
+      {
+         change = ((Number) obj).intValue();
+      }
+      else
+      {
+         try
+         {
+            change = Integer.parseInt(obj.toString());
+         }
+         catch (NumberFormatException e)
+         {
+            throw new TagParseException("Metadata key \"" + keyName + "\" needs to be a non-negative integer: " + lexeme);
+         }
+         if (change < 0)
+         {
+            throw new TagParseException("Metadata key \"" + keyName + "\" needs to be a non-negative integer: " + lexeme);
+         }
+      }
+      return change;
    }
 
    /**

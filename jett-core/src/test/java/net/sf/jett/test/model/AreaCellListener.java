@@ -11,13 +11,15 @@ import net.sf.jett.event.CellListener;
 /**
  * An <code>AreaCellListener</code> is a <code>CellListener</code> that takes
  * state area figures of 10,000+ and italicizes the text in that cell.
+ *
+ * @author Randy Gettman
  */
 public class AreaCellListener implements CellListener
 {
    private int myAreaThreshold;
 
    /**
-    * Creates a n<code>AreaCellListener</code> that turns text in all
+    * Creates an <code>AreaCellListener</code> that turns text in all
     * <code>Cells</code> that in the template contained the word "area"
     * italic if the resultant number in the <code>Cell</code> is the given
     * area or greater.

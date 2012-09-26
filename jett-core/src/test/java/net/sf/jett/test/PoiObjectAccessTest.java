@@ -14,6 +14,8 @@ import static org.junit.Assert.*;
  * This JUnit Test class tests the exposure of the POI Objects "sheet" and
  * "workbook" as the current <code>Sheet</code> and <code>Workbook</code>,
  * respectively.
+ *
+ * @author Randy Gettman
  */
 public class PoiObjectAccessTest extends TestCase
 {

@@ -28,6 +28,8 @@ import net.sf.jett.util.SheetUtil;
  * A <code>CellTransformer</code> knows how to transform a <code>Cell</code>
  * inside of a <code>Sheet</code>.  If a <code>Tag</code> is found, then the
  * <code>CellTransformer</code> will process it.
+ *
+ * @author Randy Gettman
  */
 public class CellTransformer
 {
@@ -205,9 +207,7 @@ public class CellTransformer
          throw new TagParseException("Invalid tag: " + value);
 
       // Process the Tag.
-      tag.checkAttributes();
-
-      return tag.process();
+      return tag.processTag();
    }
 
    /**

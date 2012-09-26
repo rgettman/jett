@@ -11,6 +11,7 @@ import org.apache.poi.ss.usermodel.RichTextString;
 
 import net.sf.jett.exception.TagParseException;
 import net.sf.jett.expression.Expression;
+import net.sf.jett.util.AttributeUtil;
 import net.sf.jett.util.SheetUtil;
 
 /**
@@ -28,14 +29,15 @@ import net.sf.jett.util.SheetUtil;
  *
  * <br>Attributes:
  * <ul>
- * <li>copyRight (optional): <code>boolean</code>
- * <li>fixed (optional): <code>boolean</code>
- * <li>pastEndAction (optional): <code>String</code>
+ * <li><em>Inherits all attributes from {@link BaseTag}.</em>
+ * <li><em>Inherits all attributes from {@link BaseLoopTag}.</em>
  * <li>collections (required): <code>Collection</code>
  * <li>var (required): <code>String</code>
  * <li>indexVar (optional): <code>String</code>
  * <li>limit (optional): <code>int</code>
  * </ul>
+ *
+ * @author Randy Gettman
  */
 public class MultiForEachTag extends BaseLoopTag
 {
@@ -64,18 +66,96 @@ public class MultiForEachTag extends BaseLoopTag
    private static final List<String> OPT_ATTRS =
       new ArrayList<String>(Arrays.asList(ATTR_INDEXVAR, ATTR_LIMIT));
 
-   /**
-    * Separates <code>Collection</code> expression strings and "vars" variable
-    * name strings.
-    */
-   public static final String SPEC_SEP = ";";
-
    private List<Collection<Object>> myCollections = null;
    private List<String> myCollectionNames = null;
    private List<String> myVarNames = null;
    private String myIndexVarName = null;
    private int myLimit = 0;
    private int myMaxSize = 0;
+
+   /**
+    * Sets the <code>List</code> of <code>Collections</code> to be processed.
+    * @param collections A <code>List</code> of <code>Collections</code>.
+    * @since 0.3.0
+    */
+   public void setCollections(List<Collection<Object>> collections)
+   {
+      myCollections = collections;
+   }
+
+   /**
+    * Sets the <code>List</code> of collection expressions.
+    * @param collExpressions A <code>List</code> of collection expressions.
+    * @since 0.3.0
+    */
+   public void setCollectionNames(List<String> collExpressions)
+   {
+      for (String collExpression : collExpressions)
+      {
+         addCollectionName(collExpression);
+      }
+   }
+
+   /**
+    * Extracts the collection expression from the delimiters and adds it to the
+    * collection names.
+    * @param collExpression A collection expression, with "${" and "}".
+    * @since 0.3.0
+    */
+   private void addCollectionName(String collExpression)
+   {
+      int beginExprIdx = collExpression.indexOf(Expression.BEGIN_EXPR);
+      int endExprIdx = collExpression.indexOf(Expression.END_EXPR);
+      if (beginExprIdx != -1 && endExprIdx != -1 && endExprIdx > beginExprIdx)
+      {
+         myCollectionNames.add(collExpression.substring(beginExprIdx +
+            Expression.BEGIN_EXPR.length(), endExprIdx));
+      }
+   }
+
+   /**
+    * Sets the <code>List</code> of variable names.
+    * @param varNames The <code>List</code> of variable names.
+    * @since 0.3.0
+    */
+   public void setVarNames(List<String> varNames)
+   {
+      myVarNames = varNames;
+   }
+
+   /**
+    * Sets the "looping" variable name.
+    * @param indexVarName The "looping" variable name.
+    * @since 0.3.0
+    */
+   public void setIndexVarName(String indexVarName)
+   {
+      myIndexVarName = indexVarName;
+   }
+
+   /**
+    * Sets the limit on the number of iterations.
+    * @param limit The limit on the number of iterations.
+    */
+   public void setLimit(int limit)
+   {
+      myLimit = limit;
+   }
+
+   /**
+    * Sets the maximum size of all collections.
+    * @since 0.3.0
+    */
+   private void setMaxSize()
+   {
+      myMaxSize = 0;
+      for (Collection<Object> collection : myCollections)
+      {
+         int size = collection.size();
+         if (size > myMaxSize)
+            myMaxSize = size;
+      }
+   }
 
    /**
     * Returns this <code>Tag's</code> name.
@@ -94,13 +174,8 @@ public class MultiForEachTag extends BaseLoopTag
    public List<String> getRequiredAttributes()
    {
       List<String> reqAttrs = super.getRequiredAttributes();
-      if (reqAttrs == null)
-         return REQ_ATTRS;
-      else
-      {
-         reqAttrs.addAll(REQ_ATTRS);
-         return reqAttrs;
-      }
+      reqAttrs.addAll(REQ_ATTRS);
+      return reqAttrs;
    }
 
    /**
@@ -111,13 +186,8 @@ public class MultiForEachTag extends BaseLoopTag
    public List<String> getOptionalAttributes()
    {
       List<String> optAttrs = super.getOptionalAttributes();
-      if (optAttrs == null)
-         return OPT_ATTRS;
-      else
-      {
-         optAttrs.addAll(OPT_ATTRS);
-         return optAttrs;
-      }
+      optAttrs.addAll(OPT_ATTRS);
+      return optAttrs;
    }
 
    /**
@@ -152,72 +222,29 @@ public class MultiForEachTag extends BaseLoopTag
          if (!(items instanceof Collection))
             throw new TagParseException("One of the items in the \"collections\" attribute is not a Collection: " +
                collExpression);
-         Collection<Object> collection = (Collection<Object>) items;
+         Collection<Object> collection = AttributeUtil.evaluateObject(collExpression.trim(), beans, ATTR_COLLECTIONS,
+            Collection.class, null);
          myCollections.add(collection);
          // Collection names.
-         int beginExprIdx = collExpression.indexOf(Expression.BEGIN_EXPR);
-         int endExprIdx = collExpression.indexOf(Expression.END_EXPR);
-         if (beginExprIdx != -1 && endExprIdx != -1 && endExprIdx > beginExprIdx)
-         {
-            myCollectionNames.add(collExpression.substring(beginExprIdx +
-               Expression.BEGIN_EXPR.length(), endExprIdx));
-         }
+         addCollectionName(collExpression);
          if (DEBUG)
             System.err.println("MultiForEachTag: Collection \"" + collExpression + "\" has size " + collection.size());
 
       }
 
-      myVarNames = new ArrayList<String>();
-      String attrVarNames = attributes.get(ATTR_VARS).getString();
-      String[] varExpressions = attrVarNames.split(SPEC_SEP);
-      for (String varExpression : varExpressions)
-      {
-         myVarNames.add(Expression.evaluateString(varExpression.trim(), beans).toString());
-      }
+      myVarNames = AttributeUtil.evaluateList(attributes.get(ATTR_VARS), beans, new ArrayList<String>(0));
 
       if (myCollections.size() < 1)
          throw new TagParseException("Must specify at least one Collection.");
       if (myCollections.size() != myVarNames.size())
          throw new TagParseException("The number of collections and the number of variable names must be the same.");
 
-      RichTextString rtsIndexVarName = attributes.get(ATTR_INDEXVAR);
-      String attrIndexVarName = (rtsIndexVarName != null) ? rtsIndexVarName.getString() : null;
-      if (attrIndexVarName != null)
-         myIndexVarName = Expression.evaluateString(attrIndexVarName, beans).toString();
+      myIndexVarName = AttributeUtil.evaluateString(attributes.get(ATTR_INDEXVAR), beans, null);
 
       // Determine the maximum size of all collections.
-      myMaxSize = 0;
-      for (Collection<Object> collection : myCollections)
-      {
-         int size = collection.size();
-         if (size > myMaxSize)
-            myMaxSize = size;
-      }
+      setMaxSize();
 
-      myLimit = 0;
-      RichTextString rtsAttrLimit = attributes.get(ATTR_LIMIT);
-      String strLimit = (rtsAttrLimit != null) ? rtsAttrLimit.getString() : null;
-      if (strLimit != null)
-      {
-         try
-         {
-            Object limit = Expression.evaluateString(strLimit, beans);
-            myLimit = Integer.parseInt(limit.toString());
-         }
-         catch (NumberFormatException e)
-         {
-            throw new TagParseException("The limit attribute must be an integer: " + strLimit);
-         }
-         if (myLimit < 0)
-         {
-            throw new TagParseException("The limit attribute must be non-negative: " + myLimit);
-         }
-      }
-      else
-      {
-         // Limit defaults to maximum collection size.
-         myLimit = myMaxSize;
-      }
+      myLimit = AttributeUtil.evaluateNonNegativeInt(attributes.get(ATTR_LIMIT), beans, ATTR_LIMIT, myMaxSize);
 
       if (DEBUG)
          System.err.println("ForEachTag.vA: myLimit=" + myLimit);

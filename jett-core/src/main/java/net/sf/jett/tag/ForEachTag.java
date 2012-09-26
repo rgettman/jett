@@ -3,14 +3,22 @@ package net.sf.jett.tag;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import net.sf.jagg.AggregateValue;
+import net.sf.jagg.Aggregations;
+import net.sf.jagg.Aggregator;
+import net.sf.jagg.CollectAggregator;
 import org.apache.poi.ss.usermodel.RichTextString;
 
 import net.sf.jett.exception.TagParseException;
 import net.sf.jett.expression.Expression;
+import net.sf.jett.util.AttributeUtil;
+import net.sf.jett.util.GroupOrderByComparator;
+import net.sf.jett.util.OrderByComparator;
 
 /**
  * <p>A <code>ForEachTag</code> represents a repetitively placed
@@ -27,15 +35,18 @@ import net.sf.jett.expression.Expression;
  *
  * <br>Attributes:
  * <ul>
- * <li>copyRight (optional): <code>boolean</code>
- * <li>fixed (optional): <code>boolean</code>
- * <li>pastEndAction (optional): <code>String</code>
+ * <li><em>Inherits all attributes from {@link BaseTag}.</em>
+ * <li><em>Inherits all attributes from {@link BaseLoopTag}.</em>
  * <li>items (required): <code>Collection</code>
  * <li>var (required): <code>String</code>
  * <li>indexVar (optional): <code>String</code>
  * <li>where (optional): <code>boolean</code>
  * <li>limit (optional): <code>int</code>
+ * <li>groupBy (optional): <code>List&lt;String&gt;</code>
+ * <li>orderBy (optional): <code>List&lt;String&gt;</code>
  * </ul>
+ *
+ * @author Randy Gettman
  */
 public class ForEachTag extends BaseLoopTag
 {
@@ -64,16 +75,31 @@ public class ForEachTag extends BaseLoopTag
     * Attribute for specifying the number of iterations to be displayed.
     */
    public static final String ATTR_LIMIT = "limit";
+   /**
+    * Attribute for specifying the property or properties by which to group the
+    * <code>Collection</code> items, if any.
+    * @since 0.3.0
+    */
+   public static final String ATTR_GROUP_BY = "groupBy";
+   /**
+    * Attribute for specifying the property or properties by which to order the
+    * <code>Collection</code> items, if any.
+    * @since 0.3.0
+    */
+   public static final String ATTR_ORDER_BY = "orderBy";
+
    private static final List<String> REQ_ATTRS =
       new ArrayList<String>(Arrays.asList(ATTR_ITEMS, ATTR_VAR));
    private static final List<String> OPT_ATTRS =
-      new ArrayList<String>(Arrays.asList(ATTR_INDEXVAR, ATTR_WHERE, ATTR_LIMIT));
+      new ArrayList<String>(Arrays.asList(
+         ATTR_INDEXVAR, ATTR_WHERE, ATTR_LIMIT, ATTR_GROUP_BY, ATTR_ORDER_BY));
 
    private Collection<Object> myCollection = null;
    private String myCollectionName = null;
    private String myVarName = null;
    private String myIndexVarName = null;
    private int myLimit = 0;
+   private List<String> myGroupByProperties;
 
    /**
     * Returns this <code>Tag's</code> name.
@@ -92,13 +118,8 @@ public class ForEachTag extends BaseLoopTag
    public List<String> getRequiredAttributes()
    {
       List<String> reqAttrs = super.getRequiredAttributes();
-      if (reqAttrs == null)
-         return REQ_ATTRS;
-      else
-      {
-         reqAttrs.addAll(REQ_ATTRS);
-         return reqAttrs;
-      }
+      reqAttrs.addAll(REQ_ATTRS);
+      return reqAttrs;
    }
 
    /**
@@ -109,13 +130,8 @@ public class ForEachTag extends BaseLoopTag
    public List<String> getOptionalAttributes()
    {
       List<String> optAttrs = super.getOptionalAttributes();
-      if (optAttrs == null)
-         return OPT_ATTRS;
-      else
-      {
-         optAttrs.addAll(OPT_ATTRS);
-         return optAttrs;
-      }
+      optAttrs.addAll(OPT_ATTRS);
+      return optAttrs;
    }
 
    /**
@@ -135,17 +151,11 @@ public class ForEachTag extends BaseLoopTag
       Map<String, Object> beans = context.getBeans();
 
       Map<String, RichTextString> attributes = getAttributes();
-      String attrItems = attributes.get(ATTR_ITEMS).getString();
-      Object items = Expression.evaluateString(attrItems, beans);
-      if (items == null)
-      {
-         // Allow null to be interpreted as an empty collection.
-         items = new ArrayList<Object>(0);
-      }
-      if (!(items instanceof Collection))
-         throw new TagParseException("The \"items\" attribute is not a Collection: " + attrItems);
-      myCollection = (Collection<Object>) items;
+      myCollection = AttributeUtil.evaluateObject(attributes.get(ATTR_ITEMS), beans, ATTR_ITEMS, Collection.class,
+         new ArrayList<Object>(0));
+
       // Collection name.
+      String attrItems = attributes.get(ATTR_ITEMS).getString();
       int beginExprIdx = attrItems.indexOf(Expression.BEGIN_EXPR);
       int endExprIdx = attrItems.indexOf(Expression.END_EXPR);
       if (beginExprIdx != -1 && endExprIdx != -1 && endExprIdx > beginExprIdx)
@@ -157,17 +167,12 @@ public class ForEachTag extends BaseLoopTag
       if (DEBUG)
          System.err.println("ForEachTag: Collection \"" + attrItems + "\" has size " + myCollection.size());
 
-      String attrVarName = attributes.get(ATTR_VAR).getString();
-      myVarName = Expression.evaluateString(attrVarName, beans).toString();
+      myVarName = AttributeUtil.evaluateString(attributes.get(ATTR_VAR), beans, null);
 
-      RichTextString rtsIndexVarName = attributes.get(ATTR_INDEXVAR);
-      String attrIndexVarName = (rtsIndexVarName != null) ? rtsIndexVarName.getString() : null;
-      if (attrIndexVarName != null)
-         myIndexVarName = Expression.evaluateString(attrIndexVarName, beans).toString();
+      myIndexVarName = AttributeUtil.evaluateString(attributes.get(ATTR_INDEXVAR), beans, null);
 
       RichTextString rtsCondition = attributes.get(ATTR_WHERE);
-      String strCondition = (rtsCondition != null) ? rtsCondition.getString() : null;
-      if (strCondition != null)
+      if (rtsCondition != null)
       {
          // Create a new Collection containing only those items where the given
          // condition is true.
@@ -175,41 +180,36 @@ public class ForEachTag extends BaseLoopTag
          for (Object item : myCollection)
          {
             beans.put(myVarName, item);
-            Object condition = Expression.evaluateString(strCondition, beans);
-            if (condition instanceof Boolean)
+            boolean condition = AttributeUtil.evaluateBoolean(rtsCondition, beans, true);
+            if (condition)
             {
-               if ((Boolean) condition)
-                 newCollection.add(item);
-            }
-            // Note: parseBoolean returns true if the String argument is not
-            // null, and it equals "true", ignoring case.
-            else if (Boolean.parseBoolean(condition.toString()))
                newCollection.add(item);
+            }
          }
          beans.remove(myVarName);
          myCollection = newCollection;
       }
 
-      RichTextString rtsLimit = attributes.get(ATTR_LIMIT);
-      String strLimit = (rtsLimit != null) ? rtsLimit.getString() : null;
-      if (strLimit != null)
+      List<String> orderByProperties = AttributeUtil.evaluateList(attributes.get(ATTR_ORDER_BY), beans, new ArrayList<String>(0));
+      OrderByComparator<Object> comp = null;
+      if (!orderByProperties.isEmpty())
       {
-         try
-         {
-            Object limit = Expression.evaluateString(strLimit, beans);
-            myLimit = Integer.parseInt(limit.toString());
-         }
-         catch (NumberFormatException e)
-         {
-            throw new TagParseException("The limit attribute must be an integer: " + strLimit);
-         }
-         if (myLimit < 0)
-         {
-            throw new TagParseException("The limit attribute must be non-negative: " + myLimit);
-         }
+         comp = new OrderByComparator<Object>(orderByProperties);
+         sortTheCollection(comp);
       }
-      else
-         myLimit = myCollection.size();
+
+      myGroupByProperties = AttributeUtil.evaluateList(attributes.get(ATTR_GROUP_BY), beans, new ArrayList<String>(0));
+      if (!myGroupByProperties.isEmpty())
+      {
+         List<Group> groups = groupTheCollection();
+         if (!orderByProperties.isEmpty())
+         {
+            sortTheGroups(groups, comp);
+         }
+         myCollection = new ArrayList<Object>(groups);
+      }
+
+      myLimit = AttributeUtil.evaluateNonNegativeInt(attributes.get(ATTR_LIMIT), beans, ATTR_LIMIT, myCollection.size());
 
       if (DEBUG)
          System.err.println("ForEachTag.vA: myLimit=" + myLimit);
@@ -290,6 +290,61 @@ public class ForEachTag extends BaseLoopTag
       // Optional index counter variable.
       if (myIndexVarName != null && myIndexVarName.length() > 0)
          beans.remove(myIndexVarName);
+   }
+
+   /**
+    * Use an <code>OrderByComparator</code> to sort the collection of objects
+    * by the "order by" properties.  It will sort it in place if it's a
+    * <code>List</code>, otherwise it will make a copy of the list, sort it,
+    * and assign it to the collection.
+    * @param comp An <code>OrderByComparator</code>.
+    */
+   private void sortTheCollection(OrderByComparator<Object> comp)
+   {
+      if (myCollection instanceof List)
+      {
+         Collections.sort((List<Object>) myCollection, comp);
+      }
+      else
+      {
+         List<Object> temp = new ArrayList<Object>(myCollection);
+         Collections.sort(temp, comp);
+         myCollection = temp;
+      }
+   }
+
+   /**
+    * Create and use a <code>GroupOrderByComparator</code> to sort the groups.
+    * @param groups A <code>List</code> of <code>Groups</code>.
+    * @param comp An <code>OrderByComparator</code>.
+    */
+   private void sortTheGroups(List<Group> groups, OrderByComparator<Object> comp)
+   {
+      GroupOrderByComparator<Group> gComp = new GroupOrderByComparator<Group>(comp, myGroupByProperties);
+      Collections.sort(groups, gComp);
+   }
+
+   /**
+    * Use a <code>CollectAggregator</code> to partition the collection of
+    * objects by the "group by" properties into <code>Groups</code>.  When
+    * complete, this method will have replaced all items in the collection with
+    * <code>Groups</code> of items.
+    * @return A <code>List</code> of <code>Groups</code>.
+    */
+   private List<Group> groupTheCollection()
+   {
+      List<Object> items = new ArrayList<Object>(myCollection);
+      List<Aggregator> aggregators = Arrays.<Aggregator>asList(new CollectAggregator(Aggregator.PROP_SELF));
+      List<AggregateValue<Object>> aggValues = Aggregations.groupBy(items, myGroupByProperties, aggregators);
+      List<Group> groups = new ArrayList<Group>(aggValues.size());
+      for (AggregateValue aggValue : aggValues)
+      {
+         Group g = new Group();
+         g.setItems((List) aggValue.getAggregateValue(0));
+         g.setObj(aggValue.getObject());
+         groups.add(g);
+      }
+      return groups;
    }
 
    /**

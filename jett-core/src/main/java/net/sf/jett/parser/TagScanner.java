@@ -2,6 +2,8 @@ package net.sf.jett.parser;
 
 /**
  * A <code>TagScanner</code> scans tag XML text and returns tokens.
+ *
+ * @author Randy Gettman
  */
 public class TagScanner
 {

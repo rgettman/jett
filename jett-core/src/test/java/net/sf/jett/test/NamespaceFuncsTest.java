@@ -17,6 +17,8 @@ import net.sf.jett.transform.ExcelTransformer;
 /**
  * This JUnit Test class tests the pass-through of namespace objects to the
  * JEXL Engine.
+ *
+ * @author Randy Gettman
  * @since 0.2.0
  */
 public class NamespaceFuncsTest extends TestCase

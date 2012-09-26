@@ -15,6 +15,8 @@ import net.sf.jett.util.SheetUtil;
  * A <code>BlockTransformer</code> knows how to transform a <code>Block</code>
  * of <code>Cells</code> that reside on a <code>Sheet</code> (given with a
  * <code>TagContext</code>).
+ * 
+ * @author Randy Gettman
  */
 public class BlockTransformer
 {
