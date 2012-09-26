@@ -10,6 +10,8 @@ package net.sf.jett.tag;
  * <p>If such an expression were written in Java code, it would result in an
  * <code>IndexOutOfBoundsException</code>.  Each enumerated value specifies a
  * way of handling this condition.</p>
+ *
+ * @author Randy Gettman
  */
 public enum PastEndAction
 {

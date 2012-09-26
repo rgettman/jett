@@ -9,11 +9,11 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Sheet;
 
-import net.sf.jett.expression.Expression;
 import net.sf.jett.exception.TagParseException;
 import net.sf.jett.tag.BaseTag;
 import net.sf.jett.tag.Block;
 import net.sf.jett.tag.TagContext;
+import net.sf.jett.util.AttributeUtil;
 import net.sf.jett.util.SheetUtil;
 
 /**
@@ -23,8 +23,11 @@ import net.sf.jett.util.SheetUtil;
  *
  * <br>Attributes:
  * <ul>
+ * <li><em>Inherits all attributes from {@link BaseTag}.</em>
  * <li>value (required): <code>Number</code>
  * </ul>
+ *
+ * @author Randy Gettman
  */
 public class AddOneTag extends BaseTag
 {
@@ -53,7 +56,9 @@ public class AddOneTag extends BaseTag
     */
    protected List<String> getRequiredAttributes()
    {
-      return REQ_ATTRS;
+      List<String> reqAttrs = super.getRequiredAttributes();
+      reqAttrs.addAll(REQ_ATTRS);
+      return reqAttrs;
    }
 
    /**
@@ -62,7 +67,7 @@ public class AddOneTag extends BaseTag
     */
    protected List<String> getOptionalAttributes()
    {
-      return null;
+      return super.getOptionalAttributes();
    }
 
    /**
@@ -72,6 +77,7 @@ public class AddOneTag extends BaseTag
     */
    public void validateAttributes()
    {
+      super.validateAttributes();
       TagContext context = getContext();
       Map<String, Object> beans = context.getBeans();
       Map<String, RichTextString> attributes = getAttributes();
@@ -79,29 +85,7 @@ public class AddOneTag extends BaseTag
       if (!isBodiless())
          throw new TagParseException("AddOne tags must not have a body.");
 
-      String attrValue = attributes.get(ATTR_VALUE).getString();
-      if (attrValue != null)
-      {
-         Object value = Expression.evaluateString(attrValue, beans);
-         if (value != null)
-         {
-            if (value instanceof Number)
-               myValue = ((Number) value).doubleValue();
-            else
-            {
-               try
-               {
-                  myValue = Double.parseDouble(value.toString());
-               }
-               catch (NumberFormatException e)
-               {
-                  throw new TagParseException("AddOneTag: Value not a number: \"" + attrValue + "\".", e);
-               }
-            }
-         }
-         else
-            throw new TagParseException("AddOneTag: Null value found: \"" + attrValue + "\".");
-      }
+      myValue = AttributeUtil.evaluateDouble(attributes.get(ATTR_VALUE), beans, ATTR_VALUE, 0);
    }
 
    /**

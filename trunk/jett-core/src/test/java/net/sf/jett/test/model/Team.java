@@ -2,6 +2,8 @@ package net.sf.jett.test.model;
 
 /**
  * A <code>Team</code> represents a Team city, name, wins and losses.
+ *
+ * @author Randy Gettman
  */
 public class Team
 {
@@ -9,16 +11,29 @@ public class Team
    private String myName;
    private int myWins;
    private int myLosses;
+   private Division myDivision;
 
    /**
     * Construct a <code>Team</code>, initializing things to empty/0.
     */
    public Team()
    {
+      this(null);
+   }
+
+   /**
+    * Construct a <code>Team</code>, initializing things to empty/0, but it's a
+    * member of the given <code>Division</code>.
+    * @param division A <code>Division</code>.
+    * @since 0.3.0
+    */
+   public Team(Division division)
+   {
       myCity = "";
       myName = "";
       myWins = 0;
       myLosses = 0;
+      myDivision = division;
    }
 
    /**
@@ -94,6 +109,16 @@ public class Team
    }
 
    /**
+    * Returns the division name.
+    * @return The division name.
+    * @since 0.3.0
+    */
+   public String getDivisionName()
+   {
+      return myDivision.getName();
+   }
+
+   /**
     * Returns the winning percentage.
     * @return The winning percentage, or 0 if wins + losses &lt;= 0.
     */
@@ -119,7 +144,16 @@ public class Team
       buf.append(myWins);
       buf.append("-");
       buf.append(myLosses);
-      buf.append(")");
+      if (myDivision != null)
+      {
+         buf.append(") -- in the \"");
+         buf.append(myDivision.getName());
+         buf.append("\" division");
+      }
+      else
+      {
+         buf.append(")");
+      }
       return buf.toString();
 
    }

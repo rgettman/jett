@@ -9,6 +9,8 @@ import org.apache.poi.ss.usermodel.Cell;
  * event.  It contains a reference to the <code>Cell</code> that was processed,
  * the <code>Map</code> of bean names and values used to process it, the old
  * value, and the new value.
+ *
+ * @author Randy Gettman
  */
 public class CellEvent
 {

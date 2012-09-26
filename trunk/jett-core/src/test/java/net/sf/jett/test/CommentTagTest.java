@@ -15,6 +15,8 @@ import net.sf.jett.util.RichTextStringUtil;
 
 /**
  * This JUnit Test class tests the evaluation of the "comment" tag.
+ *
+ * @author Randy Gettman
  */
 public class CommentTagTest extends TestCase
 {

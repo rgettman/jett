@@ -5,6 +5,8 @@ import org.apache.poi.ss.usermodel.Cell;
 /**
  * A <code>Block</code> object represents a rectangular block of
  * <code>Cells</code>.
+ *
+ * @author Randy Gettman
  */
 public class Block
 {
@@ -167,6 +169,16 @@ public class Block
    {
       myRightColNum += cols;
       myBottomRowNum += rows;
+   }
+
+   /**
+    * Collapses the block to zero size in columns and rows.
+    * @since 0.3.0
+    */
+   public void collapse()
+   {
+      myRightColNum = myLeftColNum - 1;
+      myBottomRowNum = myTopRowNum - 1;
    }
 
    /**

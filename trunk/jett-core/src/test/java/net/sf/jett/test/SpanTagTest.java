@@ -17,6 +17,8 @@ import net.sf.jett.util.RichTextStringUtil;
 /**
  * This JUnit Test class tests the evaluation of the "span" tag (always
  * bodiless).
+ *
+ * @author Randy Gettman
  */
 public class SpanTagTest extends TestCase
 {

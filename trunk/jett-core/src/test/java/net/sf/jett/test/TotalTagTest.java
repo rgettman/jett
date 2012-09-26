@@ -11,6 +11,8 @@ import static org.junit.Assert.*;
 
 /**
  * This JUnit Test class tests the evaluation of the "total" tag.
+ *
+ * @author Randy Gettman
  */
 public class TotalTagTest extends TestCase
 {

@@ -4,6 +4,7 @@ package net.sf.jett.test.model;
  * A <code>HyperlinkData</code> represents all the data necessary to produce a
  * hyperlink in Excel.
  *
+ * @author Randy Gettman
  * @since 0.2.0
  */
 public class HyperlinkData

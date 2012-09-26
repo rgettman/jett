@@ -12,6 +12,8 @@ import net.sf.jett.event.CellListener;
  * A <code>PopulationCellListener</code> is a <code>CellListener</code> that
  * takes population figures over a certain threshold and bolds the text in
  * that cell.
+ *
+ * @author Randy Gettman
  */
 public class PopulationCellListener implements CellListener
 {

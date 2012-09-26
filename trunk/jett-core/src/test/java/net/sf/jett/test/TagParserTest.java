@@ -26,6 +26,8 @@ import net.sf.jett.parser.TagParser;
 
 /**
  * This JUnit Test class tests the <code>TagParser</code>.
+ *
+ * @author Randy Gettman
  * @since 0.2.0
  */
 public class TagParserTest

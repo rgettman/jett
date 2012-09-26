@@ -2,6 +2,7 @@ package net.sf.jett.parser;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import net.sf.jett.exception.FormulaParseException;
 import net.sf.jett.formula.CellRef;
@@ -13,12 +14,14 @@ import net.sf.jett.formula.CellRef;
  * followed by a legal cell reference (alpha-number format), optionally
  * followed by a default value clause, which is two pipes followed by the
  * default value: "||value".
+ *
+ * @author Randy Gettman
  */
 public class FormulaParser
 {
    private static final boolean DEBUG = false;
 
-   private static final String CELL_REF_PATTERN = "[A-Za-z]+[1-9][0-9]*";
+   private static final Pattern CELL_REF_PATTERN = Pattern.compile("\\$?[A-Za-z]+\\$?[1-9][0-9]*");
 
    private String myFormulaText;
    private List<CellRef> myCellReferences;
@@ -173,7 +176,7 @@ public class FormulaParser
    {
       if (DEBUG)
          System.err.println("  FP: Trying to match \"" + myCellReference + "\".");
-      if (myCellReference != null && myCellReference.matches(CELL_REF_PATTERN))
+      if (myCellReference != null && CELL_REF_PATTERN.matcher(myCellReference).matches())
       {
          CellRef ref;
 

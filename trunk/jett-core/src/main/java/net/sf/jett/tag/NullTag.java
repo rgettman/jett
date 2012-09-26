@@ -17,8 +17,11 @@ import net.sf.jett.util.SheetUtil;
  *
  * <br>Attributes:
  * <ul>
+ * <li><em>Inherits all attributes from {@link BaseTag}.</em>
  * <li>text (required, bodiless only): <code>RichTextString</code>
  * </ul>
+ *
+ * @author Randy Gettman
  */
 public class NullTag extends BaseTag
 {
@@ -42,27 +45,32 @@ public class NullTag extends BaseTag
     * Returns a <code>List</code> of required attribute names.
     * @return A <code>List</code> of required attribute names.
     */
+   @Override
    protected List<String> getRequiredAttributes()
    {
+      List<String> reqAttrs = super.getRequiredAttributes();
       if (isBodiless())
-         return REQ_ATTRS;
-      else
-         return null;
+         reqAttrs.addAll(REQ_ATTRS);
+      return reqAttrs;
    }
 
    /**
     * Returns a <code>List</code> of optional attribute names.
     * @return A <code>List</code> of optional attribute names.
     */
+   @Override
    protected List<String> getOptionalAttributes()
    {
-      return null;
+      return super.getOptionalAttributes();
    }
 
    /**
     * No validation.
     */
-   public void validateAttributes() {}
+   public void validateAttributes()
+   {
+      super.validateAttributes();
+   }
 
    /**
     * Just mark all <code>Cells</code> in this <code>Block</code> as processed.

@@ -10,6 +10,8 @@ import net.sf.jagg.Aggregator;
 /**
  * A <code>JaggFuncs</code> object is an object that represents jAgg aggregate
  * functionality in the JEXL world.
+ *
+ * @author Randy Gettman
  */
 public class JaggFuncs
 {

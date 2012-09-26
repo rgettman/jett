@@ -9,8 +9,8 @@ import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Sheet;
 
 import net.sf.jett.exception.TagParseException;
-import net.sf.jett.expression.Expression;
 import net.sf.jett.transform.BlockTransformer;
+import net.sf.jett.util.AttributeUtil;
 import net.sf.jett.util.SheetUtil;
 
 /**
@@ -20,10 +20,12 @@ import net.sf.jett.util.SheetUtil;
  *
  * <p>Attributes:</p>
  * <ul>
+ * <li><em>Inherits all attributes from {@link BaseTag}.</em>
  * <li>groupDir (optional): <code>String</code>
  * <li>collapse (optional): <code>boolean</code>
  * </ul>
  *
+ * @author Randy Gettman
  * @since 0.2.0
  */
 public class GroupTag extends BaseTag
@@ -74,18 +76,22 @@ public class GroupTag extends BaseTag
     * Returns a <code>List</code> of required attribute names.
     * @return A <code>List</code> of required attribute names.
     */
+   @Override
    protected List<String> getRequiredAttributes()
    {
-      return new ArrayList<String>();
+      return super.getRequiredAttributes();
    }
 
    /**
     * Returns a <code>List</code> of optional attribute names.
     * @return A <code>List</code> of optional attribute names.
     */
+   @Override
    protected List<String> getOptionalAttributes()
    {
-      return OPT_ATTRS;
+      List<String> optAttrs = super.getOptionalAttributes();
+      optAttrs.addAll(OPT_ATTRS);
+      return optAttrs;
    }
 
    /**
@@ -95,6 +101,7 @@ public class GroupTag extends BaseTag
    @SuppressWarnings("unchecked")
    public void validateAttributes() throws TagParseException
    {
+      super.validateAttributes();
       if (isBodiless())
          throw new TagParseException("Group tags must have a body.");
 
@@ -102,36 +109,16 @@ public class GroupTag extends BaseTag
       Map<String, Object> beans = context.getBeans();
       Map<String, RichTextString> attributes = getAttributes();
 
-      RichTextString rtsGroupDir = attributes.get(ATTR_GROUP_DIR);
-      String attrGroupDir = (rtsGroupDir != null) ? rtsGroupDir.getString() : null;
-      if (attrGroupDir != null)
-      {
-         String groupDir = Expression.evaluateString(attrGroupDir, beans).toString().toLowerCase();
-         if (GROUP_DIR_ROWS.equals(groupDir))
-            myGroupDir = Block.Direction.VERTICAL;
-         else if (GROUP_DIR_COLS.equals(groupDir))
-            myGroupDir = Block.Direction.HORIZONTAL;
-         else if (GROUP_DIR_NONE.equals(groupDir))
-            myGroupDir = Block.Direction.NONE;
-         else
-            throw new TagParseException("Unknown group direction: " + groupDir +
-                  " found at " + attrGroupDir);
-      }
-      else
-      {
+      String groupDir = AttributeUtil.evaluateStringSpecificValues(attributes.get(ATTR_GROUP_DIR), beans, ATTR_GROUP_DIR,
+         Arrays.asList(GROUP_DIR_ROWS, GROUP_DIR_COLS, GROUP_DIR_NONE), GROUP_DIR_ROWS);
+      if (GROUP_DIR_ROWS.equals(groupDir))
          myGroupDir = Block.Direction.VERTICAL;
-      }
+      else if (GROUP_DIR_COLS.equals(groupDir))
+         myGroupDir = Block.Direction.HORIZONTAL;
+      else if (GROUP_DIR_NONE.equals(groupDir))
+            myGroupDir = Block.Direction.NONE;
 
-      RichTextString rtsCollapse = attributes.get(ATTR_COLLAPSE);
-      String attrCollapse = (rtsCollapse != null) ? rtsCollapse.getString() : null;
-      if (attrCollapse != null)
-      {
-         Object test = Expression.evaluateString(attrCollapse, beans);
-         if (test instanceof Boolean)
-            amICollapsed = (Boolean) test;
-         else
-            amICollapsed = Boolean.parseBoolean(test.toString());
-      }
+      amICollapsed = AttributeUtil.evaluateBoolean(attributes.get(ATTR_COLLAPSE), beans, false);
    }
 
    /**

@@ -13,6 +13,7 @@
             <code>BaseLoopTag</code>, which itself subclasses the abstract class
             <code>BaseTag</code>.  These are JETT's built-in looping tags:</p>
             <ul>
+                <li>All looping tags support all <a href="basics.html">base tag attributes</a>.</li>
                 <li><a href="for.html">"for" tag</a></li>
                 <li><a href="forEach.html">"forEach" tag</a></li>
                 <li><a href="multiForEach.html">"multiForEach" tag</a></li>
@@ -57,6 +58,10 @@
                 "collapse" attribute of the <a href="group.html">group tag</a>: This determines
                 whether the Excel Group (Outline) created is in a collapsed state.  The default is
                 <code>false</code> (not collapsed).</li>
+                <li><strong>onLoopProcessed: TagLoopListener</strong> Optional.  Specify a
+                <code>TagLoopListener</code> that will be called every time a loop's processing has
+                finished.  Alternatively, a fully-qualified Java class name may be specified here,
+                and JETT will instantiate one, provided it has a no-argument public constructor.</li>
             </ul>
         </section>
     </body>

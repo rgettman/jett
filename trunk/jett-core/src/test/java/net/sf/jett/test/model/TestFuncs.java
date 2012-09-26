@@ -5,6 +5,8 @@ import org.junit.Ignore;
 /**
  * This class is to test the ability to pass through custom functions to the
  * internal JEXL Engine.
+ *
+ * @author Randy Gettman
  * @since 0.2.0
  */
 @Ignore

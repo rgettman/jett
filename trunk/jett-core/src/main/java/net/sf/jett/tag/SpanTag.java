@@ -12,8 +12,8 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellRangeAddress;
 
 import net.sf.jett.exception.TagParseException;
-import net.sf.jett.expression.Expression;
 import net.sf.jett.transform.BlockTransformer;
+import net.sf.jett.util.AttributeUtil;
 import net.sf.jett.util.SheetUtil;
 
 /**
@@ -24,10 +24,13 @@ import net.sf.jett.util.SheetUtil;
  *
  * <br>Attributes:
  * <ul>
+ * <li><em>Inherits all attributes from {@link BaseTag}.</em>
  * <li>factor (required): <code>int</code>
  * <li>value (required): <code>RichTextString</code>
  * <li>expandRight (optional): <code>boolean</code>
  * </ul>
+ *
+ * @author Randy Gettman
  */
 public class SpanTag extends BaseTag
 {
@@ -52,7 +55,6 @@ public class SpanTag extends BaseTag
       new ArrayList<String>(Arrays.asList(ATTR_EXPAND_RIGHT));
 
    private int myFactor = 1;
-   private boolean amIExplicitlyExpandingRight = false;
    private RichTextString myValue;
 
    /**
@@ -68,18 +70,24 @@ public class SpanTag extends BaseTag
     * Returns a <code>List</code> of required attribute names.
     * @return A <code>List</code> of required attribute names.
     */
+   @Override
    protected List<String> getRequiredAttributes()
    {
-      return REQ_ATTRS;
+      List<String> reqAttrs = super.getRequiredAttributes();
+      reqAttrs.addAll(REQ_ATTRS);
+      return reqAttrs;
    }
 
    /**
     * Returns a <code>List</code> of optional attribute names.
     * @return A <code>List</code> of optional attribute names.
     */
+   @Override
    protected List<String> getOptionalAttributes()
    {
-      return OPT_ATTRS;
+      List<String> optAttrs = super.getOptionalAttributes();
+      optAttrs.addAll(OPT_ATTRS);
+      return optAttrs;
    }
 
    /**
@@ -89,6 +97,7 @@ public class SpanTag extends BaseTag
     */
    public void validateAttributes()
    {
+      super.validateAttributes();
       TagContext context = getContext();
       Map<String, Object> beans = context.getBeans();
       Map<String, RichTextString> attributes = getAttributes();
@@ -99,34 +108,10 @@ public class SpanTag extends BaseTag
 
       myValue = attributes.get(ATTR_VALUE);
 
-      String attrFactor = attributes.get(ATTR_FACTOR).getString();
-      if (attrFactor != null)
-      {
-         Object factor = Expression.evaluateString(attrFactor, beans);
-         if (factor instanceof Number)
-         {
-            myFactor = ((Number) factor).intValue();
-            if (myFactor < 0)
-               throw new TagParseException("SpanTag: factor cannot be negative: " + attrFactor);
-         }
-         else
-            throw new TagParseException("SpanTag: factor must be a non-negative integer: " + attrFactor);
-      }
+      myFactor = AttributeUtil.evaluateNonNegativeInt(attributes.get(ATTR_FACTOR), beans, ATTR_FACTOR, 1);
 
-      RichTextString rtsExpandRight = attributes.get(ATTR_EXPAND_RIGHT);
-      String attrExpandRight = (rtsExpandRight != null) ? rtsExpandRight.getString() : null;
-      if (attrExpandRight != null)
-      {
-         Object expandRight = Expression.evaluateString(attrExpandRight, beans);
-         if (expandRight != null)
-         {
-            if (expandRight instanceof Boolean)
-               amIExplicitlyExpandingRight = (Boolean) expandRight;
-            else
-               amIExplicitlyExpandingRight = Boolean.parseBoolean(expandRight.toString());
-         }
-      }
-      if (amIExplicitlyExpandingRight)
+      boolean explicitlyExpandingRight = AttributeUtil.evaluateBoolean(attributes.get(ATTR_EXPAND_RIGHT), beans, false);
+      if (explicitlyExpandingRight)
          block.setDirection(Block.Direction.HORIZONTAL);
       else
          block.setDirection(Block.Direction.VERTICAL);
@@ -146,7 +131,7 @@ public class SpanTag extends BaseTag
       Block block = context.getBlock();
 
       if (DEBUG)
-         System.err.println("SpanTag.process: factor=" + myFactor + ", expandRight is " + amIExplicitlyExpandingRight);
+         System.err.println("SpanTag.process: factor=" + myFactor + ", block direction is " + block.getDirection());
 
       int left = block.getLeftColNum();
       int right = left;

@@ -3,6 +3,8 @@ package net.sf.jett.exception;
 /**
  * A <code>ParseException</code> occurs when there is an error parsing anything
  * related to JETT processing.
+ *
+ * @author Randy Gettman
  */
 public class ParseException extends RuntimeException
 {

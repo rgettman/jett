@@ -11,6 +11,7 @@
             displayed height or width of a nearby Collection.</p>
             <h1>Attributes</h1>
             <ul>
+                <li>The "span" tag supports all <a href="basics.html">base tag attributes</a>.</li>
                 <li><strong>factor: int</strong> Required.  This is the factor with which to
                 multiply the height of the merged region in which this tag is contained.  For
                 example, if the merged region is 2 cells tall, and the factor is 3, then content

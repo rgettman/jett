@@ -1,11 +1,14 @@
 package net.sf.jett.formula;
 
+import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.util.CellReference;
 
 /**
  * A <code>CellRef</code> is a subclass of the POI class
  * <code>CellReference</code> that provides a correct <code>equals</code>
  * method and adds the concept of a default value.
+ *
+ * @author Randy Gettman
  */
 public class CellRef extends CellReference implements Comparable<CellRef>
 {
@@ -37,10 +40,10 @@ public class CellRef extends CellReference implements Comparable<CellRef>
    }
 
    // The CellReference constructor (Cell) exists in POI 3.7.
-//   public CellRef(Cell cell)
-//   {
-//      super(cell);
-//   }
+   public CellRef(Cell cell)
+   {
+      super(cell);
+   }
 
    public CellRef(int pRow, int pCol, boolean pAbsRow, boolean pAbsCol)
    {

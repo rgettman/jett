@@ -6,6 +6,8 @@ import java.util.List;
 /**
  * A <code>State</code> represents a State of the United States of America with
  * many <code>Counties</code>.
+ *
+ * @author Randy Gettman
  */
 public class State
 {

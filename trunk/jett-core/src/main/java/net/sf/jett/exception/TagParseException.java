@@ -3,6 +3,8 @@ package net.sf.jett.exception;
 /**
  * A <code>TagParseException</code> indicates when there is an error parsing
  * the tag text.
+ *
+ * @author Randy Gettman
  */
 public class TagParseException extends ParseException
 {

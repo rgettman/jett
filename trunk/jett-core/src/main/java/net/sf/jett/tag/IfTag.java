@@ -10,9 +10,8 @@ import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
-import net.sf.jett.exception.TagParseException;
-import net.sf.jett.expression.Expression;
 import net.sf.jett.transform.BlockTransformer;
+import net.sf.jett.util.AttributeUtil;
 import net.sf.jett.util.SheetUtil;
 
 /**
@@ -21,11 +20,14 @@ import net.sf.jett.util.SheetUtil;
  *
  * <br>Attributes:
  * <ul>
+ * <li><em>Inherits all attributes from {@link BaseTag}.</em>
  * <li>test (required): <code>boolean</code>
  * <li>then (optional, bodiless only): <code>RichTextString</code>
  * <li>else (optional, bodiless only): <code>RichTextString</code>
  * <li>elseAction (optional, body only): <code>String</code>
  * </ul>
+ *
+ * @author Randy Gettman
  */
 public class IfTag extends BaseTag
 {
@@ -95,24 +97,30 @@ public class IfTag extends BaseTag
     * Returns a <code>List</code> of required attribute names.
     * @return A <code>List</code> of required attribute names.
     */
+   @Override
    protected List<String> getRequiredAttributes()
    {
+      List<String> reqAttrs = super.getRequiredAttributes();
       if (isBodiless())
-         return REQ_ATTRS_BODILESS;
+         reqAttrs.addAll(REQ_ATTRS_BODILESS);
       else
-         return REQ_ATTRS;
+         reqAttrs.addAll(REQ_ATTRS);
+      return reqAttrs;
    }
 
    /**
     * Returns a <code>List</code> of optional attribute names.
     * @return A <code>List</code> of optional attribute names.
     */
+   @Override
    protected List<String> getOptionalAttributes()
    {
+      List<String> optAttrs = super.getOptionalAttributes();
       if (isBodiless())
-         return OPT_ATTRS_BODILESS;
+         optAttrs.addAll(OPT_ATTRS_BODILESS);
       else
-         return OPT_ATTRS;
+         optAttrs.addAll(OPT_ATTRS);
+      return optAttrs;
    }
 
    /**
@@ -122,30 +130,27 @@ public class IfTag extends BaseTag
     */
    public void validateAttributes()
    {
+      super.validateAttributes();
       TagContext context = getContext();
       Map<String, Object> beans = context.getBeans();
       Map<String, RichTextString> attributes = getAttributes();
       Block block = context.getBlock();
 
-      RichTextString rtsElseAction = attributes.get(ATTR_ELSE_ACTION);
-      String attrElseAction = (rtsElseAction != null) ? rtsElseAction.getString() : null;
-      if (attrElseAction != null)
+      String elseAction = AttributeUtil.evaluateStringSpecificValues(attributes.get(ATTR_ELSE_ACTION), beans,
+         ATTR_ELSE_ACTION,
+         Arrays.asList(ELSE_ACTION_SHIFT_UP, ELSE_ACTION_SHIFT_LEFT, ELSE_ACTION_CLEAR, ELSE_ACTION_REMOVE),
+         ELSE_ACTION_SHIFT_UP);
+      if (elseAction != null)
       {
-         String elseAction = Expression.evaluateString(attrElseAction, beans).toString();
-         if (elseAction != null)
-         {
-            if (ELSE_ACTION_SHIFT_UP.equalsIgnoreCase(elseAction))
-               block.setDirection(Block.Direction.VERTICAL);
-            else if (ELSE_ACTION_SHIFT_LEFT.equalsIgnoreCase(elseAction))
-               block.setDirection(Block.Direction.HORIZONTAL);
-            else if (ELSE_ACTION_CLEAR.equalsIgnoreCase(elseAction) ||
-                     ELSE_ACTION_REMOVE.equalsIgnoreCase(elseAction))
-               block.setDirection(Block.Direction.NONE);
-            else
-               throw new TagParseException("IfTag: Illegal value for elseAction: \"" + elseAction + "\".");
+         if (ELSE_ACTION_SHIFT_UP.equalsIgnoreCase(elseAction))
+            block.setDirection(Block.Direction.VERTICAL);
+         else if (ELSE_ACTION_SHIFT_LEFT.equalsIgnoreCase(elseAction))
+            block.setDirection(Block.Direction.HORIZONTAL);
+         else if (ELSE_ACTION_CLEAR.equalsIgnoreCase(elseAction) ||
+                  ELSE_ACTION_REMOVE.equalsIgnoreCase(elseAction))
+            block.setDirection(Block.Direction.NONE);
 
-            myElseAction = elseAction;
-         }
+         myElseAction = elseAction;
       }
    }
 
@@ -167,13 +172,8 @@ public class IfTag extends BaseTag
       Map<String, Object> beans = context.getBeans();
 
       Map<String, RichTextString> attributes = getAttributes();
-      String testValue = attributes.get(ATTR_TEST).getString();
-      Object test = Expression.evaluateString(testValue, beans);
-      boolean condition;
-      if (test instanceof Boolean)
-         condition = (Boolean) test;
-      else
-         condition = Boolean.parseBoolean(test.toString());
+
+      boolean condition = AttributeUtil.evaluateBoolean(attributes.get(ATTR_TEST), beans, true);
 
       if (isBodiless())
       {

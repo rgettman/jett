@@ -1,6 +1,7 @@
 package net.sf.jett.test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,6 +10,7 @@ import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Color;
 import org.apache.poi.ss.usermodel.Comment;
 import org.apache.poi.ss.usermodel.Font;
@@ -24,13 +26,18 @@ import org.junit.Ignore;
 import net.sf.jett.tag.HyperlinkTag;
 import net.sf.jett.test.model.County;
 import net.sf.jett.test.model.Division;
+import net.sf.jett.test.model.Employee;
 import net.sf.jett.test.model.HyperlinkData;
 import net.sf.jett.test.model.State;
 import net.sf.jett.test.model.Team;
 import net.sf.jett.util.SheetUtil;
 
 /**
- * This utility class supplies beans maps for possibly multiple tests.
+ * This utility class supplies beans maps for possibly multiple tests.  It also
+ * supplies convenience methods for accessing spreadsheet data for testing
+ * purposes.
+ *
+ * @author Randy Gettman
  */
 @Ignore
 public class TestUtility
@@ -133,8 +140,8 @@ public class TestUtility
    /**
     * Gets a beans map with a <code>List</code> of division beans, most of
     * which contain <code>Team</code> beans.  The name is "divisionsList".
-    *
-    * @return A <code>Map</code> of  beans.
+    * @return A <code>Map</code> of beans containing a <code>List</code> of
+    *    all <code>Divisions</code>.
     */
    public static Map<String, Object> getDivisionData()
    {
@@ -159,7 +166,8 @@ public class TestUtility
     * Get a beans map with only one <code>Division</code>, determined by the
     * <code>code</code> argument.  The name is "division".
     * @param code Determines with division, 0-7.
-    * @return A <code>Division</code>, or <code>null</code> if out of range.
+    * @return A <code>Map</code> of beans, containing a specific
+    *    <code>Division</code>.
     */
    public static Map<String, Object> getSpecificDivisionData(int code)
    {
@@ -168,10 +176,11 @@ public class TestUtility
 
    /**
     * Get a beans map with only one <code>Division</code>, determined by the
-    * <code>code</code> argument.  The name is "division".
-    * @param code Determines with division, 0-7.
+    * <code>code</code> argument.  It is keyed by the given name.
+    * @param code Determines which division, 0-7.
     * @param name This becomes the bean name of the <code>Division</code>.
-    * @return A <code>Division</code>, or <code>null</code> if out of range.
+    * @return A <code>Map</code> of beans, containing a specific
+    *    <code>Division</code> with the given name.
     */
    public static Map<String, Object> getSpecificDivisionData(int code, String name)
    {
@@ -209,6 +218,31 @@ public class TestUtility
    }
 
    /**
+    * Get a beans map with a <code>List</code> of <code>Teams</code> from all
+    * <code>Divisions</code>.  The name is "teams".
+    * @return A <code>Map</code> of beans, containing the <code>List</code> of
+    *    <code>Teams</code>.
+    * @since 0.3.0
+    */
+   public static Map<String, Object> getTeamsData()
+   {
+      Map<String, Object> beans = new HashMap<String, Object>();
+      List<Team> teams = new ArrayList<Team>();
+
+      teams.addAll(getAtlanticDivision().getTeams());
+      teams.addAll(getCentralDivision().getTeams());
+      teams.addAll(getSoutheastDivision().getTeams());
+      teams.addAll(getNorthwestDivision().getTeams());
+      teams.addAll(getPacificDivision().getTeams());
+      teams.addAll(getSouthwestDivision().getTeams());
+      teams.addAll(getEmptyDivision().getTeams());
+      teams.addAll(getOfTheirOwnDivision().getTeams());
+
+      beans.put("teams", teams);
+      return beans;
+   }
+
+   /**
     * Return Atlantic Division statistics.
     * @return A <code>Division</code>.
     */
@@ -216,19 +250,19 @@ public class TestUtility
    {
       Division atlantic = new Division();
       atlantic.setName("Atlantic");
-      Team boston = new Team();
+      Team boston = new Team(atlantic);
       boston.setCity("Boston"); boston.setName("Celtics"); boston.setWins(51); boston.setLosses(21);
       atlantic.addTeam(boston);
-      Team phila = new Team();
+      Team phila = new Team(atlantic);
       phila.setCity("Philadelphia"); phila.setName("76ers"); phila.setWins(37); phila.setLosses(36);
       atlantic.addTeam(phila);
-      Team newYork = new Team();
+      Team newYork = new Team(atlantic);
       newYork.setCity("New York"); newYork.setName("Knicks"); newYork.setWins(35); newYork.setLosses(38);
       atlantic.addTeam(newYork);
-      Team newJersey = new Team();
+      Team newJersey = new Team(atlantic);
       newJersey.setCity("New Jersey"); newJersey.setName("Nets"); newJersey.setWins(23); newJersey.setLosses(49);
       atlantic.addTeam(newJersey);
-      Team toronto = new Team();
+      Team toronto = new Team(atlantic);
       toronto.setCity("Toronto"); toronto.setName("Raptors"); toronto.setWins(20); toronto.setLosses(53);
       atlantic.addTeam(toronto);
       return atlantic;
@@ -242,19 +276,19 @@ public class TestUtility
    {
       Division central = new Division();
       central.setName("Central");
-      Team chicago = new Team();
+      Team chicago = new Team(central);
       chicago.setCity("Chicago"); chicago.setName("Bulls"); chicago.setWins(53); chicago.setLosses(19);
       central.addTeam(chicago);
-      Team indiana = new Team();
+      Team indiana = new Team(central);
       indiana.setCity("Indiana"); indiana.setName("Pacers"); indiana.setWins(32); indiana.setLosses(42);
       central.addTeam(indiana);
-      Team milwaukee = new Team();
+      Team milwaukee = new Team(central);
       milwaukee.setCity("Milwaukee"); milwaukee.setName("Bucks"); milwaukee.setWins(29); milwaukee.setLosses(43);
       central.addTeam(milwaukee);
-      Team detroit = new Team();
+      Team detroit = new Team(central);
       detroit.setCity("Detroit"); detroit.setName("Pistons"); detroit.setWins(26); detroit.setLosses(47);
       central.addTeam(detroit);
-      Team cleveland = new Team();
+      Team cleveland = new Team(central);
       cleveland.setCity("Cleveland"); cleveland.setName("Cavaliers"); cleveland.setWins(14); cleveland.setLosses(58);
       central.addTeam(cleveland);
       return central;
@@ -268,19 +302,19 @@ public class TestUtility
    {
       Division southeast = new Division();
       southeast.setName("Southeast");
-      Team miami = new Team();
+      Team miami = new Team(southeast);
       miami.setCity("Miami"); miami.setName("Heat"); miami.setWins(51); miami.setLosses(22);
       southeast.addTeam(miami);
-      Team orlando = new Team();
+      Team orlando = new Team(southeast);
       orlando.setCity("Orlando"); orlando.setName("Magic"); orlando.setWins(47); orlando.setLosses(26);
       southeast.addTeam(orlando);
-      Team atlanta = new Team();
+      Team atlanta = new Team(southeast);
       atlanta.setCity("Atlanta"); atlanta.setName("Hawks"); atlanta.setWins(42); atlanta.setLosses(32);
       southeast.addTeam(atlanta);
-      Team charlotte = new Team();
+      Team charlotte = new Team(southeast);
       charlotte.setCity("Charlotte"); charlotte.setName("Bobcats"); charlotte.setWins(30); charlotte.setLosses(42);
       southeast.addTeam(charlotte);
-      Team wash = new Team();
+      Team wash = new Team(southeast);
       wash.setCity("Washington"); wash.setName("Wizards"); wash.setWins(17); wash.setLosses(55);
       southeast.addTeam(wash);
       return southeast;
@@ -294,19 +328,19 @@ public class TestUtility
    {
       Division northwest = new Division();
       northwest.setName("Northwest");
-      Team okCity = new Team();
+      Team okCity = new Team(northwest);
       okCity.setCity("Oklahoma City"); okCity.setName("Thunder"); okCity.setWins(48); okCity.setLosses(24);
       northwest.addTeam(okCity);
-      Team denver = new Team();
+      Team denver = new Team(northwest);
       denver.setCity("Denver"); denver.setName("Nuggets"); denver.setWins(44); denver.setLosses(29);
       northwest.addTeam(denver);
-      Team portland = new Team();
+      Team portland = new Team(northwest);
       portland.setCity("Portland"); portland.setName("Trailblazers"); portland.setWins(42); portland.setLosses(31);
       northwest.addTeam(portland);
-      Team utah = new Team();
+      Team utah = new Team(northwest);
       utah.setCity("Utah"); utah.setName("Jazz"); utah.setWins(36); utah.setLosses(38);
       northwest.addTeam(utah);
-      Team minnesota = new Team();
+      Team minnesota = new Team(northwest);
       minnesota.setCity("Minnesota"); minnesota.setName("Timberwolves"); minnesota.setWins(17); minnesota.setLosses(57);
       northwest.addTeam(minnesota);
       return northwest;
@@ -320,19 +354,19 @@ public class TestUtility
    {
       Division pacific = new Division();
       pacific.setName("Pacific");
-      Team lal = new Team();
+      Team lal = new Team(pacific);
       lal.setCity("Los Angeles"); lal.setName("Lakers"); lal.setWins(53); lal.setLosses(20);
       pacific.addTeam(lal);
-      Team phoenix = new Team();
+      Team phoenix = new Team(pacific);
       phoenix.setCity("Phoenix"); phoenix.setName("Suns"); phoenix.setWins(36); phoenix.setLosses(36);
       pacific.addTeam(phoenix);
-      Team gState = new Team();
+      Team gState = new Team(pacific);
       gState.setCity("Golden State"); gState.setName("Warriors"); gState.setWins(32); gState.setLosses(42);
       pacific.addTeam(gState);
-      Team lac = new Team();
+      Team lac = new Team(pacific);
       lac.setCity("Los Angeles"); lac.setName("Clippers"); lac.setWins(29); lac.setLosses(45);
       pacific.addTeam(lac);
-      Team sacramento = new Team();
+      Team sacramento = new Team(pacific);
       sacramento.setCity("Sacramento"); sacramento.setName("Kings"); sacramento.setWins(20); sacramento.setLosses(52);
       pacific.addTeam(sacramento);
       return pacific;
@@ -346,19 +380,19 @@ public class TestUtility
    {
       Division southwest = new Division();
       southwest.setName("Southwest");
-      Team sanAnt = new Team();
+      Team sanAnt = new Team(southwest);
       sanAnt.setCity("San Antonio"); sanAnt.setName("Spurs"); sanAnt.setWins(57); sanAnt.setLosses(16);
       southwest.addTeam(sanAnt);
-      Team dallas = new Team();
+      Team dallas = new Team(southwest);
       dallas.setCity("Dallas"); dallas.setName("Mavericks"); dallas.setWins(52); dallas.setLosses(21);
       southwest.addTeam(dallas);
-      Team newOrl = new Team();
+      Team newOrl = new Team(southwest);
       newOrl.setCity("New Orleans"); newOrl.setName("Hornets"); newOrl.setWins(42); newOrl.setLosses(32);
       southwest.addTeam(newOrl);
-      Team memphis = new Team();
+      Team memphis = new Team(southwest);
       memphis.setCity("Memphis"); memphis.setName("Grizzlies"); memphis.setWins(41); memphis.setLosses(33);
       southwest.addTeam(memphis);
-      Team houston = new Team();
+      Team houston = new Team(southwest);
       houston.setCity("Houston"); houston.setName("Rockets"); houston.setWins(38); houston.setLosses(35);
       southwest.addTeam(houston);
       return southwest;
@@ -383,7 +417,7 @@ public class TestUtility
    {
       Division ofTheirOwn = new Division();
       ofTheirOwn.setName("Of Their Own");
-      Team harlem = new Team();
+      Team harlem = new Team(ofTheirOwn);
       harlem.setCity("Harlem"); harlem.setName("Globetrotters"); harlem.setWins(21227); harlem.setLosses(341);
       ofTheirOwn.addTeam(harlem);
       return ofTheirOwn;
@@ -408,6 +442,40 @@ public class TestUtility
       hyperlinks.add(new HyperlinkData(
          HyperlinkTag.TYPE_DOC, "'Target Sheet'!B3", "Intra-spreadsheet Link"));
       beans.put("hyperlinks", hyperlinks);
+      return beans;
+   }
+
+   /**
+    * Gets a beans map with <code>Employee</code> data, exposed as "employees".
+    * @return A <code>Map</code> of <code>Employee</code> beans.
+    * @since 0.3.0
+    */
+   public static Map<String, Object> getEmployeeData()
+   {
+      Map<String, Object> beans = new HashMap<String, Object>();
+      Employee robert = new Employee();
+      robert.setFirstName("Robert");
+      robert.setLastName("Stack");
+      robert.setSalary(1000);
+      Employee bugs = new Employee();
+      bugs.setFirstName("Bugs");
+      bugs.setLastName("Bunny");
+      bugs.setSalary(1500);
+      bugs.setCatchPhrase("Ah, what's up Doc?");
+      Employee suzie = new Employee();
+      suzie.setFirstName("Suzie");
+      suzie.setLastName("Queue");
+      suzie.setSalary(900);
+      suzie.setManager(robert);
+      Employee elmer = new Employee();
+      elmer.setFirstName("Elmer");
+      elmer.setLastName("Fudd");
+      elmer.setSalary(800);
+      elmer.setManager(bugs);
+      elmer.setCatchPhrase("I'm hunting wabbits!  Huh-uh-uh!");
+      List<Employee> employees = Arrays.asList(robert, suzie, elmer, bugs);
+
+      beans.put("employees", employees);
       return beans;
    }
 
@@ -609,6 +677,29 @@ public class TestUtility
          }
       }
       return null;
+   }
+
+   /**
+    * Returns the cell fill pattern on the given <code>Sheet</code>, at the
+    * given row and column indexes.
+    * @param sheet The <code>Sheet</code>.
+    * @param row The 0-based row index.
+    * @param col The 0-based column index.
+    * @return The cell fill pattern.
+    * @since 0.3.0
+    */
+   public static short getCellFillPattern(Sheet sheet, int row, int col)
+   {
+      Row r = sheet.getRow(row);
+      if (r != null)
+      {
+         Cell c = r.getCell(col);
+         if (c != null)
+         {
+            return c.getCellStyle().getFillPattern();
+         }
+      }
+      return CellStyle.NO_FILL;
    }
 
    /**

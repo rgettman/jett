@@ -3,6 +3,8 @@ package net.sf.jett.exception;
 /**
  * A <code>MetadataParseException</code> occurs when there is an error parsing
  * the metadata text.
+ *
+ * @author Randy Gettman
  */
 public class MetadataParseException extends ParseException
 {

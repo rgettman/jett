@@ -5,6 +5,8 @@ import java.util.List;
 /**
  * A <code>Formula</code> represents an Excel-like formula inside "$[" and "]"
  * delimiters.
+ *
+ * @author Randy Gettman
  */
 public class Formula
 {

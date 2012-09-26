@@ -11,6 +11,7 @@
             resultant spreadsheet.  The "agg" tag requires a body.</p>
             <h1>Attributes</h1>
             <ul>
+                <li>The "agg" tag supports all <a href="basics.html">base tag attributes</a>.</li>
                 <li><strong>items: List</strong> Required.  This is the <code>List</code> of items
                 to aggregate.</li>
                 <li><strong>aggs: String</strong> Required.  This is a list of <em>aggregator

@@ -7,7 +7,7 @@
         <section name="Comparison of JETT to jXLS">
         <p>JETT is similar to jXLS, because JETT performs the same function -- translating Excel
         template spreadsheets into spreadsheets with the desired data populated.  Here, JETT
-        0.2.0 is compared with the latest version of jXLS, 1.0:</p>
+        0.3.0 is compared with the latest version of jXLS, 1.0.1:</p>
         <table style="width: 750px;">
             <tr>
                 <th style="width: 200px">Feature</th>
@@ -56,6 +56,19 @@
                         columns on the processed data.</li>
                         <li><code>collapse=true/false</code> When creating an Excel Group
                         (Outline), decide whether to collapse the group.</li>
+                        <li><code>copyRight=true/false</code> Copy blocks to the right, instead of
+                        downward, the default.</li>
+                        <li><code>fixed=true/false</code> Mark this as "fixed", meaning that the
+                        processing assumes that there is space in which to place copied blocks of
+                        data, so it won't attempt to shift content out of the way.</li>
+                        <li><code>indexVar=varName</code> Place a zero-based index looping variable
+                        with this name in the beans map for further reference.</li>
+                        <li><code>limit=n</code> Limit the number of items displayed for any and all
+                        affected collections.</li>
+                        <li><code>onProcessed=var</code> Specify a <code>TagListener</code> that
+                        will be called when processing is complete.</li>
+                        <li><code>onLoopProcessed=var</code> Specify a <code>TagLoopListener</code>
+                        that will be called when the processing of each loop iteration is complete.</li>
                     </ul>
                 </td>
             </tr>
@@ -74,7 +87,7 @@
                 one of "sum", "min", "max", "avg", and "count".</td>
                 <td>Supported, with <a href="http://jagg.sourceforge.net">jAgg</a> integration,
                 using Aggregate Expressions, e.g. <code>${jagg:eval(list, 'Func(field)')}</code> --
-                and the agg tag.  "Func" can be any one of 18 Aggregators built-in to the jAgg
+                and the agg tag.  "Func" can be any one of 20 Aggregators built-in to the jAgg
                 library, including "Sum", "Min", "Max", "Avg", "Count", and many more, or a custom
                 Aggregator.</td>
             </tr>
@@ -166,7 +179,10 @@
                         <li><code>items</code> attribute - The Collection of items to display.</li>
                         <li><code>var</code> attribute - The looping variable introduced into the
                         beans  map.</li>
-                        <li><code>groupBy</code> attribute - Display groups of items.</li>
+                        <li><code>groupBy</code> attribute - Display groups of items, based on one
+                        property.</li>
+                        <li><code>groupOrder</code> attribute - Sort groups of items, ascending or
+                        descending.</li>
                         <li><code>select</code> attribute - Filter the display list.</li>
                         <li><code>varStatus</code> attribute - Index of item currently being
                         iterated.</li>
@@ -183,7 +199,10 @@
                         <li><code>items</code> attribute - The Collection of items to display.</li>
                         <li><code>var</code> attribute - The looping variable introduced into the
                         beans map.</li>
-                        <li>No <code>groupBy</code> attribute.</li>
+                        <li><code>groupBy</code> attribute - Display groups of items, based on one
+                        or more properties.</li>
+                        <li><code>orderBy</code> attribute - Order the entire collection, grouped
+                        or not, specifying multiple sort fields.</li>
                         <li><code>where</code> attribute - Filter the display list.</li>
                         <li><code>indexVar</code> attribute - Index of item currently being
                         iterated.</li>
@@ -321,7 +340,7 @@
             <tr>
                 <td>Execution Hooks for Custom Processing</td>
                 <td>CellProcessor, PropertyPreprocessor, RowProcessor</td>
-                <td>CellListener</td>
+                <td>CellListener, TagListener, TagLoopListener</td>
             </tr>
             <tr>
                 <td>Fixed Size Collections</td>

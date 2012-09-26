@@ -16,6 +16,8 @@ import net.sf.jett.transform.WorkbookContext;
 /**
  * The <code>FormulaUtil</code> utility class provides methods for Excel
  * formula creation and manipulation.
+ *
+ * @author Randy Gettman
  */
 public class FormulaUtil
 {
@@ -415,7 +417,7 @@ public class FormulaUtil
                   if (add)
                   {
                      CellRef adjCellRef = new CellRef(cellRefSheetName, row + numRows, col + numCols,
-                        false, false);
+                        cellRef.isRowAbsolute(), cellRef.isColAbsolute());
                      if (DEBUG)
                         System.err.println("      Adding cell reference: " + adjCellRef.formatAsString() +
                            " for cell key " + cellKey);
@@ -486,7 +488,7 @@ public class FormulaUtil
                    (row >= top && row <= bottom && col >= left && col <= right))             // In cell range
                {
                   CellRef adjCellRef = new CellRef(cellRefSheetName, row + numRows, col + numCols,
-                     false, false);
+                     cellRef.isRowAbsolute(), cellRef.isColAbsolute());
                   // Only add the reference if being translated!
                   if (numRows != 0 || numCols != 0)
                   {

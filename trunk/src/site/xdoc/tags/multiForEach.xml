@@ -14,6 +14,7 @@
             to a <a href="forEach.html">forEach tag</a>.</p>
             <h1>Attributes</h1>
             <ul>
+                <li>The "multiForEach" tag supports all <a href="basics.html">base tag attributes</a>.</li>
                 <li>The "multiForEach" tag supports all <a href="looping.html">looping tag
                 attributes</a>.</li>
                 <li><strong>collections: Collections</strong> is a semicolon-separated list of

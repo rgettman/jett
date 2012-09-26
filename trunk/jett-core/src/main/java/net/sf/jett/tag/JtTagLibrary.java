@@ -5,6 +5,8 @@ import java.util.Map;
 
 /**
  * A <code>JtTagLibrary</code> represents the built-in <code>TagLibrary</code>.
+ *
+ * @author Randy Gettman
  */
 public class JtTagLibrary implements TagLibrary
 {

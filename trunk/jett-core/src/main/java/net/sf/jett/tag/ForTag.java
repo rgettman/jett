@@ -9,7 +9,7 @@ import java.util.Map;
 import org.apache.poi.ss.usermodel.RichTextString;
 
 import net.sf.jett.exception.TagParseException;
-import net.sf.jett.expression.Expression;
+import net.sf.jett.util.AttributeUtil;
 
 /**
  * <p>A <code>ForTag</code> represents a repetitively placed <code>Block</code>
@@ -18,14 +18,15 @@ import net.sf.jett.expression.Expression;
  *
  * <br>Attributes:
  * <ul>
- * <li>copyRight (optional): <code>boolean</code>
- * <li>fixed (optional): <code>boolean</code>
- * <li>pastEndAction (optional): <code>String</code>
+ * <li><em>Inherits all attributes from {@link BaseTag}.</em>
+ * <li><em>Inherits all attributes from {@link BaseLoopTag}.</em>
  * <li>var (required): <code>String</code>
  * <li>start (required): <code>int</code>
  * <li>end (required): <code>int</code>
  * <li>step (optional): <code>int</code>
  * </ul>
+ *
+ * @author Randy Gettman
  */
 public class ForTag extends BaseLoopTag
 {
@@ -72,13 +73,8 @@ public class ForTag extends BaseLoopTag
    public List<String> getRequiredAttributes()
    {
       List<String> reqAttrs = super.getRequiredAttributes();
-      if (reqAttrs == null)
-         return REQ_ATTRS;
-      else
-      {
-         reqAttrs.addAll(REQ_ATTRS);
-         return reqAttrs;
-      }
+      reqAttrs.addAll(REQ_ATTRS);
+      return reqAttrs;
    }
 
    /**
@@ -89,13 +85,8 @@ public class ForTag extends BaseLoopTag
    public List<String> getOptionalAttributes()
    {
       List<String> optAttrs = super.getOptionalAttributes();
-      if (optAttrs == null)
-         return OPT_ATTRS;
-      else
-      {
-         optAttrs.addAll(OPT_ATTRS);
-         return optAttrs;
-      }
+      optAttrs.addAll(OPT_ATTRS);
+      return optAttrs;
    }
 
    /**
@@ -117,47 +108,14 @@ public class ForTag extends BaseLoopTag
       Map<String, Object> beans = context.getBeans();
 
       Map<String, RichTextString> attributes = getAttributes();
-      String attrVar = attributes.get(ATTR_VAR).getString();
-      myVarName = Expression.evaluateString(attrVar, beans).toString();
-      String attrStart = attributes.get(ATTR_START).getString();
-      try
-      {
-         myStart = Integer.parseInt(Expression.evaluateString(attrStart, beans).toString());
-      }
-      catch (RuntimeException e)
-      {
-         throw new TagParseException("Start value must be an integer: " + attrStart, e);
-      }
-      String attrEnd = attributes.get(ATTR_END).getString();
-      try
-      {
-         myEnd = Integer.parseInt(Expression.evaluateString(attrEnd, beans).toString());
-      }
-      catch (RuntimeException e)
-      {
-         throw new TagParseException("End value must be an integer: " + attrEnd, e);
-      }
-      RichTextString rtsStep = attributes.get(ATTR_STEP);
-      String attrStep = (rtsStep != null) ? rtsStep.getString() : null;
-      if (attrStep == null)
-      {
-         myStep = 1;
-      }
-      else
-      {
-         try
-         {
-            myStep = Integer.parseInt(Expression.evaluateString(attrStep, beans).toString());
-         }
-         catch (RuntimeException e)
-         {
-            throw new TagParseException("Step value must be an integer: " + attrStep, e);
-         }
-      }
-      if (myStep == 0)
-      {
-         throw new TagParseException("Step must not be zero.");
-      }
+
+      myVarName = AttributeUtil.evaluateString(attributes.get(ATTR_VAR), beans, null);
+
+      myStart = AttributeUtil.evaluateInt(attributes.get(ATTR_START), beans, ATTR_START, 0);
+
+      myEnd = AttributeUtil.evaluateInt(attributes.get(ATTR_END), beans, ATTR_END, 0);
+
+      myStep = AttributeUtil.evaluateNonZeroInt(attributes.get(ATTR_STEP), beans, ATTR_STEP, 1);
    }
 
    /**

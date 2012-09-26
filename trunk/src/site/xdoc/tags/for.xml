@@ -9,6 +9,7 @@
             between certain values with an optional increment value.  This tag must contain a body.</p>
             <h1>Attributes</h1>
             <ul>
+                <li>The "for" tag supports all <a href="basics.html">base tag attributes</a>.</li>
                 <li>The "for" tag supports all <a href="looping.html">looping tag attributes</a>.</li>
                 <li><strong>start: int</strong> Required.  This is the starting value.</li>
                 <li><strong>end: int</strong> Required.  This is the ending value.  The loop

@@ -17,6 +17,8 @@ import net.sf.jett.util.RichTextStringUtil;
 /**
  * This JUnit Test class tests the evaluation of the "null" tag in bodiless and
  * normal modes.
+ *
+ * @author Randy Gettman
  */
 public class NullTagTest extends TestCase
 {

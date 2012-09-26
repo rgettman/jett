@@ -25,6 +25,8 @@ import net.sf.jett.transform.WorkbookContext;
 /**
  * The <code>SheetUtil</code> utility class provides methods for
  * <code>Sheet</code>, <code>Row</code>, and <code>Cell</code> manipulation.
+ *
+ * @author Randy Gettman
  */
 public class SheetUtil
 {
@@ -1388,8 +1390,9 @@ public class SheetUtil
                if (newCell.getCellType() == Cell.CELL_TYPE_STRING)
                {
                   String cellText = newCell.getStringCellValue();
-                  if (cellText.startsWith(Formula.BEGIN_FORMULA) &&
-                      cellText.endsWith(Formula.END_FORMULA))
+                  int startIdx = cellText.indexOf(Formula.BEGIN_FORMULA);
+                  int endIdx = cellText.lastIndexOf(Formula.END_FORMULA);
+                  if (startIdx != -1 && endIdx != -1 && startIdx < endIdx)
                   {
                      // If this is NOT the first iteration, then the copied
                      // text already has the previous iteration's suffix
@@ -1461,8 +1464,9 @@ public class SheetUtil
                if (newCell.getCellType() == Cell.CELL_TYPE_STRING)
                {
                   String cellText = newCell.getStringCellValue();
-                  if (cellText.startsWith(Formula.BEGIN_FORMULA) &&
-                      cellText.endsWith(Formula.END_FORMULA))
+                  int startIdx = cellText.indexOf(Formula.BEGIN_FORMULA);
+                  int endIdx = cellText.lastIndexOf(Formula.END_FORMULA);
+                  if (startIdx != -1 && endIdx != -1 && startIdx < endIdx)
                   {
                      // If this is NOT the first iteration, then the copied
                      // text already has the previous iteration's suffix

@@ -12,6 +12,8 @@ import net.sf.jett.transform.WorkbookContext;
 /**
  * A <code>TagLibraryRegistry</code> represents a registry for all
  * <code>TagLibraries</code> containing <code>Tags</code>.
+ *
+ * @author Randy Gettman
  */
 public class TagLibraryRegistry
 {

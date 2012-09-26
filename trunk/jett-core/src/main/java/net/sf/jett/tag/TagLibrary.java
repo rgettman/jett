@@ -5,6 +5,8 @@ import java.util.Map;
 /**
  * A <code>TagLibrary</code> is a map of tag names to tag classes for a
  * particular namespace.
+ *
+ * @author Randy Gettman
  */
 public interface TagLibrary
 {

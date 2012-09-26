@@ -2,6 +2,8 @@ package net.sf.jett.test.model;
 
 /**
  * A <code>County</code> represents the county, with name and some statistics.
+ *
+ * @author Randy Gettman
  */
 public class County
 {

@@ -67,6 +67,8 @@ import net.sf.jett.util.FormulaUtil;
  * <code>lenient</code> flags through to the underlying JEXL Engine,
  * passing a cache size to the internal JEXL Engine, and passing namespace
  * objects to register custom functions in the JEXL Engine.</p>
+ *
+ * @author Randy Gettman
  */
 public class ExcelTransformer
 {

@@ -14,6 +14,8 @@ import net.sf.jett.transform.ExcelTransformer;
 
 /**
  * This JUnit Test class tests the fixed collection name feature of JETT.
+ *
+ * @author Randy Gettman
  */
 public class FixedCollectionsTest extends TestCase
 {

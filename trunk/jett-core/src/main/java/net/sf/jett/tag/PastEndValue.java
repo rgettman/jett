@@ -5,6 +5,8 @@ package net.sf.jett.tag;
  * references a collection item beyond the end of the iteration.  This is
  * distinct from <code>null</code>, which may be a legitimate value.  This is
  * closer to <code>Void</code>, but that can't be instantiated.
+ *
+ * @author Randy Gettman
  */
 public class PastEndValue
 {

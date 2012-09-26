@@ -19,6 +19,8 @@ import net.sf.jett.test.model.Team;
 /**
  * This JUnit Test class tests the evaluation of expressions and replacement
  * in spreadsheet cells.
+ *
+ * @author Randy Gettman
  */
 public class ExpressionsTest extends TestCase
 {

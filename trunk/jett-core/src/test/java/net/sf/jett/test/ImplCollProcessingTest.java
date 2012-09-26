@@ -17,6 +17,8 @@ import net.sf.jett.transform.ExcelTransformer;
 /**
  * This JUnit Test class tests the implicit collections processing feature of
  * JETT.
+ *
+ * @author Randy Gettman
  */
 public class ImplCollProcessingTest extends TestCase
 {
@@ -235,6 +237,30 @@ public class ImplCollProcessingTest extends TestCase
             assertFalse(groupDirCols.isColumnHidden(c));
          }
       }
+
+      Sheet indexVar = workbook.getSheetAt(10);
+      assertEquals("1. Boston", TestUtility.getStringCellValue(indexVar, 2, 0));
+      assertEquals("5. Toronto", TestUtility.getStringCellValue(indexVar, 6, 0));
+      assertEquals("2. Indiana", TestUtility.getStringCellValue(indexVar, 10, 0));
+      assertEquals("3. Milwaukee", TestUtility.getStringCellValue(indexVar, 11, 0));
+      assertEquals("4. Detroit", TestUtility.getStringCellValue(indexVar, 12, 0));
+      assertEquals("1. Los Angeles", TestUtility.getStringCellValue(indexVar, 30, 0));
+      assertEquals("4. Los Angeles", TestUtility.getStringCellValue(indexVar, 33, 0));
+      assertEquals("5. Houston", TestUtility.getStringCellValue(indexVar, 41, 0));
+      assertEquals("1. Harlem", TestUtility.getStringCellValue(indexVar, 46, 0));
+
+      Sheet limit = workbook.getSheetAt(11);
+      assertEquals("Boston", TestUtility.getStringCellValue(limit, 2, 0));
+      assertEquals("New York", TestUtility.getStringCellValue(limit, 4, 0));
+      assertEquals("Division: Central", TestUtility.getStringCellValue(limit, 5, 0));
+      assertEquals("San Antonio", TestUtility.getStringCellValue(limit, 27, 0));
+      assertEquals("New Orleans", TestUtility.getStringCellValue(limit, 29, 0));
+      assertTrue(TestUtility.isCellBlank(limit, 32, 0));
+      assertTrue(TestUtility.isCellBlank(limit, 34, 0));
+      assertEquals("Division: Of Their Own", TestUtility.getStringCellValue(limit, 35, 0));
+      assertEquals("Harlem", TestUtility.getStringCellValue(limit, 37, 0));
+      assertTrue(TestUtility.isCellBlank(limit, 38, 0));
+      assertTrue(TestUtility.isCellBlank(limit, 39, 0));
    }
 
    /**

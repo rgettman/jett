@@ -9,10 +9,12 @@ import java.util.Map;
 import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Sheet;
 
+import net.sf.jett.event.TagLoopListener;
+import net.sf.jett.event.TagLoopEvent;
 import net.sf.jett.exception.TagParseException;
-import net.sf.jett.expression.Expression;
 import net.sf.jett.transform.BlockTransformer;
 import net.sf.jett.transform.WorkbookContext;
+import net.sf.jett.util.AttributeUtil;
 import net.sf.jett.util.SheetUtil;
 
 /**
@@ -22,12 +24,16 @@ import net.sf.jett.util.SheetUtil;
  *
  * <br>Attributes:
  * <ul>
+ * <li><em>Inherits all attributes from {@link BaseTag}.</em>
  * <li>copyRight (optional): <code>boolean</code>
  * <li>fixed (optional): <code>boolean</code>
  * <li>pastEndAction (optional): <code>String</code>
  * <li>groupDir (optional): <code>String</code>
  * <li>collapse (optional): <code>boolean</code>
+ * <li>onLoopProcessed (optional): <code>TagLoopListener</code>
  * </ul>
+ *
+ * @author Randy Gettman
  */
 public abstract class BaseLoopTag extends BaseTag
 {
@@ -65,6 +71,12 @@ public abstract class BaseLoopTag extends BaseTag
     * @since 0.2.0
     */
    public static final String ATTR_COLLAPSE = "collapse";
+   /**
+    * Attribute for specifying a <code>TagLoopListener</code> to listen for
+    * <code>TagLoopEvents</code>.
+    * @since 0.3.0
+    */
+   public static final String ATTR_ON_LOOP_PROCESSED = "onLoopProcessed";
 
    /**
     * The "past end action" value to clear the content of cells.
@@ -95,13 +107,77 @@ public abstract class BaseLoopTag extends BaseTag
 
    private static final List<String> OPT_ATTRS =
       new ArrayList<String>(Arrays.asList(ATTR_COPY_RIGHT, ATTR_FIXED, ATTR_PAST_END_ACTION,
-         ATTR_GROUP_DIR, ATTR_COLLAPSE));
+         ATTR_GROUP_DIR, ATTR_COLLAPSE, ATTR_ON_LOOP_PROCESSED));
 
    private boolean amIExplicitlyCopyingRight = false;
    private boolean amIFixed = false;
    private PastEndAction myPastEndAction = PastEndAction.CLEAR_CELL;
    private Block.Direction myGroupDir;
    private boolean amICollapsed;
+   private TagLoopListener myTagLoopListener;
+
+   /**
+    * Sets whether the repeated blocks are to be copied to the right (true) or
+    * downward (default, false).
+    * @param copyRight Whether the repeated blocks are to be copied to the right (true) or
+    *    downward (default, false).
+    * @since 0.3.0
+    */
+   public void setCopyRight(boolean copyRight)
+   {
+      amIExplicitlyCopyingRight = copyRight;
+   }
+
+   /**
+    * Sets "fixed" mode, which doesn't shift other content out of the way when
+    * copying repeated blocks of cells.
+    * @param fixed Whether to execute in "fixed" mode.
+    * @since 0.3.0
+    */
+   public void setFixed(boolean fixed)
+   {
+      amIFixed = fixed;
+   }
+
+   /**
+    * Sets the <code>PastEndAction</code>.
+    * @param pae The <code>PastEndAction</code>.
+    * @since 0.3.0
+    */
+   public void setPastEndAction(PastEndAction pae)
+   {
+      myPastEndAction = pae;
+   }
+
+   /**
+    * Sets the directionality of the Excel Group to be created, if any.
+    * @param direction The directionality.
+    * @since 0.3.0
+    */
+   public void setGroupDirection(Block.Direction direction)
+   {
+      myGroupDir = direction;
+   }
+
+   /**
+    * Sets whether any Excel Group created is collapsed.
+    * @param collapsed Whether any Excel group created is collapsed.
+    * @since 0.3.0
+    */
+   public void setCollapsed(boolean collapsed)
+   {
+      amICollapsed = collapsed;
+   }
+
+   /**
+    * Sets the <code>TagLoopListener</code>.
+    * @param listener The <code>TagLoopListener</code>.
+    * @since 0.3.0
+    */
+   public void setOnLoopProcessed(TagLoopListener listener)
+   {
+      myTagLoopListener = listener;
+   }
 
    /**
     * There are no required attributes that all <code>BaseLoopTags</code>
@@ -110,7 +186,7 @@ public abstract class BaseLoopTag extends BaseTag
     */
    protected List<String> getRequiredAttributes()
    {
-      return new ArrayList<String>();
+      return super.getRequiredAttributes();
    }
 
    /**
@@ -119,7 +195,9 @@ public abstract class BaseLoopTag extends BaseTag
     */
    protected List<String> getOptionalAttributes()
    {
-      return OPT_ATTRS;
+      List<String> optAttrs = super.getOptionalAttributes();
+      optAttrs.addAll(OPT_ATTRS);
+      return optAttrs;
    }
 
    /**
@@ -130,91 +208,38 @@ public abstract class BaseLoopTag extends BaseTag
     */
    protected void validateAttributes() throws TagParseException
    {
+      super.validateAttributes();
       TagContext context = getContext();
       Map<String, Object> beans = context.getBeans();
       Map<String, RichTextString> attributes = getAttributes();
       Block block = context.getBlock();
 
-      RichTextString rtsCopyRight = attributes.get(ATTR_COPY_RIGHT);
-      String attrCopyRight = (rtsCopyRight != null) ? rtsCopyRight.getString() : null;
-      if (attrCopyRight != null)
-      {
-         Object copyRight = Expression.evaluateString(attrCopyRight, beans);
-         if (copyRight != null)
-         {
-            if (copyRight instanceof Boolean)
-               amIExplicitlyCopyingRight = (Boolean) copyRight;
-            else
-               amIExplicitlyCopyingRight = Boolean.parseBoolean(copyRight.toString());
-         }
-      }
+      amIExplicitlyCopyingRight = AttributeUtil.evaluateBoolean(attributes.get(ATTR_COPY_RIGHT), beans, false);
       if (amIExplicitlyCopyingRight)
          block.setDirection(Block.Direction.HORIZONTAL);
 
-      RichTextString rtsFixed = attributes.get(ATTR_FIXED);
-      String attrFixed = (rtsFixed != null) ? rtsFixed.getString() : null;
-      if (attrFixed != null)
-      {
-         Object fixed = Expression.evaluateString(attrFixed, beans);
-         if (fixed != null)
-         {
-            if (fixed instanceof Boolean)
-               amIFixed = (Boolean) fixed;
-            else
-               amIFixed = Boolean.parseBoolean(fixed.toString());
-         }
-      }
+      amIFixed = AttributeUtil.evaluateBoolean(attributes.get(ATTR_FIXED), beans, false);
 
-      RichTextString rtsPastEndAction = attributes.get(ATTR_PAST_END_ACTION);
-      String attrPastEndAction = (rtsPastEndAction != null) ? rtsPastEndAction.getString() : null;
-      if (attrPastEndAction != null)
-      {
-         Object pastEndAction = Expression.evaluateString(attrPastEndAction, beans);
-         if (pastEndAction != null)
-         {
-            String strPastEndAction = pastEndAction.toString();
-            if (PAST_END_ACTION_CLEAR.equalsIgnoreCase(strPastEndAction))
-               myPastEndAction = PastEndAction.CLEAR_CELL;
-            else if (PAST_END_ACTION_REMOVE.equalsIgnoreCase(strPastEndAction))
-               myPastEndAction = PastEndAction.REMOVE_CELL;
-            else
-               throw new TagParseException("Unknown past end action: " + strPastEndAction +
-                  " found at " + attrPastEndAction);
-         }
-         else
-            throw new TagParseException("Past end action can't be null: " + attrPastEndAction);
-      }
+      String strPastEndAction = AttributeUtil.evaluateStringSpecificValues(attributes.get(ATTR_PAST_END_ACTION), beans,
+         ATTR_PAST_END_ACTION, Arrays.asList(PAST_END_ACTION_CLEAR, PAST_END_ACTION_REMOVE), PAST_END_ACTION_CLEAR);
+      if (PAST_END_ACTION_CLEAR.equalsIgnoreCase(strPastEndAction))
+         myPastEndAction = PastEndAction.CLEAR_CELL;
+      else if (PAST_END_ACTION_REMOVE.equalsIgnoreCase(strPastEndAction))
+         myPastEndAction = PastEndAction.REMOVE_CELL;
 
-      RichTextString rtsGroupDir = attributes.get(ATTR_GROUP_DIR);
-      String attrGroupDir = (rtsGroupDir != null) ? rtsGroupDir.getString() : null;
-      if (attrGroupDir != null)
-      {
-         String groupDir = Expression.evaluateString(attrGroupDir, beans).toString().toLowerCase();
-         if (GROUP_DIR_ROWS.equals(groupDir))
-            myGroupDir = Block.Direction.VERTICAL;
-         else if (GROUP_DIR_COLS.equals(groupDir))
-            myGroupDir = Block.Direction.HORIZONTAL;
-         else if (GROUP_DIR_NONE.equals(groupDir))
+      String strGroupDir = AttributeUtil.evaluateStringSpecificValues(attributes.get(ATTR_GROUP_DIR), beans,
+         ATTR_GROUP_DIR, Arrays.asList(GROUP_DIR_ROWS, GROUP_DIR_COLS, GROUP_DIR_NONE), GROUP_DIR_NONE);
+      if (GROUP_DIR_ROWS.equals(strGroupDir))
+         myGroupDir = Block.Direction.VERTICAL;
+      else if (GROUP_DIR_COLS.equals(strGroupDir))
+         myGroupDir = Block.Direction.HORIZONTAL;
+      else if (GROUP_DIR_NONE.equals(strGroupDir))
             myGroupDir = Block.Direction.NONE;
-         else
-            throw new TagParseException("Unknown group direction: " + groupDir +
-                  " found at " + attrGroupDir);
-      }
-      else
-      {
-         myGroupDir = Block.Direction.NONE;
-      }
 
-      RichTextString rtsCollapse = attributes.get(ATTR_COLLAPSE);
-      String attrCollapse = (rtsCollapse != null) ? rtsCollapse.getString() : null;
-      if (attrCollapse != null)
-      {
-         Object test = Expression.evaluateString(attrCollapse, beans);
-         if (test instanceof Boolean)
-            amICollapsed = (Boolean) test;
-         else
-            amICollapsed = Boolean.parseBoolean(test.toString());
-      }
+      amICollapsed = AttributeUtil.evaluateBoolean(attributes.get(ATTR_COLLAPSE), beans, false);
+
+      myTagLoopListener = AttributeUtil.evaluateObject(attributes.get(ATTR_ON_LOOP_PROCESSED), beans,
+         ATTR_ON_LOOP_PROCESSED, TagLoopListener.class, null);
    }
 
    /**
@@ -348,6 +373,8 @@ public abstract class BaseLoopTag extends BaseTag
          int index = 0;
          Iterator<?> iterator = getLoopIterator();
          int right, bottom, colGrowth, rowGrowth;
+         int maxRight = 0;
+         int maxBottom = 0;
          while(iterator.hasNext())
          {
             Object item = iterator.next();
@@ -400,6 +427,15 @@ public abstract class BaseLoopTag extends BaseTag
                   pendingBlock.reactToGrowth(currBlock, colGrowth, rowGrowth);
                }
             }
+            // Get max right/bottom to expand the tag's block later.
+            if (currBlock.getRightColNum() > maxRight)
+               maxRight = currBlock.getRightColNum();
+            if (currBlock.getBottomRowNum() > maxBottom)
+               maxBottom = currBlock.getBottomRowNum();
+
+            // Fire a tag loop event here, before the After Block Processing
+            // occurs.
+            fireTagLoopEvent(currBlock, index);
 
             // After Block Processing.
             afterBlockProcessed(context, currBlock, item, index);
@@ -408,10 +444,36 @@ public abstract class BaseLoopTag extends BaseTag
             index++;
          }
 
+         // Expand the tag block.
+         Block block = context.getBlock();
+         block.expand(maxRight - block.getRightColNum(), maxBottom - block.getBottomRowNum());
+
          // Grouping - only if there was at least one item to process.
          groupRowsOrCols(sheet, context.getBlock(), blocksToProcess.get(blocksToProcess.size() - 1));
       }
       return true;
+   }
+
+   /**
+    * If there is a <code>TagLoopListener</code>, then create and fire a
+    * <code>TagLoopEvent</code>, with beans and sheet taken from this
+    * <code>BaseLoopTag</code>, and with the given loop index and given
+    * <code>Block</code>.
+    * @param block The current <code>Block</code>.
+    * @param index The zero-based loop index.
+    */
+   private void fireTagLoopEvent(Block block, int index)
+   {
+      if (myTagLoopListener != null)
+      {
+         TagLoopEvent tagLoopEvent = new TagLoopEvent();
+         TagContext context = getContext();
+         tagLoopEvent.setBeans(context.getBeans());
+         tagLoopEvent.setSheet(context.getSheet());
+         tagLoopEvent.setBlock(block);
+         tagLoopEvent.setLoopIndex(index);
+         myTagLoopListener.onTagLoopProcessed(tagLoopEvent);
+      }
    }
 
    /**
@@ -425,6 +487,8 @@ public abstract class BaseLoopTag extends BaseTag
    private void groupRowsOrCols(Sheet sheet, Block first, Block last)
    {
       int begin, end;
+      if (DEBUG)
+         System.err.println("BLT.gROC: " + myGroupDir + ", " + amICollapsed);
       switch(myGroupDir)
       {
       case VERTICAL:

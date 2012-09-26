@@ -9,6 +9,7 @@
             operations, without "group by" properties, and specifying only one aggregate value.</p>
             <h1>Attributes</h1>
             <ul>
+                <li>The "total" tag supports all <a href="basics.html">base tag attributes</a>.</li>
                 <li><strong>items: List</strong> Required.  This is the <code>List</code> of items
                 to aggregate.</li>
                 <li><strong>value: String</strong> Required.  This is exactly one <em>aggregator

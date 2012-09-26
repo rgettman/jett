@@ -13,6 +13,8 @@ import java.util.Map;
 /**
  * This JUnit Test class tests the evaluation of the "for" tag in various
  * cases.
+ *
+ * @author Randy Gettman
  */
 public class ForTagTest extends TestCase
 {

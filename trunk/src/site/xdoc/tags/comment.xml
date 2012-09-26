@@ -15,6 +15,7 @@
             drawings such as shapes and charts intact.</p>
             <h1>Attributes</h1>
             <ul>
+                <li>The "comment" tag supports all <a href="basics.html">base tag attributes</a>.</li>
                 <li><strong>value: RichTextString</strong> Required.  This becomes the contents of
                 the actual Cell to which the Excel Comment is attached.  Rich Text String
                 formatting is respected.</li>

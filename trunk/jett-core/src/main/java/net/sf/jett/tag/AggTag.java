@@ -12,8 +12,8 @@ import net.sf.jagg.Aggregations;
 import net.sf.jagg.Aggregator;
 
 import net.sf.jett.exception.TagParseException;
-import net.sf.jett.expression.Expression;
 import net.sf.jett.transform.BlockTransformer;
+import net.sf.jett.util.AttributeUtil;
 
 /**
  * <p>An <code>AggTag</code> represents possibly many aggregate values
@@ -23,6 +23,7 @@ import net.sf.jett.transform.BlockTransformer;
  *
  * <br>Attributes:
  * <ul>
+ * <li><em>Inherits all attributes from {@link BaseTag}.</em>
  * <li>items (required): <code>List</code>
  * <li>aggs (required): <code>String</code>
  * <li>aggsVar (optional): <code>String</code>
@@ -30,6 +31,8 @@ import net.sf.jett.transform.BlockTransformer;
  * <li>groupBy (optional): <code>String</code>
  * <li>parallel (optional): <code>int</code>
  * </ul>
+ *
+ * @author Randy Gettman
  */
 public class AggTag extends BaseTag
 {
@@ -64,12 +67,6 @@ public class AggTag extends BaseTag
    private static final List<String> OPT_ATTRS =
       new ArrayList<String>(Arrays.asList(ATTR_AGGS_VAR, ATTR_GROUP_BY, ATTR_PARALLEL));
 
-   /**
-    * Separates <code>Aggregator</code> specification strings and "group by"
-    * property strings.
-    */
-   public static final String SPEC_SEP = ";";
-
    private List<Object> myList = null;
    private List<Aggregator> myAggs = null;
    private String myAggsVar = null;
@@ -90,18 +87,24 @@ public class AggTag extends BaseTag
     * Returns a <code>List</code> of required attribute names.
     * @return A <code>List</code> of required attribute names.
     */
+   @Override
    protected List<String> getRequiredAttributes()
    {
-      return REQ_ATTRS;
+      List<String> reqAttrs = super.getRequiredAttributes();
+      reqAttrs.addAll(REQ_ATTRS);
+      return reqAttrs;
    }
 
    /**
     * Returns a <code>List</code> of optional attribute names.
     * @return A <code>List</code> of optional attribute names.
     */
+   @Override
    protected List<String> getOptionalAttributes()
    {
-      return OPT_ATTRS;
+      List<String> optAttrs = super.getOptionalAttributes();
+      optAttrs.addAll(OPT_ATTRS);
+      return optAttrs;
    }
 
    /**
@@ -122,6 +125,7 @@ public class AggTag extends BaseTag
    @SuppressWarnings("unchecked")
    public void validateAttributes() throws TagParseException
    {
+      super.validateAttributes();
       if (isBodiless())
          throw new TagParseException("Agg tags must have a body.");
 
@@ -129,79 +133,20 @@ public class AggTag extends BaseTag
       Map<String, Object> beans = context.getBeans();
       Map<String, RichTextString> attributes = getAttributes();
 
-      String attrItems = attributes.get(ATTR_ITEMS).getString();
-      Object items = Expression.evaluateString(attrItems, beans);
-      if (!(items instanceof List))
-         throw new TagParseException("The \"items\" expression is not a List: " + attrItems);
-      myList = (List<Object>) items;
+      myList = AttributeUtil.evaluateObject(attributes.get(ATTR_ITEMS), beans, ATTR_ITEMS, List.class, null);
 
-      String attrAggs = attributes.get(ATTR_AGGS).getString();
-      Object aggs = Expression.evaluateString(attrAggs, beans);
-      // Allow delimited list in a String, or an actual List.
-      if (aggs instanceof String)
-      {
-         String[] aggSpecs = ((String) aggs).split(SPEC_SEP);
-         myAggs = new ArrayList<Aggregator>(aggSpecs.length);
-         for (String aggSpec : aggSpecs)
-            myAggs.add(Aggregator.getAggregator(aggSpec));
-      }
-      else if (aggs instanceof List)
-      {
-         List aggsList = (List) aggs;
-         myAggs = new ArrayList<Aggregator>(aggsList.size());
-         for (Object aggSpec : aggsList)
-            myAggs.add(Aggregator.getAggregator(aggSpec.toString()));
-      }
-      else
-         throw new TagParseException("Attribute \"" + ATTR_AGGS +
-            "\" must be a delimited String of, or a List of, Aggregator specification Strings.");
+      List<String> aggsList = AttributeUtil.evaluateList(attributes.get(ATTR_AGGS), beans, null);
+      myAggs = new ArrayList<Aggregator>(aggsList.size());
+      for (String aggSpec : aggsList)
+         myAggs.add(Aggregator.getAggregator(aggSpec));
 
-      RichTextString strAggsVar = attributes.get(ATTR_AGGS_VAR);
-      String attrAggsVar = (strAggsVar != null) ? strAggsVar.getString() : null;
-      if (attrAggsVar != null)
-         myAggsVar = Expression.evaluateString(attrAggsVar, beans).toString();
+      myAggsVar = AttributeUtil.evaluateString(attributes.get(ATTR_AGGS_VAR), beans, null);
 
-      String attrValuesVar = attributes.get(ATTR_VALUES_VAR).getString();
-      myValuesVar = Expression.evaluateString(attrValuesVar, beans).toString();
+      myValuesVar = AttributeUtil.evaluateString(attributes.get(ATTR_VALUES_VAR), beans, null);
 
-      myGroupByProps = new ArrayList<String>();
-      Object attrGroupBy = attributes.get(ATTR_GROUP_BY);
-      // Allow delimited list in a String, or an actual List.
-      if (attrGroupBy != null)
-      {
-         Object groupBys = Expression.evaluateString(attrGroupBy.toString(), beans);
-         if (groupBys instanceof String)
-         {
-            myGroupByProps.addAll(Arrays.asList(((String) groupBys).split(SPEC_SEP)));
-         }
-         else if (attrGroupBy instanceof List)
-         {
-            for (Object groupBy : (List) attrGroupBy)
-               myGroupByProps.add(groupBy.toString());
-         }
-         else
-            throw new TagParseException("Attribute \"" + ATTR_GROUP_BY +
-               "\" must be a delimited String of, or a List of, \"group by\" property Strings.");
-      }
+      myGroupByProps = AttributeUtil.evaluateList(attributes.get(ATTR_GROUP_BY), beans, new ArrayList<String>());
 
-      RichTextString rtsParallelism = attributes.get(ATTR_PARALLEL);
-      String attrParallelism = (rtsParallelism != null) ? rtsParallelism.getString() : null;
-      if (attrParallelism != null)
-      {
-         String parallelism = Expression.evaluateString(attrParallelism, beans).toString();
-         try
-         {
-            myParallelism = Integer.parseInt(parallelism);
-         }
-         catch (NumberFormatException e)
-         {
-            throw new TagParseException("Parallel attribute must be a number: " + parallelism);
-         }
-         if (myParallelism <= 0)
-         {
-            throw new TagParseException("Parallel attribute must be positive: " + parallelism);
-         }
-      }
+      myParallelism = AttributeUtil.evaluatePositiveInt(attributes.get(ATTR_PARALLEL), beans, ATTR_PARALLEL, 1);
    }
 
    /**
