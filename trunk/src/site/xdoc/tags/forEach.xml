@@ -422,7 +422,7 @@
         </section>
         <section name="OrderBy Example">
             <p>Building on the "groupBy" example, this example adds an "orderBy" attribute.  The
-            "orderBy" attribute works well with or withou a "groupBy" attribute.  But if both are
+            "orderBy" attribute works well with or without a "groupBy" attribute.  But if both are
             present, then any "orderBy" properties that are present in the "groupBy" attribute must
             be specified BEFORE any "orderBy" properties that are not present in the "groupBy"
             attribute.</p>
