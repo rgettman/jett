@@ -1,0 +1,149 @@
+<document>
+    <properties>
+        <author email="rgettman@users.sourceforge.net">Randy Gettman</author>
+        <title>Tag Listeners</title>
+    </properties>
+    <body>
+        <section name="Tag Listeners">
+            <p>For finer control over the content and formatting of the resultant spreadsheet
+            cells, JETT allows the user to create <code>TagListener</code> objects that are
+            notified every time a tag's block has been processed.  Tags that are not processed do
+            not notify their TagListener object.  This may occur, for example, if an "if" tag has
+            its block removed due to a false condition, or if a looping tag processes an empty
+            collection and its block is removed.  Any object that implements the
+            <code>TagListener</code> interface may be supplied in the <code>onProcessed</code>
+            attribute of any <code>Tag</code> that subclasses <code>BaseTag</code>, as all JETT
+            built-in tags do.  The <code>TagListener</code>
+            interface contains a single method:</p>
+            <source>
+public void onTagProcessed(TagEvent event);
+            </source>
+            <p>Specify a TagListener object or a fully-qualified TagListener class name with a Tag.
+            If a fully-qualified class name is supplied, then that class must have a public,
+            no-argument constructor.</p>
+            <source>
+&lt;jt:if test="${condition}" then="${trueValue}" onProcessed="${myTagListener}"/&gt;
+            </source>
+            <p>OR</p>
+            <source>
+&lt;jt:if test="${condition}" then="${trueValue}" onProcessed="com.mycompany.myproject.CustomTagListener"/&gt;
+            </source>
+            <p>When a Tag is processed, and it has a TagListener, then it creates a
+            <code>TagEvent</code> and notifies its TagListener.  A TagListener can retrieve context
+            information by retrieving properties of the TagEvent.</p>
+            <source>
+Sheet sheet = event.getSheet();
+Map&lt;String, Object&gt; beans = event.getBeans();
+Block block = event.getBlock();
+int left = block.getLeftColNum();
+int right = block.getRightColNum();
+int top = block.getTopRowNum();
+int bottom = block.getBottomRowNum();
+            </source>
+            <p>The <code>Sheet</code> is a reference to the POI Sheet object representing the
+            actual sheet in the spreadsheet.  The <code>Map</code> object is a reference to the
+            beans map.  It may have extra beans added, if the Tag is a "forEach" tag, or for that
+            matter, any tag that adds values to the beans map.  The <code>Block</code> is an object
+            that represents the block of Cells affected by this tag.  It has properties for the
+            left and right column numbers (0-based), and the top and bottom row numbers (0-based).
+            The Sheet object can be used to get POI Row objects, and POI Row objects can be used to
+            get POI Cell objects, which can then be manipulated.  It can also be used to obtain the
+            POI Workbook object.</p>
+        </section>
+        <section name="Example">
+            <p>A TagListener can be created to affect the formatting of data within a block of
+            cells.</p>
+            <p>This TagListener will change the font of all its cells to bold.  It uses POI objects
+            and functionality to change the font of all cells in the block.</p>
+            <source>
+public void onTagProcessed(TagEvent event)
+{
+   Block block = event.getBlock();
+   Sheet sheet = event.getSheet();
+   for (int r = block.getTopRowNum(); r &lt;= block.getBottomRowNum(); r++)
+   {
+      Row row = sheet.getRow(r);
+      if (row != null)
+      {
+         for (int c = block.getLeftColNum(); c &lt;= block.getRightColNum(); c++)
+         {
+            Cell cell = row.getCell(c);
+            if (cell != null)
+            {
+               Workbook workbook = sheet.getWorkbook();
+               CellStyle style = cell.getCellStyle();
+               short fontIdx = style.getFontIndex();
+               Font font = workbook.getFontAt(fontIdx);
+               if (font.getBoldweight() != Font.BOLDWEIGHT_BOLD)
+               {
+                  Font boldFont = workbook.findFont(Font.BOLDWEIGHT_BOLD, font.getColor(), font.getFontHeight(),
+                     font.getFontName(), font.getItalic(), font.getStrikeout(), font.getTypeOffset(),
+                     font.getUnderline());
+                  CellStyle newStyle = workbook.createCellStyle();
+                  newStyle.cloneStyleFrom(style);
+                  if (boldFont == null)
+                  {
+                     boldFont = workbook.createFont();
+                     boldFont.setBoldweight(Font.BOLDWEIGHT_BOLD);
+                     boldFont.setColor(font.getColor());
+                     boldFont.setFontHeight(font.getFontHeight());
+                     boldFont.setFontName(font.getFontName());
+                     boldFont.setItalic(font.getItalic());
+                     boldFont.setStrikeout(font.getStrikeout());
+                     boldFont.setTypeOffset(font.getTypeOffset());
+                     boldFont.setUnderline(font.getUnderline());
+                  }
+                  newStyle.setFont(boldFont);
+                  cell.setCellStyle(newStyle);
+               }
+            }
+         }
+      }
+   }
+}
+            </source>
+            <p>This example uses a <a href="../tags/forEach.html">forEach tag</a> to process the
+            "employees" collection.</p>
+            <table style="width: 750px;">
+                <tr>
+                    <td class="bold" style="width: 250px;">Employee</td>
+                    <td class="bold" style="width: 150px;">Salary</td>
+                    <td class="bold" style="width: 350px;">Manager</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">&lt;jt:forEach items="${employees}" var="employee" onProcessed="${myTagListener}"&gt;${employee.lastName}, ${employee.firstName}</td>
+                    <td style="width: 150px;">${employee.salary}</td>
+                    <td style="width: 350px;">&lt;jt:if test="${employee.getManager() != null}" then="${employee.manager.lastName}, ${employee.manager.firstName}"/&gt;&lt;/jt:forEach&gt;</td>
+                </tr>
+            </table>
+            <p>...gets transformed into...</p>
+            <table style="width: 750px;">
+                <tr>
+                    <td class="bold" style="width: 250px;">Employee</td>
+                    <td class="bold" style="width: 150px;">Salary</td>
+                    <td class="bold" style="width: 350px;">Manager</td>
+                </tr>
+                <tr>
+                    <td class="bold" style="width: 250px;">Stack, Robert</td>
+                    <td class="bold" style="width: 150px;">$1000.00</td>
+                    <td class="bold" style="width: 350px;">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td class="bold" style="width: 250px;">Queue, Suzie</td>
+                    <td class="bold" style="width: 150px;">$900.00</td>
+                    <td class="bold" style="width: 350px;">Stack, Robert</td>
+                </tr>
+                <tr>
+                    <td class="bold" style="width: 250px;">Fudd, Elmer</td>
+                    <td class="bold" style="width: 150px;">$800.00</td>
+                    <td class="bold" style="width: 350px;">Stack, Robert</td>
+                </tr>
+                <tr>
+                    <td class="bold" style="width: 250px;">Bunny, Bugs</td>
+                    <td class="bold" style="width: 150px;">$1500.00</td>
+                    <td class="bold" style="width: 350px;">&nbsp;</td>
+                </tr>
+            </table>
+        </section>
+    </body>
+</document>

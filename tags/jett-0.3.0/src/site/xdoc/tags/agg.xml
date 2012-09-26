@@ -1,0 +1,106 @@
+<document>
+    <properties>
+        <author email="rgettman@users.sourceforge.net">Randy Gettman</author>
+        <title>Agg Tag</title>
+    </properties>
+    <body>
+        <section name="The Agg Tag">
+            <p>JETT's integration with the <a href="http://jagg.sourceforge.net">jAgg</a> project
+            allows the use of the "agg" tag, which performs aggregate operations on a
+            <code>List</code> of items, yielding aggregate results that can be populated in the
+            resultant spreadsheet.  The "agg" tag requires a body.</p>
+            <h1>Attributes</h1>
+            <ul>
+                <li>The "agg" tag supports all <a href="basics.html">base tag attributes</a>.</li>
+                <li><strong>items: List</strong> Required.  This is the <code>List</code> of items
+                to aggregate.</li>
+                <li><strong>aggs: String</strong> Required.  This is a list of <em>aggregator
+                specification strings</em>, delimited by semicolons, e.g.
+                "Avg(price);Sum(quantity)".  These represent aggregate operations to perform on the
+                list of values.</li>
+                <li><strong>aggsVar: String</strong> Optional.  If given, this is the name under
+                which the array of <code>Aggregator</code> objects will be published in the beans
+                map.  This new bean can only be referenced from within the Block defined by the
+                tag.</li>
+                <li><strong>valuesVar: String</strong> Required.  This is the name under which the
+                aggregate results will be published in the beans map.  This new bean can only be
+                referenced from within the Block defined by the tag.</li>
+                <li><strong>groupBy: String</strong> Optional.  This is a semicolon-separated list
+                of property names that represents categories under which to group aggregate
+                results.  Default: no categories.  If this is specified, then there may be multiple
+                rows of aggregate results to display.</li>
+                <li><strong>parallel: int</strong> Optional.  Specify a degree of parallelism
+                directly to the jAgg library.  Default: 1</li>
+            </ul>
+            <p>The Aggregators specified in the "aggs" attribute may be an <code>Aggregator</code>,
+            either built-in to the jAgg library, or custom built by the developer.</p>
+            <p>Usually, a <a href="forEach.html">forEach tag</a> is used inside the body of the
+            "agg" tag to display the aggregate results.</p>
+        </section>
+        <section name="Example">
+            <p>A <code>List</code> of <code>Employees</code> is available in the beans map.</p>
+            <ul>
+                <li>Robert Stack, salary $1000, title "Data Structures Programmer"</li>
+                <li>Suzie Queue, salary $900, title "Data Structures Programmer"</li>
+                <li>Elmer Fudd, salary $800, title "Cartoon Character"</li>
+                <li>Bugs Bunny, salary $1500, title "Cartoon Character"</li>
+            </ul>
+            <table style="width: 750px;">
+                <tr>
+                    <td class="bold" style="width: 300px;">Title</td>
+                    <td class="bold" style="width: 150px;">Employee Count</td>
+                    <td class="bold" style="width: 150px;">Total Salary</td>
+                    <td class="bold" style="width: 150px;">Average Salary</td>
+                </tr>
+                <tr>
+                    <td style="width: 300px;">&lt;jt:agg items="${employees}" aggs="Count(*);Sum(salary);Avg(salary)"
+                        aggsVar="aggs" valuesVar="results" groupBy="title"&gt;&lt;jt:forEach items="${results}"
+                        var="result"&gt;{result.object.title}</td>
+                    <td style="width: 150px;">${result.getAggregateValue(aggs[0])}</td>
+                    <td style="width: 150px;">${result.getAggregateValue(aggs[1])}</td>
+                    <td style="width: 150px;">${result.getAggregateValue(aggs[2])}&lt;/jt:forEach&gt;&lt;/jt:agg&gt;</td>
+                </tr>
+            </table>
+            <p>One can refer to aggregate values by passing in the indexed <code>Aggregator</code>
+            or by passing the index itself into the "getAggregateValue" method.  Alternatively, the
+            template above could pass the index itself:</p>
+            <table style="width: 750px;">
+                <tr>
+                    <td class="bold" style="width: 300px;">Title</td>
+                    <td class="bold" style="width: 150px;">Employee Count</td>
+                    <td class="bold" style="width: 150px;">Total Salary</td>
+                    <td class="bold" style="width: 150px;">Average Salary</td>
+                </tr>
+                <tr>
+                    <td style="width: 300px;">&lt;jt:agg items="${employees}" aggs="Count(*);Sum(salary);Avg(salary)"
+                        aggsVar="aggs" valuesVar="results" groupBy="title"&gt;&lt;jt:forEach items="${results}"
+                        var="result"&gt;{result.object.title}</td>
+                    <td style="width: 150px;">${result.getAggregateValue(0)}</td>
+                    <td style="width: 150px;">${result.getAggregateValue(1)}</td>
+                    <td style="width: 150px;">${result.getAggregateValue(2)}&lt;/jt:forEach&gt;&lt;/jt:agg&gt;</td>
+                </tr>
+            </table>
+            <p>...Either way, it gets transformed into...</p>
+            <table style="width: 750px;">
+                <tr>
+                    <td class="bold" style="width: 300px;">Title</td>
+                    <td class="bold" style="width: 150px;">Employee Count</td>
+                    <td class="bold" style="width: 150px;">Total Salary</td>
+                    <td class="bold" style="width: 150px;">Average Salary</td>
+                </tr>
+                <tr>
+                    <td style="width: 300px;">Data Structures Programmer</td>
+                    <td style="width: 150px;">2</td>
+                    <td style="width: 150px;">$2300.00</td>
+                    <td style="width: 150px;">$1150.00</td>
+                </tr>
+                <tr>
+                    <td style="width: 300px;">Cartoon Character</td>
+                    <td style="width: 150px;">2</td>
+                    <td style="width: 150px;">$1900.00</td>
+                    <td style="width: 150px;">$950.00</td>
+                </tr>
+            </table>
+        </section>
+    </body>
+</document>
