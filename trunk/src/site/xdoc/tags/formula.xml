@@ -1,0 +1,104 @@
+<document>
+    <properties>
+        <author email="rgettman@users.sourceforge.net">Randy Gettman</author>
+        <title>Formula Tag</title>
+    </properties>
+    <body>
+        <section name="The Formula Tag">
+            <p>During transformation, dynamic Excel formulas may created using the "formula" tag.
+            This tag must be used in the bodiless form.  When processed, the "formula" tag creates
+            a new Excel formula in the cell.</p>
+            <p>This is different than <a href="../expressions/jett_formulas.html">JETT
+            Formulas</a>.  JETT Formulas are static, but JETT keeps track of the original cell
+            references in the template and  produces the correct references for the finished
+            spreadsheet.  With dynamic formulas, the formula text comes from an Expression.  JETT
+            does not process these formulas any further than the evaluation of the formula
+            Expression, other than placing the new Excel formula in the cell.</p>
+            <h1>Attributes</h1>
+            <ul>
+                <li>The "formula" tag supports all <a href="basics.html">base tag attributes</a>.</li>
+                <li><strong>bean: String</strong> Optional.  This specifies the name of the bean to
+                be evaluated to obtain the formula text.  E.g. <code>bean="beanName"</code> =>
+                <code>${beanName}</code> => <code>"formula"</code> =>
+                <code>"${wins} / (${wins} + ${losses})"</code>.  Either "bean" or "text" must be
+                specified, but not both.</li>
+                <li><strong>text: String</strong> Optional.  This specifies the actual formula text
+                to be used in the Excel formula.  E.g.
+                <code>text="${wins} / (${wins} + ${losses})</code>.  Either "bean" or "text" must
+                be specified, but not both.</li>
+                <li><strong>ifError: String</strong> Optional.  This specifies the text that the
+                Excel formula should display if the main formula text is evaluated and it results
+                in an Excel error.  This wraps the formula text in an Excel "IF" formula and an
+                "ISERROR" formula, e.g.
+                <code>text="${numerator} / ${denominator}" ifError="Can't divide by zero!</code> =>
+                <code>IF(ISERROR(5 / 0), "Can't divide by zero!", 5 / 0)</code>.  If this is not
+                specified, then the formula is not wrapped.</li>
+            </ul>
+        </section>
+        <section name="Text Example">
+            <p>This template uses the "text" attribute to create an Excel formula.</p>
+            <table style="width: 200px;">
+                <tr>
+                    <td class="bold">Pct.</td>
+                </tr>
+                <tr>
+                    <td>&lt;jt:formula text="${wins} / (${wins} + ${losses})"/&gt;</td>
+                </tr>
+            </table>
+            <p>This gets transformed into...</p>
+            <table style="width: 200px;">
+                <tr>
+                    <td class="bold">Pct.</td>
+                </tr>
+                <tr>
+                    <td>0.500</td>
+                </tr>
+            </table>
+            <p>In Excel, the formula text is visible: <code>=10 / (10 + 10)</code>.</p>
+            <p>In this case, it may be better to include "ifError" to avoid an Excel error showing
+            up in the cell.</p>
+            <table style="width: 200px;">
+                <tr>
+                    <td class="bold">Pct.</td>
+                </tr>
+                <tr>
+                    <td>&lt;jt:formula text="${wins2} / (${wins2} + ${losses2})" ifError="-"/&gt;</td>
+                </tr>
+            </table>
+            <p>This gets transformed into...</p>
+            <table style="width: 200px;">
+                <tr>
+                    <td class="bold">Pct.</td>
+                </tr>
+                <tr>
+                    <td>-</td>
+                </tr>
+            </table>
+            <p>In Excel, the formula text is visible:
+            <code>=IF(ISERROR(0 / (0 + 0)), "-", 0 / (0 + 0))</code>.</p>
+        </section>
+        <section name="Bean Example">
+            <p>In this example, the bean "formulaBean" has the value "formulaText".  The
+            "formulaText" bean has the value "${wins} + ${losses}".</p>
+            <table style="width: 200px;">
+                <tr>
+                    <td class="bold">Games Played</td>
+                </tr>
+                <tr>
+                    <td>&lt;jt:formula bean="formulaBean" /&gt;</td>
+                </tr>
+            </table>
+            <p>This gets transformed into...</p>
+            <table style="width: 200px;">
+                <tr>
+                    <td class="bold">Games Played</td>
+                </tr>
+                <tr>
+                    <td>20</td>
+                </tr>
+            </table>
+            <p>In Excel, the formula text is visible:
+            <code>=10 + 10</code>.</p>
+        </section>
+    </body>
+</document>

@@ -1,4 +1,4 @@
-package net.sf.jett.tag;
+package net.sf.jett.model;
 
 /**
  * <p>A <code>PastEndAction</code> enumerated value specifies a possible action

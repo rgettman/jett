@@ -12,6 +12,8 @@ import org.apache.poi.ss.usermodel.Sheet;
 import net.sf.jett.event.TagLoopListener;
 import net.sf.jett.event.TagLoopEvent;
 import net.sf.jett.exception.TagParseException;
+import net.sf.jett.model.Block;
+import net.sf.jett.model.PastEndAction;
 import net.sf.jett.transform.BlockTransformer;
 import net.sf.jett.transform.WorkbookContext;
 import net.sf.jett.util.AttributeUtil;
@@ -22,15 +24,15 @@ import net.sf.jett.util.SheetUtil;
  * that represent loops.
  * </p>
  *
- * <br>Attributes:
+ * <br/>Attributes:
  * <ul>
- * <li><em>Inherits all attributes from {@link BaseTag}.</em>
- * <li>copyRight (optional): <code>boolean</code>
- * <li>fixed (optional): <code>boolean</code>
- * <li>pastEndAction (optional): <code>String</code>
- * <li>groupDir (optional): <code>String</code>
- * <li>collapse (optional): <code>boolean</code>
- * <li>onLoopProcessed (optional): <code>TagLoopListener</code>
+ * <li><em>Inherits all attributes from {@link BaseTag}.</em></li>
+ * <li>copyRight (optional): <code>boolean</code></li>
+ * <li>fixed (optional): <code>boolean</code></li>
+ * <li>pastEndAction (optional): <code>String</code></li>
+ * <li>groupDir (optional): <code>String</code></li>
+ * <li>collapse (optional): <code>boolean</code></li>
+ * <li>onLoopProcessed (optional): <code>TagLoopListener</code></li>
  * </ul>
  *
  * @author Randy Gettman
@@ -195,7 +197,7 @@ public abstract class BaseLoopTag extends BaseTag
     */
    protected List<String> getOptionalAttributes()
    {
-      List<String> optAttrs = super.getOptionalAttributes();
+      List<String> optAttrs = new ArrayList<String>(super.getOptionalAttributes());
       optAttrs.addAll(OPT_ATTRS);
       return optAttrs;
    }

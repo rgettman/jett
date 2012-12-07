@@ -18,8 +18,8 @@ import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 
 import net.sf.jett.formula.Formula;
-import net.sf.jett.tag.Block;
-import net.sf.jett.tag.PastEndAction;
+import net.sf.jett.model.Block;
+import net.sf.jett.model.PastEndAction;
 import net.sf.jett.transform.WorkbookContext;
 
 /**
@@ -529,6 +529,8 @@ public class SheetUtil
          cell.setCellValue((Short) value);
       else if (value instanceof Byte)
          cell.setCellValue((Byte) value);
+      else if (value instanceof Boolean)
+         cell.setCellValue((Boolean) value);
       else
       {
          newValue = helper.createRichTextString(value.toString());

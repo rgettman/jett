@@ -34,6 +34,7 @@ public class ExpressionFactory
       myFuncs = new HashMap<String, Object>();
       myEngine.setFunctions(myFuncs);
       myFuncs.put("jagg", JaggFuncs.class);
+      myFuncs.put("jett", JettFuncs.class);
    }
 
    /**

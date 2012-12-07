@@ -97,9 +97,9 @@ public class ForTagTest extends TestCase
          boolean isMultOf3 = (y % 3) == 0;
          assertEquals(y, TestUtility.getNumericCellValue(end, 3, c), DELTA);
          if (isMultOf3)
-            assertEquals("true", TestUtility.getStringCellValue(end, 4, c));
+            assertTrue(TestUtility.getBooleanCellValue(end, 4, c));
          else
-            assertEquals("false", TestUtility.getStringCellValue(end, 4, c));
+            assertFalse(TestUtility.getBooleanCellValue(end, 4, c));
       }
       assertTrue(TestUtility.isCellBlank(end, 3, 21));
    }

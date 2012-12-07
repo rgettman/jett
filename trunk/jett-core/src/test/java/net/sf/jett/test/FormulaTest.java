@@ -73,10 +73,10 @@ public class FormulaTest extends TestCase
       Sheet formulaTest = workbook.getSheetAt(0);
       assertEquals("SUM(B3:B60)", TestUtility.getFormulaCellValue(formulaTest, 60, 1));
       assertEquals("SUM(C3:C60)", TestUtility.getFormulaCellValue(formulaTest, 60, 2));
-      assertEquals("\"Counties: \"&COUNTA(E3:E60)", TestUtility.getFormulaCellValue(formulaTest, 60, 4));
+      assertEquals("\"Counties:\"&COUNTA(E3:E60)", TestUtility.getFormulaCellValue(formulaTest, 60, 4));
       assertEquals("SUM(H3:H60)", TestUtility.getFormulaCellValue(formulaTest, 60, 7));
       assertEquals("SUM(I3:I60)", TestUtility.getFormulaCellValue(formulaTest, 60, 8));
-      assertEquals("\"Counties: \"&COUNTA(K3:K60)", TestUtility.getFormulaCellValue(formulaTest, 60, 10));
+      assertEquals("\"Counties:\"&COUNTA(K3:K60)", TestUtility.getFormulaCellValue(formulaTest, 60, 10));
 
       for (int i = 1; i <= 6; i++)
       {
@@ -109,8 +109,8 @@ public class FormulaTest extends TestCase
       assertEquals("SUM(C3)/SUM(E3)", TestUtility.getFormulaCellValue(ofTheirOwn, 3, 5));
 
       Sheet multiLevel = workbook.getSheetAt(9);
-      assertEquals("COUNTA('Formula Test'!$E$3:$E$60)", TestUtility.getFormulaCellValue(multiLevel, 0, 8));
-      assertEquals("COUNTA('Formula Test'!$K$3:$K$60)", TestUtility.getFormulaCellValue(multiLevel, 1, 8));
+      assertEquals("COUNTA('FormulaTest'!$E$3:$E$60)", TestUtility.getFormulaCellValue(multiLevel, 0, 8));
+      assertEquals("COUNTA('FormulaTest'!$K$3:$K$60)", TestUtility.getFormulaCellValue(multiLevel, 1, 8));
 
       assertEquals("SUM(C3,D3)", TestUtility.getFormulaCellValue(multiLevel, 2, 4));
       assertEquals("SUM(C4,D4)", TestUtility.getFormulaCellValue(multiLevel, 3, 4));

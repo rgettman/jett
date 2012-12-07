@@ -6,9 +6,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.HashSet;
 
 import org.apache.commons.jexl2.JexlContext;
-import org.apache.commons.jexl2.MapContext;
 import org.apache.commons.jexl2.parser.ASTIdentifier;
 import org.apache.commons.jexl2.parser.ASTMethodNode;
 import org.apache.commons.jexl2.parser.ASTReference;
@@ -71,13 +71,9 @@ public class Expression
    @SuppressWarnings("unchecked")
    public Object evaluate(Map<String, Object> beans)
    {
-      if (DEBUG)
-      {
-         System.err.println("Evaluating Expression: \"" + myExpression + "\".");
-      }
       if (beans != null && !beans.isEmpty())
       {
-         JexlContext context = new MapContext(beans);
+         JexlContext context = new ClassAwareMapContext(beans);
          return ExpressionFactory.getExpressionFactory().
             createExpression(myExpression).evaluate(context);
       }
@@ -443,12 +439,15 @@ public class Expression
       while (beginIdx != -1 && endIdx != -1 && endIdx > beginIdx)
       {
          String strExpr = value.substring(beginIdx + 2, endIdx);
-         //System.err.println("  Expression Found: " + strExpr);
+         if (DEBUG)
+            System.err.println("  Expression Found: " + strExpr);
          Expression expr = new Expression(strExpr);
          expressions.add(expr);
 
          beginIdx = value.indexOf(Expression.BEGIN_EXPR, endIdx + 1);
          endIdx = findEndOfExpression(value, beginIdx + Expression.BEGIN_EXPR.length());
+         if (DEBUG)
+            System.err.println("  getExprs: beginIdx = " + beginIdx + ", endIdx = " + endIdx);
       }
       return expressions;
    }
@@ -466,27 +465,37 @@ public class Expression
    private static String replaceExpressions(String value,
       List<Expression> expressions, Map<String, Object> beans)
    {
+      HashSet<String> usedExpressions = new HashSet<String>();
       // Replace Expressions with values.
       for (Expression expr : expressions)
       {
-         int beginIdx = value.indexOf(Expression.BEGIN_EXPR);
-         //int endIdx = value.indexOf(Expression.END_EXPR);
-         int endIdx = beginIdx + Expression.BEGIN_EXPR.length() + expr.myExpression.length();
-         if (beginIdx != -1 && endIdx != -1 && endIdx > beginIdx)
+         if (DEBUG)
+            System.err.println("replExprs: Loop for " + expr.myExpression);
+         if (usedExpressions.add(expr.myExpression))
          {
-            String replaceMe = value.substring(beginIdx, endIdx + 1);
-            //System.err.println("  Replacing \"" + replaceMe + "\" with...");
-            Object result = expr.evaluate(beans);
-            String replaceWith = "";
-            if (result != null)
+            int beginIdx = value.indexOf(Expression.BEGIN_EXPR);
+            //int endIdx = value.indexOf(Expression.END_EXPR);
+            int endIdx = beginIdx + Expression.BEGIN_EXPR.length() + expr.myExpression.length();
+            if (beginIdx != -1 && endIdx != -1 && endIdx > beginIdx)
             {
-               replaceWith = expr.evaluate(beans).toString();
+               String replaceMe = value.substring(beginIdx, endIdx + 1);
+               if (DEBUG)
+                  System.err.print("  Replacing \"" + replaceMe + "\" with ");
+               Object result = expr.evaluate(beans);
+               String replaceWith = "";
+               if (result != null)
+                  replaceWith = expr.evaluate(beans).toString();
+               if (DEBUG)
+                  System.err.println("  \"" + replaceWith + "\".");
+               value = value.replace(replaceMe, replaceWith);
+               if (DEBUG)
+                  System.err.println("  value is now \"" + value + "\".");
             }
-            //System.err.println("  \"" + replaceWith + "\".");
-            value = value.replace(replaceMe, replaceWith);
+            else
+            {
+               break;
+            }
          }
-         else
-            break;
       }
       return value;
    }

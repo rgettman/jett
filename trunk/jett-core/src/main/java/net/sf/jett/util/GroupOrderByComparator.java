@@ -4,7 +4,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import net.sf.jett.exception.ParseException;
-import net.sf.jett.tag.Group;
+import net.sf.jett.model.Group;
 
 /**
  * A <code>GroupOrderByComparator</code> is an <code>OrderByComparator</code>

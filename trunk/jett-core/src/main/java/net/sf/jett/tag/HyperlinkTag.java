@@ -13,6 +13,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
 import net.sf.jett.exception.TagParseException;
+import net.sf.jett.model.Block;
 import net.sf.jett.transform.BlockTransformer;
 import net.sf.jett.util.AttributeUtil;
 import net.sf.jett.util.SheetUtil;
@@ -24,12 +25,12 @@ import net.sf.jett.util.SheetUtil;
  * besides the Hyperlink in the Cell, any text in the Cell but outside of the
  * Hyperlink tag will be removed when the Hyperlink is created.</p>
  *
- * <p>Attributes:</p>
+ * <br/>Attributes:
  * <ul>
- * <li><em>Inherits all attributes from {@link BaseTag}.</em>
- * <li>type (optional): <code>String</code>
- * <li>address (required): <code>String</code>
- * <li>value (required): <code>RichTextString</code>
+ * <li><em>Inherits all attributes from {@link BaseTag}.</em></li>
+ * <li>type (optional): <code>String</code></li>
+ * <li>address (required): <code>String</code></li>
+ * <li>value (required): <code>RichTextString</code></li>
  * </ul>
  *
  * @author Randy Gettman
@@ -101,7 +102,7 @@ public class HyperlinkTag extends BaseTag
    @Override
    protected List<String> getRequiredAttributes()
    {
-      List<String> reqAttrs = super.getRequiredAttributes();
+      List<String> reqAttrs = new ArrayList<String>(super.getRequiredAttributes());
       reqAttrs.addAll(REQ_ATTRS);
       return reqAttrs;
    }
@@ -113,7 +114,7 @@ public class HyperlinkTag extends BaseTag
    @Override
    protected List<String> getOptionalAttributes()
    {
-      List<String> optAttrs = super.getOptionalAttributes();
+      List<String> optAttrs =new ArrayList<String>(super.getOptionalAttributes());
       optAttrs.addAll(OPT_ATTRS);
       return optAttrs;
    }

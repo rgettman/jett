@@ -9,7 +9,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 
 import net.sf.jett.event.TagLoopEvent;
 import net.sf.jett.event.TagLoopListener;
-import net.sf.jett.tag.Block;
+import net.sf.jett.model.Block;
 
 /**
  * A <code>BlockShadingLoopListener</code> is a <code>TagLoopListener</code>

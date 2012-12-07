@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -21,6 +22,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFFont;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.junit.Ignore;
 
 import net.sf.jett.tag.HyperlinkTag;
@@ -31,6 +33,7 @@ import net.sf.jett.test.model.HyperlinkData;
 import net.sf.jett.test.model.State;
 import net.sf.jett.test.model.Team;
 import net.sf.jett.util.SheetUtil;
+import net.sf.jett.model.ExcelColor;
 
 /**
  * This utility class supplies beans maps for possibly multiple tests.  It also
@@ -457,22 +460,28 @@ public class TestUtility
       robert.setFirstName("Robert");
       robert.setLastName("Stack");
       robert.setSalary(1000);
+      robert.setTitle("Data Structures Programmer");
+      robert.setManager(true);
       Employee bugs = new Employee();
       bugs.setFirstName("Bugs");
       bugs.setLastName("Bunny");
       bugs.setSalary(1500);
       bugs.setCatchPhrase("Ah, what's up Doc?");
+      bugs.setTitle("Cartoon Character");
+      bugs.setManager(true);
       Employee suzie = new Employee();
       suzie.setFirstName("Suzie");
       suzie.setLastName("Queue");
       suzie.setSalary(900);
       suzie.setManager(robert);
+      suzie.setTitle("Data Structures Programmer");
       Employee elmer = new Employee();
       elmer.setFirstName("Elmer");
       elmer.setLastName("Fudd");
       elmer.setSalary(800);
       elmer.setManager(bugs);
       elmer.setCatchPhrase("I'm hunting wabbits!  Huh-uh-uh!");
+      elmer.setTitle("Cartoon Character");
       List<Employee> employees = Arrays.asList(robert, suzie, elmer, bugs);
 
       beans.put("employees", employees);
@@ -497,6 +506,27 @@ public class TestUtility
             return c.getStringCellValue();
       }
       return null;
+   }
+
+   /**
+    * Gets the boolean value from a particular <code>Cell</code> on the given
+    * <code>Sheet</code>.
+    * @param sheet The <code>Sheet</code>.
+    * @param row The 0-based row index.
+    * @param col The 0-based column index.
+    * @return The boolean value.
+    * @since 0.4.0
+    */
+   public static boolean getBooleanCellValue(Sheet sheet, int row, int col)
+   {
+      Row r = sheet.getRow(row);
+      if (r != null)
+      {
+         Cell c = r.getCell(col);
+         if (c != null)
+            return c.getBooleanCellValue();
+      }
+      return false;
    }
 
    /**
@@ -555,7 +585,12 @@ public class TestUtility
       {
          Cell c = r.getCell(col);
          if (c != null)
-            return c.getCellFormula();
+         {
+            // The HSSF Formula Parser strips whitespaces outside of strings, but the
+            // XSSF Formula Parser does not.
+            // Just lose the spaces in all strings for comparison purposes.
+            return c.getCellFormula().replaceAll("\\s+", "");
+         }
       }
       return null;
    }
@@ -680,6 +715,44 @@ public class TestUtility
    }
 
    /**
+    * Returns the cell background color, as a hex string, on the given
+    * <code>Sheet</code>, at the given row and column indexes.
+    * @param sheet The <code>Sheet</code>.
+    * @param row The 0-based row index.
+    * @param col The 0-based column index.
+    * @return The cell background color, as a hex string.
+    * @since 0.4.0
+    */
+   public static String getCellBackgroundColorString(Sheet sheet, int row, int col)
+   {
+      Row r = sheet.getRow(row);
+      if (r != null)
+      {
+         Cell c = r.getCell(col);
+         if (c != null)
+         {
+            Color color = c.getCellStyle().getFillBackgroundColorColor();
+            if (color instanceof HSSFColor)
+            {
+               HSSFColor hssfColor = (HSSFColor) color;
+               return getHSSFColorHexString(hssfColor);
+            }
+            else if (color instanceof XSSFColor)
+            {
+               XSSFColor xssfColor = (XSSFColor) color;
+               return getXSSFColorHexString(xssfColor);
+            }
+            else
+            {
+               throw new IllegalArgumentException("Unexpected type of Color for cell on sheet " +
+                  sheet.getSheetName() + ", row " + row + ", col " + col);
+            }
+         }
+      }
+      return null;
+   }
+
+   /**
     * Returns the cell fill pattern on the given <code>Sheet</code>, at the
     * given row and column indexes.
     * @param sheet The <code>Sheet</code>.
@@ -729,6 +802,177 @@ public class TestUtility
    }
 
    /**
+    * Returns the cell bottom border color, as a hex string, on the given
+    * <code>Sheet</code>, at the given row and column indexes.
+    * @param sheet The <code>Sheet</code>.
+    * @param row The 0-based row index.
+    * @param col The 0-based column index.
+    * @return The cell bottom border color, as a hex string.
+    * @since 0.4.0
+    */
+   public static String getCellBottomBorderColorString(Sheet sheet, int row, int col)
+   {
+      Row r = sheet.getRow(row);
+      if (r != null)
+      {
+         Cell c = r.getCell(col);
+         if (c != null)
+         {
+            CellStyle cs = c.getCellStyle();
+            if (cs instanceof HSSFCellStyle)
+            {
+               HSSFColor hssfColor = ExcelColor.getHssfColorByIndex(cs.getBottomBorderColor());
+               return getHSSFColorHexString(hssfColor);
+            }
+            else if (cs instanceof XSSFCellStyle)
+            {
+               XSSFColor xssfColor = ((XSSFCellStyle) cs).getBottomBorderXSSFColor();
+               return getXSSFColorHexString(xssfColor);
+            }
+            else
+            {
+               throw new IllegalArgumentException("Unexpected type of CellStyle for cell on sheet " +
+                  sheet.getSheetName() + ", row " + row + ", col " + col);
+            }
+         }
+      }
+      return null;
+   }
+
+   /**
+    * Returns the cell left border color, as a hex string, on the given
+    * <code>Sheet</code>, at the given row and column indexes.
+    * @param sheet The <code>Sheet</code>.
+    * @param row The 0-based row index.
+    * @param col The 0-based column index.
+    * @return The cell left border color, as a hex string.
+    * @since 0.4.0
+    */
+   public static String getCellLeftBorderColorString(Sheet sheet, int row, int col)
+   {
+      Row r = sheet.getRow(row);
+      if (r != null)
+      {
+         Cell c = r.getCell(col);
+         if (c != null)
+         {
+            CellStyle cs = c.getCellStyle();
+            if (cs instanceof HSSFCellStyle)
+            {
+               HSSFColor hssfColor = ExcelColor.getHssfColorByIndex(cs.getLeftBorderColor());
+               return getHSSFColorHexString(hssfColor);
+            }
+            else if (cs instanceof XSSFCellStyle)
+            {
+               XSSFColor xssfColor = ((XSSFCellStyle) cs).getLeftBorderXSSFColor();
+               return getXSSFColorHexString(xssfColor);
+            }
+            else
+            {
+               throw new IllegalArgumentException("Unexpected type of CellStyle for cell on sheet " +
+                  sheet.getSheetName() + ", row " + row + ", col " + col);
+            }
+         }
+      }
+      return null;
+   }
+
+   /**
+    * Returns the cell right border color, as a hex string, on the given
+    * <code>Sheet</code>, at the given row and column indexes.
+    * @param sheet The <code>Sheet</code>.
+    * @param row The 0-based row index.
+    * @param col The 0-based column index.
+    * @return The cell right border color, as a hex string.
+    * @since 0.4.0
+    */
+   public static String getCellRightBorderColorString(Sheet sheet, int row, int col)
+   {
+      Row r = sheet.getRow(row);
+      if (r != null)
+      {
+         Cell c = r.getCell(col);
+         if (c != null)
+         {
+            CellStyle cs = c.getCellStyle();
+            if (cs instanceof HSSFCellStyle)
+            {
+               HSSFColor hssfColor = ExcelColor.getHssfColorByIndex(cs.getRightBorderColor());
+               return getHSSFColorHexString(hssfColor);
+            }
+            else if (cs instanceof XSSFCellStyle)
+            {
+               XSSFColor xssfColor = ((XSSFCellStyle) cs).getRightBorderXSSFColor();
+               return getXSSFColorHexString(xssfColor);
+            }
+            else
+            {
+               throw new IllegalArgumentException("Unexpected type of CellStyle for cell on sheet " +
+                  sheet.getSheetName() + ", row " + row + ", col " + col);
+            }
+         }
+      }
+      return null;
+   }
+
+   /**
+    * Returns the cell top border color, as a hex string, on the given
+    * <code>Sheet</code>, at the given row and column indexes.
+    * @param sheet The <code>Sheet</code>.
+    * @param row The 0-based row index.
+    * @param col The 0-based column index.
+    * @return The cell top border color, as a hex string.
+    * @since 0.4.0
+    */
+   public static String getCellTopBorderColorString(Sheet sheet, int row, int col)
+   {
+      Row r = sheet.getRow(row);
+      if (r != null)
+      {
+         Cell c = r.getCell(col);
+         if (c != null)
+         {
+            CellStyle cs = c.getCellStyle();
+            if (cs instanceof HSSFCellStyle)
+            {
+               HSSFColor hssfColor = ExcelColor.getHssfColorByIndex(cs.getTopBorderColor());
+               return getHSSFColorHexString(hssfColor);
+            }
+            else if (cs instanceof XSSFCellStyle)
+            {
+               XSSFColor xssfColor = ((XSSFCellStyle) cs).getTopBorderXSSFColor();
+               return getXSSFColorHexString(xssfColor);
+            }
+            else
+            {
+               throw new IllegalArgumentException("Unexpected type of CellStyle for cell on sheet " +
+                  sheet.getSheetName() + ", row " + row + ", col " + col);
+            }
+         }
+      }
+      return null;
+   }
+
+   /**
+    * Get the hex string for a <code>Color</code>.
+    * @param color A <code>HSSFColor</code> or a <code>XSSFColor</code>.
+    * @return The hex string.
+    * @since 0.4.0
+    */
+   public static String getColorString(Color color)
+   {
+      if (color instanceof HSSFColor)
+      {
+         return getHSSFColorHexString((HSSFColor) color);
+      }
+      else
+      {
+         // XSSFColor
+         return getXSSFColorHexString((XSSFColor) color);
+      }
+   }
+
+   /**
     * Get the hex string for a <code>HSSFColor</code>.
     * @param hssfColor A <code>HSSFColor</code>.
     * @return The hex string.
@@ -754,8 +998,12 @@ public class TestUtility
     */
    private static String getXSSFColorHexString(XSSFColor xssfColor)
    {
+      if (xssfColor == null)
+         return "000000";
       byte[] bytes = xssfColor.getRgb();
       StringBuilder hexString = new StringBuilder();
+      if (bytes == null)
+         return "000000";
       for (byte b : bytes)
       {
          String twoHex = Integer.toHexString(0x000000FF & b);
@@ -779,6 +1027,28 @@ public class TestUtility
       Row r = sheet.getRow(row);
       if (r != null)
          return r.getCell(col);
+      return null;
+   }
+
+   /**
+    * Returns the <code>CellStyle</code> (if any), on the given
+    * <code>Sheet</code>, at the given row and column indexes.
+    * @param sheet The <code>Sheet</code>.
+    * @param row The 0-based row index.
+    * @param col The 0-based column index.
+    * @return The <code>CellStyle</code> or <code>null</code> if the cell
+    *    doesn't exist.
+    * @since 0.4.0
+    */
+   public static CellStyle getCellStyle(Sheet sheet, int row, int col)
+   {
+      Row r = sheet.getRow(row);
+      if (r != null)
+      {
+         Cell c = r.getCell(col);
+         if (c != null)
+            return c.getCellStyle();
+      }
       return null;
    }
 }

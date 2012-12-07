@@ -11,6 +11,8 @@ import org.apache.poi.ss.usermodel.RichTextString;
 
 import net.sf.jett.exception.TagParseException;
 import net.sf.jett.expression.Expression;
+import net.sf.jett.model.Block;
+import net.sf.jett.model.PastEndValue;
 import net.sf.jett.util.AttributeUtil;
 import net.sf.jett.util.SheetUtil;
 
@@ -27,14 +29,14 @@ import net.sf.jett.util.SheetUtil;
  * then blank blocks will result, with the exact result dependent on "past end
  * action" rules.</p>
  *
- * <br>Attributes:
+ * <br/>Attributes:
  * <ul>
- * <li><em>Inherits all attributes from {@link BaseTag}.</em>
- * <li><em>Inherits all attributes from {@link BaseLoopTag}.</em>
- * <li>collections (required): <code>Collection</code>
- * <li>var (required): <code>String</code>
- * <li>indexVar (optional): <code>String</code>
- * <li>limit (optional): <code>int</code>
+ * <li><em>Inherits all attributes from {@link BaseTag}.</em></li>
+ * <li><em>Inherits all attributes from {@link BaseLoopTag}.</em></li>
+ * <li>collections (required): <code>Collection</code></li>
+ * <li>var (required): <code>String</code></li>
+ * <li>indexVar (optional): <code>String</code></li>
+ * <li>limit (optional): <code>int</code></li>
  * </ul>
  *
  * @author Randy Gettman
@@ -173,7 +175,7 @@ public class MultiForEachTag extends BaseLoopTag
    @Override
    public List<String> getRequiredAttributes()
    {
-      List<String> reqAttrs = super.getRequiredAttributes();
+      List<String> reqAttrs = new ArrayList<String>(super.getRequiredAttributes());
       reqAttrs.addAll(REQ_ATTRS);
       return reqAttrs;
    }
@@ -185,7 +187,7 @@ public class MultiForEachTag extends BaseLoopTag
    @Override
    public List<String> getOptionalAttributes()
    {
-      List<String> optAttrs = super.getOptionalAttributes();
+      List<String> optAttrs = new ArrayList<String>(super.getOptionalAttributes());
       optAttrs.addAll(OPT_ATTRS);
       return optAttrs;
    }

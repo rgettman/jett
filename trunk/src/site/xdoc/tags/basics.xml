@@ -22,6 +22,7 @@
                 <li><a href="agg.html">&lt;jt:agg&gt;</a></li>
                 <li><a href="comment.html">&lt;jt:comment&gt;</a></li>
                 <li><a href="for.html">&lt;jt:for&gt;</a></li>
+                <li><a href="formula.html">&lt;jt:formula&gt;</a></li>
                 <li><a href="forEach.html">&lt;jt:forEach&gt;</a></li>
                 <li><a href="group.html">&lt;jt:group&gt;</a></li>
                 <li><a href="hyperlink.html">&lt;jt:hyperlink&gt;</a></li>
@@ -29,6 +30,7 @@
                 <li><a href="multiForEach.html">&lt;jt:multiForEach&gt;</a></li>
                 <li><a href="null.html">&lt;jt:null&gt;</a></li>
                 <li><a href="span.html">&lt;jt:span&gt;</a></li>
+                <li><a href="style.html">&lt;jt:style&gt;</a></li>
                 <li><a href="total.html">&lt;jt:total&gt;</a></li>
             </ul>
             <p>All tags in the JETT Tag Library, and any custom tags that subclass

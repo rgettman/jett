@@ -5,10 +5,17 @@
     </properties>
     <body>
         <section name="POI Objects Exposed">
-            <p>During transformation, the current POI Sheet object is exposed in the beans map as
-            the bean name "sheet".  Also, the entire POI Workbook object is exposed in the beans
-            map as the bean name "workbook".  This allows for Expressions that set "off sheet"
-            properties such as the Header, Footer, and PrintSetup.</p>
+            <p>During transformation, several POI objects are exposed in the beans map.</p>
+            <ul>
+                <li><code>cell</code> - The current POI Cell object is exposed in the beans map.
+                    This exposes cell properties such as row and column indexes, e.g.
+                    <code>This is cell ${jett:cellRef(cell.rowIndex, cell.columnIndex)} => "This is cell B2"</code>.</li>
+                <li><code>sheet</code> - The current POI Sheet object is exposed in the beans map
+                    as the bean name "sheet".  This allows for Expressions that set "off
+                    sheet" properties such as the Header, Footer, and PrintSetup.</li>
+                <li><code>workbook</code> - The entire POI Workbook object is exposed in the beans
+                    map as the bean name "workbook".</li>
+            </ul>
             <p>Because some of these examples call methods with a return type of "void",
             the Expressions themselves that do so evaluate to <code>null</code> and the cells that
             contain them will be blanked out.  Note: JEXL Expressions allow String literals to be

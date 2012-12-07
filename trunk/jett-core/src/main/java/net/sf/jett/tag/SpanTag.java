@@ -12,23 +12,29 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellRangeAddress;
 
 import net.sf.jett.exception.TagParseException;
+import net.sf.jett.model.Block;
 import net.sf.jett.transform.BlockTransformer;
 import net.sf.jett.util.AttributeUtil;
 import net.sf.jett.util.SheetUtil;
 
 /**
  * <p>A <code>SpanTag</code> represents a cell or merged region that will span
- * extra rows and/or extra columns, depending on growth factors.  If this tag
- * is applied to a cell that is not part of a merged region, then it may result
- * in the creation of a merged region.</p>
+ * extra rows and/or extra columns, depending on growth and/or adjustment
+ * factors.  If this tag is applied to a cell that is not part of a merged
+ * region, then it may result in the creation of a merged region.  If this tag
+ * is applied to a cell that is part of a merged region, then it may result in
+ * the removal of the merged region.</p>
  *
- * <br>Attributes:
+ * <br/>Attributes:
  * <ul>
- * <li><em>Inherits all attributes from {@link BaseTag}.</em>
- * <li>factor (required): <code>int</code>
- * <li>value (required): <code>RichTextString</code>
- * <li>expandRight (optional): <code>boolean</code>
+ * <li><em>Inherits all attributes from {@link BaseTag}.</em></li>
+ * <li>factor (optional): <code>int</code></li>
+ * <li>adjust (optional): <code>int</code></li>
+ * <li>value (required): <code>RichTextString</code></li>
+ * <li>expandRight (optional): <code>boolean</code></li>
  * </ul>
+ *
+ * <p>Either one or both of the <code>factor</code>
  *
  * @author Randy Gettman
  */
@@ -41,6 +47,11 @@ public class SpanTag extends BaseTag
     */
    public static final String ATTR_FACTOR = "factor";
    /**
+    * Attribute for specifying an adjustment to the size of the merged region.
+    * @since 0.4.0
+    */
+   public static final String ATTR_ADJUST = "adjust";
+   /**
     * Attribute for forcing "expand right" behavior.  (Default is expand down.)
     */
    public static final String ATTR_EXPAND_RIGHT = "expandRight";
@@ -50,11 +61,12 @@ public class SpanTag extends BaseTag
    public static final String ATTR_VALUE = "value";
 
    private static final List<String> REQ_ATTRS =
-      new ArrayList<String>(Arrays.asList(ATTR_FACTOR, ATTR_VALUE));
+      new ArrayList<String>(Arrays.asList(ATTR_VALUE));
    private static final List<String> OPT_ATTRS =
-      new ArrayList<String>(Arrays.asList(ATTR_EXPAND_RIGHT));
+      new ArrayList<String>(Arrays.asList(ATTR_EXPAND_RIGHT, ATTR_FACTOR, ATTR_ADJUST));
 
    private int myFactor = 1;
+   private int myAdjust = 0;
    private RichTextString myValue;
 
    /**
@@ -73,7 +85,7 @@ public class SpanTag extends BaseTag
    @Override
    protected List<String> getRequiredAttributes()
    {
-      List<String> reqAttrs = super.getRequiredAttributes();
+      List<String> reqAttrs = new ArrayList<String>(super.getRequiredAttributes());
       reqAttrs.addAll(REQ_ATTRS);
       return reqAttrs;
    }
@@ -85,7 +97,7 @@ public class SpanTag extends BaseTag
    @Override
    protected List<String> getOptionalAttributes()
    {
-      List<String> optAttrs = super.getOptionalAttributes();
+      List<String> optAttrs = new ArrayList<String>(super.getOptionalAttributes());
       optAttrs.addAll(OPT_ATTRS);
       return optAttrs;
    }
@@ -108,7 +120,10 @@ public class SpanTag extends BaseTag
 
       myValue = attributes.get(ATTR_VALUE);
 
+      List<RichTextString> atLeastOne = Arrays.asList(attributes.get(ATTR_FACTOR), attributes.get(ATTR_ADJUST));
+      AttributeUtil.ensureAtLeastOneExists(atLeastOne, Arrays.asList(ATTR_FACTOR, ATTR_ADJUST));
       myFactor = AttributeUtil.evaluateNonNegativeInt(attributes.get(ATTR_FACTOR), beans, ATTR_FACTOR, 1);
+      myAdjust = AttributeUtil.evaluateInt(attributes.get(ATTR_ADJUST), beans, ATTR_ADJUST, 0);
 
       boolean explicitlyExpandingRight = AttributeUtil.evaluateBoolean(attributes.get(ATTR_EXPAND_RIGHT), beans, false);
       if (explicitlyExpandingRight)
@@ -160,31 +175,53 @@ public class SpanTag extends BaseTag
       mergedBlock.setDirection(block.getDirection());
 
       // Determine new height or width, plus new bottom or right.
+      int change;
       if (block.getDirection() == Block.Direction.VERTICAL)
       {
-         bottom += height * (myFactor - 1);
-         height *= myFactor;
+         change = height * (myFactor - 1) + myAdjust;
+         bottom += change;
+         height = bottom - top + 1;
       }
       else
       {
-         right += width * (myFactor - 1);
-         width *= myFactor;
+         change = width * (myFactor - 1) + myAdjust;
+         right += change;
+         width = right - left + 1;
       }
 
-      if (myFactor == 0)
+      // Remove.
+      if (height <= 0 || width <= 0)
       {
          if (DEBUG)
             System.err.println("  Calling removeBlock on block: " + mergedBlock);
          SheetUtil.removeBlock(sheet, mergedBlock, getWorkbookContext());
          return false;
       }
-      // At this point, myFactor >= 1.
-
-      if (myFactor > 1)
+      // Shrink.
+      if (change < 0)
       {
+         Block remove;
+         if (block.getDirection() == Block.Direction.VERTICAL)
+            remove = new Block(block.getParent(), left, right, bottom + 1, bottom - change);
+         else
+            remove = new Block(block.getParent(), right + 1, right - change, top, bottom);
+         remove.setDirection(block.getDirection());
          if (DEBUG)
-            System.err.println("  Calling shiftForBlock on block: " + mergedBlock + " with factor " + myFactor);
-         SheetUtil.shiftForBlock(sheet, mergedBlock, getWorkbookContext(), myFactor);
+            System.err.println("  Calling removeBlock on fabricated block: " + remove + " (change " + change + ")");
+         SheetUtil.removeBlock(sheet, remove, getWorkbookContext());
+      }
+      // Expand.
+      if (change > 0)
+      {
+         Block expand;
+         if (block.getDirection() == Block.Direction.VERTICAL)
+            expand = new Block(block.getParent(), left, right, bottom - change, bottom - change);
+         else
+            expand = new Block(block.getParent(), right - change, right - change, top, bottom);
+         expand.setDirection(block.getDirection());
+         if (DEBUG)
+            System.err.println("  Calling shiftForBlock on fabricated block: " + expand + " with change " + (change + 1));
+         SheetUtil.shiftForBlock(sheet, expand, getWorkbookContext(), change + 1);
       }
 
       // Set the value.

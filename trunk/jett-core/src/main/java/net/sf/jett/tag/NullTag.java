@@ -10,15 +10,16 @@ import org.apache.poi.ss.usermodel.Sheet;
 
 import net.sf.jett.transform.BlockTransformer;
 import net.sf.jett.util.SheetUtil;
+import net.sf.jett.model.Block;
 
 /**
  * <p>A <code>NullTag</code> does nothing to its <code>Block</code> except mark
  * its Cells as processed.  It can't have any attributes in body mode.</p>
  *
- * <br>Attributes:
+ * <br/>Attributes:
  * <ul>
- * <li><em>Inherits all attributes from {@link BaseTag}.</em>
- * <li>text (required, bodiless only): <code>RichTextString</code>
+ * <li><em>Inherits all attributes from {@link BaseTag}.</em></li>
+ * <li>text (required, bodiless only): <code>RichTextString</code></li>
  * </ul>
  *
  * @author Randy Gettman
@@ -48,7 +49,7 @@ public class NullTag extends BaseTag
    @Override
    protected List<String> getRequiredAttributes()
    {
-      List<String> reqAttrs = super.getRequiredAttributes();
+      List<String> reqAttrs = new ArrayList<String>(super.getRequiredAttributes());
       if (isBodiless())
          reqAttrs.addAll(REQ_ATTRS);
       return reqAttrs;

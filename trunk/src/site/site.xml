@@ -33,11 +33,13 @@
             <item name="Basics" href="tags/basics.html"/>
             <item name="&amp;lt;jt:agg&amp;gt; Tag" href="tags/agg.html"/>
             <item name="&amp;lt;jt:comment&amp;gt; Tag" href="tags/comment.html"/>
+            <item name="&amp;lt;jt:formula&amp;gt; Tag" href="tags/formula.html"/>
             <item name="&amp;lt;jt:group&amp;gt; Tag" href="tags/group.html"/>
             <item name="&amp;lt;jt:hyperlink&amp;gt; Tag" href="tags/hyperlink.html"/>
             <item name="&amp;lt;jt:if&amp;gt; Tag" href="tags/if.html"/>
             <item name="&amp;lt;jt:null&amp;gt; Tag" href="tags/null.html"/>
             <item name="&amp;lt;jt:span&amp;gt; Tag" href="tags/span.html"/>
+            <item name="&amp;lt;jt:style&amp;gt; Tag" href="tags/style.html"/>
             <item name="&amp;lt;jt:total&amp;gt; Tag" href="tags/total.html"/>
             <item name="Looping Tags" href="tags/looping.html"/>
             <item name="&amp;lt;jt:for&amp;gt; Tag" href="tags/for.html"/>

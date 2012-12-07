@@ -6,6 +6,8 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Drawing;
 import org.apache.poi.ss.usermodel.Sheet;
 
+import net.sf.jett.model.Block;
+
 /**
  * A <code>TagContext</code> object represents the context associated with a
  * <code>Tag</code>.

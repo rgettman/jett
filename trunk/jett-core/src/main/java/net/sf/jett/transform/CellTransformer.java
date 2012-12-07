@@ -16,8 +16,8 @@ import net.sf.jett.event.CellEvent;
 import net.sf.jett.event.CellListener;
 import net.sf.jett.exception.TagParseException;
 import net.sf.jett.expression.Expression;
+import net.sf.jett.model.Block;
 import net.sf.jett.parser.TagParser;
-import net.sf.jett.tag.Block;
 import net.sf.jett.tag.Tag;
 import net.sf.jett.tag.TagContext;
 import net.sf.jett.tag.TagLibraryRegistry;
@@ -63,6 +63,8 @@ public class CellTransformer
       String key = SheetUtil.getCellKey(cell);
       if (processedCells.containsKey(key))
          return true;
+
+      exposeCell(beans, cell);
 
       if (DEBUG_GENERAL)
       {
@@ -391,5 +393,17 @@ public class CellTransformer
          }
       }
       return tagsToMatch.isEmpty();
+   }
+
+   /**
+    * Make the <code>Cell</code> object available as bean in the given
+    * <code>Map</code> of beans.
+    * @param beans The <code>Map</code> of beans.
+    * @param cell The <code>Cell</code> to expose.
+    * @since 0.4.0
+    */
+   private void exposeCell(Map<String, Object> beans, Cell cell)
+   {
+      beans.put("cell", cell);
    }
 }

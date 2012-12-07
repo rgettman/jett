@@ -31,6 +31,47 @@
                 rows of aggregate results to display.</li>
                 <li><strong>parallel: int</strong> Optional.  Specify a degree of parallelism
                 directly to the jAgg library.  Default: 1</li>
+                <li><strong>useMsd: boolean</strong> Optional.  Specify whether to use Multiset
+                Discrimination instead of sorting to organize the list for aggregation operations.
+                This has the side effect that items returned may not be in sorted order.  jAgg
+                falls back on sorting if Multiset Discrimination fails.  This defaults to
+                <code>false</code>, don't use Multiset Discrimination (use sorting).</li>
+                <li><strong>rollup: int[]</strong> Optional.  Specifies which properties are to be
+                involved in a rollup calculation, with 0-based integer indexes into the original
+                List of properties (<code>groupBy</code>).  This can be specified in many ways:</li>
+                <ul>
+                    <li>A JEXL array literal: <code>rollup="${[0, 1]}"</code></li>
+                    <li>A bean: <code>rollup="${intArray}"</code></li>
+                    <li>A string (delimited by semicolons): <code>rollup="0;1"</code></li>
+                </ul>
+                <li><strong>rollups: int[][]</strong> Optional.  Specifies which sets of properties
+                are to be involved in multiple rollups, with 0-based integer indexes into the
+                original List of properties (<code>groupBy</code>).  This can be specified in many
+                ways:</li>
+                <ul>
+                    <li>A JEXL 2D array literal: <code>rollups="${[[0, 1], [2]]}"</code></li>
+                    <li>A bean: <code>rollups="${int2dArray}"</code></li>
+                    <li>A string (delimited by semicolons <em>and</em> commas):
+                        <code>rollups="0,1;2"</code></li>
+                </ul>
+                <li><strong>cube: int[]</strong> Optional.  Specifies which properties are to be
+                involved in a data cube calculation, with 0-based integer indexes into the original
+                List of properties (<code>groupBy</code>).  This can be specified in many ways:</li>
+                <ul>
+                    <li>A JEXL array literal: <code>cube="${[0, 1, 2]}"</code></li>
+                    <li>A bean: <code>cube="${intArray}"</code></li>
+                    <li>A string (delimited by semicolons): <code>cube="0;1;2"</code></li>
+                </ul>
+                <li><strong>groupingSets: int[][]</strong> Optional.  Specifies exactly which sets
+                of properties are to be involved in grouping set operations, with 0-based integer
+                indexes into the original List of properties (<code>groupBy</code>).  Specify an
+                empty array to include grand totals.  This can be specified in many ways:</li>
+                <ul>
+                    <li>A JEXL 2D array literal: <code>groupingSets="${[[0, 1], [2], []]}"</code></li>
+                    <li>A bean: <code>groupingSets="${int2dArray}"</code></li>
+                    <li>A string (delimited by semicolons <em>and</em> commas):
+                        <code>groupingSets="0,1;2;"</code></li>
+                </ul>
             </ul>
             <p>The Aggregators specified in the "aggs" attribute may be an <code>Aggregator</code>,
             either built-in to the jAgg library, or custom built by the developer.</p>
@@ -40,10 +81,12 @@
         <section name="Example">
             <p>A <code>List</code> of <code>Employees</code> is available in the beans map.</p>
             <ul>
-                <li>Robert Stack, salary $1000, title "Data Structures Programmer"</li>
+                <li>Robert Stack, salary $1000, title "Data Structures Programmer", isManager true</li>
                 <li>Suzie Queue, salary $900, title "Data Structures Programmer"</li>
-                <li>Elmer Fudd, salary $800, title "Cartoon Character"</li>
-                <li>Bugs Bunny, salary $1500, title "Cartoon Character"</li>
+                <li>Elmer Fudd, salary $800, title "Cartoon Character", catch phrase
+                    "I'm hunting wabbits!  Huh-uh-uh!"</li>
+                <li>Bugs Bunny, salary $1500, title "Cartoon Character", isManager true, catch
+                    phrase "Ah, what's up Doc?"</li>
             </ul>
             <table style="width: 750px;">
                 <tr>
@@ -101,6 +144,426 @@
                     <td style="width: 150px;">$950.00</td>
                 </tr>
             </table>
+        </section>
+        <section name="Rollup Example">
+            <p>This template specifies a rollup operation.  Subtotals are calculated beginning
+            with the rightmost property specified, and ending with the leftmost property specified
+            (grand totals).  Notice how the "isGrouping" method is used to determine whether the
+            property value represents "All Values".  Also, notice that specifying
+            <code>rollup="${[0,1]}"</code> is equivalent to
+            <code>groupingSets="${[[0, 1], [0], []]}"</code>.</p>
+            <table style="width: 600px;">
+                <tr>
+                    <td class="bold" style="width: 300px;">Is A Manager</td>
+                    <td class="bold" style="width: 150px;">Title</td>
+                    <td class="bold" style="width: 150px;">Total Salary</td>
+                </tr>
+                <tr>
+                    <td style="width: 300px;">&lt;jt:agg items="${employees}" aggs="Sum(salary)"
+                        valuesVar="values" groupBy="isManager();title" rollup="${[0,1]}"&gt;
+                        &lt;jt:forEach items="${values}" var="value"
+                        orderBy="getPropertyValue(0);getPropertyValue(1)"&gt;
+                        ${value.isGrouping(0) ? 'All Values' : value.getPropertyValue(0)}</td>
+                    <td style="width: 150px;">${value.isGrouping(1) ? 'All Values' : value.getPropertyValue(1)}</td>
+                    <td style="width: 150px;">${value.getAggregateValue(0])}&lt;/jt:forEach&gt;&lt;/jt:agg&gt;</td>
+                </tr>
+            </table>
+            <p>Gets transformed into...</p>
+            <table style="width: 450px;">
+                <tr>
+                    <td class="bold" style="width: 150px;">Is A Manager</td>
+                    <td class="bold" style="width: 150px;">Title</td>
+                    <td class="bold" style="width: 150px;">Total Salary</td>
+                </tr>
+                <tr>
+                    <td class="center" style="width: 150px;">FALSE</td>
+                    <td style="width: 150px;">Cartoon Character</td>
+                    <td class="right" style="width: 150px;">$800.00</td>
+                </tr>
+                <tr>
+                    <td class="center" style="width: 150px;">FALSE</td>
+                    <td style="width: 150px;">Data Structures Programmer</td>
+                    <td class="right" style="width: 150px;">$900.00</td>
+                </tr>
+                <tr>
+                    <td class="center" style="width: 150px;">FALSE</td>
+                    <td style="width: 150px;">All Values</td>
+                    <td class="right" style="width: 150px;">$1,700.00</td>
+                </tr>
+                <tr>
+                    <td class="center" style="width: 150px;">TRUE</td>
+                    <td style="width: 150px;">Cartoon Character</td>
+                    <td class="right" style="width: 150px;">$1,500.00</td>
+                </tr>
+                <tr>
+                    <td class="center" style="width: 150px;">TRUE</td>
+                    <td style="width: 150px;">Data Structures Programmer</td>
+                    <td class="right" style="width: 150px;">$1,000.00</td>
+                </tr>
+                <tr>
+                    <td class="center" style="width: 150px;">TRUE</td>
+                    <td style="width: 150px;">All Values</td>
+                    <td class="right" style="width: 150px;">$2,500.00</td>
+                </tr>
+                <tr>
+                    <td style="width: 150px;">All Values</td>
+                    <td style="width: 150px;">All Values</td>
+                    <td class="right" style="width: 150px;">$4,200.00</td>
+                </tr>
+            </table>
+        </section>
+        <section name="Rollups Example">
+            <p>This template specifies multiple rollup operations.  Each rollup combination is
+            itself rolled up with the other rollup combinations.  Notice that specifying
+            <code>rollups="${[[1], [2]]}"</code> is equivalent to
+            <code>groupingSets="${[[0], [0, 1], [0, 2], [0, 1, 2]]}"</code>.</p>
+            <table style="width: 600px;">
+                <tr>
+                    <td class="bold" style="width: 150px;">Is A Manager</td>
+                    <td class="bold" style="width: 150px;">Title</td>
+                    <td class="bold" style="width: 150px;">Catch Phrase</td>
+                    <td class="bold" style="width: 150px;">Total Salary</td>
+                </tr>
+                <tr>
+                    <td style="width: 150px;">&lt;jt:agg items="${employees}" aggs="Sum(salary)"
+                        valuesVar="values" groupBy="isManager();title;catchPhrase"
+                        rollups="${[[1], [2]]}"&gt;&lt;jt:forEach items="${values}" var="value"
+                        orderBy="getPropertyValue(0);getPropertyValue(1);getPropertyValue(2)"&gt;
+                        ${value.isGrouping(0) ? 'All Values' : value.getPropertyValue(0)}</td>
+                    <td style="width: 150px;">${value.isGrouping(1) ? 'All Values' : value.getPropertyValue(1)}</td>
+                    <td style="width: 150px;">${value.isGrouping(2) ? 'All Values' : value.getPropertyValue(2)}
+                    </td>
+                    <td style="width: 150px;">${value.getAggregateValue(0)}&lt;/jt:forEach&gt;&lt;/jt:agg&gt;</td>
+                </tr>
+            </table>
+            <p>Gets transformed into...</p>
+            <table style="width: 600px;">
+                <tr>
+                    <td class="bold" style="width: 150px;">Is A Manager</td>
+                    <td class="bold" style="width: 150px;">Title</td>
+                    <td class="bold" style="width: 150px;">Catch Phrase</td>
+                    <td class="bold" style="width: 150px;">Total Salary</td>
+                </tr>
+                <tr>
+                    <td class="center" style="width: 150px;">FALSE</td>
+                    <td style="width: 150px;">Cartoon Character</td>
+                    <td style="width: 150px;">I'm hunting wabbits!  Huh-uh-uh!</td>
+                    <td class="right" style="width: 150px;">$800.00</td>
+                </tr>
+                <tr>
+                    <td class="center" style="width: 150px;">FALSE</td>
+                    <td style="width: 150px;">Cartoon Character</td>
+                    <td style="width: 150px;">All Values</td>
+                    <td class="right" style="width: 150px;">$800.00</td>
+                </tr>
+                <tr>
+                    <td class="center" style="width: 150px;">FALSE</td>
+                    <td style="width: 150px;">Data Structures Programmer</td>
+                    <td style="width: 150px;">&nbsp;</td>
+                    <td class="right" style="width: 150px;">$900.00</td>
+                </tr>
+                <tr>
+                    <td class="center" style="width: 150px;">FALSE</td>
+                    <td style="width: 150px;">Data Structures Programmer</td>
+                    <td style="width: 150px;">All Values</td>
+                    <td class="right" style="width: 150px;">$900.00</td>
+                </tr>
+                <tr>
+                    <td class="center" style="width: 150px;">FALSE</td>
+                    <td style="width: 150px;">All Values</td>
+                    <td style="width: 150px;">I'm hunting wabbits!  Huh-uh-uh!</td>
+                    <td class="right" style="width: 150px;">$800.00</td>
+                </tr>
+                <tr>
+                    <td class="center" style="width: 150px;">FALSE</td>
+                    <td style="width: 150px;">All Values</td>
+                    <td style="width: 150px;">&nbsp;</td>
+                    <td class="right" style="width: 150px;">$900.00</td>
+                </tr>
+                <tr>
+                    <td class="center" style="width: 150px;">FALSE</td>
+                    <td style="width: 150px;">All Values</td>
+                    <td style="width: 150px;">All Values</td>
+                    <td class="right" style="width: 150px;">$1,700.00</td>
+                </tr>
+                <tr>
+                    <td class="center" style="width: 150px;">TRUE</td>
+                    <td style="width: 150px;">Cartoon Character</td>
+                    <td style="width: 150px;">Ah, what's up doc?</td>
+                    <td class="right" style="width: 150px;">$1,500.00</td>
+                </tr>
+                <tr>
+                    <td class="center" style="width: 150px;">TRUE</td>
+                    <td style="width: 150px;">Cartoon Character</td>
+                    <td style="width: 150px;">All Values</td>
+                    <td class="right" style="width: 150px;">$1,500.00</td>
+                </tr>
+                <tr>
+                    <td class="center" style="width: 150px;">TRUE</td>
+                    <td style="width: 150px;">Data Structures Programmer</td>
+                    <td style="width: 150px;">&nbsp;</td>
+                    <td class="right" style="width: 150px;">$1,000.00</td>
+                </tr>
+                <tr>
+                    <td class="center" style="width: 150px;">TRUE</td>
+                    <td style="width: 150px;">Data Structures Programmer</td>
+                    <td style="width: 150px;">All Values</td>
+                    <td class="right" style="width: 150px;">$1,000.00</td>
+                </tr>
+                <tr>
+                    <td class="center" style="width: 150px;">TRUE</td>
+                    <td style="width: 150px;">All Values</td>
+                    <td style="width: 150px;">Ah, what's up doc?</td>
+                    <td class="right" style="width: 150px;">$1,500.00</td>
+                </tr>
+                <tr>
+                    <td class="center" style="width: 150px;">TRUE</td>
+                    <td style="width: 150px;">All Values</td>
+                    <td style="width: 150px;">&nbsp;</td>
+                    <td class="right" style="width: 150px;">$1,000.00</td>
+                </tr>
+                <tr>
+                    <td class="center" style="width: 150px;">TRUE</td>
+                    <td style="width: 150px;">All Values</td>
+                    <td style="width: 150px;">All Values</td>
+                    <td class="right" style="width: 150px;">$2,500.00</td>
+                </tr>
+            </table>
+        </section>
+        <section name="Cube Example">
+            <p>This template specifies a data cube operation.  Each property combination is
+            computed from all properties specified.  Notice that specifying
+            <code>cube="${[0, 1, 2]}"</code> is equivalent to
+            <code>groupingSets="${[[], [0], [1], [2], [0, 1], [0, 2], [1, 2], [0, 1, 2]]}"</code>.</p>
+            <table style="width: 600px;">
+                <tr>
+                    <td class="bold" style="width: 150px;">Is A Manager</td>
+                    <td class="bold" style="width: 150px;">Title</td>
+                    <td class="bold" style="width: 150px;">Catch Phrase</td>
+                    <td class="bold" style="width: 150px;">Total Salary</td>
+                </tr>
+                <tr>
+                    <td style="width: 150px;">&lt;jt:agg items="${employees}" aggs="Sum(salary)"
+                        valuesVar="values" groupBy="isManager();title;catchPhrase"
+                        cube="${[0, 1, 2]}"&gt;&lt;jt:forEach items="${values}" var="value"
+                        orderBy="getPropertyValue(0);getPropertyValue(1);getPropertyValue(2)"&gt;
+                        ${value.isGrouping(0) ? 'All Values' : value.getPropertyValue(0)}</td>
+                    <td style="width: 150px;">${value.isGrouping(1) ? 'All Values' : value.getPropertyValue(1)}</td>
+                    <td style="width: 150px;">${value.isGrouping(2) ? 'All Values' : value.getPropertyValue(2)}
+                    </td>
+                    <td style="width: 150px;">${value.getAggregateValue(0)}&lt;/jt:forEach&gt;&lt;/jt:agg&gt;</td>
+                </tr>
+            </table>
+            <p>Gets transformed into...</p>
+            <table style="width: 600px;">
+                <tr>
+                    <td class="bold" style="width: 150px;">Is A Manager</td>
+                    <td class="bold" style="width: 150px;">Title</td>
+                    <td class="bold" style="width: 150px;">Catch Phrase</td>
+                    <td class="bold" style="width: 150px;">Total Salary</td>
+                </tr>
+                <tr>
+                    <td class="center" style="width: 150px;">FALSE</td>
+                    <td style="width: 150px;">Cartoon Character</td>
+                    <td style="width: 150px;">I'm hunting wabbits!  Huh-uh-uh!</td>
+                    <td class="right" style="width: 150px;">$800.00</td>
+                </tr>
+                <tr>
+                    <td class="center" style="width: 150px;">FALSE</td>
+                    <td style="width: 150px;">Cartoon Character</td>
+                    <td style="width: 150px;">All Values</td>
+                    <td class="right" style="width: 150px;">$800.00</td>
+                </tr>
+                <tr>
+                    <td class="center" style="width: 150px;">FALSE</td>
+                    <td style="width: 150px;">Data Structures Programmer</td>
+                    <td style="width: 150px;">&nbsp;</td>
+                    <td class="right" style="width: 150px;">$900.00</td>
+                </tr>
+                <tr>
+                    <td class="center" style="width: 150px;">FALSE</td>
+                    <td style="width: 150px;">Data Structures Programmer</td>
+                    <td style="width: 150px;">All Values</td>
+                    <td class="right" style="width: 150px;">$900.00</td>
+                </tr>
+                <tr>
+                    <td class="center" style="width: 150px;">FALSE</td>
+                    <td style="width: 150px;">All Values</td>
+                    <td style="width: 150px;">I'm hunting wabbits!  Huh-uh-uh!</td>
+                    <td class="right" style="width: 150px;">$800.00</td>
+                </tr>
+                <tr>
+                    <td class="center" style="width: 150px;">FALSE</td>
+                    <td style="width: 150px;">All Values</td>
+                    <td style="width: 150px;">&nbsp;</td>
+                    <td class="right" style="width: 150px;">$900.00</td>
+                </tr>
+                <tr>
+                    <td class="center" style="width: 150px;">FALSE</td>
+                    <td style="width: 150px;">All Values</td>
+                    <td style="width: 150px;">All Values</td>
+                    <td class="right" style="width: 150px;">$1,700.00</td>
+                </tr>
+                <tr>
+                    <td class="center" style="width: 150px;">TRUE</td>
+                    <td style="width: 150px;">Cartoon Character</td>
+                    <td style="width: 150px;">Ah, what's up doc?</td>
+                    <td class="right" style="width: 150px;">$1,500.00</td>
+                </tr>
+                <tr>
+                    <td class="center" style="width: 150px;">TRUE</td>
+                    <td style="width: 150px;">Cartoon Character</td>
+                    <td style="width: 150px;">All Values</td>
+                    <td class="right" style="width: 150px;">$1,500.00</td>
+                </tr>
+                <tr>
+                    <td class="center" style="width: 150px;">TRUE</td>
+                    <td style="width: 150px;">Data Structures Programmer</td>
+                    <td style="width: 150px;">&nbsp;</td>
+                    <td class="right" style="width: 150px;">$1,000.00</td>
+                </tr>
+                <tr>
+                    <td class="center" style="width: 150px;">TRUE</td>
+                    <td style="width: 150px;">Data Structures Programmer</td>
+                    <td style="width: 150px;">All Values</td>
+                    <td class="right" style="width: 150px;">$1,000.00</td>
+                </tr>
+                <tr>
+                    <td class="center" style="width: 150px;">TRUE</td>
+                    <td style="width: 150px;">All Values</td>
+                    <td style="width: 150px;">Ah, what's up doc?</td>
+                    <td class="right" style="width: 150px;">$1,500.00</td>
+                </tr>
+                <tr>
+                    <td class="center" style="width: 150px;">TRUE</td>
+                    <td style="width: 150px;">All Values</td>
+                    <td style="width: 150px;">&nbsp;</td>
+                    <td class="right" style="width: 150px;">$1,000.00</td>
+                </tr>
+                <tr>
+                    <td class="center" style="width: 150px;">TRUE</td>
+                    <td style="width: 150px;">All Values</td>
+                    <td style="width: 150px;">All Values</td>
+                    <td class="right" style="width: 150px;">$2,500.00</td>
+                </tr>
+                <tr>
+                    <td style="width: 150px;">All Values</td>
+                    <td style="width: 150px;">Cartoon Character</td>
+                    <td style="width: 150px;">Ah, what's up doc?</td>
+                    <td class="right" style="width: 150px;">$1,500.00</td>
+                </tr>
+                <tr>
+                    <td style="width: 150px;">All Values</td>
+                    <td style="width: 150px;">Cartoon Character</td>
+                    <td style="width: 150px;">I'm hunting wabbits!  Huh-uh-uh!</td>
+                    <td class="right" style="width: 150px;">$800.00</td>
+                </tr>
+                <tr>
+                    <td style="width: 150px;">All Values</td>
+                    <td style="width: 150px;">Cartoon Character</td>
+                    <td style="width: 150px;">All Values</td>
+                    <td class="right" style="width: 150px;">$2,300.00</td>
+                </tr>
+                <tr>
+                    <td style="width: 150px;">All Values</td>
+                    <td style="width: 150px;">Data Structures Programmer</td>
+                    <td style="width: 150px;">&nbsp;</td>
+                    <td class="right" style="width: 150px;">$1,900.00</td>
+                </tr>
+                <tr>
+                    <td style="width: 150px;">All Values</td>
+                    <td style="width: 150px;">Data Structures Programmer</td>
+                    <td style="width: 150px;">All Values</td>
+                    <td class="right" style="width: 150px;">$1,900.00</td>
+                </tr>
+                <tr>
+                    <td style="width: 150px;">All Values</td>
+                    <td style="width: 150px;">All Values</td>
+                    <td style="width: 150px;">Ah, what's up doc?</td>
+                    <td class="right" style="width: 150px;">$1,500.00</td>
+                </tr>
+                <tr>
+                    <td style="width: 150px;">All Values</td>
+                    <td style="width: 150px;">All Values</td>
+                    <td style="width: 150px;">I'm hunting wabbits!  Huh-uh-uh!</td>
+                    <td class="right" style="width: 150px;">$800.00</td>
+                </tr>
+                <tr>
+                    <td style="width: 150px;">All Values</td>
+                    <td style="width: 150px;">All Values</td>
+                    <td style="width: 150px;">&nbsp;</td>
+                    <td class="right" style="width: 150px;">$1,900.00</td>
+                </tr>
+                <tr>
+                    <td style="width: 150px;">All Values</td>
+                    <td style="width: 150px;">All Values</td>
+                    <td style="width: 150px;">All Values</td>
+                    <td class="right" style="width: 150px;">$4,200.00</td>
+                </tr>
+            </table>
+        </section>
+        <section name="Grouping Sets Example">
+            <p>This template contains super aggregate operations representing specific grouping
+            sets.  Such grouping sets do not necessarily have anything to do with each other.</p>
+            <table style="width: 600px;">
+                <tr>
+                    <td class="bold" style="width: 150px;">Is A Manager</td>
+                    <td class="bold" style="width: 150px;">Title</td>
+                    <td class="bold" style="width: 150px;">Catch Phrase</td>
+                    <td class="bold" style="width: 150px;">Total Salary</td>
+                </tr>
+                <tr>
+                    <td style="width: 150px;">&lt;jt:agg items="${employees}" aggs="Sum(salary)"
+                        valuesVar="values" groupBy="isManager();title;catchPhrase"
+                        groupingSets="${[[0], [1, 2]]}"&gt;&lt;jt:forEach items="${values}" var="value"&gt;
+                        ${value.isGrouping(0) ? 'All Values' : value.getPropertyValue(0)}</td>
+                    <td style="width: 150px;">${value.isGrouping(1) ? 'All Values' : value.getPropertyValue(1)}</td>
+                    <td style="width: 150px;">${value.isGrouping(2) ? 'All Values' : value.getPropertyValue(2)}
+                    </td>
+                    <td style="width: 150px;">${value.getAggregateValue(0)}&lt;/jt:forEach&gt;&lt;/jt:agg&gt;</td>
+                </tr>
+            </table>
+            <p>Gets transformed into...</p>
+            <table style="width: 600px;">
+                <tr>
+                    <td class="bold" style="width: 150px;">Is A Manager</td>
+                    <td class="bold" style="width: 150px;">Title</td>
+                    <td class="bold" style="width: 150px;">Catch Phrase</td>
+                    <td class="bold" style="width: 150px;">Total Salary</td>
+                </tr>
+                <tr>
+                    <td class="center" style="width: 150px;">FALSE</td>
+                    <td style="width: 150px;">All Values</td>
+                    <td style="width: 150px;">All Values</td>
+                    <td class="right" style="width: 150px;">$1,700.00</td>
+                </tr>
+                <tr>
+                    <td class="center" style="width: 150px;">TRUE</td>
+                    <td style="width: 150px;">All Values</td>
+                    <td style="width: 150px;">All Values</td>
+                    <td class="right" style="width: 150px;">$2,500.00</td>
+                </tr>
+                <tr>
+                    <td style="width: 150px;">All Values</td>
+                    <td style="width: 150px;">Cartoon Character</td>
+                    <td style="width: 150px;">Ah, what's up Doc?</td>
+                    <td class="right" style="width: 150px;">$1,500.00</td>
+                </tr>
+                <tr>
+                    <td style="width: 150px;">All Values</td>
+                    <td style="width: 150px;">Cartoon Character</td>
+                    <td style="width: 150px;">I'm hunting wabbits!  Huh-uh-uh!</td>
+                    <td class="right" style="width: 150px;">$800.00</td>
+                </tr>
+                <tr>
+                    <td style="width: 150px;">All Values</td>
+                    <td style="width: 150px;">Data Structures Programmer</td>
+                    <td style="width: 150px;">&nbsp;</td>
+                    <td class="right" style="width: 150px;">$1,900.00</td>
+                </tr>
+            </table>
+            <p>Notice that the first two data rows represent the grouping set "[0]" and the last
+            three data rows represent the grouping set "[1, 2]".</p>
         </section>
     </body>
 </document>

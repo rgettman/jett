@@ -14,6 +14,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
 import net.sf.jett.exception.TagParseException;
+import net.sf.jett.model.Block;
 import net.sf.jett.transform.BlockTransformer;
 import net.sf.jett.util.AttributeUtil;
 import net.sf.jett.util.SheetUtil;
@@ -23,12 +24,12 @@ import net.sf.jett.util.SheetUtil;
  * <code>List</code> of values already exposed to the context.  This uses
  * <code>jAgg</code> functionality.</p>
  *
- * <br>Attributes:
+ * <br/>Attributes:
  * <ul>
- * <li><em>Inherits all attributes from {@link BaseTag}.</em>
- * <li>items (required): <code>List</code>
- * <li>value (required): <code>String</code>
- * <li>parallel (optional): <code>int</code>
+ * <li><em>Inherits all attributes from {@link BaseTag}.</em></li>
+ * <li>items (required): <code>List</code></li>
+ * <li>value (required): <code>String</code></li>
+ * <li>parallel (optional): <code>int</code></li>
  * </ul>
  *
  * @author Randy Gettman
@@ -71,7 +72,7 @@ public class TotalTag extends BaseTag
     */
    protected List<String> getRequiredAttributes()
    {
-      List<String> reqAttrs = super.getRequiredAttributes();
+      List<String> reqAttrs = new ArrayList<String>(super.getRequiredAttributes());
       reqAttrs.addAll(REQ_ATTRS);
       return reqAttrs;
    }
@@ -82,7 +83,7 @@ public class TotalTag extends BaseTag
     */
    protected List<String> getOptionalAttributes()
    {
-      List<String> optAttrs = super.getOptionalAttributes();
+      List<String> optAttrs = new ArrayList<String>(super.getOptionalAttributes());
       optAttrs.addAll(OPT_ATTRS);
       return optAttrs;
    }

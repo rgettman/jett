@@ -4,7 +4,10 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -311,6 +314,105 @@ public class AggTagTest extends TestCase
       bdNvStdDevW = bdNvStdDevW.add(nvW2.subtract(bdNvAvgW, mc).pow(2, mc), mc);
       double nvStdDvW = Math.sqrt(bdNvStdDevW.doubleValue());
       assertEquals(nvStdDvW, TestUtility.getNumericCellValue(agg, 33, 3), DELTA);
+
+      Sheet msd = workbook.getSheetAt(1);
+      // If msd, "true" occurs first.  If not msd (sorting), "false" occurs first.
+      assertTrue(TestUtility.getBooleanCellValue(msd, 1, 0));
+      assertEquals(2500, TestUtility.getNumericCellValue(msd, 1, 1), DELTA);
+      assertFalse(TestUtility.getBooleanCellValue(msd, 2, 0));
+      assertEquals(1700, TestUtility.getNumericCellValue(msd, 2, 1), DELTA);
+
+      Sheet rollup = workbook.getSheetAt(2);
+      List<String> titles = Arrays.asList("Cartoon Character", "Data Structures Programmer", "All Values",
+         "Cartoon Character", "Data Structures Programmer", "All Values", "All Values");
+      List<Double> salaries = Arrays.asList(800.0, 900.0, 1700.0, 1500.0, 1000.0, 2500.0, 4200.0);
+      for (int i = 0; i < 7; i++)
+      {
+         int r = i + 1;
+         if (i < 3)
+            assertFalse(TestUtility.getBooleanCellValue(rollup, r, 0));
+         else if (i < 6)
+            assertTrue(TestUtility.getBooleanCellValue(rollup, r, 0));
+         else
+            assertEquals("All Values", TestUtility.getStringCellValue(rollup, r, 0));
+         assertEquals(titles.get(i), TestUtility.getStringCellValue(rollup, r, 1));
+         assertEquals(salaries.get(i), TestUtility.getNumericCellValue(rollup, r, 2), DELTA);
+      }
+
+      Sheet rollups = workbook.getSheetAt(3);
+      List<Boolean> rollupsIsManagers = Arrays.asList(false, false, false, false, false, false, false,
+         true, true, true, true, true, true, true);
+      List<String> rollupsTitles = Arrays.asList("Cartoon Character", "Cartoon Character", "Data Structures Programmer",
+         "Data Structures Programmer", "All Values", "All Values", "All Values",
+         "Cartoon Character", "Cartoon Character", "Data Structures Programmer",
+         "Data Structures Programmer", "All Values", "All Values", "All Values");
+      List<String> rollupsCatchPhrases = Arrays.asList("I'm hunting wabbits!  Huh-uh-uh!", "All Values", null,
+         "All Values", "I'm hunting wabbits!  Huh-uh-uh!", null, "All Values",
+         "Ah, what's up Doc?", "All Values", null,
+         "All Values", "Ah, what's up Doc?", null, "All Values");
+      List<Double> rollupsSalaries = Arrays.asList(800.0, 800.0, 900.0, 900.0, 800.0, 900.0, 1700.0,
+         1500.0, 1500.0, 1000.0, 1000.0, 1500.0, 1000.0, 2500.0);
+      for (int i = 0; i < 14; i++)
+      {
+         int r = i + 1;
+         assertEquals(rollupsIsManagers.get(i), TestUtility.getBooleanCellValue(rollups, r, 0));
+         assertEquals(rollupsTitles.get(i), TestUtility.getStringCellValue(rollups, r, 1));
+         String rollupsCatchPhrase = rollupsCatchPhrases.get(i);
+         if (rollupsCatchPhrase == null)
+            assertTrue(TestUtility.isCellBlank(rollups, r, 2));
+         else
+            assertEquals(rollupsCatchPhrase, TestUtility.getStringCellValue(rollups, r, 2));
+         assertEquals(rollupsSalaries.get(i), TestUtility.getNumericCellValue(rollups, r, 3), DELTA);
+      }
+
+      Sheet cube = workbook.getSheetAt(4);
+      List<String> cubeTitles = new ArrayList<String>(rollupsTitles);
+      cubeTitles.addAll(Arrays.asList("Cartoon Character", "Cartoon Character", "Cartoon Character",
+         "Data Structures Programmer", "Data Structures Programmer", "All Values", "All Values", "All Values", "All Values"));
+      List<String> cubeCatchPhrases = new ArrayList<String>(rollupsCatchPhrases);
+      cubeCatchPhrases.addAll(Arrays.asList("Ah, what's up Doc?", "I'm hunting wabbits!  Huh-uh-uh!", "All Values",
+         null, "All Values", "Ah, what's up Doc?", "I'm hunting wabbits!  Huh-uh-uh!", null, "All Values"));
+      List<Double> cubeSalaries = new ArrayList<Double>(rollupsSalaries);
+      cubeSalaries.addAll(Arrays.asList(1500.0, 800.0, 2300.0, 1900.0, 1900.0, 1500.0, 800.0, 1900.0, 4200.0));
+      for (int i = 0; i < 23; i++)
+      {
+         int r = i + 1;
+         if (i < rollupsIsManagers.size())
+            assertEquals(rollupsIsManagers.get(i), TestUtility.getBooleanCellValue(cube, r, 0));
+         else
+            assertEquals("All Values", TestUtility.getStringCellValue(cube, r, 0));
+         assertEquals(cubeTitles.get(i), TestUtility.getStringCellValue(cube, r, 1));
+         String cubeCatchPhrase = cubeCatchPhrases.get(i);
+         if (cubeCatchPhrase == null)
+            assertTrue(TestUtility.isCellBlank(cube, r, 2));
+         else
+            assertEquals(cubeCatchPhrase, TestUtility.getStringCellValue(cube, r, 2));
+         assertEquals(cubeSalaries.get(i), TestUtility.getNumericCellValue(cube, r, 3), DELTA);
+      }
+
+      Sheet groupingSets = workbook.getSheetAt(5);
+      List<Boolean> groupingSetIsManagers = Arrays.asList(false, true);
+      List<String> groupingSetTitles = Arrays.asList("All Values", "All Values",
+         "Cartoon Character", "Cartoon Character", "Data Structures Programmer");
+      List<String> groupingSetCatchPhrases = Arrays.asList("All Values", "All Values", "Ah, what's up Doc?",
+         "I'm hunting wabbits!  Huh-uh-uh!", null);
+      List<Double> groupingSetSalaries = Arrays.asList(1700.0, 2500.0, 1500.0, 800.0, 1900.0);
+      for (int i = 0; i < 5; i++)
+      {
+         int r = i + 1;
+         if (i < groupingSetIsManagers.size())
+            assertEquals(groupingSetIsManagers.get(i), TestUtility.getBooleanCellValue(groupingSets, r, 0));
+         else
+            assertEquals("All Values", TestUtility.getStringCellValue(groupingSets, r, 0));
+         assertEquals(groupingSetTitles.get(i), TestUtility.getStringCellValue(groupingSets, r, 1));
+         String catchPhrase = groupingSetCatchPhrases.get(i);
+         if (catchPhrase == null)
+            assertTrue(TestUtility.isCellBlank(groupingSets, r, 2));
+         else
+            assertEquals(catchPhrase, TestUtility.getStringCellValue(groupingSets, r, 2));
+         assertEquals(groupingSetSalaries.get(i), TestUtility.getNumericCellValue(groupingSets, r, 3), DELTA);
+      }
+
    }
 
    /**
@@ -329,6 +431,8 @@ public class AggTagTest extends TestCase
     */
    protected Map<String, Object> getBeansMap()
    {
-      return TestUtility.getStateData();
+      Map<String, Object> beans = TestUtility.getStateData();
+      beans.putAll(TestUtility.getEmployeeData());
+      return beans;
    }
 }

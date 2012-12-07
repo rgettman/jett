@@ -123,6 +123,70 @@ public class SpanTagTest extends TestCase
       assertEquals("After6", TestUtility.getStringCellValue(horiz, 6, 30));
 
       assertEquals(7, horiz.getNumMergedRegions());
+
+      Sheet vertAdjust = workbook.getSheetAt(2);
+      assertEquals("Case vert cell adjust=1", TestUtility.getStringCellValue(vertAdjust, 0, 0));
+      assertTrue(TestUtility.isMergedRegionPresent(vertAdjust, new CellRangeAddress(0, 1, 0, 0)));
+      assertEquals("Case vert row adjust=1", TestUtility.getStringCellValue(vertAdjust, 0, 1));
+      assertTrue(TestUtility.isMergedRegionPresent(vertAdjust, new CellRangeAddress(0, 1, 1, 6)));
+      assertEquals("Case vert col adjust=1", TestUtility.getStringCellValue(vertAdjust, 2, 0));
+      assertTrue(TestUtility.isMergedRegionPresent(vertAdjust, new CellRangeAddress(2, 8, 0, 0)));
+      assertEquals("Case vert block adjust=1", TestUtility.getStringCellValue(vertAdjust, 2, 1));
+      assertTrue(TestUtility.isMergedRegionPresent(vertAdjust, new CellRangeAddress(2, 8, 1, 6)));
+      assertEquals("After1", TestUtility.getStringCellValue(vertAdjust, 9, 0));
+      assertEquals("After2", TestUtility.getStringCellValue(vertAdjust, 9, 6));
+
+      assertEquals("Case vert cell adjust=0", TestUtility.getStringCellValue(vertAdjust, 10, 0));
+      assertFalse(TestUtility.isMergedRegionPresent(vertAdjust, new CellRangeAddress(10, 10, 0, 0)));
+      assertEquals("Case vert row adjust=0", TestUtility.getStringCellValue(vertAdjust, 10, 1));
+      assertTrue(TestUtility.isMergedRegionPresent(vertAdjust, new CellRangeAddress(10, 10, 1, 6)));
+      assertEquals("Case vert col adjust=0", TestUtility.getStringCellValue(vertAdjust, 11, 0));
+      assertTrue(TestUtility.isMergedRegionPresent(vertAdjust, new CellRangeAddress(11, 16, 0, 0)));
+      assertEquals("Case vert block adjust=0", TestUtility.getStringCellValue(vertAdjust, 11, 1));
+      assertTrue(TestUtility.isMergedRegionPresent(vertAdjust, new CellRangeAddress(11, 16, 1, 6)));
+      assertEquals("After3", TestUtility.getStringCellValue(vertAdjust, 17, 0));
+      assertEquals("After4", TestUtility.getStringCellValue(vertAdjust, 17, 6));
+
+      assertEquals("Case vert col adjust=-1", TestUtility.getStringCellValue(vertAdjust, 18, 0));
+      assertTrue(TestUtility.isMergedRegionPresent(vertAdjust, new CellRangeAddress(18, 22, 0, 0)));
+      assertEquals("Case vert block adjust=-1", TestUtility.getStringCellValue(vertAdjust, 18, 1));
+      assertTrue(TestUtility.isMergedRegionPresent(vertAdjust, new CellRangeAddress(18, 22, 1, 6)));
+      assertEquals("After5", TestUtility.getStringCellValue(vertAdjust, 23, 0));
+      assertEquals("After6", TestUtility.getStringCellValue(vertAdjust, 23, 6));
+
+      assertEquals(9, vertAdjust.getNumMergedRegions());
+
+      Sheet horizAdjust = workbook.getSheetAt(3);
+      assertEquals("Case horiz cell adjust=1", TestUtility.getStringCellValue(horizAdjust, 0, 0));
+      assertTrue(TestUtility.isMergedRegionPresent(horizAdjust, new CellRangeAddress(0, 0, 0, 1)));
+      assertEquals("Case horiz row adjust=1", TestUtility.getStringCellValue(horizAdjust, 0, 2));
+      assertTrue(TestUtility.isMergedRegionPresent(horizAdjust, new CellRangeAddress(0, 0, 2, 8)));
+      assertEquals("Case horiz col adjust=1", TestUtility.getStringCellValue(horizAdjust, 1, 0));
+      assertTrue(TestUtility.isMergedRegionPresent(horizAdjust, new CellRangeAddress(1, 6, 0, 1)));
+      assertEquals("Case horiz block adjust=1", TestUtility.getStringCellValue(horizAdjust, 1, 2));
+      assertTrue(TestUtility.isMergedRegionPresent(horizAdjust, new CellRangeAddress(1, 6, 2, 8)));
+      assertEquals("After1", TestUtility.getStringCellValue(horizAdjust, 0, 9));
+      assertEquals("After2", TestUtility.getStringCellValue(horizAdjust, 6, 9));
+
+      assertEquals("Case horiz cell adjust=0", TestUtility.getStringCellValue(horizAdjust, 0, 10));
+      assertFalse(TestUtility.isMergedRegionPresent(horizAdjust, new CellRangeAddress(0, 0, 10, 10)));
+      assertEquals("Case horiz row adjust=0", TestUtility.getStringCellValue(horizAdjust, 0, 11));
+      assertTrue(TestUtility.isMergedRegionPresent(horizAdjust, new CellRangeAddress(0, 0, 11, 16)));
+      assertEquals("Case horiz col adjust=0", TestUtility.getStringCellValue(horizAdjust, 1, 10));
+      assertTrue(TestUtility.isMergedRegionPresent(horizAdjust, new CellRangeAddress(1, 6, 10, 10)));
+      assertEquals("Case horiz block adjust=0", TestUtility.getStringCellValue(horizAdjust, 1, 11));
+      assertTrue(TestUtility.isMergedRegionPresent(horizAdjust, new CellRangeAddress(1, 6, 11, 16)));
+      assertEquals("After3", TestUtility.getStringCellValue(horizAdjust, 0, 17));
+      assertEquals("After4", TestUtility.getStringCellValue(horizAdjust, 6, 17));
+
+      assertEquals("Case horiz row adjust=-1", TestUtility.getStringCellValue(horizAdjust, 0, 18));
+      assertTrue(TestUtility.isMergedRegionPresent(horizAdjust, new CellRangeAddress(0, 0, 18, 22)));
+      assertEquals("Case horiz block adjust=-1", TestUtility.getStringCellValue(horizAdjust, 1, 18));
+      assertTrue(TestUtility.isMergedRegionPresent(horizAdjust, new CellRangeAddress(1, 6, 18, 22)));
+      assertEquals("After5", TestUtility.getStringCellValue(horizAdjust, 0, 23));
+      assertEquals("After6", TestUtility.getStringCellValue(horizAdjust, 6, 23));
+
+      assertEquals(9, horizAdjust.getNumMergedRegions());
    }
 
    /**
@@ -142,9 +206,14 @@ public class SpanTagTest extends TestCase
    protected Map<String, Object> getBeansMap()
    {
       Map<String, Object> beans = new HashMap<String, Object>();
+      // Used in "factor".
       beans.put("expand", 3);
       beans.put("nothing", 1);
       beans.put("remove", 0);
+      // Used in "adjust".
+      beans.put("shrink", -1);
+      beans.put("same", 0);
+      beans.put("grow", 1);
       return beans;
    }
 }
