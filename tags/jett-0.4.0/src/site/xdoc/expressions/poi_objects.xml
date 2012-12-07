@@ -1,0 +1,32 @@
+<document>
+    <properties>
+        <author email="rgettman@users.sourceforge.net">Randy Gettman</author>
+        <title>POI Objects Exposed</title>
+    </properties>
+    <body>
+        <section name="POI Objects Exposed">
+            <p>During transformation, several POI objects are exposed in the beans map.</p>
+            <ul>
+                <li><code>cell</code> - The current POI Cell object is exposed in the beans map.
+                    This exposes cell properties such as row and column indexes, e.g.
+                    <code>This is cell ${jett:cellRef(cell.rowIndex, cell.columnIndex)} => "This is cell B2"</code>.</li>
+                <li><code>sheet</code> - The current POI Sheet object is exposed in the beans map
+                    as the bean name "sheet".  This allows for Expressions that set "off
+                    sheet" properties such as the Header, Footer, and PrintSetup.</li>
+                <li><code>workbook</code> - The entire POI Workbook object is exposed in the beans
+                    map as the bean name "workbook".</li>
+            </ul>
+            <p>Because some of these examples call methods with a return type of "void",
+            the Expressions themselves that do so evaluate to <code>null</code> and the cells that
+            contain them will be blanked out.  Note: JEXL Expressions allow String literals to be
+            enclosed in single quotes.</p>
+        </section>
+        <img src="../images/template_poi_objects1.gif" alt="POI Objects Template 1"/>
+        <p>After transformation, the above group of cells looks like this.</p>
+        <img src="../images/result_poi_objects1_top.gif" alt="Top of POI Objects Result 1"/>
+        <p>&nbsp;</p>
+        <img src="../images/result_poi_objects1_bottom.gif" alt="Bottom of POI Objects Result 1"/>
+        <p>The Header and Footer objects are populated, and they are seen when switching to Excel's
+        "Page Layout" View.</p>
+    </body>
+</document>

@@ -1,0 +1,181 @@
+package net.sf.jett.tag;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.RichTextString;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+
+import net.sf.jett.exception.TagParseException;
+import net.sf.jett.expression.Expression;
+import net.sf.jett.model.Block;
+import net.sf.jett.util.AttributeUtil;
+
+/**
+ * <p>A <code>FormulaTag</code> represents a dynamically generated Excel
+ * Formula.  The <code>text</code> attribute contains formula text that may
+ * contain Expressions that are dynamically evaluated.  JETT does not verify
+ * that the dynamically generated expression is a valid Excel Formula.  A
+ * <code>FormulaTag</code> must be bodiless.</p>
+ *
+ * <br/>Attributes:
+ * <ul>
+ * <li><em>Inherits all attributes from {@link BaseTag}.</em></li>
+ * <li>text or bean (required): <code>String</code></li>
+ * <li>ifError (optional): <code>String</code></li>
+ * </ul>
+ *
+ * <p>Either "text" or "bean" must be specified, but not both.</p>
+ *
+ * @author Randy Gettman
+ * @since 0.4.0
+ */
+public class FormulaTag extends BaseTag
+{
+   private static final boolean DEBUG = false;
+
+   /**
+    * Attribute that specifies the bean name that contains the Expression
+    * string to be evaluated by JETT that results in formula creation in the
+    * cell.  I.e. <code>bean="beanName" => "${beanName}" => "formula"</code>.
+    * Then the value is used as the formula expression, i.e. <code>formula =>
+    * "${wins} + ${losses}" => "A2 + B2"</code>, which is used as the formula
+    * text.  Either "bean" or "text" must be specified, but not both.
+    */
+   public static final String ATTR_BEAN = "bean";
+   /**
+    * Attribute that specifies the Expression string to be evaluated by JETT
+    * that results in formula creation in the cell.  I.e.
+    * <code>text="${wins} + ${losses}" => "A2 + B2"</code>, which is used as
+    * the formula text.  Either "bean" or "text" must be specified, but not
+    * both.
+    */
+   public static final String ATTR_TEXT = "text";
+   /**
+    * Attribute that specifies the Expression string to be evaluated by JETT
+    * to be used as alternative text in case an Excel error results.
+    */
+   public static final String ATTR_IF_ERROR = "ifError";
+
+   private static final List<String> OPT_ATTRS =
+      new ArrayList<String>(Arrays.asList(ATTR_IF_ERROR, ATTR_TEXT, ATTR_BEAN));
+
+   private String myFormulaExpression;
+   private String myIfErrorExpression;
+
+   /**
+    * Returns this <code>Tag's</code> name.
+    * @return This <code>Tag's</code> name.
+    */
+   public String getName()
+   {
+      return "formula";
+   }
+
+   /**
+    * Returns a <code>List</code> of required attribute names.
+    * @return A <code>List</code> of required attribute names.
+    */
+   protected List<String> getRequiredAttributes()
+   {
+      return super.getRequiredAttributes();
+   }
+
+   /**
+    * Returns a <code>List</code> of optional attribute names.
+    * @return A <code>List</code> of optional attribute names.
+    */
+   protected List<String> getOptionalAttributes()
+   {
+      List<String> optAttrs = new ArrayList<String>(super.getOptionalAttributes());
+      optAttrs.addAll(OPT_ATTRS);
+      return optAttrs;
+   }
+
+   /**
+    * Validates the attributes for this <code>Tag</code>.  This tag must be
+    * bodiless.
+    */
+   @SuppressWarnings("unchecked")
+   public void validateAttributes() throws TagParseException
+   {
+      super.validateAttributes();
+      if (!isBodiless())
+         throw new TagParseException("Formula tags must not have a body.");
+
+      TagContext context = getContext();
+      Map<String, Object> beans = context.getBeans();
+
+      Map<String, RichTextString> attributes = getAttributes();
+
+      RichTextString formulaBean = attributes.get(ATTR_BEAN);
+      RichTextString formulaText = attributes.get(ATTR_TEXT);
+
+      AttributeUtil.ensureExactlyOneExists(Arrays.asList(formulaBean, formulaText), Arrays.asList(ATTR_BEAN, ATTR_TEXT));
+      if (formulaBean != null)
+      {
+         myFormulaExpression = Expression.evaluateString("${" + formulaBean.toString() + "}", beans).toString();
+      }
+      else if (formulaText != null)
+      {
+         myFormulaExpression = attributes.get(ATTR_TEXT).getString();
+      }
+
+      if (DEBUG)
+         System.err.println("myFormulaExpression = " + myFormulaExpression);
+
+      RichTextString rtsIfError = attributes.get(ATTR_IF_ERROR);
+      myIfErrorExpression = (rtsIfError != null) ? rtsIfError.getString() : null;
+   }
+
+   /**
+    * <p>Evaluate the "text" attribute, and place the resultant text in an
+    * Excel Formula.  If the "ifError" attribute is supplied, then wrap the
+    * formula in an "IF(ISERROR(formula), ifError, formula)" formula.</p>
+    * @return Whether the first <code>Cell</code> in the <code>Block</code>
+    *    associated with this <code>Tag</code> was processed.
+    */
+   public boolean process()
+   {
+      TagContext context = getContext();
+      Sheet sheet = context.getSheet();
+      Block block = context.getBlock();
+      Map<String, Object> beans = context.getBeans();
+      int left = block.getLeftColNum();
+      int top = block.getTopRowNum();
+      // It should exist in this Cell; this Tag was found in it.
+      Row row = sheet.getRow(top);
+      Cell cell = row.getCell(left);
+
+      String formulaText = Expression.evaluateString(myFormulaExpression, beans).toString();
+      if (DEBUG)
+         System.err.println("formulaText: " + formulaText);
+      if (myIfErrorExpression != null)
+      {
+         Object errorResult = Expression.evaluateString(myIfErrorExpression, beans);
+         if (DEBUG)
+            System.err.println("errorResult: " + errorResult);
+         String newFormulaText = "IF(ISERROR(" + formulaText + "), ";
+         // Don't quote numbers!
+         if (!(errorResult instanceof Number))
+            newFormulaText += "\"";
+         newFormulaText += errorResult.toString();
+         if (!(errorResult instanceof Number))
+            newFormulaText += "\"";
+
+         newFormulaText += ", " + formulaText + ")";
+         
+         formulaText = newFormulaText;
+      }
+
+      if (DEBUG)
+         System.err.println("  Formula for row " + top + ", cell " + left + " is " + formulaText);
+      cell.setCellFormula(formulaText);
+
+      return true;
+   }
+}
