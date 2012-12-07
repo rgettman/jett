@@ -4,7 +4,7 @@ import java.util.Map;
 
 import org.apache.poi.ss.usermodel.Sheet;
 
-import net.sf.jett.tag.Block;
+import net.sf.jett.model.Block;
 
 /**
  * A <code>TagEvent</code> represents data associated with a "tag processed"

@@ -109,7 +109,7 @@ public class ExpressionsTest extends TestCase
       assertEquals(106, rts.length());
 
       int formattingRunIndices[] = new int[]
-       // Bold  , Italic, Underline, Strikeout, Fonts , Superscript, Subscript, One
+       // Bold  , Italic, FontUnderline, Strikeout, Fonts , Superscript, Subscript, One
          {10, 14, 16, 22, 24, 33   , 35, 44   , 56, 61, 63, 74     , 80, 89   , 97, 100};
       
       // HSSF (.xls) does not count the initial run as a different formatting
@@ -130,6 +130,10 @@ public class ExpressionsTest extends TestCase
       {
          assertEquals(formattingRunIndices[i], rts.getIndexOfFormattingRun(i + adjust));
       }
+
+      assertEquals("B17", TestUtility.getStringCellValue(sheet, 16, 1));
+      assertEquals("B17:D18", TestUtility.getStringCellValue(sheet, 16, 3));
+      assertEquals("JETT supports static method calling!", TestUtility.getStringCellValue(sheet, 17, 1));
    }
 
    /**

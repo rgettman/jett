@@ -119,6 +119,16 @@ public class Team
    }
 
    /**
+    * Returns the number of games above even (0.500).
+    * @return The number of games above even (0.500).
+    * @since 0.4.0
+    */
+   public int getNumGamesAboveEven()
+   {
+      return myWins - myLosses;
+   }
+
+   /**
     * Returns the winning percentage.
     * @return The winning percentage, or 0 if wins + losses &lt;= 0.
     */

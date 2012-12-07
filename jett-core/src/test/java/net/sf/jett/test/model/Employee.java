@@ -15,9 +15,10 @@ public class Employee
    private String myTitle;
    private Employee myManager;
    private String myCatchPhrase;
+   private boolean amIManager;
 
    /**
-    * Constructs an <code>Employee</code> with null/0 attributes.
+    * Constructs an <code>Employee</code> with null/0/false attributes.
     */
    public Employee()
    {
@@ -27,6 +28,7 @@ public class Employee
       myTitle = null;
       myManager = null;
       myCatchPhrase = null;
+      amIManager = false;
    }
 
    /**
@@ -145,5 +147,25 @@ public class Employee
    public void setCatchPhrase(String catchPhrase)
    {
       myCatchPhrase = catchPhrase;
+   }
+
+   /**
+    * Returns whether this <code>Employee</code> is a manager.
+    * @return Whether this <code>Employee</code> is a manager.
+    * @since 0.4.0
+    */
+   public boolean isManager()
+   {
+      return amIManager;
+   }
+
+   /**
+    * Sets whether this <code>Employee</code> is a manager.
+    * @param isManager Whether this <code>Employee</code> is a manager.
+    * @since 0.4.0
+    */
+   public void setManager(boolean isManager)
+   {
+      amIManager = isManager;
    }
 }

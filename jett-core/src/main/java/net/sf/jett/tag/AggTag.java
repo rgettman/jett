@@ -8,7 +8,7 @@ import java.util.Map;
 import org.apache.poi.ss.usermodel.RichTextString;
 
 import net.sf.jagg.AggregateValue;
-import net.sf.jagg.Aggregations;
+import net.sf.jagg.Aggregation;
 import net.sf.jagg.Aggregator;
 
 import net.sf.jett.exception.TagParseException;
@@ -21,15 +21,20 @@ import net.sf.jett.util.AttributeUtil;
  * context.  It uses <code>jAgg</code> functionality and exposes the results
  * and <code>Aggregators</code> used for display later.</p>
  *
- * <br>Attributes:
+ * <br/>Attributes:
  * <ul>
- * <li><em>Inherits all attributes from {@link BaseTag}.</em>
- * <li>items (required): <code>List</code>
- * <li>aggs (required): <code>String</code>
- * <li>aggsVar (optional): <code>String</code>
- * <li>valuesVar (required): <code>String</code>
- * <li>groupBy (optional): <code>String</code>
- * <li>parallel (optional): <code>int</code>
+ * <li><em>Inherits all attributes from {@link BaseTag}.</em></li>
+ * <li>items (required): <code>List</code></li>
+ * <li>aggs (required): <code>String</code></li>
+ * <li>aggsVar (optional): <code>String</code></li>
+ * <li>valuesVar (required): <code>String</code></li>
+ * <li>groupBy (optional): <code>String</code></li>
+ * <li>parallel (optional): <code>int</code></li>
+ * <li>useMsd (optional): <code>boolean</code></li>
+ * <li>rollup (optional): <code>int[]</code></li>
+ * <li>rollups (optional): <code>int[][]</code></li>
+ * <li>cube (optional): <code>int[]</code></li>
+ * <li>groupingSets (optional): <code>int[][]</code></li>
  * </ul>
  *
  * @author Randy Gettman
@@ -62,17 +67,73 @@ public class AggTag extends BaseTag
     * Attribute that specifies the degree of parallelism to use.
     */
    public static final String ATTR_PARALLEL = "parallel";
+   /**
+    * Attribute that specifies whether to use Multiset Discrimination instead
+    * of sorting during aggregation processing.  This means that the results
+    * will not be sorted by the "group by" properties.  It defaults to
+    * <code>false</code> -- don't use Multiset Discrimination, use sorting.
+    * @since 0.4.0
+    */
+   public static final String ATTR_USE_MSD = "useMsd";
+   /**
+    * Attribute that specifies a rollup that should occur on the results.
+    * Specify a <code>List</code> of 0-based integer indexes that reference the
+    * original list of properties.  E.g. when grouping by two properties,
+    * <code>prop1</code> and <code>prop2</code>, specifying a <code>List</code>
+    * of <code>{0}</code> specifies a rollup on <code>prop1</code>.
+    * @since 0.4.0
+    * @see #ATTR_GROUP_BY
+    */
+   public static final String ATTR_ROLLUP = "rollup";
+   /**
+    * Attribute that specifies multiple rollups that should occur on the
+    * results.  Specify a <code>List</code> of <code>Lists</code> of 0-based
+    * integer indexes that reference the original list of properties.  E.g.
+    * when grouping by three properties,
+    * <code>prop1</code>, <code>prop2</code>, and <code>prop3</code>,
+    * specifying a <code>List</code> of <code>{{0}, {1, 2}}</code> specifies a
+    * rollup on <code>prop1</code>, and a separate rollup on <code>prop2</code>
+    * and <code>prop3</code>.
+    * @since 0.4.0
+    * @see #ATTR_GROUP_BY
+    */
+   public static final String ATTR_ROLLUPS = "rollups";
+   /**
+    * Attribute that specifies a data cube that should occur on the results.
+    * Specify a <code>List</code> of 0-based integer indexes that reference the
+    * original list of properties.  E.g. when grouping by three properties,
+    * <code>prop1</code>, <code>prop2</code>, and <code>prop3</code>,
+    * specifying a <code>List</code> of <code>{0, 1}</code> specifies a cube on
+    * <code>prop1</code> and <code>prop2</code>.
+    * @since 0.4.0
+    * @see #ATTR_GROUP_BY
+    */
+   public static final String ATTR_CUBE = "cube";
+   /**
+    * Attribute that specifies the exact grouping sets that should occur on the
+    * results.  Specify a <code>List</code> of <code>Lists</code> of 0-based
+    * integer indexes that reference the original list of properties.  E.g.
+    * when grouping by three properties, <code>prop1</code>,
+    * <code>prop2</code>, and <code>prop3</code>, specifying a
+    * <code>List</code> of <code>{{0}, {1, 2}, {}}</code> specifies a
+    * grouping set on <code>prop1</code>, a separate grouping set on
+    * <code>prop2</code> and <code>prop3</code>, and a third grouping set on no
+    * properties (a grand total).
+    * @since 0.4.0
+    * @see #ATTR_GROUP_BY
+    */
+   public static final String ATTR_GROUPING_SETS = "groupingSets";
    private static final List<String> REQ_ATTRS =
       new ArrayList<String>(Arrays.asList(ATTR_ITEMS, ATTR_AGGS, ATTR_VALUES_VAR));
    private static final List<String> OPT_ATTRS =
-      new ArrayList<String>(Arrays.asList(ATTR_AGGS_VAR, ATTR_GROUP_BY, ATTR_PARALLEL));
+      new ArrayList<String>(Arrays.asList(ATTR_AGGS_VAR, ATTR_GROUP_BY, ATTR_PARALLEL, ATTR_USE_MSD, ATTR_ROLLUP,
+         ATTR_ROLLUPS, ATTR_CUBE, ATTR_GROUPING_SETS));
 
    private List<Object> myList = null;
    private List<Aggregator> myAggs = null;
    private String myAggsVar = null;
    private String myValuesVar = null;
-   private List<String> myGroupByProps = null;
-   private int myParallelism = 1;
+   private Aggregation myAggregation;
 
    /**
     * Returns this <code>Tag's</code> name.
@@ -90,7 +151,7 @@ public class AggTag extends BaseTag
    @Override
    protected List<String> getRequiredAttributes()
    {
-      List<String> reqAttrs = super.getRequiredAttributes();
+      List<String> reqAttrs = new ArrayList<String>(super.getRequiredAttributes());
       reqAttrs.addAll(REQ_ATTRS);
       return reqAttrs;
    }
@@ -102,7 +163,7 @@ public class AggTag extends BaseTag
    @Override
    protected List<String> getOptionalAttributes()
    {
-      List<String> optAttrs = super.getOptionalAttributes();
+      List<String> optAttrs = new ArrayList<String>(super.getOptionalAttributes());
       optAttrs.addAll(OPT_ATTRS);
       return optAttrs;
    }
@@ -144,9 +205,47 @@ public class AggTag extends BaseTag
 
       myValuesVar = AttributeUtil.evaluateString(attributes.get(ATTR_VALUES_VAR), beans, null);
 
-      myGroupByProps = AttributeUtil.evaluateList(attributes.get(ATTR_GROUP_BY), beans, new ArrayList<String>());
+      List<String> groupByProps = AttributeUtil.evaluateList(attributes.get(ATTR_GROUP_BY), beans, new ArrayList<String>());
 
-      myParallelism = AttributeUtil.evaluatePositiveInt(attributes.get(ATTR_PARALLEL), beans, ATTR_PARALLEL, 1);
+      int parallelism = AttributeUtil.evaluatePositiveInt(attributes.get(ATTR_PARALLEL), beans, ATTR_PARALLEL, 1);
+
+      boolean useMsd = AttributeUtil.evaluateBoolean(attributes.get(ATTR_USE_MSD), beans, false);
+
+      RichTextString rtsRollup = attributes.get(ATTR_ROLLUP);
+      RichTextString rtsRollups = attributes.get(ATTR_ROLLUPS);
+      RichTextString rtsCube = attributes.get(ATTR_CUBE);
+      RichTextString rtsGroupingSets = attributes.get(ATTR_GROUPING_SETS);
+      AttributeUtil.ensureAtMostOneExists(Arrays.asList(rtsRollup, rtsRollups, rtsCube, rtsGroupingSets),
+         Arrays.asList(ATTR_ROLLUP, ATTR_ROLLUPS, ATTR_CUBE, ATTR_GROUPING_SETS));
+      List<Integer> rollup = AttributeUtil.evaluateIntegerArray(rtsRollup, beans, null);
+      List<Integer> cube = AttributeUtil.evaluateIntegerArray(attributes.get(ATTR_CUBE), beans, null);
+      List<List<Integer>> rollups = AttributeUtil.evaluateIntegerArrayArray(rtsRollups, beans, null);
+      List<List<Integer>> groupingSets = AttributeUtil.evaluateIntegerArrayArray(rtsGroupingSets, beans, null);
+
+      Aggregation.Builder builder = new Aggregation.Builder()
+         .setAggregators(myAggs)
+         .setParallelism(parallelism)
+         .setUseMsd(useMsd);
+      if (groupByProps != null)
+         builder.setProperties(groupByProps);
+
+      if (rollup != null)
+         builder.setRollup(rollup);
+      else if (cube != null)
+         builder.setCube(cube);
+      else if (rollups != null)
+         builder.setRollups(rollups);
+      else if (groupingSets != null)
+         builder.setGroupingSets(groupingSets);
+
+      try
+      {
+         myAggregation = builder.build();
+      }
+      catch (RuntimeException e)
+      {
+         throw new TagParseException("AggTag: RuntimeException caught during jAgg execution: " + e.getMessage(), e);
+      }
    }
 
    /**
@@ -161,9 +260,7 @@ public class AggTag extends BaseTag
       TagContext context = getContext();
       Map<String, Object> beans = context.getBeans();
 
-      List<AggregateValue<Object>> aggValues =
-         Aggregations.groupBy(myList, myGroupByProps, myAggs, myParallelism);
-
+      List<AggregateValue<Object>> aggValues = myAggregation.groupBy(myList);
       beans.put(myValuesVar, aggValues);
       if (myAggsVar != null)
          beans.put(myAggsVar, myAggs);

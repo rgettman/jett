@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Collection;
 
 import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.RichTextString;
@@ -28,7 +29,13 @@ public class AttributeUtil
     * @since 0.3.0
     */
    public static final String SPEC_SEP = ";";
-
+   /**
+    * Separates expressions in attributes that take multiple values at a second
+    * level.  I.e. this is possible: "0,1;2,3" which would be interpreted as a
+    * 2D array: <code>[[0, 1], [2, 3]]</code>.
+    * @since 0.4.0
+    */
+   public static final String SPEC_SEP_2 = ",";
 
    /**
     * Evaluates the given text, which may have embedded
@@ -350,28 +357,28 @@ public class AttributeUtil
          catch (ClassNotFoundException e)
          {
             throw new TagParseException("Expected a \"" + expectedClass.getName() + "\" for \"" +
-               attrName + "\", could not find class \"" + className + ": " + text, e);
+               attrName + "\", could not find class \"" + className + "\": " + text, e);
          }
          catch (InstantiationException e)
          {
             throw new TagParseException("Expected a \"" + expectedClass.getName() + "\" for \"" +
-               attrName + "\", could not instantiate class \"" + className + ": " + text, e);
+               attrName + "\", could not instantiate class \"" + className + "\": " + text, e);
          }
          catch (IllegalAccessException e)
          {
             throw new TagParseException("Expected a \"" + expectedClass.getName() + "\" for \"" +
-               attrName + "\", could not instantiate class \"" + className + ": " + text, e);
+               attrName + "\", could not instantiate class \"" + className + "\": " + text, e);
          }
          catch (ClassCastException e)
          {
             throw new TagParseException("Expected a \"" + expectedClass.getName() + "\" for \"" +
-               attrName + "\", could not instantiate class \"" + className + ": " + text, e);
+               attrName + "\", could not instantiate class \"" + className + "\": " + text, e);
          }
       }
       else
       {
          throw new TagParseException("Expected a \"" + expectedClass.getName() + "\" for \"" +
-               attrName + "\", got a \"" + obj.getClass().getName() + ": " + text);
+               attrName + "\", got a \"" + obj.getClass().getName() + "\": " + text);
       }
       return result;
    }
@@ -404,5 +411,239 @@ public class AttributeUtil
          result = Arrays.asList(items);
       }
       return result;
+   }
+
+   /**
+    * <p>Evaluates the given text, which may have embedded
+    * <code>Expressions</code>, and attempts to extract a <code>List</code> of
+    * <code>Integers</code> from the result, accepting an <code>int</code>
+    * array or a <code>Collection</code> or delimited list of numbers.</p>
+    * <p>Examples of proper input:</p>
+    * <ul>
+    * <li>[0, 1, 2]
+    * <li>(ArrayList){0, 1, 2}
+    * <li>"0; 1; 2"
+    * </ul>
+    * @param text Text which may have embedded <code>Expressions</code>.
+    * @param beans A <code>Map</code> of bean names to bean values.
+    * @param def The default value if the text is null.
+    * @return A <code>List</code> of <code>Integers</code>.
+    */
+   public static List<Integer> evaluateIntegerArray(RichTextString text, Map<String, Object> beans, List<Integer> def)
+   {
+      List<Integer> result = new ArrayList<Integer>();
+      if (text == null)
+         return def;
+      Object obj = Expression.evaluateString(text.toString(), beans);
+      if (obj instanceof int[])
+      {
+         int[] intArray = (int[]) obj;
+         for (int i : intArray)
+            result.add(i);
+      }
+      else if (obj instanceof Collection)
+      {
+         Collection c = (Collection) obj;
+
+         for (Object o : c)
+         {
+            if (o instanceof Number)
+            {
+               result.add(((Number) o).intValue());
+            }
+            else
+            {
+               try
+               {
+                  result.add(Integer.parseInt(o.toString()));
+               }
+               catch (NumberFormatException e)
+               {
+                  throw new TagParseException("Expected an integer, got " + o.toString(), e);
+               }
+            }
+         }
+      }
+      else
+      {
+         String[] items = obj.toString().split(SPEC_SEP);
+         for (String item : items)
+         {
+            try
+            {
+               result.add(Integer.parseInt(item));
+            }
+            catch (NumberFormatException e)
+            {
+               throw new TagParseException("Expected an integer, got " + item, e);
+            }
+         }
+      }
+
+      return result;
+   }
+
+   /**
+    * <p>Evaluates the given text, which may have embedded
+    * <code>Expressions</code>, and attempts to extract a <code>List</code> of
+    * <code>Lists</cod> of <code>Integers</code> from the result, accepting a
+    * 2D <code>int</code> array or a <code>Collection</code> of
+    * <code>Collections</code> or delimited list of numbers.</p>
+    * <p>Examples of proper input:</p>
+    * <ul>
+    * <li>[[0, 1], [2]]
+    * <li>(ArrayList){(ArrayList){0, 1}, (ArrayList){2}}
+    * <li>"0, 1; 2"
+    * </ul>
+    * @param text Text which may have embedded <code>Expressions</code>.
+    * @param beans A <code>Map</code> of bean names to bean values.
+    * @param def The default value if the text is null.
+    * @return A <code>List</code> of <code>Lists</code> of
+    *    <code>Integers</code>.
+    */
+   public static List<List<Integer>> evaluateIntegerArrayArray(RichTextString text, Map<String, Object> beans, List<List<Integer>> def)
+   {
+      List<List<Integer>> result = new ArrayList<List<Integer>>();
+      if (text == null)
+         return def;
+      Object obj = Expression.evaluateString(text.toString(), beans);
+      if (obj instanceof int[][])
+      {
+         int[][] intArray = (int[][]) obj;
+         for (int[] array : intArray)
+         {
+            List<Integer> innerList = new ArrayList<Integer>();
+            for (int i : array)
+               innerList.add(i);
+            result.add(innerList);
+         }
+      }
+      else if (obj instanceof Collection)
+      {
+         Collection c = (Collection) obj;
+
+         for (Object o : c)
+         {
+            List<Integer> innerList = new ArrayList<Integer>();
+            if (o instanceof Collection)
+            {
+               Collection inner = (Collection) o;
+               for (Object innerObj : inner)
+               {
+                  if (innerObj instanceof Number)
+                  {
+                     innerList.add(((Number) innerObj).intValue());
+                  }
+                  else
+                  {
+                     try
+                     {
+                        innerList.add(Integer.parseInt(innerObj.toString()));
+                     }
+                     catch (NumberFormatException e)
+                     {
+                        throw new TagParseException("Expected an integer, got " + o.toString(), e);
+                     }
+                  }
+               }
+            }
+            result.add(innerList);
+         }
+      }
+      else
+      {
+         String[] items = obj.toString().split(SPEC_SEP);
+         for (String item : items)
+         {
+            List<Integer> innerList = new ArrayList<Integer>();
+            String[] innerItems = item.split(SPEC_SEP_2);
+            for (String innerItem : innerItems)
+            {
+               try
+               {
+                  innerList.add(Integer.parseInt(innerItem));
+               }
+               catch (NumberFormatException e)
+               {
+                  throw new TagParseException("Expected an integer, got " + item, e);
+               }
+            }
+            result.add(innerList);
+         }
+      }
+
+      return result;
+   }
+
+   /**
+    * Ensures that exactly one of the given attribute values exists.
+    * @param attrValues A <code>List</code> of attribute values.
+    * @param attrNames A <code>List</code> of attribute names.
+    * @throws TagParseException If none of the attribute values is not null, or
+    *    if more than one attribute value is not null.
+    */
+   public static void ensureExactlyOneExists(List<RichTextString> attrValues, List<String> attrNames)
+   {
+      int exists = 0;
+      for (RichTextString text : attrValues)
+      {
+         if (text != null)
+         {
+            exists++;
+            if (exists > 1)
+            {
+               throw new TagParseException("Exactly one attribute must be specified: " + attrNames.toString());
+            }
+         }
+      }
+      if (exists != 1)
+      {
+         throw new TagParseException("Exactly one attribute must be specified: " + attrNames.toString());
+      }
+   }
+
+   /**
+    * Ensures that at most one of the given attribute values exists.
+    * @param attrValues A <code>List</code> of attribute values.
+    * @param attrNames A <code>List</code> of attribute names.
+    * @throws TagParseException If more than one of the attribute values is not
+    *    null.
+    * @since 0.4.0
+    */
+   public static void ensureAtMostOneExists(List<RichTextString> attrValues, List<String> attrNames)
+   {
+      int exists = 0;
+      for (RichTextString text : attrValues)
+      {
+         if (text != null)
+         {
+            exists++;
+            if (exists > 1)
+            {
+               throw new TagParseException("At most one attribute must be specified: " + attrNames.toString());
+            }
+         }
+      }
+      if (exists != 1 && exists != 0)
+      {
+         throw new TagParseException("At most one attribute must be specified: " + attrNames.toString());
+      }
+   }
+
+   /**
+    * Ensures that at least one of the given attribute values exists.
+    * @param attrValues A <code>List</code> of attribute values.
+    * @param attrNames A <code>List</code> of attribute names.
+    * @throws TagParseException If all of the attribute values are null.
+    * @since 0.4.0
+    */
+   public static void ensureAtLeastOneExists(List<RichTextString> attrValues, List<String> attrNames)
+   {
+      for (RichTextString text : attrValues)
+      {
+         if (text != null)
+            return;
+      }
+      throw new TagParseException("At least one attribute must be specified: " + attrNames.toString());
    }
 }

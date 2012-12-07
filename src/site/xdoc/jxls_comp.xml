@@ -7,7 +7,7 @@
         <section name="Comparison of JETT to jXLS">
         <p>JETT is similar to jXLS, because JETT performs the same function -- translating Excel
         template spreadsheets into spreadsheets with the desired data populated.  Here, JETT
-        0.3.0 is compared with the latest version of jXLS, 1.0.1:</p>
+        0.4.0 is compared with the latest version of jXLS, 1.0.1:</p>
         <table style="width: 750px;">
             <tr>
                 <th style="width: 200px">Feature</th>
@@ -74,12 +74,13 @@
             </tr>
             <tr>
                 <td>Formulas</td>
-                <td>Supported, format <code>$[formula(cellref)]</code>.  Optionally, provide a
+                <td><p>Supported, format <code>$[formula(cellref)]</code>.  Optionally, provide a
                 default value in case the cell references get deleted:
-                <code>$[formula(cellref)@defValue]</code>.</td>
-                <td>Supported, format <code>$[formula(cellref)]</code>.  Optionally, provide a
+                <code>$[formula(cellref)@defValue]</code>.</p></td>
+                <td><p>Supported, format <code>$[formula(cellref)]</code>.  Optionally, provide a
                 default value in case the cell references get deleted:
-                <code>$[formula(cellref||defValue)]</code>.</td>
+                <code>$[formula(cellref||defValue)]</code>.</p>
+                <p>Additionally, create dynamic formulas with the formula tag.</p></td>
             </tr>
             <tr>
                 <td>Aggregate Expressions</td>
@@ -305,6 +306,42 @@
                 </td>
             </tr>
             <tr>
+                <td>Dynamic Formula Creation</td>
+                <td>Not supported</td>
+                <td>
+                    <p>jt:formula tag</p>
+                </td>
+            </tr>
+            <tr>
+                <td>Dynamic Style</td>
+                <td>Not supported</td>
+                <td>
+                    <p>jt:style tag, where the "style" attribute controls:</p>
+                    <ul>
+                        <li>horizontal and vertical alignment</li>
+                        <li>borders and border colors</li>
+                        <li>data format string</li>
+                        <li>fill background and foreground colors, and fill pattern</li>
+                        <li>"hidden" and "locked"</li>
+                        <li>number of characters text is indented</li>
+                        <li>number of degrees text is rotated</li>
+                        <li>whether text is wrapped to the next line within a cell</li>
+                        <li>font:</li>
+                        <ul>
+                            <li>bold</li>
+                            <li>charset</li>
+                            <li>color</li>
+                            <li>size</li>
+                            <li>font name</li>
+                            <li>italic</li>
+                            <li>strikeout</li>
+                            <li>subscript/superscript</li>
+                            <li>underline</li>
+                        </ul>
+                    </ul>
+                </td>
+            </tr>
+            <tr>
                 <td>Expression Output</td>
                 <td>jx:out tag or ${expression}</td>
                 <td>${expression} only</td>
@@ -312,7 +349,8 @@
             <tr>
                 <td>Perform SQL-like "group by" Operations on Data</td>
                 <td>Not supported</td>
-                <td>jt:agg tag</td>
+                <td>jt:agg tag, which also supports super-aggregate operations such as rollups and
+                cube</td>
             </tr>
             <tr>
                 <td>Tag Support for Aggregate Expressions</td>
@@ -335,7 +373,7 @@
             <tr>
                 <td>Access to POI Objects in the Template</td>
                 <td>workbook, sheet, hssfRow</td>
-                <td>workbook, sheet</td>
+                <td>workbook, sheet, cell</td>
             </tr>
             <tr>
                 <td>Execution Hooks for Custom Processing</td>

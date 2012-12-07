@@ -26,6 +26,8 @@ import net.sf.jett.tag.TagLibraryRegistry;
 import net.sf.jett.util.FormulaUtil;
 
 /**
+ * <p>The <code>ExcelTransformer</code> class represents the main JETT API.</p>
+ * 
  * <p>An <code>ExcelTransformer</code> knows how to transform Excel template
  * workbooks into fully populated Excel workbooks, using caller-supplied data
  * in the form of <em>beans</em>.  This class is the entry point API for JETT.

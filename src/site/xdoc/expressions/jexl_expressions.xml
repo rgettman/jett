@@ -54,5 +54,21 @@ beans.put("beanName", beanName);
             <p>It is also possible to <a href="../misc/jexl_settings.html">register functions in
             custom namespaces</a>, to reference custom functions within JEXL.</p>
         </section>
+        <section name="Static Methods">
+            <p>JETT extends JEXL to allow references to static methods directly in JEXL
+            Expressions.  Supply the fully-qualified class name.  For example, if the bean
+            "methodType" is the value "Static", then the template...</p>
+            <table>
+                <tr>
+                    <td>${java.lang.String.format('%s methods are allowed!', methodType)}</td>
+                </tr>
+            </table>
+            <p>... gets transformed into...</p>
+            <table>
+                <tr>
+                    <td>Static methods are allowed!</td>
+                </tr>
+            </table>
+        </section>
     </body>
 </document>

@@ -1,4 +1,4 @@
-package net.sf.jett.tag;
+package net.sf.jett.model;
 
 import java.util.List;
 

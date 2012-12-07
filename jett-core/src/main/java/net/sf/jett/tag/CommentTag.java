@@ -18,6 +18,7 @@ import org.apache.poi.xssf.usermodel.XSSFCell;
 
 import net.sf.jett.exception.TagParseException;
 import net.sf.jett.expression.Expression;
+import net.sf.jett.model.Block;
 import net.sf.jett.transform.BlockTransformer;
 import net.sf.jett.util.SheetUtil;
 
@@ -34,13 +35,13 @@ import net.sf.jett.util.SheetUtil;
  * appears that drawings and charts do get corrupted in .xls spreadsheets, but
  * they do NOT get corrupted in .xlsx spreadsheets.</p>
  *
- * <br>Attributes:
+ * <br/>Attributes:
  * <ul>
- * <li><em>Inherits all attributes from {@link BaseTag}.</em>
- * <li>value (required): <code>RichTextString</code>
- * <li>author (required): <code>String</code>
- * <li>comment (required): <code>RichTextString</code>
- * <li>visible (optional): <code>boolean</code>
+ * <li><em>Inherits all attributes from {@link BaseTag}.</em></li>
+ * <li>value (required): <code>RichTextString</code></li>
+ * <li>author (required): <code>String</code></li>
+ * <li>comment (required): <code>RichTextString</code></li>
+ * <li>visible (optional): <code>boolean</code></li>
  * </ul>
  *
  * @author Randy Gettman
@@ -93,7 +94,7 @@ public class CommentTag extends BaseTag
     */
    protected List<String> getRequiredAttributes()
    {
-      List<String> reqAttrs = super.getRequiredAttributes();
+      List<String> reqAttrs = new ArrayList<String>(super.getRequiredAttributes());
       reqAttrs.addAll(REQ_ATTRS);
       return reqAttrs;
    }
@@ -104,7 +105,7 @@ public class CommentTag extends BaseTag
     */
    protected List<String> getOptionalAttributes()
    {
-      List<String> optAttrs = super.getOptionalAttributes();
+      List<String> optAttrs = new ArrayList<String>(super.getOptionalAttributes());
       optAttrs.addAll(OPT_ATTRS);
       return optAttrs;
    }

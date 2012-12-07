@@ -12,7 +12,7 @@
             <h1>Attributes</h1>
             <ul>
                 <li>The "span" tag supports all <a href="basics.html">base tag attributes</a>.</li>
-                <li><strong>factor: int</strong> Required.  This is the factor with which to
+                <li><strong>factor: int</strong> Optional.  This is the factor with which to
                 multiply the height of the merged region in which this tag is contained.  For
                 example, if the merged region is 2 cells tall, and the factor is 3, then content
                 below the merged region is shifted downward, and the merged region is grown to a
@@ -20,7 +20,14 @@
                 was a merged region of height 1 and width 1, and a new merged region is created if
                 necessary.  This value must not be negative.  If it is zero, then the block (and
                 any merged region) is removed and content below is shifted up to overwrite the
-                block.</li>
+                block.  Out of <code>factor</code> and <code>adjust</code>, at least one must be
+                specified.</li>
+                <li><strong>adjust: int</strong> Optional.  This is an adjustment to the size of
+                the merged region, applied after <code>factor</code> multiplies the size.  For
+                example, if the merged region is 2 cells tall, the <code>factor</code> is 3, and
+                the <code>adjust</code> is 1, then the size will be <code>2 * 3 + 1 = 7</code>
+                cells tall.  Out of <code>factor</code> and <code>adjust</code>, at least one must
+                be specified.</li>
                 <li><strong>value: Object</strong> Required.  The value of the cell after
                 processing.  Rich Text String formatting is supported for this attribute.</li>
                 <li><strong>expandRight: Boolean</strong> Optional.  If true, then expand to the
@@ -80,6 +87,52 @@
                 <tr>
                     <td class="right" style="width: 250px;">Salary:</td>
                     <td style="width: 250px;">$800</td>
+                </tr>
+            </table>
+        </section>
+        <section name="Adjust Example">
+            <p>In this example, an adjustment is made to the size of the merged region.</p>
+            <table style="width: 750px;">
+                <tr>
+                    <td class="bold" style="width: 150px; text-align: center">&lt;jt:span
+                        factor="${dept.employees.size}" adjust="1"
+                        value="Department: ${dept.name}"/&gt;</td>
+                    <td style="width: 150px;">&nbsp;</td>
+                    <td style="width: 150px;">&nbsp;</td>
+                    <td style="width: 150px;">&nbsp;</td>
+                    <td style="width: 150px;">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td style="width: 150px;" rowspan="2">Employee Count: ${dept.employees.size}</td>
+                    <td style="width: 150px;">&lt;jt:forEach items="${dept.employees}" var="${emp}" copyRight="true"&gt;First: ${emp.firstName}</td>
+                    <td style="width: 150px;">Last: ${emp.lastName}</td>
+                    <td style="width: 150px;">&nbsp;</td>
+                    <td style="width: 150px;">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td class="right" style="width: 150px;">Salary:</td>
+                    <td style="width: 150px;">${emp.salary}&lt;/jt:forEach&gt;</td>
+                    <td style="width: 150px;">&nbsp;</td>
+                    <td style="width: 150px;">&nbsp;</td>
+                </tr>
+            </table>
+            <p>... gets transformed into...</p>
+            <table style="width: 750px;">
+                <tr>
+                    <td class="bold" style="width: 150px; text-align: center" colspan="5">Department: Cartoon Characters</td>
+                </tr>
+                <tr>
+                    <td style="width: 150px;" rowspan="2">Employee Count: 2</td>
+                    <td style="width: 150px;">First: Bugs</td>
+                    <td style="width: 150px;">Last: Bunny</td>
+                    <td style="width: 150px;">First: Elmer</td>
+                    <td style="width: 150px;">Last: Fudd</td>
+                </tr>
+                <tr>
+                    <td class="right" style="width: 150px;">Salary:</td>
+                    <td style="width: 150px;">$1500</td>
+                    <td class="right" style="width: 150px;">Salary:</td>
+                    <td style="width: 150px;">$800</td>
                 </tr>
             </table>
         </section>

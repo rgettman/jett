@@ -6,6 +6,12 @@
     <baseDirectory>jett</baseDirectory>
     <fileSets>
         <fileSet>
+            <outputDirectory>.</outputDirectory>
+            <includes>
+                <include>readme.txt</include>
+            </includes>
+        </fileSet>
+        <fileSet>
             <outputDirectory>src</outputDirectory>
             <includes>
                 <include>jett-core/pom.xml</include>

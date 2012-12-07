@@ -9,7 +9,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 
 import net.sf.jett.event.TagEvent;
 import net.sf.jett.event.TagListener;
-import net.sf.jett.tag.Block;
+import net.sf.jett.model.Block;
 
 /**
  * A <code>BoldTagListener</code> is a <code>TagListener</code> that turns all

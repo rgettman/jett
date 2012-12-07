@@ -71,6 +71,8 @@ public class PoiObjectAccessTest extends TestCase
       assertTrue(TestUtility.isCellBlank(second, 2, 0));
       assertEquals("JETT Header - Second Sheet", second.getHeader().getCenter());
       assertEquals("Last Modified: 2012 Jun 20", second.getFooter().getRight());
+      assertEquals("This Cell is at row 4 and column 1.", TestUtility.getStringCellValue(second, 4, 1));
+      assertEquals("This Cell's text is wrapped.", TestUtility.getStringCellValue(second, 6, 3));
    }
 
    /**

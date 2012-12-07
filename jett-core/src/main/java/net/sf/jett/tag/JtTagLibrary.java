@@ -24,12 +24,14 @@ public class JtTagLibrary implements TagLibrary
       myTagMap.put("comment"     , CommentTag.class);
       myTagMap.put("for"         , ForTag.class);
       myTagMap.put("forEach"     , ForEachTag.class);
+      myTagMap.put("formula"     , FormulaTag.class);
       myTagMap.put("group"       , GroupTag.class);
       myTagMap.put("hyperlink"   , HyperlinkTag.class);
       myTagMap.put("if"          , IfTag.class);
       myTagMap.put("multiForEach", MultiForEachTag.class);
       myTagMap.put("null"        , NullTag.class);
       myTagMap.put("span"        , SpanTag.class);
+      myTagMap.put("style"       , StyleTag.class);
       myTagMap.put("total"       , TotalTag.class);
    }
 

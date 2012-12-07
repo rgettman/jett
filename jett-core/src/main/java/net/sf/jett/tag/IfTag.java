@@ -10,6 +10,7 @@ import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
+import net.sf.jett.model.Block;
 import net.sf.jett.transform.BlockTransformer;
 import net.sf.jett.util.AttributeUtil;
 import net.sf.jett.util.SheetUtil;
@@ -18,13 +19,13 @@ import net.sf.jett.util.SheetUtil;
  * <p>An <code>IfTag</code> represents a conditionally placed
  * <code>Block</code> of <code>Cells</code>.</p>
  *
- * <br>Attributes:
+ * <br/>Attributes:
  * <ul>
- * <li><em>Inherits all attributes from {@link BaseTag}.</em>
- * <li>test (required): <code>boolean</code>
- * <li>then (optional, bodiless only): <code>RichTextString</code>
- * <li>else (optional, bodiless only): <code>RichTextString</code>
- * <li>elseAction (optional, body only): <code>String</code>
+ * <li><em>Inherits all attributes from {@link BaseTag}.</em></li>
+ * <li>test (required): <code>boolean</code></li>
+ * <li>then (optional, bodiless only): <code>RichTextString</code></li>
+ * <li>else (optional, bodiless only): <code>RichTextString</code></li>
+ * <li>elseAction (optional, body only): <code>String</code></li>
  * </ul>
  *
  * @author Randy Gettman
@@ -100,7 +101,7 @@ public class IfTag extends BaseTag
    @Override
    protected List<String> getRequiredAttributes()
    {
-      List<String> reqAttrs = super.getRequiredAttributes();
+      List<String> reqAttrs = new ArrayList<String>(super.getRequiredAttributes());
       if (isBodiless())
          reqAttrs.addAll(REQ_ATTRS_BODILESS);
       else
@@ -115,7 +116,7 @@ public class IfTag extends BaseTag
    @Override
    protected List<String> getOptionalAttributes()
    {
-      List<String> optAttrs = super.getOptionalAttributes();
+      List<String> optAttrs = new ArrayList<String>(super.getOptionalAttributes());
       if (isBodiless())
          optAttrs.addAll(OPT_ATTRS_BODILESS);
       else

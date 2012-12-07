@@ -29,7 +29,7 @@ jagg:eval(list, aggSpec)
                 <tr><td>1050</td></tr>
             </table>
             <p>Any Aggregator can be specified, including those built-in to the jAgg library, or
-            those <a href="http://jagg.sourceforge.net/reference/custom.html">custom built</a> by
+            those <a href="http://jagg.sourceforge.net/aggs/custom.html">custom built</a> by
             the developer.</p>
         </section>
     </body>

@@ -12,17 +12,18 @@ import org.apache.poi.ss.usermodel.Sheet;
 import net.sf.jett.event.TagEvent;
 import net.sf.jett.event.TagListener;
 import net.sf.jett.exception.TagParseException;
+import net.sf.jett.model.Block;
 import net.sf.jett.transform.WorkbookContext;
 import net.sf.jett.util.AttributeUtil;
 import net.sf.jett.util.SheetUtil;
 
 /**
- * The abstract class <code>BaseTag</code> provides common functionality to all
- * <code>Tags</code>.
+ * <p>The abstract class <code>BaseTag</code> provides common functionality to
+ * all <code>Tags</code>.</p>
  *
- * <br>Attributes:
+ * <br/>Attributes:
  * <ul>
- * <li>onProcessed (optional): <code>TagListener</code>
+ * <li>onProcessed (optional): <code>TagListener</code></li>
  * </ul>
  *
  * @author Randy Gettman
@@ -170,8 +171,10 @@ public abstract class BaseTag implements Tag
       {
          if ((required == null || !required.contains(key)) &&
              (optional == null || !optional.contains(key)))
+         {
             throw new TagParseException("Unrecognized attribute \"" + key +
                "\" for tag \"" + getName() + "\".");
+         }
       }
 
       // Validate the attributes.
@@ -284,7 +287,7 @@ public abstract class BaseTag implements Tag
     */
    protected List<String> getOptionalAttributes()
    {
-      return OPT_ATTRS;
+      return new ArrayList<String>(OPT_ATTRS);
    }
 
    /**

@@ -9,6 +9,7 @@ import java.util.Map;
 import org.apache.poi.ss.usermodel.RichTextString;
 
 import net.sf.jett.exception.TagParseException;
+import net.sf.jett.model.Block;
 import net.sf.jett.util.AttributeUtil;
 
 /**
@@ -16,14 +17,14 @@ import net.sf.jett.util.AttributeUtil;
  * of <code>Cells</code>, with each repetition corresponding to an increment of
  * an index.</p>
  *
- * <br>Attributes:
+ * <br/>Attributes:
  * <ul>
- * <li><em>Inherits all attributes from {@link BaseTag}.</em>
- * <li><em>Inherits all attributes from {@link BaseLoopTag}.</em>
- * <li>var (required): <code>String</code>
- * <li>start (required): <code>int</code>
- * <li>end (required): <code>int</code>
- * <li>step (optional): <code>int</code>
+ * <li><em>Inherits all attributes from {@link BaseTag}.</em></li>
+ * <li><em>Inherits all attributes from {@link BaseLoopTag}.</em></li>
+ * <li>var (required): <code>String</code></li>
+ * <li>start (required): <code>int</code></li>
+ * <li>end (required): <code>int</code></li>
+ * <li>step (optional): <code>int</code></li>
  * </ul>
  *
  * @author Randy Gettman
@@ -72,7 +73,7 @@ public class ForTag extends BaseLoopTag
    @Override
    public List<String> getRequiredAttributes()
    {
-      List<String> reqAttrs = super.getRequiredAttributes();
+      List<String> reqAttrs = new ArrayList<String>(super.getRequiredAttributes());
       reqAttrs.addAll(REQ_ATTRS);
       return reqAttrs;
    }
@@ -84,7 +85,7 @@ public class ForTag extends BaseLoopTag
    @Override
    public List<String> getOptionalAttributes()
    {
-      List<String> optAttrs = super.getOptionalAttributes();
+      List<String> optAttrs = new ArrayList<String>(super.getOptionalAttributes());
       optAttrs.addAll(OPT_ATTRS);
       return optAttrs;
    }

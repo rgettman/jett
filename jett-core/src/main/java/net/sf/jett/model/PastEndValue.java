@@ -1,4 +1,4 @@
-package net.sf.jett.tag;
+package net.sf.jett.model;
 
 /**
  * A <code>PastEndValue</code> represents the fact that an expression

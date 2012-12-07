@@ -4,6 +4,36 @@
         <title>Change Log for JETT</title>
     </properties>
     <body>
+        <section name="JETT 0.4.0 (Beta) Released - 29 Nov 2012">
+            <p>New in JETT 0.4.0:</p>
+            <ul>
+                <li>New tag: <a href="tags/style.html">"style"</a> to dynamically change the style
+                on the Cells in the body of the tag, e.g.
+                <code>&lt;jt:style style="font-weight: bold;font-height-in-points: 20"&gt;${expr}&lt;/jt:style&gt;</code>.</li>
+                <li>New tag: <a href="tags/formula.html">"formula"</a> to dynamically create Excel
+                formulas unaffected by JETT formula processing.</li>
+                <li>New attributes on the <a href="tags/agg.html">"agg"</a> tag to support rollups,
+                cubes, and grouping sets.</li>
+                <li>New attribute on the <a href="tags/span.html">"span"</a> tag to make an
+                adjustment to the size of a merged region, adding a number to the size.</li>
+                <li>A new POI bean is exposed: "cell" that represents the <code>Cell</code> that
+                contains the expression.</li>
+                <li>One can now reference static Java methods in JEXL directly, e.g.
+                <code>${java.lang.String.format("%d / %d", numerator, denominator)}</code></li>
+                <li>New JETT functionality presented as registered functions, e.g.
+                <code>${jett:cellRef(1, 2)} => "C2"</code>, and
+                <code>${jett:cellRef(1, 2, 2, 2)} => "C2:D3"</code>.</li>
+                <li>Bug fix: If an expression was repeated more than once, and is present with
+                other expresssions in a Cell, then the value replacement wasn't working right.
+                This is now fixed.</li>
+                <li>Bug fix: Boolean values were being populated as the strings "true" and "false".
+                Now they are properly populated as the Excel boolean values <code>TRUE</code> and
+                <code>FALSE</code>.  Boolean expressions within strings will still yield "true"
+                and "false".</li>
+                <li>Lots of JUnit test cases have been added for all the new features.</li>
+                <li>There is a new "readme.txt" file.</li>
+            </ul>
+        </section>
         <section name="JETT 0.3.0 (Beta) Released - 26 Sep 2012">
             <p>New in JETT 0.3.0:</p>
             <ul>

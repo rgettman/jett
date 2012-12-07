@@ -9,6 +9,7 @@ import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Sheet;
 
 import net.sf.jett.exception.TagParseException;
+import net.sf.jett.model.Block;
 import net.sf.jett.transform.BlockTransformer;
 import net.sf.jett.util.AttributeUtil;
 import net.sf.jett.util.SheetUtil;
@@ -18,11 +19,11 @@ import net.sf.jett.util.SheetUtil;
  * needs an Excel "group" associated with it.  Optionally, it may be displayed
  * expanded (default) or collapsed.</p>
  *
- * <p>Attributes:</p>
+ * <br/>Attributes:
  * <ul>
- * <li><em>Inherits all attributes from {@link BaseTag}.</em>
- * <li>groupDir (optional): <code>String</code>
- * <li>collapse (optional): <code>boolean</code>
+ * <li><em>Inherits all attributes from {@link BaseTag}.</em></li>
+ * <li>groupDir (optional): <code>String</code></li>
+ * <li>collapse (optional): <code>boolean</code></li>
  * </ul>
  *
  * @author Randy Gettman
@@ -89,7 +90,7 @@ public class GroupTag extends BaseTag
    @Override
    protected List<String> getOptionalAttributes()
    {
-      List<String> optAttrs = super.getOptionalAttributes();
+      List<String> optAttrs = new ArrayList<String>(super.getOptionalAttributes());
       optAttrs.addAll(OPT_ATTRS);
       return optAttrs;
    }

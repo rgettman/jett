@@ -17,10 +17,19 @@
                 <li><a href="http://poi.apache.org/download.html">Apache POI 3.8</a></li>
                 <li><a href="http://commons.apache.org/jexl/download_jexl.cgi">Apache Commons JEXL 2.1.1</a></li>
                 <li><a href="http://commons.apache.org/logging/download_logging.cgi">Apache Commons Logging 1.1.1</a></li>
-                <li><a href="http://sourceforge.net/projects/jagg/files/">SourceForge jAgg 0.6.0</a></li>
+                <li><a href="http://sourceforge.net/projects/jagg/files/">SourceForge jAgg 0.7.0</a></li>
             </ul>
             <p>The JETT library does rely on <a href="http://www.junit.org/node/588">JUnit 4.8.2</a>,
             but only for JUnit test cases when building through Maven.</p>
+            <p>If you are using Maven 2+, then you may place the following dependency in your
+            pom.xml.  Since 0.3.0, JETT has been available in the Maven 2 Central Repository.</p>
+            <source>
+&lt;dependency&gt;
+    &lt;groupId&gt;net.sf.jett&lt;/groupId&gt;
+    &lt;artifactId&gt;jett-core&lt;/artifactId&gt;
+    &lt;version&gt;0.4.0&lt;/version&gt;
+&lt;/dependency&gt;
+            </source>
         </section>
         <section id="buildingFromSource" name="Building from source">
             <p>It is possible to build JETT directly from its source code, if the latest unreleased
