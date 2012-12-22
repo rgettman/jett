@@ -11,7 +11,7 @@ import org.apache.poi.ss.formula.SheetNameFormatter;
 import net.sf.jett.formula.CellRef;
 import net.sf.jett.formula.CellRefRange;
 import net.sf.jett.formula.Formula;
-import net.sf.jett.transform.WorkbookContext;
+import net.sf.jett.model.WorkbookContext;
 
 /**
  * The <code>FormulaUtil</code> utility class provides methods for Excel

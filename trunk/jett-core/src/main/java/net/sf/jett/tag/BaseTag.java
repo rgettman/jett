@@ -13,7 +13,7 @@ import net.sf.jett.event.TagEvent;
 import net.sf.jett.event.TagListener;
 import net.sf.jett.exception.TagParseException;
 import net.sf.jett.model.Block;
-import net.sf.jett.transform.WorkbookContext;
+import net.sf.jett.model.WorkbookContext;
 import net.sf.jett.util.AttributeUtil;
 import net.sf.jett.util.SheetUtil;
 

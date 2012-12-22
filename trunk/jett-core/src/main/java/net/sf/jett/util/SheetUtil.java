@@ -8,19 +8,29 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Color;
 import org.apache.poi.ss.usermodel.CreationHelper;
+import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellReference;
+import org.apache.poi.xssf.usermodel.XSSFColor;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 
 import net.sf.jett.formula.Formula;
 import net.sf.jett.model.Block;
 import net.sf.jett.model.PastEndAction;
-import net.sf.jett.transform.WorkbookContext;
+import net.sf.jett.model.WorkbookContext;
+import net.sf.jett.model.ExcelColor;
 
 /**
  * The <code>SheetUtil</code> utility class provides methods for
@@ -1653,6 +1663,265 @@ public class SheetUtil
             sheet.setColumnGroupCollapsed(begin, true);
          }
       }
+   }
+
+   /**
+    * Get the hex string that represents the <code>Color</code>.
+    * @param color A POI <code>Color</code>.
+    * @return The hex string that represents the <code>Color</code>.
+    * @since 0.5.0
+    */
+   public static String getColorHexString(Color color)
+   {
+      if (color instanceof HSSFColor)
+      {
+         HSSFColor hssfColor = (HSSFColor) color;
+         return getHSSFColorHexString(hssfColor);
+      }
+      else if (color instanceof XSSFColor)
+      {
+         XSSFColor xssfColor = (XSSFColor) color;
+         return getXSSFColorHexString(xssfColor);
+      }
+      else if (color == null)
+      {
+         return "null";
+      }
+      else
+      {
+         throw new IllegalArgumentException("Unexpected type of Color: " + color.getClass().getName());
+      }
+   }
+
+   /**
+    * Get the hex string for a <code>HSSFColor</code>.  Moved from test code.
+    * @param hssfColor A <code>HSSFColor</code>.
+    * @return The hex string.
+    * @since 0.5.0
+    */
+   private static String getHSSFColorHexString(HSSFColor hssfColor)
+   {
+      short[] shorts = hssfColor.getTriplet();
+      StringBuilder hexString = new StringBuilder();
+      for (short s : shorts)
+      {
+         String twoHex = Integer.toHexString(0x000000FF & s);
+         if (twoHex.length() == 1)
+            hexString.append('0');
+         hexString.append(twoHex);
+      }
+      return hexString.toString();
+   }
+
+   /**
+    * Get the hex string for a <code>XSSFColor</code>.  Moved from test code.
+    * @param xssfColor A <code>XSSFColor</code>.
+    * @return The hex string.
+    * @since 0.5.0
+    */
+   private static String getXSSFColorHexString(XSSFColor xssfColor)
+   {
+      if (xssfColor == null)
+         return "000000";
+      byte[] bytes;
+      // As of Apache POI 3.8, there are Bugs 51236 and 52079 about font
+      // color where somehow black and white get switched.  It appears to
+      // have to do with the fact that black and white "theme" colors get
+      // flipped.  Be careful, because XSSFColor(byte[]) does NOT call
+      // "correctRGB", but XSSFColor.setRgb(byte[]) DOES call it, and so
+      // does XSSFColor.getRgb(byte[]).
+      // The private method "correctRGB" flips black and white, but no
+      // other colors.  However, correctRGB is its own inverse operation,
+      // i.e. correctRGB(correctRGB(rgb)) yields the same bytes as rgb.
+      // XSSFFont.setColor(XSSFColor) calls "getRGB", but
+      // XSSFCellStyle.set[Xx]BorderColor and
+      // XSSFCellStyle.setFill[Xx]Color do NOT.
+      // Solution: Correct the font color on the way out for themed colors
+      // only.  For unthemed colors, bypass the "correction".
+      if (xssfColor.getCTColor().isSetTheme())
+         bytes = xssfColor.getRgb();
+      else
+         bytes = xssfColor.getCTColor().getRgb();
+      // End of workaround for Bugs 51236 and 52079.
+      if (bytes == null)
+      {
+         // Indexed Color - like HSSF
+         HSSFColor hColor = ExcelColor.getHssfColorByIndex(xssfColor.getIndexed());
+         if (hColor != null)
+            return getHSSFColorHexString(ExcelColor.getHssfColorByIndex(xssfColor.getIndexed()));
+         else
+            return "000000";
+      }
+      if (bytes.length == 4)
+      {
+         // Lose the alpha.
+         bytes = new byte[] {bytes[1], bytes[2], bytes[3]};
+      }
+      StringBuilder hexString = new StringBuilder();
+      for (byte b : bytes)
+      {
+         String twoHex = Integer.toHexString(0x000000FF & b);
+         if (twoHex.length() == 1)
+            hexString.append('0');
+         hexString.append(twoHex);
+      }
+      return hexString.toString();
+   }
+
+   /**
+    * Creates a new <code>CellStyle</code> for the given <code>Workbook</code>,
+    * with the given attributes.  Moved from <code>StyleTag</code> here for
+    * 0.5.0.
+    * @param workbook A <code>Workbook</code>.
+    * @param alignment A <code>short</code> alignment constant.
+    * @param borderBottom A <code>short</code> border type constant.
+    * @param borderLeft A <code>short</code> border type constant.
+    * @param borderRight A <code>short</code> border type constant.
+    * @param borderTop A <code>short</code> border type constant.
+    * @param dataFormat A data format string.
+    * @param wrapText Whether text is wrapped.
+    * @param fillBackgroundColor A background <code>Color</code>.
+    * @param fillForegroundColor A foreground <code>Color</code>.
+    * @param fillPattern A <code>short</code> pattern constant.
+    * @param verticalAlignment A <code>short</code> vertical alignment constant.
+    * @param indention A <code>short</code> number of indent characters.
+    * @param rotationDegrees A <code>short</code> degrees rotation of text.
+    * @param bottomBorderColor A border <code>Color</code> object.
+    * @param leftBorderColor A border <code>Color</code> object.
+    * @param rightBorderColor A border <code>Color</code> object.
+    * @param topBorderColor A border <code>Color</code> object.
+    * @param locked Whether the cell is locked.
+    * @param hidden Whether the cell is hidden.
+    * @return A new <code>CellStyle</code>.
+    */
+   public static CellStyle createCellStyle(Workbook workbook, short alignment, short borderBottom, short borderLeft,
+      short borderRight, short borderTop, String dataFormat, boolean wrapText, Color fillBackgroundColor,
+      Color fillForegroundColor, short fillPattern, short verticalAlignment, short indention,
+      short rotationDegrees, Color bottomBorderColor, Color leftBorderColor,
+      Color rightBorderColor, Color topBorderColor, boolean locked, boolean hidden)
+   {
+      CellStyle cs = workbook.createCellStyle();
+      cs.setAlignment(alignment);
+      cs.setBorderBottom(borderBottom);
+      cs.setBorderLeft(borderLeft);
+      cs.setBorderRight(borderRight);
+      cs.setBorderTop(borderTop);
+      cs.setDataFormat(workbook.getCreationHelper().createDataFormat().getFormat(dataFormat));
+      cs.setHidden(hidden);
+      cs.setIndention(indention);
+      cs.setLocked(locked);
+      cs.setRotation(rotationDegrees);
+      cs.setVerticalAlignment(verticalAlignment);
+      cs.setWrapText(wrapText);
+      // Certain properties need a type of workbook check.
+      if (workbook instanceof HSSFWorkbook)
+      {
+         if (bottomBorderColor != null)
+            cs.setBottomBorderColor(((HSSFColor) bottomBorderColor).getIndex());
+         if (leftBorderColor != null)
+            cs.setLeftBorderColor(((HSSFColor) leftBorderColor).getIndex());
+         if (rightBorderColor != null)
+            cs.setRightBorderColor(((HSSFColor) rightBorderColor).getIndex());
+         if (topBorderColor != null)
+            cs.setTopBorderColor(((HSSFColor) topBorderColor).getIndex());
+         // Per POI Javadocs, set foreground color first!
+         cs.setFillForegroundColor(((HSSFColor) fillForegroundColor).getIndex());
+         cs.setFillBackgroundColor(((HSSFColor) fillBackgroundColor).getIndex());
+      }
+      else
+      {
+         // XSSFWorkbook
+         XSSFCellStyle xcs = (XSSFCellStyle) cs;
+         if (bottomBorderColor != null)
+            xcs.setBottomBorderColor((XSSFColor) bottomBorderColor);
+         if (leftBorderColor != null)
+            xcs.setLeftBorderColor((XSSFColor) leftBorderColor);
+         if (rightBorderColor != null)
+            xcs.setRightBorderColor((XSSFColor) rightBorderColor);
+         if (topBorderColor != null)
+            xcs.setTopBorderColor((XSSFColor) topBorderColor);
+         // Per POI Javadocs, set foreground color first!
+         if (fillForegroundColor != null)
+            xcs.setFillForegroundColor((XSSFColor) fillForegroundColor);
+         if (fillBackgroundColor != null)
+            xcs.setFillBackgroundColor((XSSFColor) fillBackgroundColor);
+      }
+      cs.setFillPattern(fillPattern);
+      return cs;
+   }
+
+   /**
+    * Creates a new <code>Font</code> for the given <code>Workbook</code>,
+    * with the given attributes.  Moved from <code>StyleTag</code> here for
+    * 0.5.0.
+    * @param workbook A <code>Workbook</code>.
+    * @param fontBoldweight A <code>short</code> boldweight constant.
+    * @param fontItalic Whether the text is italic.
+    * @param fontColor A color <code>Color</code> opbject.
+    * @param fontName A font name.
+    * @param fontHeightInPoints A <code>short</code> font height in points.
+    * @param fontUnderline A <code>byte</code> underline constant.
+    * @param fontStrikeout Whether the font is strikeout.
+    * @param fontCharset An <code>int</code> charset constant.
+    * @param fontTypeOffset A <code>short</code> type offset constant.
+    * @return A new <code>Font</code>.
+    */
+   public static Font createFont(Workbook workbook, short fontBoldweight, boolean fontItalic, Color fontColor, String fontName, short fontHeightInPoints, byte fontUnderline,
+      boolean fontStrikeout, int fontCharset, short fontTypeOffset)
+   {
+      if (DEBUG)
+      {
+         System.err.println("createFont: " + fontBoldweight + "," + fontItalic + "," +
+            ((fontColor == null) ? "null" :
+               (fontColor instanceof HSSFColor) ? fontColor.toString() :
+               ((XSSFColor) fontColor).getCTColor().toString()
+            ) + "," + fontName + "," +
+            fontHeightInPoints + "," + fontUnderline + "," + fontStrikeout + "," + fontCharset + "," + fontTypeOffset);
+      }
+      Font f = workbook.createFont();
+      f.setBoldweight(fontBoldweight);
+      f.setItalic(fontItalic);
+      f.setFontName(fontName);
+      f.setFontHeightInPoints(fontHeightInPoints);
+      f.setUnderline(fontUnderline);
+      f.setStrikeout(fontStrikeout);
+      f.setCharSet(fontCharset);
+      f.setTypeOffset(fontTypeOffset);
+      // Color type check.
+      if (fontColor instanceof HSSFColor)
+      {
+         f.setColor(((HSSFColor) fontColor).getIndex());
+      }
+      else
+      {
+         // XSSFWorkbook
+         XSSFFont xf = (XSSFFont) f;
+         XSSFColor xssfFontColor = (XSSFColor) fontColor;
+         if (xssfFontColor != null)
+         {
+            // As of Apache POI 3.8, there are Bugs 51236 and 52079 about font
+            // color where somehow black and white get switched.  It appears to
+            // have to do with the fact that black and white "theme" colors get
+            // flipped.  Be careful, because XSSFColor(byte[]) does NOT call
+            // "correctRGB", but XSSFColor.setRgb(byte[]) DOES call it, and so
+            // does XSSFColor.getRgb(byte[]).
+            // The private method "correctRGB" flips black and white, but no
+            // other colors.  However, correctRGB is its own inverse operation,
+            // i.e. correctRGB(correctRGB(rgb)) yields the same bytes as rgb.
+            // XSSFFont.setColor(XSSFColor) calls "getRGB", but
+            // XSSFCellStyle.set[Xx]BorderColor and
+            // XSSFCellStyle.setFill[Xx]Color do NOT.
+            // Solution: Let setColor correct a theme color on the way in.
+            // Un-correct other colors, so that setColor will correct it.
+            if (xssfFontColor.getCTColor().isSetTheme())
+               xf.setColor(xssfFontColor);
+            else
+               xf.setColor(new XSSFColor(xssfFontColor.getRgb()));
+            // End of workaround for Bugs 51236 and 52079.
+         }
+      }
+
+      return f;
    }
 }
 

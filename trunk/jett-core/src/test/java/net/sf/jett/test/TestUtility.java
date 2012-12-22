@@ -6,10 +6,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.hssf.usermodel.HSSFCellStyle;
-import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Color;
@@ -20,11 +19,11 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.apache.poi.xssf.usermodel.XSSFColor;
-import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.junit.Ignore;
 
+import net.sf.jett.model.ExcelColor;
 import net.sf.jett.tag.HyperlinkTag;
 import net.sf.jett.test.model.County;
 import net.sf.jett.test.model.Division;
@@ -33,7 +32,6 @@ import net.sf.jett.test.model.HyperlinkData;
 import net.sf.jett.test.model.State;
 import net.sf.jett.test.model.Team;
 import net.sf.jett.util.SheetUtil;
-import net.sf.jett.model.ExcelColor;
 
 /**
  * This utility class supplies beans maps for possibly multiple tests.  It also
@@ -694,21 +692,7 @@ public class TestUtility
          if (c != null)
          {
             Color color = c.getCellStyle().getFillForegroundColorColor();
-            if (color instanceof HSSFColor)
-            {
-               HSSFColor hssfColor = (HSSFColor) color;
-               return getHSSFColorHexString(hssfColor);
-            }
-            else if (color instanceof XSSFColor)
-            {
-               XSSFColor xssfColor = (XSSFColor) color;
-               return getXSSFColorHexString(xssfColor);
-            }
-            else
-            {
-               throw new IllegalArgumentException("Unexpected type of Color for cell on sheet " +
-                  sheet.getSheetName() + ", row " + row + ", col " + col);
-            }
+            return SheetUtil.getColorHexString(color);
          }
       }
       return null;
@@ -732,21 +716,7 @@ public class TestUtility
          if (c != null)
          {
             Color color = c.getCellStyle().getFillBackgroundColorColor();
-            if (color instanceof HSSFColor)
-            {
-               HSSFColor hssfColor = (HSSFColor) color;
-               return getHSSFColorHexString(hssfColor);
-            }
-            else if (color instanceof XSSFColor)
-            {
-               XSSFColor xssfColor = (XSSFColor) color;
-               return getXSSFColorHexString(xssfColor);
-            }
-            else
-            {
-               throw new IllegalArgumentException("Unexpected type of Color for cell on sheet " +
-                  sheet.getSheetName() + ", row " + row + ", col " + col);
-            }
+            return SheetUtil.getColorHexString(color);
          }
       }
       return null;
@@ -785,20 +755,20 @@ public class TestUtility
     */
    public static String getFontColorString(Workbook workbook, Font font)
    {
+      Color color;
       if (font instanceof HSSFFont)
       {
-         HSSFColor hssfColor = ((HSSFFont) font).getHSSFColor((HSSFWorkbook) workbook);
-         return getHSSFColorHexString(hssfColor);
+         color = ((HSSFFont) font).getHSSFColor((HSSFWorkbook) workbook);
       }
       else if (font instanceof XSSFFont)
       {
-         XSSFColor xssfColor = ((XSSFFont) font).getXSSFColor();
-         return getXSSFColorHexString(xssfColor);
+         color = ((XSSFFont) font).getXSSFColor();
       }
       else
       {
          throw new IllegalArgumentException("Unexpected type of Font: " + font.getClass().getName());
       }
+      return SheetUtil.getColorHexString(color);
    }
 
    /**
@@ -819,21 +789,21 @@ public class TestUtility
          if (c != null)
          {
             CellStyle cs = c.getCellStyle();
+            Color color;
             if (cs instanceof HSSFCellStyle)
             {
-               HSSFColor hssfColor = ExcelColor.getHssfColorByIndex(cs.getBottomBorderColor());
-               return getHSSFColorHexString(hssfColor);
+               color = ExcelColor.getHssfColorByIndex(cs.getBottomBorderColor());
             }
             else if (cs instanceof XSSFCellStyle)
             {
-               XSSFColor xssfColor = ((XSSFCellStyle) cs).getBottomBorderXSSFColor();
-               return getXSSFColorHexString(xssfColor);
+               color = ((XSSFCellStyle) cs).getBottomBorderXSSFColor();
             }
             else
             {
                throw new IllegalArgumentException("Unexpected type of CellStyle for cell on sheet " +
                   sheet.getSheetName() + ", row " + row + ", col " + col);
             }
+            return SheetUtil.getColorHexString(color);
          }
       }
       return null;
@@ -857,21 +827,21 @@ public class TestUtility
          if (c != null)
          {
             CellStyle cs = c.getCellStyle();
+            Color color;
             if (cs instanceof HSSFCellStyle)
             {
-               HSSFColor hssfColor = ExcelColor.getHssfColorByIndex(cs.getLeftBorderColor());
-               return getHSSFColorHexString(hssfColor);
+               color = ExcelColor.getHssfColorByIndex(cs.getLeftBorderColor());
             }
             else if (cs instanceof XSSFCellStyle)
             {
-               XSSFColor xssfColor = ((XSSFCellStyle) cs).getLeftBorderXSSFColor();
-               return getXSSFColorHexString(xssfColor);
+               color = ((XSSFCellStyle) cs).getLeftBorderXSSFColor();
             }
             else
             {
                throw new IllegalArgumentException("Unexpected type of CellStyle for cell on sheet " +
                   sheet.getSheetName() + ", row " + row + ", col " + col);
             }
+            return SheetUtil.getColorHexString(color);
          }
       }
       return null;
@@ -895,21 +865,21 @@ public class TestUtility
          if (c != null)
          {
             CellStyle cs = c.getCellStyle();
+            Color color;
             if (cs instanceof HSSFCellStyle)
             {
-               HSSFColor hssfColor = ExcelColor.getHssfColorByIndex(cs.getRightBorderColor());
-               return getHSSFColorHexString(hssfColor);
+               color = ExcelColor.getHssfColorByIndex(cs.getRightBorderColor());
             }
             else if (cs instanceof XSSFCellStyle)
             {
-               XSSFColor xssfColor = ((XSSFCellStyle) cs).getRightBorderXSSFColor();
-               return getXSSFColorHexString(xssfColor);
+               color = ((XSSFCellStyle) cs).getRightBorderXSSFColor();
             }
             else
             {
                throw new IllegalArgumentException("Unexpected type of CellStyle for cell on sheet " +
                   sheet.getSheetName() + ", row " + row + ", col " + col);
             }
+            return SheetUtil.getColorHexString(color);
          }
       }
       return null;
@@ -933,85 +903,24 @@ public class TestUtility
          if (c != null)
          {
             CellStyle cs = c.getCellStyle();
+            Color color;
             if (cs instanceof HSSFCellStyle)
             {
-               HSSFColor hssfColor = ExcelColor.getHssfColorByIndex(cs.getTopBorderColor());
-               return getHSSFColorHexString(hssfColor);
+               color = ExcelColor.getHssfColorByIndex(cs.getTopBorderColor());
             }
             else if (cs instanceof XSSFCellStyle)
             {
-               XSSFColor xssfColor = ((XSSFCellStyle) cs).getTopBorderXSSFColor();
-               return getXSSFColorHexString(xssfColor);
+               color = ((XSSFCellStyle) cs).getTopBorderXSSFColor();
             }
             else
             {
                throw new IllegalArgumentException("Unexpected type of CellStyle for cell on sheet " +
                   sheet.getSheetName() + ", row " + row + ", col " + col);
             }
+            return SheetUtil.getColorHexString(color);
          }
       }
       return null;
-   }
-
-   /**
-    * Get the hex string for a <code>Color</code>.
-    * @param color A <code>HSSFColor</code> or a <code>XSSFColor</code>.
-    * @return The hex string.
-    * @since 0.4.0
-    */
-   public static String getColorString(Color color)
-   {
-      if (color instanceof HSSFColor)
-      {
-         return getHSSFColorHexString((HSSFColor) color);
-      }
-      else
-      {
-         // XSSFColor
-         return getXSSFColorHexString((XSSFColor) color);
-      }
-   }
-
-   /**
-    * Get the hex string for a <code>HSSFColor</code>.
-    * @param hssfColor A <code>HSSFColor</code>.
-    * @return The hex string.
-    */
-   private static String getHSSFColorHexString(HSSFColor hssfColor)
-   {
-      short[] shorts = hssfColor.getTriplet();
-      StringBuilder hexString = new StringBuilder();
-      for (short s : shorts)
-      {
-         String twoHex = Integer.toHexString(0x000000FF & s);
-         if (twoHex.length() == 1)
-            hexString.append('0');
-         hexString.append(twoHex);
-      }
-      return hexString.toString();
-   }
-
-   /**
-    * Get the hex string for a <code>XSSFColor</code>.
-    * @param xssfColor A <code>XSSFColor</code>.
-    * @return The hex string.
-    */
-   private static String getXSSFColorHexString(XSSFColor xssfColor)
-   {
-      if (xssfColor == null)
-         return "000000";
-      byte[] bytes = xssfColor.getRgb();
-      StringBuilder hexString = new StringBuilder();
-      if (bytes == null)
-         return "000000";
-      for (byte b : bytes)
-      {
-         String twoHex = Integer.toHexString(0x000000FF & b);
-         if (twoHex.length() == 1)
-            hexString.append('0');
-         hexString.append(twoHex);
-      }
-      return hexString.toString();
    }
 
    /**

@@ -31,13 +31,13 @@ public abstract class TestCase
     */
    public static final double DELTA = 0.00000000001;
 
-   private static final String TEMPLATES_DIR = "templates/";
-   private static final String OUTPUT_DIR = "output/";
-   private static final String TEMPLATE_SUFFIX = "Template";
-   private static final String OUTPUT_SUFFIX = "Result";
-   private static final String XLS_EXT = ".xls";
-   private static final String XLSX_EXT = ".xlsx";
-   private static final String FILES_IND = "Files";
+   protected static final String TEMPLATES_DIR = "templates/";
+   protected static final String OUTPUT_DIR = "output/";
+   protected static final String TEMPLATE_SUFFIX = "Template";
+   protected static final String OUTPUT_SUFFIX = "Result";
+   protected static final String XLS_EXT = ".xls";
+   protected static final String XLSX_EXT = ".xlsx";
+   protected static final String FILES_IND = "Files";
 
    private boolean amISetup = false;
    private Map<String, Object> myBeansMap;

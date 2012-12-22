@@ -4,7 +4,7 @@ import java.util.Map;
 
 import org.apache.poi.ss.usermodel.RichTextString;
 
-import net.sf.jett.transform.WorkbookContext;
+import net.sf.jett.model.WorkbookContext;
 
 /**
  * <p>A <code>Tag</code> represents an XML tag that can reside in a

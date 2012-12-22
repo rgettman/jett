@@ -6,8 +6,8 @@ import java.util.Map;
 import org.apache.poi.ss.usermodel.RichTextString;
 
 import net.sf.jett.exception.TagParseException;
+import net.sf.jett.model.WorkbookContext;
 import net.sf.jett.parser.TagParser;
-import net.sf.jett.transform.WorkbookContext;
 
 /**
  * A <code>TagLibraryRegistry</code> represents a registry for all

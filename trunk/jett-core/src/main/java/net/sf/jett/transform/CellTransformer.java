@@ -17,6 +17,7 @@ import net.sf.jett.event.CellListener;
 import net.sf.jett.exception.TagParseException;
 import net.sf.jett.expression.Expression;
 import net.sf.jett.model.Block;
+import net.sf.jett.model.WorkbookContext;
 import net.sf.jett.parser.TagParser;
 import net.sf.jett.tag.Tag;
 import net.sf.jett.tag.TagContext;
