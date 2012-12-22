@@ -10,6 +10,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 
 import net.sf.jett.formula.Formula;
 import net.sf.jett.model.Block;
+import net.sf.jett.model.WorkbookContext;
 import net.sf.jett.parser.FormulaParser;
 import net.sf.jett.tag.TagContext;
 import net.sf.jett.util.FormulaUtil;

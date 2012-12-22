@@ -5,8 +5,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.poi.hssf.usermodel.HSSFCellStyle;
-import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.Cell;
@@ -25,6 +23,7 @@ import net.sf.jett.exception.TagParseException;
 import net.sf.jett.model.Alignment;
 import net.sf.jett.model.Block;
 import net.sf.jett.model.BorderType;
+import net.sf.jett.model.CellStyleCache;
 import net.sf.jett.model.ExcelColor;
 import net.sf.jett.model.FillPattern;
 import net.sf.jett.model.FontBoldweight;
@@ -32,8 +31,11 @@ import net.sf.jett.model.FontCharset;
 import net.sf.jett.model.FontTypeOffset;
 import net.sf.jett.model.FontUnderline;
 import net.sf.jett.model.VerticalAlignment;
+import net.sf.jett.model.WorkbookContext;
+import net.sf.jett.model.FontCache;
 import net.sf.jett.transform.BlockTransformer;
 import net.sf.jett.util.AttributeUtil;
+import net.sf.jett.util.SheetUtil;
 
 /**
  * <p>A <code>StyleTag</code> represents a dynamically determine style for a
@@ -859,6 +861,10 @@ public class StyleTag extends BaseTag
     */
    private void examineAndApplyStyle(Workbook workbook, Cell cell)
    {
+      WorkbookContext wc = getWorkbookContext();
+      CellStyleCache csCache = wc.getCellStyleCache();
+      FontCache fCache = wc.getFontCache();
+
       CellStyle cs = cell.getCellStyle();
       Font f = workbook.getFontAt(cs.getFontIndex());
 
@@ -888,35 +894,42 @@ public class StyleTag extends BaseTag
       short fontTypeOffset = (myFontTypeOffset != null) ? myFontTypeOffset.getIndex() : f.getTypeOffset();
       byte fontUnderline = (myFontUnderline != null) ? myFontUnderline.getIndex() : f.getUnderline();
       // Certain properties need a type of workbook check.
-      short hssfBottomBorderColor = -1;
-      short hssfLeftBorderColor = -1;
-      short hssfRightBorderColor = -1;
-      short hssfTopBorderColor = -1;
-      short hssfFontColor = -1;
-      XSSFColor xssfBottomBorderColor = null;
-      XSSFColor xssfLeftBorderColor = null;
-      XSSFColor xssfRightBorderColor = null;
-      XSSFColor xssfTopBorderColor = null;
-      XSSFColor xssfFontColor = null;
+      Color bottomBorderColor = null;
+      Color leftBorderColor = null;
+      Color rightBorderColor = null;
+      Color topBorderColor = null;
+      Color fontColor;
       short rotationDegrees;
       if (workbook instanceof HSSFWorkbook)
       {
-         hssfBottomBorderColor = (myBorderBottomColor != null) ? ((HSSFColor) myBorderBottomColor).getIndex() : cs.getBottomBorderColor();
-         hssfLeftBorderColor = (myBorderLeftColor != null) ? ((HSSFColor) myBorderLeftColor).getIndex() : cs.getLeftBorderColor();
-         hssfRightBorderColor = (myBorderRightColor != null) ? ((HSSFColor) myBorderRightColor).getIndex() : cs.getRightBorderColor();
-         hssfTopBorderColor = (myBorderTopColor != null) ? ((HSSFColor) myBorderTopColor).getIndex() : cs.getTopBorderColor();
+         short hssfBottomBorderColor = (myBorderBottomColor != null) ? ((HSSFColor) myBorderBottomColor).getIndex() : cs.getBottomBorderColor();
+         short hssfLeftBorderColor = (myBorderLeftColor != null) ? ((HSSFColor) myBorderLeftColor).getIndex() : cs.getLeftBorderColor();
+         short hssfRightBorderColor = (myBorderRightColor != null) ? ((HSSFColor) myBorderRightColor).getIndex() : cs.getRightBorderColor();
+         short hssfTopBorderColor = (myBorderTopColor != null) ? ((HSSFColor) myBorderTopColor).getIndex() : cs.getTopBorderColor();
+         short hssfFontColor = (myFontColor != null) ? ((HSSFColor) myFontColor).getIndex() : f.getColor();
+         if (hssfBottomBorderColor != 0)
+            bottomBorderColor = ExcelColor.getHssfColorByIndex(hssfBottomBorderColor);
+         if (hssfLeftBorderColor != 0)
+            leftBorderColor = ExcelColor.getHssfColorByIndex(hssfLeftBorderColor);
+         if (hssfRightBorderColor != 0)
+            rightBorderColor = ExcelColor.getHssfColorByIndex(hssfRightBorderColor);
+         if (hssfTopBorderColor != 0)
+            topBorderColor = ExcelColor.getHssfColorByIndex(hssfTopBorderColor);
+         fontColor = ExcelColor.getHssfColorByIndex(hssfFontColor);
+
          rotationDegrees = (myRotationDegrees != null) ? myRotationDegrees : cs.getRotation();
-         hssfFontColor = (myFontColor != null) ? ((HSSFColor) myFontColor).getIndex() : f.getColor();
       }
       else
       {
          // XSSFWorkbook
          XSSFCellStyle xcs = (XSSFCellStyle) cs;
-         xssfBottomBorderColor = (myBorderBottomColor != null) ? ((XSSFColor) myBorderBottomColor) : xcs.getBottomBorderXSSFColor();
-         xssfLeftBorderColor = (myBorderLeftColor != null) ? ((XSSFColor) myBorderLeftColor) : xcs.getLeftBorderXSSFColor();
-         xssfRightBorderColor = (myBorderRightColor != null) ? ((XSSFColor) myBorderRightColor) : xcs.getRightBorderXSSFColor();
-         xssfTopBorderColor = (myBorderTopColor != null) ? ((XSSFColor) myBorderTopColor) : xcs.getTopBorderXSSFColor();
-         // XSSF: Negative values don't make as much sense as in HSSF.
+         bottomBorderColor = (myBorderBottomColor != null) ? ((XSSFColor) myBorderBottomColor) : xcs.getBottomBorderXSSFColor();
+         leftBorderColor = (myBorderLeftColor != null) ? ((XSSFColor) myBorderLeftColor) : xcs.getLeftBorderXSSFColor();
+         rightBorderColor = (myBorderRightColor != null) ? ((XSSFColor) myBorderRightColor) : xcs.getRightBorderXSSFColor();
+         topBorderColor = (myBorderTopColor != null) ? ((XSSFColor) myBorderTopColor) : xcs.getTopBorderXSSFColor();
+         fontColor = (myFontColor != null) ? ((XSSFColor) myFontColor) : ((XSSFFont) f).getXSSFColor();
+
+         // XSSF: Negative rotation values don't make as much sense as in HSSF.
          // From 0-90, they coincide.
          // But HSSF -1  => XSSF 91 , HSSF -15 => XSSF 105,
          //     HSSF -90 => XSSF 180.
@@ -925,22 +938,6 @@ public class StyleTag extends BaseTag
          {
             rotationDegrees = (short) (90 - rotationDegrees);
          }
-         // As of Apache POI 3.8, there are Bugs 51236 and 52079 about font
-         // color where somehow black and white get switched.  It appears to
-         // have something to do with the fact that XSSFColor(byte[]) does
-         // NOT call "correctRGB", but XSSFColor.setRgb(byte[]) DOES call
-         // it, and so does XSSFColor.getRgb(byte[]).
-         // The private method "correctRGB" flips black and white, but no
-         // other colors.  However, correctRGB is its own inverse operation,
-         // i.e. correctRGB(correctRGB(rgb)) yields the same bytes as rgb.
-         // XSSFFont.setColor(XSSFColor) calls "getRGB", but
-         // XSSFCellStyle.set[Xx]BorderColor and
-         // XSSFCellStyle.setFill[Xx]Color do NOT.  So apply a correction
-         // HERE, with the font color coming back from the existing Font.
-         // Solution: Re-correct the font color on the way in by calling
-         // "getRgb()", which internally calls "correctRGB".
-         xssfFontColor = (myFontColor != null) ? ((XSSFColor) myFontColor) : new XSSFColor(((XSSFFont) f).getXSSFColor().getRgb());
-         // End of fix for Bugs 51236 and 52079.
       }
 
       // Process row height/column width separately.
@@ -954,391 +951,52 @@ public class StyleTag extends BaseTag
       }
 
       // At this point, we have all of the desired CellStyle and Font
-      // characteristics.  Find one if it exists.
-      short numCellStyles = workbook.getNumCellStyles();
-      short numFonts = workbook.getNumberOfFonts();
-      CellStyle foundStyle = null;
-      Font foundFont = null;
-      boolean fontFoundWithCellStyle = false;
-      // Find a matching CellStyle, hopefully with a matching Font.
-      for (short i = 0; i < numCellStyles; i++)
-      {
-         CellStyle candidateStyle = workbook.getCellStyleAt(i);
-         if (cellStyleMatches(candidateStyle, alignment, borderBottom, borderLeft,
-            borderRight, borderTop, dataFormat, wrapText, fillBackgroundColor, fillForegroundColor,
-            fillPattern, verticalAlignment, indention, rotationDegrees, hssfBottomBorderColor,
-            hssfLeftBorderColor, hssfRightBorderColor, hssfTopBorderColor, xssfBottomBorderColor,
-            xssfLeftBorderColor, xssfRightBorderColor, xssfTopBorderColor, locked, hidden))
-         {
-            foundStyle = candidateStyle;
-            if (DEBUG)
-               System.err.println("  Style found.");
-            Font candidateFont = workbook.getFontAt(candidateStyle.getFontIndex());
-            if (fontMatches(f, fontBoldweight, fontItalic, hssfFontColor, xssfFontColor, fontName,
-               fontHeightInPoints, fontUnderline, fontStrikeout, fontCharset, fontTypeOffset))
-            {
-               foundFont = candidateFont;
-               fontFoundWithCellStyle = true;
-               if (DEBUG)
-                  System.err.println("    Font found with style!");
-               break;
-            }
-         }
-      }
+      // characteristics.  Find a CellStyle if it exists.
+      CellStyle foundStyle = csCache.retrieveCellStyle(fontBoldweight, fontItalic, fontColor, fontName,
+         fontHeightInPoints, alignment, borderBottom, borderLeft, borderRight, borderTop, dataFormat, fontUnderline,
+         fontStrikeout, wrapText, fillBackgroundColor, fillForegroundColor, fillPattern, verticalAlignment, indention,
+         rotationDegrees, bottomBorderColor, leftBorderColor, rightBorderColor, topBorderColor, fontCharset,
+         fontTypeOffset, locked, hidden);
 
       // Find the Font if not already found.
-      if (foundFont == null)
+      if (foundStyle == null)
       {
-         for (short i = 0; i < numFonts; i++)
-         {
-            Font candidateFont = workbook.getFontAt(i);
-            if (fontMatches(f, fontBoldweight, fontItalic, hssfFontColor, xssfFontColor, fontName,
-               fontHeightInPoints, fontUnderline, fontStrikeout, fontCharset, fontTypeOffset))
-            {
-               foundFont = candidateFont;
-               if (DEBUG)
-                  System.err.println("  Font found separately.");
-               break;
-            }
-         }
-      }
-      // If Font still not found, then create it.
-      if (foundFont == null)
-      {
-         foundFont = createFont(workbook, fontBoldweight, fontItalic, hssfFontColor, xssfFontColor, fontName,
-            fontHeightInPoints, fontUnderline, fontStrikeout, fontCharset, fontTypeOffset);
-         if (DEBUG)
-            System.err.println("  Font created.");
-      }
+         //short numFonts = workbook.getNumberOfFonts();
+         //long start = System.nanoTime();
+         Font foundFont = fCache.retrieveFont(fontBoldweight, fontItalic, fontColor, fontName,
+               fontHeightInPoints, fontUnderline, fontStrikeout, fontCharset, fontTypeOffset);
+         //long end = System.nanoTime();
+         //System.err.println("Find Font: " + (end - start) + " ns");
 
-      // Set the CellStyle with the Font, creating the CellStyle if necessary.
-      if (foundStyle != null)
-      {
-         if (fontFoundWithCellStyle)
+         // If Font still not found, then create it.
+         if (foundFont == null)
          {
-            // Both found together.
-            cell.setCellStyle(foundStyle);
+            //start = System.nanoTime();
+            foundFont = SheetUtil.createFont(workbook, fontBoldweight, fontItalic, fontColor, fontName,
+               fontHeightInPoints, fontUnderline, fontStrikeout, fontCharset, fontTypeOffset);
+            //end = System.nanoTime();
+            //System.err.println("Create Font: " + (end - start) + " ns");
+            fCache.cacheFont(foundFont);
             if (DEBUG)
-               System.err.println("  Setting existing CellStyle/Font!");
+               System.err.println("  Font created.");
          }
-         else
-         {
-            // Found both, but not together.
-            // Tried "cloneStyleFrom", but even though the new CellStyle
-            // contains the correct Font, Excel didn't display the new Font.
-            // Just create a new CellStyle.
-            //CellStyle newStyle = workbook.createCellStyle();
-            //newStyle.cloneStyleFrom(foundStyle);
-            CellStyle newStyle = createCellStyle(workbook, alignment, borderBottom, borderLeft,
-               borderRight, borderTop, dataFormat, wrapText, fillBackgroundColor, fillForegroundColor,
-               fillPattern, verticalAlignment, indention, rotationDegrees, hssfBottomBorderColor,
-               hssfLeftBorderColor, hssfRightBorderColor, hssfTopBorderColor, xssfBottomBorderColor,
-               xssfLeftBorderColor, xssfRightBorderColor, xssfTopBorderColor, locked, hidden);
 
-            newStyle.setFont(foundFont);
-            cell.setCellStyle(newStyle);
-            CellStyle retrievedStyle = cell.getCellStyle();
-            if (DEBUG)
-            {
-               System.err.println("  foundStyle.font: " + workbook.getFontAt(foundStyle.getFontIndex()));
-               System.err.println("  foundFont: " + foundFont);
-               System.err.println("  newStyle.font: " + workbook.getFontAt(newStyle.getFontIndex()));
-               System.err.println("  retrievedStyle.font: " + workbook.getFontAt(retrievedStyle.getFontIndex()));
-               System.err.println("  Setting cloned style with Font.");
-            }
-         }
-      }
-      else
-      {
-         // Create the CellStyle, using the existing font.
-         foundStyle = createCellStyle(workbook, alignment, borderBottom, borderLeft,
+         // Create the new CellStyle.
+         //start = System.nanoTime();
+         foundStyle = SheetUtil.createCellStyle(workbook, alignment, borderBottom, borderLeft,
             borderRight, borderTop, dataFormat, wrapText, fillBackgroundColor, fillForegroundColor,
-            fillPattern, verticalAlignment, indention, rotationDegrees, hssfBottomBorderColor,
-            hssfLeftBorderColor, hssfRightBorderColor, hssfTopBorderColor, xssfBottomBorderColor,
-            xssfLeftBorderColor, xssfRightBorderColor, xssfTopBorderColor, locked, hidden);
+            fillPattern, verticalAlignment, indention, rotationDegrees, bottomBorderColor,
+            leftBorderColor, rightBorderColor, topBorderColor, locked, hidden);
          foundStyle.setFont(foundFont);
-         cell.setCellStyle(foundStyle);
+         //end = System.nanoTime();
+         //System.err.println("Create CS: " + (end - start) + " ns");
+
+         csCache.cacheCellStyle(foundStyle);
          if (DEBUG)
-            System.err.println("  Created and set new style.");
-      }
-   }
-
-   /**
-    * Helper method to determine if a <code>CellStyle</code> matches the given
-    * attributes.
-    * @param cs A <code>CellStyle</code>.
-    * @param alignment A <code>short</code> alignment constant.
-    * @param borderBottom A <code>short</code> border type constant.
-    * @param borderLeft A <code>short</code> border type constant.
-    * @param borderRight A <code>short</code> border type constant.
-    * @param borderTop A <code>short</code> border type constant.
-    * @param dataFormat A data format string.
-    * @param wrapText Whether text is wrapped.
-    * @param fillBackgroundColor A background <code>Color</code>.
-    * @param fillForegroundColor A foreground <code>Color</code>.
-    * @param fillPattern A <code>short</code> pattern constant.
-    * @param verticalAlignment A <code>short</code> vertical alignment constant.
-    * @param indention A <code>short</code> number of indent characters.
-    * @param rotationDegrees A <code>short</code> degrees rotation of text.
-    * @param hssfBottomBorderColor A border <code>short</code> index.
-    * @param hssfLeftBorderColor A border <code>short</code> index.
-    * @param hssfRightBorderColor A border <code>short</code> index.
-    * @param hssfTopBorderColor A border <code>short</code> index.
-    * @param xssfBottomBorderColor A border <code>XSSFColor</code>.
-    * @param xssfLeftBorderColor A border <code>XSSFColor</code>.
-    * @param xssfRightBorderColor A border <code>XSSFColor</code>.
-    * @param xssfTopBorderColor A border <code>XSSFColor</code>.
-    * @param locked Whether the cell is locked.
-    * @param hidden Whether the cell is hidden.
-    * @return <code>true</code> if the given <code>CellStyle</code> matches all
-    *    attributes, <code>false</code> if it doesn't match at least one
-    *    attribute.
-    */
-   private boolean cellStyleMatches(CellStyle cs, short alignment, short borderBottom, short borderLeft,
-      short borderRight, short borderTop, String dataFormat, boolean wrapText, Color fillBackgroundColor,
-      Color fillForegroundColor, short fillPattern, short verticalAlignment, short indention,
-      short rotationDegrees, short hssfBottomBorderColor, short hssfLeftBorderColor, short hssfRightBorderColor,
-      short hssfTopBorderColor, XSSFColor xssfBottomBorderColor, XSSFColor xssfLeftBorderColor,
-      XSSFColor xssfRightBorderColor, XSSFColor xssfTopBorderColor, boolean locked, boolean hidden)
-   {
-      if (cs instanceof HSSFCellStyle)
-      {
-         HSSFCellStyle hcs = (HSSFCellStyle) cs;
-         return (hcs.getAlignment() == alignment &&
-            hcs.getBorderBottom() == borderBottom &&
-            hcs.getBorderLeft() == borderLeft &&
-            hcs.getBorderRight() == borderRight &&
-            hcs.getBorderTop() == borderTop &&
-            hcs.getDataFormatString().equals(dataFormat) &&
-            hcs.getWrapText() == wrapText &&
-            hcs.getFillBackgroundColor() == ((HSSFColor) fillBackgroundColor).getIndex() &&
-            hcs.getFillForegroundColor() == ((HSSFColor) fillForegroundColor).getIndex() &&
-            hcs.getFillPattern() == fillPattern &&
-            hcs.getVerticalAlignment() == verticalAlignment &&
-            hcs.getIndention() == indention &&
-            hcs.getRotation() == rotationDegrees &&
-            hcs.getBottomBorderColor() == hssfBottomBorderColor &&
-            hcs.getLeftBorderColor() == hssfLeftBorderColor &&
-            hcs.getRightBorderColor() == hssfRightBorderColor &&
-            hcs.getTopBorderColor() == hssfTopBorderColor &&
-            hcs.getLocked() == locked &&
-            hcs.getHidden() == hidden);
-      }
-      else
-      {
-         // XSSF
-         XSSFCellStyle xcs = (XSSFCellStyle) cs;
-         return (xcs.getAlignment() == alignment &&
-            xcs.getBorderBottom() == borderBottom &&
-            xcs.getBorderLeft() == borderLeft &&
-            xcs.getBorderRight() == borderRight &&
-            xcs.getBorderTop() == borderTop &&
-            xcs.getDataFormatString().equals(dataFormat) &&
-            xcs.getWrapText() == wrapText &&
-            ((xcs.getFillBackgroundXSSFColor() == null && fillBackgroundColor == null) ||
-             (xcs.getFillBackgroundXSSFColor() != null && xcs.getFillBackgroundXSSFColor().equals(fillBackgroundColor))) &&
-            ((xcs.getFillForegroundXSSFColor() == null && fillForegroundColor == null) ||
-             (xcs.getFillForegroundXSSFColor() != null && xcs.getFillForegroundXSSFColor().equals(fillForegroundColor))) &&
-            xcs.getFillPattern() == fillPattern &&
-            xcs.getVerticalAlignment() == verticalAlignment &&
-            xcs.getIndention() == indention &&
-            xcs.getRotation() == rotationDegrees &&
-            ((xcs.getBottomBorderXSSFColor() == null && xssfBottomBorderColor == null) ||
-             (xcs.getBottomBorderXSSFColor() != null && xcs.getBottomBorderXSSFColor().equals(xssfBottomBorderColor))) &&
-            ((xcs.getLeftBorderXSSFColor() == null && xssfLeftBorderColor == null) ||
-             (xcs.getLeftBorderXSSFColor() != null && xcs.getLeftBorderXSSFColor().equals(xssfLeftBorderColor))) &&
-            ((xcs.getRightBorderXSSFColor() == null && xssfRightBorderColor == null) ||
-             (xcs.getRightBorderXSSFColor() != null && xcs.getRightBorderXSSFColor().equals(xssfRightBorderColor))) &&
-            ((xcs.getTopBorderXSSFColor() == null && xssfTopBorderColor == null) ||
-             (xcs.getTopBorderXSSFColor() != null && xcs.getTopBorderXSSFColor().equals(xssfTopBorderColor))) &&
-            xcs.getLocked() == locked &&
-            xcs.getHidden() == hidden);
-      }
-   }
-
-   /**
-    * Helper method to determine if a <code>Font</code> matches the given
-    * attributes.
-    * @param f A <code>Font</code>.
-    * @param fontBoldweight A <code>short</code> boldweight constant.
-    * @param fontItalic Whether the text is italic.
-    * @param hssfFontColor A color <code>short</code> index.
-    * @param xssfFontColor A color <code>XSSFColor</code>.
-    * @param fontName A font name.
-    * @param fontHeightInPoints A <code>short</code> font height in points.
-    * @param fontUnderline A <code>byte</code> underline constant.
-    * @param fontStrikeout Whether the font is strikeout.
-    * @param fontCharset An <code>int</code> charset constant.
-    * @param fontTypeOffset A <code>short</code> type offset constant.
-    * @return <code>true</code> if the given <code>Font</code> matches all
-    *    attributes, <code>false</code> if it doesn't match at least one
-    *    attribute.
-    */
-   private boolean fontMatches(Font f, short fontBoldweight, boolean fontItalic, short hssfFontColor,
-      XSSFColor xssfFontColor, String fontName, short fontHeightInPoints, byte fontUnderline,
-      boolean fontStrikeout, int fontCharset, short fontTypeOffset)
-   {
-      return (f.getBoldweight() == fontBoldweight &&
-              f.getItalic() == fontItalic &&
-              ((f instanceof HSSFFont && f.getColor() == hssfFontColor) ||
-               (f instanceof XSSFFont && ((XSSFFont)f).getXSSFColor().equals(xssfFontColor))) &&
-              f.getFontName().equals(fontName) &&
-              f.getFontHeightInPoints() == fontHeightInPoints &&
-              f.getUnderline() == fontUnderline &&
-              f.getStrikeout() == fontStrikeout &&
-              f.getCharSet() == fontCharset &&
-              f.getTypeOffset() == fontTypeOffset
-            );
-   }
-
-   /**
-    * Creates a new <code>CellStyle</code> for the given <code>Workbook</code>,
-    * with the given attributes.
-    * @param workbook A <code>Workbook</code>.
-    * @param alignment A <code>short</code> alignment constant.
-    * @param borderBottom A <code>short</code> border type constant.
-    * @param borderLeft A <code>short</code> border type constant.
-    * @param borderRight A <code>short</code> border type constant.
-    * @param borderTop A <code>short</code> border type constant.
-    * @param dataFormat A data format string.
-    * @param wrapText Whether text is wrapped.
-    * @param fillBackgroundColor A background <code>Color</code>.
-    * @param fillForegroundColor A foreground <code>Color</code>.
-    * @param fillPattern A <code>short</code> pattern constant.
-    * @param verticalAlignment A <code>short</code> vertical alignment constant.
-    * @param indention A <code>short</code> number of indent characters.
-    * @param rotationDegrees A <code>short</code> degrees rotation of text.
-    * @param hssfBottomBorderColor A border <code>short</code> index.
-    * @param hssfLeftBorderColor A border <code>short</code> index.
-    * @param hssfRightBorderColor A border <code>short</code> index.
-    * @param hssfTopBorderColor A border <code>short</code> index.
-    * @param xssfBottomBorderColor A border <code>XSSFColor</code>.
-    * @param xssfLeftBorderColor A border <code>XSSFColor</code>.
-    * @param xssfRightBorderColor A border <code>XSSFColor</code>.
-    * @param xssfTopBorderColor A border <code>XSSFColor</code>.
-    * @param locked Whether the cell is locked.
-    * @param hidden Whether the cell is hidden.
-    * @return A new <code>CellStyle</code>.
-    */
-   private CellStyle createCellStyle(Workbook workbook, short alignment, short borderBottom, short borderLeft,
-      short borderRight, short borderTop, String dataFormat, boolean wrapText, Color fillBackgroundColor,
-      Color fillForegroundColor, short fillPattern, short verticalAlignment, short indention,
-      short rotationDegrees, short hssfBottomBorderColor, short hssfLeftBorderColor, short hssfRightBorderColor,
-      short hssfTopBorderColor, XSSFColor xssfBottomBorderColor, XSSFColor xssfLeftBorderColor,
-      XSSFColor xssfRightBorderColor, XSSFColor xssfTopBorderColor, boolean locked, boolean hidden)
-   {
-      CellStyle cs = workbook.createCellStyle();
-      cs.setAlignment(alignment);
-      cs.setBorderBottom(borderBottom);
-      cs.setBorderLeft(borderLeft);
-      cs.setBorderRight(borderRight);
-      cs.setBorderTop(borderTop);
-      cs.setDataFormat(workbook.getCreationHelper().createDataFormat().getFormat(dataFormat));
-      cs.setHidden(hidden);
-      cs.setIndention(indention);
-      cs.setLocked(locked);
-      cs.setRotation(rotationDegrees);
-      cs.setVerticalAlignment(verticalAlignment);
-      cs.setWrapText(wrapText);
-      // Certain properties need a type of workbook check.
-      if (workbook instanceof HSSFWorkbook)
-      {
-         cs.setBottomBorderColor(hssfBottomBorderColor);
-         cs.setLeftBorderColor(hssfLeftBorderColor);
-         cs.setRightBorderColor(hssfRightBorderColor);
-         cs.setTopBorderColor(hssfTopBorderColor);
-         // Per POI Javadocs, set foreground color first!
-         cs.setFillForegroundColor(((HSSFColor) fillForegroundColor).getIndex());
-         cs.setFillBackgroundColor(((HSSFColor) fillBackgroundColor).getIndex());
-      }
-      else
-      {
-         // XSSFWorkbook
-         XSSFCellStyle xcs = (XSSFCellStyle) cs;
-         if (xssfBottomBorderColor != null)
-            xcs.setBottomBorderColor(xssfBottomBorderColor);
-         if (xssfLeftBorderColor != null)
-            xcs.setLeftBorderColor(xssfLeftBorderColor);
-         if (xssfRightBorderColor != null)
-            xcs.setRightBorderColor(xssfRightBorderColor);
-         if (xssfTopBorderColor != null)
-            xcs.setTopBorderColor(xssfTopBorderColor);
-         // Per POI Javadocs, set foreground color first!
-         if (fillForegroundColor != null)
-            xcs.setFillForegroundColor((XSSFColor) fillForegroundColor);
-         if (fillBackgroundColor != null)
-            xcs.setFillBackgroundColor((XSSFColor) fillBackgroundColor);
-      }
-      cs.setFillPattern(fillPattern);
-      return cs;
-   }
-
-   /**
-    * Creates a new <code>Font</code> for the given <code>Workbook</code>,
-    * with the given attributes.
-    * @param workbook A <code>Workbook</code>.
-    * @param fontBoldweight A <code>short</code> boldweight constant.
-    * @param fontItalic Whether the text is italic.
-    * @param hssfFontColor A color <code>short</code> index.
-    * @param xssfFontColor A color <code>XSSFColor</code>.
-    * @param fontName A font name.
-    * @param fontHeightInPoints A <code>short</code> font height in points.
-    * @param fontUnderline A <code>byte</code> underline constant.
-    * @param fontStrikeout Whether the font is strikeout.
-    * @param fontCharset An <code>int</code> charset constant.
-    * @param fontTypeOffset A <code>short</code> type offset constant.
-    * @return A new <code>Font</code>.
-    */
-   private Font createFont(Workbook workbook, short fontBoldweight, boolean fontItalic, short hssfFontColor,
-      XSSFColor xssfFontColor, String fontName, short fontHeightInPoints, byte fontUnderline,
-      boolean fontStrikeout, int fontCharset, short fontTypeOffset)
-   {
-      if (DEBUG)
-      {
-         System.err.println("createFont: " + fontBoldweight + "," + fontItalic + "," + hssfFontColor + "," +
-            ((xssfFontColor == null) ? "null" : xssfFontColor.getCTColor().toString()) + "," + fontName + "," +
-            fontHeightInPoints + "," + fontUnderline + "," + fontStrikeout + "," + fontCharset + "," + fontTypeOffset);
-      }
-      Font f = workbook.createFont();
-      f.setBoldweight(fontBoldweight);
-      f.setItalic(fontItalic);
-      f.setFontName(fontName);
-      f.setFontHeightInPoints(fontHeightInPoints);
-      f.setUnderline(fontUnderline);
-      f.setStrikeout(fontStrikeout);
-      f.setCharSet(fontCharset);
-      f.setTypeOffset(fontTypeOffset);
-      // Certain properties need a type of workbook check.
-      if (workbook instanceof HSSFWorkbook)
-      {
-         f.setColor(hssfFontColor);
-      }
-      else
-      {
-         // XSSFWorkbook
-         XSSFFont xf = (XSSFFont) f;
-         if (xssfFontColor != null)
-         {
-            // As of Apache POI 3.8, there are Bugs 51236 and 52079 about font
-            // color where somehow black and white get switched.  It appears to
-            // have something to do with the fact that XSSFColor(byte[]) does
-            // NOT call "correctRGB", but XSSFColor.setRgb(byte[]) DOES call
-            // it, and so does XSSFColor.getRgb(byte[]).
-            // The private method "correctRGB" flips black and white, but no
-            // other colors.  However, correctRGB is its own inverse operation,
-            // i.e. correctRGB(correctRGB(rgb)) yields the same bytes as rgb.
-            // XSSFFont.setColor(XSSFColor) calls "getRGB", but
-            // XSSFCellStyle.set[Xx]BorderColor and
-            // XSSFCellStyle.setFill[Xx]Color do NOT.  So apply a correction
-            // HERE, with the font color.
-            // Solution: Re-correct the font color on the way in.
-            XSSFColor fixedXssfColor = new XSSFColor(xssfFontColor.getRgb());
-            xf.setColor(fixedXssfColor);
-            // End of workaround for Bugs 51236 and  52079.
-         }
+            System.err.println("  Created new style.");
       }
 
-      return f;
+      cell.setCellStyle(foundStyle);
    }
 
    /**

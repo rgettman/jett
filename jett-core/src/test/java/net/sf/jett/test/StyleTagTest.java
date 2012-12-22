@@ -32,6 +32,7 @@ import net.sf.jett.model.FillPattern;
 import net.sf.jett.model.FontBoldweight;
 import net.sf.jett.model.FontTypeOffset;
 import net.sf.jett.tag.StyleTag;
+import net.sf.jett.util.SheetUtil;
 
 /**
  * This JUnit Test class tests the evaluation of the "style" tag (always
@@ -255,7 +256,7 @@ public class StyleTagTest extends TestCase
       String autoColorString = "000000";
       for (int i = 0; i < hssfColors.size(); i++)
       {
-         String colorString = TestUtility.getColorString(colors.get(i));
+         String colorString = SheetUtil.getColorHexString(colors.get(i));
          int row = 2 * i + 1;
 
          // Entire border
@@ -341,8 +342,8 @@ public class StyleTagTest extends TestCase
          int r = 2 * i + 1;
          for (int c = 0; c < backgroundColors.size(); c++)
          {
-            String backgroundColor = TestUtility.getColorString(backgroundColors.get(c));
-            String foregroundColor = TestUtility.getColorString(foregroundColors.get(c));
+            String backgroundColor = SheetUtil.getColorHexString(backgroundColors.get(c));
+            String foregroundColor = SheetUtil.getColorHexString(foregroundColors.get(c));
             assertEquals(backgroundColor, TestUtility.getCellBackgroundColorString(backForePattern, r, c));
             assertEquals(foregroundColor, TestUtility.getCellForegroundColorString(backForePattern, r, c));
             assertEquals(fillPattern, TestUtility.getCellFillPattern(backForePattern, r, c));
@@ -425,10 +426,11 @@ public class StyleTagTest extends TestCase
          charsets.add(charset.getValue());
       for (int r = 0; r < hssfColors.size(); r++)
       {
-         String colorString = TestUtility.getColorString(colors.get(r));
+         String colorString = SheetUtil.getColorHexString(colors.get(r));
 
          for (int c = 0; c < charsets.size(); c++)
          {
+            //System.err.println("Testing FontColorCharset (r,c) (" + r + "," + c + ")");
             f = workbook.getFontAt(TestUtility.getCellStyle(fontColorCharset, r, c).getFontIndex());
             assertEquals(colorString, TestUtility.getFontColorString(workbook, f));
             assertEquals(charsets.get(c).intValue(), f.getCharSet());

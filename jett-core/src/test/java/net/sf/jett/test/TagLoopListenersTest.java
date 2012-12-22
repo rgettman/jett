@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.junit.Test;
@@ -67,6 +68,7 @@ public class TagLoopListenersTest extends TestCase
          {
             for (int r = 1; r < 9; r++)
             {
+               //System.err.println("TagLoopListeners: Testing s: " + s + ", c: " + c + ", r: " + r);
                if ((r - 1) / 2 % 2 == 0)
                {
                   // r is 1, 2, 5, 6
@@ -76,7 +78,7 @@ public class TagLoopListenersTest extends TestCase
                {
                   // r is 3, 4, 7, 8
                   assertEquals(CellStyle.SOLID_FOREGROUND, TestUtility.getCellFillPattern(sheet, r, c));
-                  assertEquals("c0c0c0", TestUtility.getCellForegroundColorString(sheet, r, c));
+                  assertEquals(IndexedColors.GREY_25_PERCENT.getIndex(), TestUtility.getCellStyle(sheet, r, c).getFillForegroundColor());
                }
             }
          }

@@ -20,6 +20,9 @@ import net.sf.jett.expression.Expression;
 import net.sf.jett.expression.ExpressionFactory;
 import net.sf.jett.formula.CellRef;
 import net.sf.jett.formula.Formula;
+import net.sf.jett.model.WorkbookContext;
+import net.sf.jett.model.CellStyleCache;
+import net.sf.jett.model.FontCache;
 import net.sf.jett.tag.JtTagLibrary;
 import net.sf.jett.tag.TagLibrary;
 import net.sf.jett.tag.TagLibraryRegistry;
@@ -434,6 +437,10 @@ public class ExcelTransformer
       context.setFormulaMap(formulaMap);
       Map<String, List<CellRef>> cellRefMap = FormulaUtil.createCellRefMap(formulaMap);
       context.setCellRefMap(cellRefMap);
+      CellStyleCache csCache = new CellStyleCache(workbook);
+      context.setCellStyleCache(csCache);
+      FontCache fCache = new FontCache(workbook);
+      context.setFontCache(fCache);
       if (DEBUG)
       {
          System.err.println("Formula Map:");

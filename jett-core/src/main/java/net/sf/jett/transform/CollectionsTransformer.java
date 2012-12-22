@@ -16,6 +16,7 @@ import net.sf.jett.exception.TagParseException;
 import net.sf.jett.expression.Expression;
 import net.sf.jett.expression.ExpressionFactory;
 import net.sf.jett.model.Block;
+import net.sf.jett.model.WorkbookContext;
 import net.sf.jett.parser.MetadataParser;
 import net.sf.jett.tag.BaseLoopTag;
 import net.sf.jett.tag.BaseTag;

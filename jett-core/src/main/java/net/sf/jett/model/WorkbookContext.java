@@ -1,4 +1,4 @@
-package net.sf.jett.transform;
+package net.sf.jett.model;
 
 import java.util.List;
 import java.util.Map;
@@ -23,6 +23,8 @@ public class WorkbookContext
    private Map<String, Formula> myFormulaMap;
    private Map<String, List<CellRef>> myCellRefMap;
    private int mySequenceNbr;
+   private CellStyleCache myCellStyleCache;
+   private FontCache myFontCache;
 
    /**
     * Initializes things to null/0.
@@ -36,6 +38,8 @@ public class WorkbookContext
       myFormulaMap = null;
       myCellRefMap = null;
       mySequenceNbr = 0;
+      myCellStyleCache = null;
+      myFontCache = null;
    }
 
    /**
@@ -180,5 +184,44 @@ public class WorkbookContext
    public void incrSequenceNbr()
    {
       mySequenceNbr++;
+   }
+
+   /**
+    * Returns the <code>CellStyleCache</code>.
+    * @return The <code>CellStyleCache</code>.
+    * @since 0.5.0
+    */
+   public CellStyleCache getCellStyleCache()
+   {
+      return myCellStyleCache;
+   }
+
+   /**
+    * Sets the <code>CellStyleCache</code>.
+    * @param cache A <code>CellStyleCache</code>.
+    * @since 0.5.0
+    */
+   public void setCellStyleCache(CellStyleCache cache)
+   {
+      myCellStyleCache = cache;
+   }
+
+   /**
+    * Returns the <code>FontCache</code>.
+    * @return The <code>FontCache</code>.
+    * @since 0.5.0
+    */
+   public FontCache getFontCache()
+   {
+      return myFontCache;
+   }
+
+   /**
+    * Sets the <code>FontCache</code>.
+    * @param cache The <code>FontCache</code>.
+    */
+   public void setFontCache(FontCache cache)
+   {
+      myFontCache = cache;
    }
 }
