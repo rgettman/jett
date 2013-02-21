@@ -115,7 +115,7 @@ public class MetadataParser
    }
 
    /**
-    * Sets the tag text to the given tag text and resets the parser.
+    * Sets the metadata text to the given metadata text and resets the parser.
     * @param metadataText The new metadata text.
     */
    public void setMetadataText(String metadataText)

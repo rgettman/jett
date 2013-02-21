@@ -32,6 +32,21 @@ public class Employee
    }
 
    /**
+    * Constructs an <code>Employee</code> out of an integer seed.  Leaves
+    * the manager and isManager properties false/null.
+    * @param seed The seed.
+    * @since 0.5.0
+    */
+   public Employee(int seed)
+   {
+      myFirstName = "First" + seed;
+      myLastName = "Last" + seed;
+      mySalary = 1000 + seed;
+      myTitle = "Title" + (seed / 100);
+      myCatchPhrase = "Generic Catch Phrase #" + seed;
+   }
+
+   /**
     * Returns the first name.
     * @return The first name.
     */

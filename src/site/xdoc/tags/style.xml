@@ -16,7 +16,7 @@
             <h1>Attributes</h1>
             <ul>
                 <li>The "style" tag supports all <a href="basics.html">base tag attributes</a>.</li>
-                <li><strong>style: String</strong> Required.  This attribute works like the "style"
+                <li><strong>style: String</strong> Optional.  This attribute works like the "style"
                     attribute in HTML, in that one can specify one or more style elements in a
                     <code>property: value;property: value</code> style.  If a property is
                     specified, then it will override whatever value is already present in the
@@ -27,6 +27,15 @@
                     value is already present in the <code>Cell</code>.  Property names and values
                     may be specified in a case insensitive-fashion, i.e. "CENTER" = "Center" =
                     "center".</li>
+                <li><strong>class: String</strong> Optional.  This attribute works like the "class"
+                    attribute in HTML, in that one can specify one or more pre-defined
+                    <em>style classes</em> that contain style elements to apply, in a
+                    semicolon-delimited list of class names.  Style classes are defined in CSS-like
+                    files that are registered with the <code>ExcelTransformer</code> prior to
+                    transformation, with the <code>addCssFile(String filename)</code> or
+                    <code>addCssText(String cssText)</code> methods.  Each subsequent class name
+                    overrides the previous class name.  The <code>style</code> attribute overrides
+                    any class specified here.</li>
             </ul>
             <h1>Properties</h1>
             <p>The following properties control alignment, borders, colors, etc., everything but
@@ -105,7 +114,7 @@
                     <a href="#wrap_text_values">wrapped</a> onto the next physical line with a
                     cell, with a <code>true</code> or <code>false</code> value.</li>
              </ul>
-             <p>Properties:  The following properties control the font characteristics.</p>
+             <p>The following properties control the font characteristics.</p>
              <ul>
                 <li><code>font-weight</code> - Controls how <strong>bold</strong> the text appears,
                     with the <a href="#font_weight_values">values</a> taken from
@@ -136,6 +145,36 @@
                     <a href="#font_underline_values">values</a> taken from
                     <code>Underline.toString()</code>.</li>
              </ul>
+            <h1>CSS Files</h1>
+            <p>CSS Files in JETT work similarly to CSS files in HTML -- supply class names, along
+            with properties and values inside braces:</p>
+            <source>
+.redBoxCenter
+{
+   border: thin;
+   border-color: red;
+   alignment: center;
+}
+.blueBoldBigText
+{
+   font-color: blue;
+   font-weight: bold;
+   font-height-in-points: 24;
+}
+            </source>
+            <p>However, JETT only recognizes class selectors, and the properties must be taken from
+            the list of JETT style properties defined above.</p>
+            <p>To use classes defined in a CSS file, register the CSS file with the
+            <code>ExcelTransformer</code> prior to transformation.</p>
+            <source>
+excelTransformer.addCssFile("styles.css");
+            </source>
+            <p>Alternatively, supply CSS text directly to the <code>ExcelTransformer</code>.</p>
+            <source>
+String cssTextString = ".redBoxCenter {border: thin; border-color: red; alignment: center;} " +
+                       ".blueBoldBigText {font-color: blue; font-weight: bold; font-height-in-points: 24;}";
+excelTransformer.addCssText(cssTextString);
+            </source>
         </section>
         <section name="Property Values">
             <p>Each property has its own set of values that it recognizes in a case insensitive

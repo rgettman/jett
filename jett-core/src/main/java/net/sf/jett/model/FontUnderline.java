@@ -10,7 +10,7 @@ package net.sf.jett.model;
  * @author Randy Gettman
  * @since 0.4.0
  * @see net.sf.jett.tag.StyleTag
- * @see net.sf.jett.tag.StyleTag#PROPERTY_FONT_UNDERLINE
+ * @see net.sf.jett.parser.StyleParser#PROPERTY_FONT_UNDERLINE
  */
 public enum FontUnderline
 {

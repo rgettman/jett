@@ -25,6 +25,7 @@ public class WorkbookContext
    private int mySequenceNbr;
    private CellStyleCache myCellStyleCache;
    private FontCache myFontCache;
+   private Map<String, Style> myStyleMap;
 
    /**
     * Initializes things to null/0.
@@ -40,6 +41,7 @@ public class WorkbookContext
       mySequenceNbr = 0;
       myCellStyleCache = null;
       myFontCache = null;
+      myStyleMap = null;
    }
 
    /**
@@ -219,9 +221,31 @@ public class WorkbookContext
    /**
     * Sets the <code>FontCache</code>.
     * @param cache The <code>FontCache</code>.
+    * @since 0.5.0
     */
    public void setFontCache(FontCache cache)
    {
       myFontCache = cache;
+   }
+
+   /**
+    * Returns the <code>Map</code> of style names to <code>Styles</code>.
+    * @return The <code>Map</code> of style names to <code>Styles</code>.
+    * @since 0.5.0
+    */
+   public Map<String, Style> getStyleMap()
+   {
+      return myStyleMap;
+   }
+
+   /**
+    * Sets <code>Map</code> of style names to <code>Styles</code>.
+    * @param styleMap The <code>Map</code> of style names to
+    *    <code>Styles</code>.
+    * @since 0.5.0
+    */
+   public void setStyleMap(Map<String, Style> styleMap)
+   {
+      myStyleMap = styleMap;
    }
 }

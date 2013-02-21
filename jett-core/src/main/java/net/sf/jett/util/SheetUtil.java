@@ -28,9 +28,9 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 
 import net.sf.jett.formula.Formula;
 import net.sf.jett.model.Block;
+import net.sf.jett.model.ExcelColor;
 import net.sf.jett.model.PastEndAction;
 import net.sf.jett.model.WorkbookContext;
-import net.sf.jett.model.ExcelColor;
 
 /**
  * The <code>SheetUtil</code> utility class provides methods for
@@ -1274,12 +1274,12 @@ public class SheetUtil
       for (int r = bottom; r >= top; r--)
       {
          boolean rowEmpty = true;
-         Row row = sheet.getRow(r);
-         if (row != null)
-         {
+//         Row row = sheet.getRow(r);
+//         if (row != null)
+//         {
             for (int c = left; c <= right; c++)
             {
-               if (!isCellBlank(row, c))
+               if (!isCellBlank(sheet, r, c))
                {
                   if (DEBUG)
                      System.err.println("      gERAB: Row " + r + " is not empty because of cell " + c);
@@ -1287,7 +1287,7 @@ public class SheetUtil
                   break;
                }
             }
-         }
+         //}
          if (rowEmpty)
             emptyRows++;
          else
@@ -1922,6 +1922,106 @@ public class SheetUtil
       }
 
       return f;
+   }
+
+   /**
+    * Determines the proper POI <code>Color</code>, given a string value that
+    * could be a color name, e.g. "aqua", or a hex string, e.g. "#FFCCCC".
+    *
+    * @param workbook A <code>Workbook</code>, used only to determine whether
+    *    to create an <code>HSSFColor</code> or an <code>XSSFColor</code>.
+    * @param value The color value, which could be one of the 48 pre-defined
+    *    color names, or a hex value of the format "#RRGGBB".
+    * @return A <code>Color</code>, or <code>null</code> if an invalid color
+    *    name was given.
+    */
+   public static Color getColor(Workbook workbook, String value)
+   {
+      if (DEBUG)
+         System.err.println("getColor: " + value);
+      Color color = null;
+      if (workbook instanceof HSSFWorkbook)
+      {
+         // Create an HSSFColor.
+         if (value.startsWith("#"))
+         {
+            ExcelColor best = ExcelColor.AUTOMATIC;
+            int minDist = 255 * 3;
+            String strRed = value.substring(1, 3);
+            String strGreen = value.substring(3, 5);
+            String strBlue = value.substring(5, 7);
+            int red   = Integer.parseInt(strRed, 16);
+            int green = Integer.parseInt(strGreen, 16);
+            int blue  = Integer.parseInt(strBlue, 16);
+            // Hex value.  Find the closest defined color.
+            for (ExcelColor excelColor : ExcelColor.values())
+            {
+               int dist = excelColor.distance(red, green, blue);
+               if (dist < minDist)
+               {
+                  best = excelColor;
+                  minDist = dist;
+               }
+            }
+            color = best.getHssfColor();
+            if (DEBUG)
+               System.err.println("  Best HSSFColor found: " + color);
+         }
+         else
+         {
+            // Treat it as a color name.
+            try
+            {
+               ExcelColor excelColor = ExcelColor.valueOf(value);
+               if (excelColor != null)
+                  color = excelColor.getHssfColor();
+               if (DEBUG)
+                  System.err.println("  HSSFColor name matched: " + value);
+            }
+            catch (IllegalArgumentException e)
+            {
+               if (DEBUG)
+                  System.err.println("  HSSFColor name not matched: " + e.toString());
+            }
+         }
+      }
+      else // XSSFWorkbook
+      {
+         // Create an XSSFColor.
+         if (value.startsWith("#") && value.length() == 7)
+         {
+            // Create the corresponding XSSFColor.
+            color = new XSSFColor(new byte[] {
+               Integer.valueOf(value.substring(1, 3), 16).byteValue(),
+               Integer.valueOf(value.substring(3, 5), 16).byteValue(),
+               Integer.valueOf(value.substring(5, 7), 16).byteValue()
+            });
+            if (DEBUG)
+               System.err.println("  XSSFColor created: " + color);
+         }
+         else
+         {
+            // Create an XSSFColor from the RGB values of the desired color.
+            try
+            {
+               ExcelColor excelColor = ExcelColor.valueOf(value);
+               if (excelColor != null)
+               {
+                  color = new XSSFColor(new byte[]
+                     {(byte) excelColor.getRed(), (byte) excelColor.getGreen(), (byte) excelColor.getBlue()}
+                  );
+               }
+               if (DEBUG)
+                  System.err.println("  XSSFColor name matched: " + value);
+            }
+            catch (IllegalArgumentException e)
+            {
+               if (DEBUG)
+                  System.err.println("  XSSFColor name not matched: " + e.toString());
+            }
+         }
+      }
+      return color;
    }
 }
 

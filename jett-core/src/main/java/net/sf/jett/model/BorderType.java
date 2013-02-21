@@ -12,11 +12,11 @@ import org.apache.poi.ss.usermodel.BorderStyle;
  * @author Randy Gettman
  * @since 0.4.0
  * @see net.sf.jett.tag.StyleTag
- * @see net.sf.jett.tag.StyleTag#PROPERTY_BORDER
- * @see net.sf.jett.tag.StyleTag#PROPERTY_BORDER_BOTTOM
- * @see net.sf.jett.tag.StyleTag#PROPERTY_BORDER_LEFT
- * @see net.sf.jett.tag.StyleTag#PROPERTY_BORDER_RIGHT
- * @see net.sf.jett.tag.StyleTag#PROPERTY_BORDER_TOP
+ * @see net.sf.jett.parser.StyleParser#PROPERTY_BORDER
+ * @see net.sf.jett.parser.StyleParser#PROPERTY_BORDER_BOTTOM
+ * @see net.sf.jett.parser.StyleParser#PROPERTY_BORDER_LEFT
+ * @see net.sf.jett.parser.StyleParser#PROPERTY_BORDER_RIGHT
+ * @see net.sf.jett.parser.StyleParser#PROPERTY_BORDER_TOP
  */
 public enum BorderType
 {

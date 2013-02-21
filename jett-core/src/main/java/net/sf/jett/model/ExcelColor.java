@@ -15,14 +15,14 @@ import org.apache.poi.xssf.usermodel.XSSFColor;
  * @author Randy Gettman
  * @since 0.4.0
  * @see net.sf.jett.tag.StyleTag
- * @see net.sf.jett.tag.StyleTag#PROPERTY_BORDER_COLOR
- * @see net.sf.jett.tag.StyleTag#PROPERTY_BOTTOM_BORDER_COLOR
- * @see net.sf.jett.tag.StyleTag#PROPERTY_LEFT_BORDER_COLOR
- * @see net.sf.jett.tag.StyleTag#PROPERTY_RIGHT_BORDER_COLOR
- * @see net.sf.jett.tag.StyleTag#PROPERTY_TOP_BORDER_COLOR
- * @see net.sf.jett.tag.StyleTag#PROPERTY_FILL_BACKGROUND_COLOR
- * @see net.sf.jett.tag.StyleTag#PROPERTY_FILL_FOREGROUND_COLOR
- * @see net.sf.jett.tag.StyleTag#PROPERTY_FONT_COLOR
+ * @see net.sf.jett.parser.StyleParser#PROPERTY_BORDER_COLOR
+ * @see net.sf.jett.parser.StyleParser#PROPERTY_BOTTOM_BORDER_COLOR
+ * @see net.sf.jett.parser.StyleParser#PROPERTY_LEFT_BORDER_COLOR
+ * @see net.sf.jett.parser.StyleParser#PROPERTY_RIGHT_BORDER_COLOR
+ * @see net.sf.jett.parser.StyleParser#PROPERTY_TOP_BORDER_COLOR
+ * @see net.sf.jett.parser.StyleParser#PROPERTY_FILL_BACKGROUND_COLOR
+ * @see net.sf.jett.parser.StyleParser#PROPERTY_FILL_FOREGROUND_COLOR
+ * @see net.sf.jett.parser.StyleParser#PROPERTY_FONT_COLOR
  */
 public enum ExcelColor
 {

@@ -5,34 +5,27 @@
     </properties>
     <body>
         <section name="News">
-            <p><strong>JETT 0.4.0 (Beta) Released</strong></p>
-            <p>New in JETT 0.4.0:</p>
+            <p><strong>JETT 0.5.0 (Beta) Released</strong></p>
+            <p>New in JETT 0.5.0:</p>
             <ul>
-                <li>New tag: <a href="tags/style.html">"style"</a> to dynamically change the style
-                on the Cells in the body of the tag, e.g.
-                <code>&lt;jt:style style="font-weight: bold;font-height-in-points: 20"&gt;${expr}&lt;/jt:style&gt;</code>.</li>
-                <li>New tag: <a href="tags/formula.html">"formula"</a> to dynamically create Excel
-                formulas unaffected by JETT formula processing.</li>
-                <li>New attributes on the <a href="tags/agg.html">"agg"</a> tag to support rollups,
-                cubes, and grouping sets.</li>
-                <li>New attribute on the <a href="tags/span.html">"span"</a> tag to make an
-                adjustment to the size of a merged region, adding a number to the size.</li>
-                <li>A new POI bean is exposed: "cell" that represents the <code>Cell</code> that
-                contains the expression.</li>
-                <li>One can now reference static Java methods in JEXL directly, e.g.
-                <code>${java.lang.String.format("%d / %d", numerator, denominator)}</code></li>
-                <li>New JETT functionality presented as registered functions, e.g.
-                <code>${jett:cellRef(1, 2)} => "C2"</code>, and
-                <code>${jett:cellRef(1, 2, 2, 2)} => "C2:D3"</code>.</li>
-                <li>Bug fix: If an expression was repeated more than once, and is present with
-                other expresssions in a Cell, then the value replacement wasn't working right.
-                This is now fixed.</li>
-                <li>Bug fix: Boolean values were being populated as the strings "true" and "false".
-                Now they are properly populated as the Excel boolean values <code>TRUE</code> and
-                <code>FALSE</code>.  Boolean expressions within strings will still yield "true"
-                and "false".</li>
-                <li>Lots of JUnit test cases have been added for all the new features.</li>
-                <li>There is a new "readme.txt" file.</li>
+                <li>The <a href="tags/style.html">style tag</a> has a new attribute: "class" for
+                    assigning styles to a block of cells defined in a ".css" file, which is very
+                    much like a CSS file in web design.</li>
+                <li>If the <a href="tags/style.html">style tag</a> is used extensively, then JETT's
+                    performance suffers.  Now, JETT maintains caches for styles and fonts used,
+                    for easy, fast lookup and reuse.</li>
+                <li>Additional test cases have been added to the JUnit test case that tests the
+                    <a href="tags/hyperlink.html">hyperlink</a> tag.</li>
+                <li>Bug fix: When cell borders were used in the same cell as a
+                    <a href="tags/span.html">span tag</a>, the borders were not changed to match
+                    the new merged region.  Now, the borders are changed to match the new merged
+                    region.</li>
+                <li>Bug fix: When an expression contains the method call "size()" on a collection,
+                    JETT didn't properly recognize that the collection expression shouldn't be
+                    processed with <a href="collections/implicit.html">implicit collections
+                    processing</a>, i.e. one block for every collection item.  Now JETT properly
+                    recognizes the "size()" method on a collection and doesn't perform implicit
+                    collections processing in this case.</li>
             </ul>
             <p>View a history of all changes at the <a href="changelog.html">Change Log</a>.</p>
         </section>
@@ -57,9 +50,10 @@
             <p>To summarize JETT, the developer supplies an Excel spreadsheet <em>template</em>,
             which provides the structure, layout, and styling of the resultant spreadsheet.  Then,
             the developer creates <em>beans</em> that contain the actual data to be populated in
-            the spreadsheet.  Finally, the developer calls the JETT API to transform the template
-            spreadsheet into the resultant spreadsheet, complete with the desired data, which can
-            then be published.</p>
+            the spreadsheet.  Finally, the developer uses an
+            <a href="apidocs/net/sf/jett/transform/ExcelTransformer.html"><code>ExcelTransformer</code></a>,
+            the JETT API entry point, to transform the template spreadsheet into the resultant
+            spreadsheet, complete with the desired data, which can then be published.</p>
         </section>
         <section name="Main Features">
             <ul>

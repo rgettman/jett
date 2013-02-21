@@ -4,6 +4,29 @@
         <title>Change Log for JETT</title>
     </properties>
     <body>
+        <section name="JETT 0.5.0 (Beta) Released - 19 Feb 2013">
+            <p>New in JETT 0.5.0:</p>
+            <ul>
+                <li>The <a href="tags/style.html">style tag</a> has a new attribute: "class" for
+                    assigning styles to a block of cells defined in a ".css" file, which is very
+                    much like a CSS file in web design.</li>
+                <li>If the <a href="tags/style.html">style tag</a> is used extensively, then JETT's
+                    performance suffers.  Now, JETT maintains caches for styles and fonts used,
+                    for easy, fast lookup and reuse.</li>
+                <li>Additional test cases have been added to the JUnit test case that tests the
+                    <a href="tags/hyperlink.html">hyperlink</a> tag.</li>
+                <li>Bug fix: When cell borders were used in the same cell as a
+                    <a href="tags/span.html">span tag</a>, the borders were not changed to match
+                    the new merged region.  Now, the borders are changed to match the new merged
+                    region.</li>
+                <li>Bug fix: When an expression contains the method call "size()" on a collection,
+                    JETT didn't properly recognize that the collection expression shouldn't be
+                    processed with <a href="collections/implicit.html">implicit collections
+                    processing</a>, i.e. one block for every collection item.  Now JETT properly
+                    recognizes the "size()" method on a collection and doesn't perform implicit
+                    collections processing in this case.</li>
+            </ul>
+        </section>
         <section name="JETT 0.4.0 (Beta) Released - 29 Nov 2012">
             <p>New in JETT 0.4.0:</p>
             <ul>

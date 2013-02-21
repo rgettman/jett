@@ -14,6 +14,7 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Color;
 import org.apache.poi.ss.usermodel.Comment;
 import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.Hyperlink;
 import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -918,6 +919,29 @@ public class TestUtility
                   sheet.getSheetName() + ", row " + row + ", col " + col);
             }
             return SheetUtil.getColorHexString(color);
+         }
+      }
+      return null;
+   }
+
+   /**
+    * Returns the <code>Hyperlink</code>, at the given row and column indexes.
+    * @param sheet The <code>Sheet</code>.
+    * @param row The 0-based row index.
+    * @param col The 0-based column index.
+    * @return The <code>Hyperlink</code>, or <code>null</code> if it doesn't
+    *    exist.
+    * @since 0.5.0
+    */
+   public static Hyperlink getHyperlink(Sheet sheet, int row, int col)
+   {
+      Row r = sheet.getRow(row);
+      if (r != null)
+      {
+         Cell c = r.getCell(col);
+         if (c != null)
+         {
+            return c.getHyperlink();
          }
       }
       return null;

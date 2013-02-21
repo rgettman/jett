@@ -168,6 +168,7 @@ public class CellTransformer
       Block parentBlock = cellContext.getBlock();
       TagLibraryRegistry registry = workbookContext.getRegistry();
       Map<String, Object> beans = cellContext.getBeans();
+      Sheet sheet = cellContext.getSheet();
       Map<String, Cell> processedCells = cellContext.getProcessedCellsMap();
       String value = cell.getStringCellValue();
       RichTextString richTextString = cell.getRichStringCellValue();
@@ -181,14 +182,14 @@ public class CellTransformer
       {
          // Remove start tag text.
          SheetUtil.setCellValue(cell, RichTextStringUtil.replaceAll(richTextString,
-            cell.getSheet().getWorkbook().getCreationHelper(), parser.getTagText(), "", true));
+            sheet.getWorkbook().getCreationHelper(), parser.getTagText(), "", true));
          if (DEBUG_TAG)
             System.err.println("Cell text after tag removal is \"" + cell.getStringCellValue() + "\".");
          // Search for matching end tag.
          Cell match = findMatchingEndTag(cell, parentBlock, parser.getNamespaceAndTagName());
          if (match == null)
             throw new TagParseException("Matching tag not found for tag: " + parser.getTagText() +
-               ", located at " + cell.getSheet().getSheetName() + ", row " + cell.getRowIndex() +
+               ", located at " + sheet.getSheetName() + ", row " + cell.getRowIndex() +
                ", col " + cell.getColumnIndex() + ", within block " + parentBlock);
 
          if (DEBUG_TAG)
@@ -201,7 +202,7 @@ public class CellTransformer
       TagContext context = new TagContext();
       context.setBeans(beans);
       context.setBlock(newBlock);
-      context.setSheet(cell.getSheet());
+      context.setSheet(sheet);
       context.setProcessedCellsMap(processedCells);
       context.setDrawing(cellContext.getDrawing());
 

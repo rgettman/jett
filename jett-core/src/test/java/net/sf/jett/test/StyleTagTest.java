@@ -12,6 +12,7 @@ import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Color;
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.Font;
@@ -31,8 +32,9 @@ import net.sf.jett.model.ExcelColor;
 import net.sf.jett.model.FillPattern;
 import net.sf.jett.model.FontBoldweight;
 import net.sf.jett.model.FontTypeOffset;
-import net.sf.jett.tag.StyleTag;
+import net.sf.jett.parser.StyleParser;
 import net.sf.jett.util.SheetUtil;
+import net.sf.jett.transform.ExcelTransformer;
 
 /**
  * This JUnit Test class tests the evaluation of the "style" tag (always
@@ -73,6 +75,24 @@ public class StyleTagTest extends TestCase
    protected String getExcelNameBase()
    {
       return "StyleTag";
+   }
+
+   /**
+    * Call certain setup-related methods on the <code>ExcelTransformer</code>
+    * before template sheet transformation.
+    * @param transformer The <code>ExcelTransformer</code> that will transform
+    *    the template worksheet(s).
+    */
+   protected void setupTransformer(ExcelTransformer transformer)
+   {
+      try
+      {
+         transformer.addCssFile("templates/StyleTagStyleSheet1.css");
+      }
+      catch (IOException e)
+      {
+         fail("IOException caught reading style sheet: " + e.getMessage());
+      }
    }
 
    /**
@@ -373,7 +393,7 @@ public class StyleTagTest extends TestCase
                  (105 == TestUtility.getCellStyle(rotation, 3, 0).getRotation()));
       assertTrue((-90 == TestUtility.getCellStyle(rotation, 4, 0).getRotation()) ||
                  (180 == TestUtility.getCellStyle(rotation, 4, 0).getRotation()));
-      assertEquals(StyleTag.POI_ROTATION_STACKED, TestUtility.getCellStyle(rotation, 5, 0).getRotation());
+      assertEquals(StyleParser.POI_ROTATION_STACKED, TestUtility.getCellStyle(rotation, 5, 0).getRotation());
 
       // VerticalAlignments
       Sheet vertAlignment = workbook.getSheetAt(7);
@@ -471,6 +491,67 @@ public class StyleTagTest extends TestCase
       {
          assertEquals(heights.get(h).shortValue(), (int) widthHeight.getRow(h + 2).getHeight() / 20);
       }
+
+      // Class only
+      Sheet classOnly = workbook.getSheetAt(13);
+      CellStyle cs = TestUtility.getCellStyle(classOnly, 1, 1);
+      assertEquals(BorderStyle.THIN.ordinal(), cs.getBorderBottom());
+      assertEquals(BorderStyle.THIN.ordinal(), cs.getBorderLeft());
+      assertEquals(BorderStyle.THIN.ordinal(), cs.getBorderRight());
+      assertEquals(BorderStyle.THIN.ordinal(), cs.getBorderTop());
+      assertEquals("ff0000", TestUtility.getCellBottomBorderColorString(classOnly, 1, 1));
+      assertEquals("ff0000", TestUtility.getCellLeftBorderColorString(classOnly, 1, 1));
+      assertEquals("ff0000", TestUtility.getCellRightBorderColorString(classOnly, 1, 1));
+      assertEquals("ff0000", TestUtility.getCellTopBorderColorString(classOnly, 1, 1));
+      assertEquals(CellStyle.ALIGN_CENTER, cs.getAlignment());
+      f = workbook.getFontAt(cs.getFontIndex());
+      assertEquals("000000", TestUtility.getFontColorString(workbook, f));
+      assertEquals(11, f.getFontHeightInPoints());
+      assertEquals(Font.BOLDWEIGHT_NORMAL, f.getBoldweight());
+
+      cs = TestUtility.getCellStyle(classOnly, 3, 1);
+      assertEquals(BorderStyle.NONE.ordinal(), cs.getBorderBottom());
+      assertEquals(BorderStyle.NONE.ordinal(), cs.getBorderLeft());
+      assertEquals(BorderStyle.NONE.ordinal(), cs.getBorderRight());
+      assertEquals(BorderStyle.NONE.ordinal(), cs.getBorderTop());
+      assertEquals(CellStyle.ALIGN_GENERAL, cs.getAlignment());
+      f = workbook.getFontAt(cs.getFontIndex());
+      assertEquals("0000ff", TestUtility.getFontColorString(workbook, f));
+      assertEquals(24, f.getFontHeightInPoints());
+      assertEquals(Font.BOLDWEIGHT_BOLD, f.getBoldweight());
+
+      cs = TestUtility.getCellStyle(classOnly, 5, 1);
+      assertEquals(BorderStyle.NONE.ordinal(), cs.getBorderBottom());
+      assertEquals(BorderStyle.NONE.ordinal(), cs.getBorderLeft());
+      assertEquals(BorderStyle.NONE.ordinal(), cs.getBorderRight());
+      assertEquals(BorderStyle.NONE.ordinal(), cs.getBorderTop());
+      assertEquals(CellStyle.ALIGN_GENERAL, cs.getAlignment());
+      f = workbook.getFontAt(cs.getFontIndex());
+      assertEquals("000000", TestUtility.getFontColorString(workbook, f));
+      assertEquals(11, f.getFontHeightInPoints());
+      assertEquals(Font.BOLDWEIGHT_NORMAL, f.getBoldweight());
+
+      cs = TestUtility.getCellStyle(classOnly, 7, 1);
+      f = workbook.getFontAt(cs.getFontIndex());
+      assertEquals("008000", TestUtility.getFontColorString(workbook, f));
+      assertEquals(Font.BOLDWEIGHT_NORMAL, f.getBoldweight());
+      assertTrue(f.getItalic());
+      assertEquals(24, f.getFontHeightInPoints());
+
+      cs = TestUtility.getCellStyle(classOnly, 9, 1);
+      assertEquals(BorderStyle.THIN.ordinal(), cs.getBorderBottom());
+      assertEquals(BorderStyle.THIN.ordinal(), cs.getBorderLeft());
+      assertEquals(BorderStyle.THIN.ordinal(), cs.getBorderRight());
+      assertEquals(BorderStyle.THIN.ordinal(), cs.getBorderTop());
+      assertEquals("ff0000", TestUtility.getCellBottomBorderColorString(classOnly, 1, 1));
+      assertEquals("ff0000", TestUtility.getCellLeftBorderColorString(classOnly, 1, 1));
+      assertEquals("ff0000", TestUtility.getCellRightBorderColorString(classOnly, 1, 1));
+      assertEquals("ff0000", TestUtility.getCellTopBorderColorString(classOnly, 1, 1));
+      assertEquals(CellStyle.ALIGN_CENTER, cs.getAlignment());
+      f = workbook.getFontAt(cs.getFontIndex());
+      assertEquals("0000ff", TestUtility.getFontColorString(workbook, f));
+      assertEquals(24, f.getFontHeightInPoints());
+      assertEquals(Font.BOLDWEIGHT_BOLD, f.getBoldweight());
    }
    
    /**
@@ -535,7 +616,7 @@ public class StyleTagTest extends TestCase
       List<Short> indentions = Arrays.asList((short) 0, (short) 1, (short) 3, (short) 10);
       beans.put("indentions", indentions);
 
-      List<Object> rotations = Arrays.<Object>asList((short) 0, (short) 30, (short) 90, (short) -15, (short) -90, StyleTag.ROTATION_STACKED);
+      List<Object> rotations = Arrays.<Object>asList((short) 0, (short) 30, (short) 90, (short) -15, (short) -90, StyleParser.ROTATION_STACKED);
       beans.put("rotations", rotations);
 
       List<String> vertAlignments = new ArrayList<String>();

@@ -13,7 +13,6 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import static org.junit.Assert.*;
 
 import net.sf.jett.transform.ExcelTransformer;
@@ -175,7 +174,7 @@ public abstract class TestCase
          RuntimeException exception = null;
          try
          {
-            if (workbook instanceof XSSFWorkbook)
+            if (!(workbook instanceof HSSFWorkbook))
                check(workbook);
          }
          catch (RuntimeException e)
