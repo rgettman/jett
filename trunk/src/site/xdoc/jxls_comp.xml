@@ -339,6 +339,8 @@
                             <li>underline</li>
                         </ul>
                     </ul>
+                    <p>... by specifying style properties directly, or by specifying a class name
+                    that is defined in a CSS-like file with the "class" attribute.</p>
                 </td>
             </tr>
             <tr>

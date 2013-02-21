@@ -15,6 +15,7 @@ import org.apache.commons.jexl2.parser.ASTReference;
 import org.apache.commons.jexl2.parser.Node;
 import org.apache.commons.jexl2.parser.Parser;
 import org.apache.commons.jexl2.parser.SimpleNode;
+import org.apache.commons.jexl2.parser.ASTSizeMethod;
 import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.RichTextString;
 
@@ -205,6 +206,18 @@ public class Expression
                         }
                         continue;
                      }
+                  }
+                  else if (nextChild instanceof ASTSizeMethod)
+                  {
+                     // Apparently, "ASTSizeMethod" is a special case for
+                     // ".size()", but "ASTSizeMethod" is NOT a
+                     // "ASTMethodNode", so this check is needed!
+                     if (DEBUG)
+                     {
+                        ASTSizeMethod sizeMethod = (ASTSizeMethod) nextChild;
+                        System.err.println("      fCN: sizeMethod.image = " + sizeMethod.image);
+                     }
+                     continue;
                   }
                   else if (DEBUG)
                   {

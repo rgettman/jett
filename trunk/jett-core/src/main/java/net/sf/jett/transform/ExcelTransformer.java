@@ -1,8 +1,10 @@
 package net.sf.jett.transform;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.InputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,9 +22,12 @@ import net.sf.jett.expression.Expression;
 import net.sf.jett.expression.ExpressionFactory;
 import net.sf.jett.formula.CellRef;
 import net.sf.jett.formula.Formula;
-import net.sf.jett.model.WorkbookContext;
+//import net.sf.jett.lwxssf.LWXSSFWorkbook;
 import net.sf.jett.model.CellStyleCache;
 import net.sf.jett.model.FontCache;
+import net.sf.jett.model.Style;
+import net.sf.jett.model.WorkbookContext;
+import net.sf.jett.parser.StyleParser;
 import net.sf.jett.tag.JtTagLibrary;
 import net.sf.jett.tag.TagLibrary;
 import net.sf.jett.tag.TagLibraryRegistry;
@@ -70,8 +75,9 @@ import net.sf.jett.util.FormulaUtil;
  * libraries, adding <code>CellListeners</code>, using fixed size collections,
  * turning off implicit collections processing, passing <code>silent</code> and
  * <code>lenient</code> flags through to the underlying JEXL Engine,
- * passing a cache size to the internal JEXL Engine, and passing namespace
- * objects to register custom functions in the JEXL Engine.</p>
+ * passing a cache size to the internal JEXL Engine, passing namespace objects
+ * to register custom functions in the JEXL Engine, and passing CSS files/text
+ * to be recognized by the {@link net.sf.jett.tag.StyleTag} later.</p>
  *
  * @author Randy Gettman
  */
@@ -83,6 +89,7 @@ public class ExcelTransformer
    private List<CellListener> myCellListeners;
    private List<String> myFixedSizeCollectionNames;
    private List<String> myNoImplicitProcessingCollectionNames;
+   private Map<String, Style> myStyleMap;
 
    /**
     * Construct an <code>ExcelTransformer</code>.
@@ -94,6 +101,7 @@ public class ExcelTransformer
       myCellListeners = new ArrayList<CellListener>();
       myFixedSizeCollectionNames = new ArrayList<String>();
       myNoImplicitProcessingCollectionNames = new ArrayList<String>();
+      myStyleMap = new HashMap<String, Style>();
    }
 
    /**
@@ -198,6 +206,65 @@ public class ExcelTransformer
    {
       ExpressionFactory factory = ExpressionFactory.getExpressionFactory();
       factory.registerFuncs(namespace, funcsObject);
+   }
+
+   /**
+    * <p>Register one or more style definitions, without having to read them
+    * from a file.  Style definitions are of the format (whitespace is
+    * ignored):</p>
+    * <code>[.styleName { [propertyName: value [; propertyName: value]* }]*</code>
+    * <p>These style names are recognized by the "class" attribute of the
+    * "style" tag.</p>
+    * @param cssText A string containing one or more style definitions.
+    * @throws net.sf.jett.exception.StyleParseException If there is a problem
+    *    parsing the style definition text.
+    * @see net.sf.jett.tag.StyleTag
+    * @since 0.5.0
+    */
+   public void addCssText(String cssText)
+   {
+      StyleParser parser = new StyleParser(cssText);
+      parser.parse();
+      myStyleMap.putAll(parser.getStyleMap());
+   }
+
+   /**
+    * <p>Register a file containing CSS-like style definitions.  Style
+    * definitions are of the format (whitespace is ignored):</p>
+    * <code>[.styleName { [propertyName: value [; propertyName: value]* }]*</code>
+    *
+    * <p>These style names are recognized by the "class" attribute of the
+    * "style" tag.</p>
+    * @param filename The name of a file containing CSS-like style definitions.
+    * @throws IOException If there is a problem reading the file.
+    * @throws net.sf.jett.exception.StyleParseException If there is a problem
+    *    parsing the style definition text.
+    * @see net.sf.jett.tag.StyleTag
+    * @since 0.5.0
+    */
+   public void addCssFile(String filename) throws IOException
+   {
+      StringBuilder buf = new StringBuilder();
+      BufferedReader reader = null;
+      String line;
+      try
+      {
+         reader = new BufferedReader(new FileReader(filename));
+         while ((line = reader.readLine()) != null)
+         {
+            buf.append(line);
+            buf.append("\n");
+         }
+         addCssText(buf.toString());
+      }
+      finally
+      {
+         if (reader != null)
+         {
+            try { reader.close(); }
+            catch (IOException ignored) {}
+         }
+      }
    }
 
    /**
@@ -441,6 +508,7 @@ public class ExcelTransformer
       context.setCellStyleCache(csCache);
       FontCache fCache = new FontCache(workbook);
       context.setFontCache(fCache);
+      context.setStyleMap(myStyleMap);
       if (DEBUG)
       {
          System.err.println("Formula Map:");

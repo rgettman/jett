@@ -140,6 +140,8 @@ public class SheetTransformer
       int left, right;
       String sheetName = sheet.getSheetName();
       Map<String, Formula> formulaMap = context.getFormulaMap();
+      if (DEBUG)
+         System.err.println("ST.rF: Rows from " + top + " to " + bottom);
 
       for (int rowNum = top; rowNum <= bottom; rowNum++)
       {

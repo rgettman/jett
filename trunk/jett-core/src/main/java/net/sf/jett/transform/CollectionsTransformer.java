@@ -52,7 +52,7 @@ public class CollectionsTransformer
       Block parentBlock = cellContext.getBlock();
       Map<String, Object> beans = cellContext.getBeans();
       Map<String, Cell> processedCells = cellContext.getProcessedCellsMap();
-      Sheet sheet = cell.getSheet();
+      Sheet sheet = cellContext.getSheet();
       CreationHelper helper = sheet.getWorkbook().getCreationHelper();
 
       MetadataParser parser = null;

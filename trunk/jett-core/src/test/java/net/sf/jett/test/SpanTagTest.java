@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -12,6 +13,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.junit.Test;
 import static org.junit.Assert.*;
+
 import net.sf.jett.util.RichTextStringUtil;
 
 /**
@@ -187,6 +189,128 @@ public class SpanTagTest extends TestCase
       assertEquals("After6", TestUtility.getStringCellValue(horizAdjust, 6, 23));
 
       assertEquals(9, horizAdjust.getNumMergedRegions());
+
+      Sheet vertBorder = workbook.getSheetAt(4);
+      assertTrue(TestUtility.isMergedRegionPresent(vertBorder, new CellRangeAddress(1, 6, 1, 2)));
+      for (int r = 1; r <= 6; r++)
+      {
+         short borderBottom = (r == 6) ? CellStyle.BORDER_THIN : CellStyle.BORDER_NONE;
+         short borderTop = (r == 1) ? CellStyle.BORDER_THIN : CellStyle.BORDER_NONE;
+         String borderBottomColor= "000000";
+         String borderTopColor = "000000";
+         for (int c = 1; c <= 2; c++)
+         {
+            short borderLeft = (c == 1) ? CellStyle.BORDER_THIN : CellStyle.BORDER_NONE;
+            short borderRight = (c == 2) ? CellStyle.BORDER_THIN : CellStyle.BORDER_NONE;
+            String borderLeftColor= "000000";
+            String borderRightColor = "000000";
+
+            CellStyle cs = TestUtility.getCellStyle(vertBorder, r, c);
+            assertEquals(borderBottom, cs.getBorderBottom());
+            assertEquals(borderTop, cs.getBorderTop());
+            assertEquals(borderLeft, cs.getBorderLeft());
+            assertEquals(borderRight, cs.getBorderRight());
+            if (borderBottom != CellStyle.BORDER_NONE)
+               assertEquals(borderBottomColor, TestUtility.getCellBottomBorderColorString(vertBorder, r, c));
+            if (borderTop != CellStyle.BORDER_NONE)
+               assertEquals(borderTopColor, TestUtility.getCellTopBorderColorString(vertBorder, r, c));
+            if (borderLeft != CellStyle.BORDER_NONE)
+               assertEquals(borderLeftColor, TestUtility.getCellLeftBorderColorString(vertBorder, r, c));
+            if (borderRight != CellStyle.BORDER_NONE)
+               assertEquals(borderRightColor, TestUtility.getCellRightBorderColorString(vertBorder, r, c));
+         }
+      }
+      assertTrue(TestUtility.isMergedRegionPresent(vertBorder, new CellRangeAddress(1, 5, 4, 5)));
+      for (int r = 1; r <= 5; r++)
+      {
+         short borderBottom = (r == 5) ? CellStyle.BORDER_THIN : CellStyle.BORDER_NONE;
+         short borderTop = (r == 1) ? CellStyle.BORDER_THIN : CellStyle.BORDER_NONE;
+         String borderBottomColor = "ff0000";
+         String borderTopColor = "ff0000";
+         for (int c = 4; c <= 5; c++)
+         {
+            short borderLeft = (c == 4) ? CellStyle.BORDER_THIN : CellStyle.BORDER_NONE;
+            short borderRight = (c == 5) ? CellStyle.BORDER_THIN : CellStyle.BORDER_NONE;
+            String borderLeftColor = "ff0000";
+            String borderRightColor = "ff0000";
+
+            CellStyle cs = TestUtility.getCellStyle(vertBorder, r, c);
+            assertEquals(borderBottom, cs.getBorderBottom());
+            assertEquals(borderTop, cs.getBorderTop());
+            assertEquals(borderLeft, cs.getBorderLeft());
+            assertEquals(borderRight, cs.getBorderRight());
+            if (borderBottom != CellStyle.BORDER_NONE)
+              assertEquals(borderBottomColor, TestUtility.getCellBottomBorderColorString(vertBorder, r, c));
+            if (borderTop != CellStyle.BORDER_NONE)
+               assertEquals(borderTopColor, TestUtility.getCellTopBorderColorString(vertBorder, r, c));
+            if (borderLeft != CellStyle.BORDER_NONE)
+               assertEquals(borderLeftColor, TestUtility.getCellLeftBorderColorString(vertBorder, r, c));
+            if (borderRight != CellStyle.BORDER_NONE)
+               assertEquals(borderRightColor, TestUtility.getCellRightBorderColorString(vertBorder, r, c));
+         }
+      }
+      assertEquals(2, vertBorder.getNumMergedRegions());
+
+      Sheet horizBorder = workbook.getSheetAt(5);
+      assertTrue(TestUtility.isMergedRegionPresent(horizBorder, new CellRangeAddress(1, 2, 1, 6)));
+      for (int r = 1; r <= 2; r++)
+      {
+         short borderBottom = (r == 2) ? CellStyle.BORDER_MEDIUM : CellStyle.BORDER_NONE;
+         short borderTop = (r == 1) ? CellStyle.BORDER_MEDIUM : CellStyle.BORDER_NONE;
+         String borderBottomColor = "000000";
+         String borderTopColor = "000000";
+         for (int c = 1; c <= 6; c++)
+         {
+            short borderLeft = (c == 1) ? CellStyle.BORDER_MEDIUM : CellStyle.BORDER_NONE;
+            short borderRight = (c == 6) ? CellStyle.BORDER_MEDIUM : CellStyle.BORDER_NONE;
+            String borderLeftColor = "000000";
+            String borderRightColor = "000000";
+
+            CellStyle cs = TestUtility.getCellStyle(horizBorder, r, c);
+            assertEquals(borderBottom, cs.getBorderBottom());
+            assertEquals(borderTop, cs.getBorderTop());
+            assertEquals(borderLeft, cs.getBorderLeft());
+            assertEquals(borderRight, cs.getBorderRight());
+            if (borderBottom != CellStyle.BORDER_NONE)
+               assertEquals(borderBottomColor, TestUtility.getCellBottomBorderColorString(horizBorder, r, c));
+            if (borderTop != CellStyle.BORDER_NONE)
+               assertEquals(borderTopColor, TestUtility.getCellTopBorderColorString(horizBorder, r, c));
+            if (borderLeft != CellStyle.BORDER_NONE)
+               assertEquals(borderLeftColor, TestUtility.getCellLeftBorderColorString(horizBorder, r, c));
+            if (borderRight != CellStyle.BORDER_NONE)
+               assertEquals(borderRightColor, TestUtility.getCellRightBorderColorString(horizBorder, r, c));
+         }
+      }
+      assertTrue(TestUtility.isMergedRegionPresent(horizBorder, new CellRangeAddress(4, 5, 1, 5)));
+      for (int r = 4; r <= 5; r++)
+      {
+         short borderBottom = (r == 5) ? CellStyle.BORDER_MEDIUM : CellStyle.BORDER_NONE;
+         short borderTop = (r == 4) ? CellStyle.BORDER_MEDIUM : CellStyle.BORDER_NONE;
+         String borderBottomColor = "0000ff";
+         String borderTopColor = "0000ff";
+         for (int c = 1; c <= 5; c++)
+         {
+            short borderLeft = (c == 1) ? CellStyle.BORDER_MEDIUM : CellStyle.BORDER_NONE;
+            short borderRight = (c == 5) ? CellStyle.BORDER_MEDIUM : CellStyle.BORDER_NONE;
+            String borderLeftColor = "0000ff";
+            String borderRightColor = "0000ff";
+
+            CellStyle cs = TestUtility.getCellStyle(horizBorder, r, c);
+            assertEquals(borderBottom, cs.getBorderBottom());
+            assertEquals(borderTop, cs.getBorderTop());
+            assertEquals(borderLeft, cs.getBorderLeft());
+            assertEquals(borderRight, cs.getBorderRight());
+            if (borderBottom != CellStyle.BORDER_NONE)
+               assertEquals(borderBottomColor, TestUtility.getCellBottomBorderColorString(horizBorder, r, c));
+            if (borderTop != CellStyle.BORDER_NONE)
+               assertEquals(borderTopColor, TestUtility.getCellTopBorderColorString(horizBorder, r, c));
+            if (borderLeft != CellStyle.BORDER_NONE)
+               assertEquals(borderLeftColor, TestUtility.getCellLeftBorderColorString(horizBorder, r, c));
+            if (borderRight != CellStyle.BORDER_NONE)
+               assertEquals(borderRightColor, TestUtility.getCellRightBorderColorString(horizBorder, r, c));
+         }
+      }
+      assertEquals(2, horizBorder.getNumMergedRegions());
    }
 
    /**

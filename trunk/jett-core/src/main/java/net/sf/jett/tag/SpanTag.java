@@ -5,14 +5,22 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Color;
+import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFFont;
 
 import net.sf.jett.exception.TagParseException;
 import net.sf.jett.model.Block;
+import net.sf.jett.model.CellStyleCache;
+import net.sf.jett.model.ExcelColor;
 import net.sf.jett.transform.BlockTransformer;
 import net.sf.jett.util.AttributeUtil;
 import net.sf.jett.util.SheetUtil;
@@ -34,7 +42,8 @@ import net.sf.jett.util.SheetUtil;
  * <li>expandRight (optional): <code>boolean</code></li>
  * </ul>
  *
- * <p>Either one or both of the <code>factor</code>
+ * <p>Either one or both of the <code>factor</code> and the <code>adjust</code>
+ * attributes must be specified.</p>
  *
  * @author Randy Gettman
  */
@@ -169,6 +178,69 @@ public class SpanTag extends BaseTag
          sheet.removeMergedRegion(index);
       }
 
+      short borderBottomType = CellStyle.BORDER_NONE;
+      short borderLeftType = CellStyle.BORDER_NONE;
+      short borderRightType = CellStyle.BORDER_NONE;
+      short borderTopType = CellStyle.BORDER_NONE;
+      Color borderBottomColor = null;
+      Color borderLeftColor = null;
+      Color borderRightColor = null;
+      Color borderTopColor = null;
+      // Get current borders and border colors.
+      Row rTop = sheet.getRow(top);
+      if (rTop != null)
+      {
+         Cell cLeft = rTop.getCell(left);
+         if (cLeft != null)
+         {
+            CellStyle cs = cLeft.getCellStyle();
+            borderLeftType = cs.getBorderLeft();
+            borderTopType = cs.getBorderTop();
+            // Border colors need instanceof check.
+            if (cs instanceof HSSFCellStyle)
+            {
+               borderLeftColor = ExcelColor.getHssfColorByIndex(cs.getLeftBorderColor());
+               borderTopColor = ExcelColor.getHssfColorByIndex(cs.getTopBorderColor());
+            }
+            else
+            {
+               // XSSFCellStyle
+               XSSFCellStyle xcs = (XSSFCellStyle) cs;
+               borderLeftColor = xcs.getLeftBorderXSSFColor();
+               borderTopColor = xcs.getTopBorderXSSFColor();
+            }
+         }
+      }
+      Row rBottom = sheet.getRow(bottom);
+      if (rBottom != null)
+      {
+         Cell cRight = rBottom.getCell(right);
+         if (cRight != null)
+         {
+            CellStyle cs = cRight.getCellStyle();
+            borderRightType = cs.getBorderRight();
+            borderBottomType = cs.getBorderBottom();
+            // Border colors need instanceof check.
+            if (cs instanceof HSSFCellStyle)
+            {
+               borderRightColor = ExcelColor.getHssfColorByIndex(cs.getRightBorderColor());
+               borderBottomColor = ExcelColor.getHssfColorByIndex(cs.getBottomBorderColor());
+            }
+            else
+            {
+               // XSSFCellStyle
+               XSSFCellStyle xcs = (XSSFCellStyle) cs;
+               borderRightColor = xcs.getRightBorderXSSFColor();
+               borderBottomColor = xcs.getBottomBorderXSSFColor();
+            }
+         }
+      }
+      if (borderTopType != CellStyle.BORDER_NONE || borderBottomType != CellStyle.BORDER_NONE ||
+          borderRightType != CellStyle.BORDER_NONE || borderLeftType != CellStyle.BORDER_NONE)
+      {
+         removeBorders(sheet, left, right, top, bottom);
+      }
+
       // The block for which to shift content out of the way or to remove is
       // actually the old merged region.
       Block mergedBlock = new Block(block.getParent(), left, right, top, bottom);
@@ -223,6 +295,14 @@ public class SpanTag extends BaseTag
             System.err.println("  Calling shiftForBlock on fabricated block: " + expand + " with change " + (change + 1));
          SheetUtil.shiftForBlock(sheet, expand, getWorkbookContext(), change + 1);
       }
+      if (borderTopType != CellStyle.BORDER_NONE || borderBottomType != CellStyle.BORDER_NONE ||
+          borderRightType != CellStyle.BORDER_NONE || borderLeftType != CellStyle.BORDER_NONE)
+      {
+         putBackBorders(sheet, left, right, top, bottom,
+            borderLeftType, borderRightType, borderTopType, borderBottomType,
+            borderLeftColor, borderRightColor, borderTopColor, borderBottomColor);
+      }
+
 
       // Set the value.
       Row row = sheet.getRow(top);
@@ -263,5 +343,141 @@ public class SpanTag extends BaseTag
             return i;
       }
       return -1;
+   }
+
+   /**
+    * Remove all borders from all cells in the region described by the left,
+    * right, top, and bottom bounds.
+    * @param sheet The <code>Sheet</code>.
+    * @param left The 0-based index indicating the left-most part of the region.
+    * @param right The 0-based index indicating the right-most part of the region.
+    * @param top The 0-based index indicating the top-most part of the region.
+    * @param bottom The 0-based index indicating the bottom-most part of the region.
+    */
+   private void removeBorders(Sheet sheet, int left, int right, int top, int bottom)
+   {
+      if (DEBUG)
+         System.err.println("removeBorders: " + left + ", " + right + ", " + top + ", " + bottom);
+      CellStyleCache csCache = getWorkbookContext().getCellStyleCache();
+      for (int r = top; r <= bottom; r++)
+      {
+         Row row = sheet.getRow(r);
+         for (int c = left; c <= right; c++)
+         {
+            Cell cell = row.getCell(c);
+            if (cell != null)
+            {
+               CellStyle cs = cell.getCellStyle();
+               Font f = sheet.getWorkbook().getFontAt(cs.getFontIndex());
+               Color fontColor;
+               if (cs instanceof HSSFCellStyle)
+               {
+                  fontColor = ExcelColor.getHssfColorByIndex(f.getColor());
+               }
+               else
+               {
+                  fontColor = ((XSSFFont) f).getXSSFColor();
+               }
+               // At this point, we have all of the desired CellStyle and Font
+               // characteristics.  Find a CellStyle if it exists.
+               CellStyle foundStyle = csCache.retrieveCellStyle(f.getBoldweight(), f.getItalic(), fontColor,
+                  f.getFontName(), f.getFontHeightInPoints(), cs.getAlignment(), CellStyle.BORDER_NONE,
+                  CellStyle.BORDER_NONE, CellStyle.BORDER_NONE, CellStyle.BORDER_NONE, cs.getDataFormatString(),
+                  f.getUnderline(), f.getStrikeout(), cs.getWrapText(), cs.getFillBackgroundColorColor(),
+                  cs.getFillForegroundColorColor(), cs.getFillPattern(), cs.getVerticalAlignment(), cs.getIndention(),
+                  cs.getRotation(), null, null, null, null,
+                  f.getCharSet(), f.getTypeOffset(), cs.getLocked(), cs.getHidden());
+
+               if (foundStyle == null)
+               {
+                  foundStyle = SheetUtil.createCellStyle(sheet.getWorkbook(), cs.getAlignment(), CellStyle.BORDER_NONE,
+                  CellStyle.BORDER_NONE, CellStyle.BORDER_NONE, CellStyle.BORDER_NONE, cs.getDataFormatString(),
+                     cs.getWrapText(), cs.getFillBackgroundColorColor(), cs.getFillForegroundColorColor(),
+                     cs.getVerticalAlignment(), cs.getVerticalAlignment(), cs.getIndention(), cs.getRotation(),
+                     null, null, null, null, cs.getLocked(), cs.getHidden());
+                  foundStyle.setFont(f);
+               }
+               cell.setCellStyle(foundStyle);
+            }
+         }
+      }
+   }
+
+   /**
+    * Puts back borders for the newly sized merged region.
+    * @param sheet The <code>Sheet</code>.
+    * @param left The 0-based index indicating the left-most part of the region.
+    * @param right The 0-based index indicating the right-most part of the region.
+    * @param top The 0-based index indicating the top-most part of the region.
+    * @param bottom The 0-based index indicating the bottom-most part of the region.
+    * @param borderLeft The left border type.
+    * @param borderRight The right border type.
+    * @param borderTop The top border type.
+    * @param borderBottom The bottom border type.
+    * @param borderLeftColor The left border color.
+    * @param borderRightColor The right border color.
+    * @param borderTopColor The top border color.
+    * @param borderBottomColor The bottom border color.
+    */
+   private void putBackBorders(Sheet sheet, int left, int right, int top, int bottom,
+      short borderLeft, short borderRight, short borderTop, short borderBottom,
+      Color borderLeftColor, Color borderRightColor, Color borderTopColor, Color borderBottomColor)
+   {
+      if (DEBUG)
+         System.err.println("putBackBorders: " + left + ", " + right + ", " + top + ", " + bottom);
+      CellStyleCache csCache = getWorkbookContext().getCellStyleCache();
+      for (int r = top; r <= bottom; r++)
+      {
+         Row row = sheet.getRow(r);
+         if (row == null)
+            row = sheet.createRow(r);
+         for (int c = left; c <= right; c++)
+         {
+            Cell cell = row.getCell(c);
+            if (cell == null)
+               cell = row.createCell(c);
+
+            CellStyle cs = cell.getCellStyle();
+            Font f = sheet.getWorkbook().getFontAt(cs.getFontIndex());
+            Color fontColor;
+            if (cs instanceof HSSFCellStyle)
+            {
+               fontColor = ExcelColor.getHssfColorByIndex(f.getColor());
+            }
+            else
+            {
+               fontColor = ((XSSFFont) f).getXSSFColor();
+            }
+            short newBorderBottom = (r == bottom) ? borderBottom : CellStyle.BORDER_NONE;
+            short newBorderLeft = (c == left) ? borderLeft : CellStyle.BORDER_NONE;
+            short newBorderRight = (c == right) ? borderRight : CellStyle.BORDER_NONE;
+            short newBorderTop = (r == top) ? borderTop : CellStyle.BORDER_NONE;
+            Color newBorderBottomColor = (r == bottom) ? borderBottomColor : null;
+            Color newBorderLeftColor = (c == left) ? borderLeftColor : null;
+            Color newBorderRightColor = (c == right) ? borderRightColor : null;
+            Color newBorderTopColor = (r == top) ? borderTopColor : null;
+            // At this point, we have all of the desired CellStyle and Font
+            // characteristics.  Find a CellStyle if it exists.
+            CellStyle foundStyle = csCache.retrieveCellStyle(f.getBoldweight(), f.getItalic(), fontColor,
+               f.getFontName(), f.getFontHeightInPoints(), cs.getAlignment(),
+               newBorderBottom, newBorderLeft, newBorderRight, newBorderTop, cs.getDataFormatString(),
+               f.getUnderline(), f.getStrikeout(), cs.getWrapText(), cs.getFillBackgroundColorColor(),
+               cs.getFillForegroundColorColor(), cs.getFillPattern(), cs.getVerticalAlignment(), cs.getIndention(),
+               cs.getRotation(), newBorderBottomColor, newBorderLeftColor, newBorderRightColor, newBorderTopColor,
+               f.getCharSet(), f.getTypeOffset(), cs.getLocked(), cs.getHidden());
+
+            if (foundStyle == null)
+            {
+               foundStyle = SheetUtil.createCellStyle(sheet.getWorkbook(), cs.getAlignment(), newBorderBottom,
+                  newBorderLeft, newBorderRight, newBorderTop, cs.getDataFormatString(),
+                  cs.getWrapText(), cs.getFillBackgroundColorColor(), cs.getFillForegroundColorColor(),
+                  cs.getFillPattern(), cs.getVerticalAlignment(), cs.getIndention(), cs.getRotation(),
+                  newBorderBottomColor, newBorderLeftColor, newBorderRightColor, newBorderTopColor,
+                  cs.getLocked(), cs.getHidden());
+               foundStyle.setFont(f);
+            }
+            cell.setCellStyle(foundStyle);
+         }
+      }
    }
 }

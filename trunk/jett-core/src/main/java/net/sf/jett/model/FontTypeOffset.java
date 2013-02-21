@@ -12,7 +12,7 @@ import org.apache.poi.ss.usermodel.Font;
  * @author Randy Gettman
  * @since 0.4.0
  * @see net.sf.jett.tag.StyleTag
- * @see net.sf.jett.tag.StyleTag#PROPERTY_FONT_TYPE_OFFSET
+ * @see net.sf.jett.parser.StyleParser#PROPERTY_FONT_TYPE_OFFSET
  */
 public enum FontTypeOffset
 {

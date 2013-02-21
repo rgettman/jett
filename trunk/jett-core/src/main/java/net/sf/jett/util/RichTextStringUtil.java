@@ -340,7 +340,7 @@ public class RichTextStringUtil
     *    formatting runs found.  If HSSF, stores <code>short</code> font
     *    indexes.  If XSSF, stores <code>XSSFFont</code> objects.
     */
-   private static void determineFormattingRunStats(RichTextString richTextString,
+   public static void determineFormattingRunStats(RichTextString richTextString,
       ArrayList<Integer> beginList, ArrayList<Integer> lengthList, ArrayList<Object> fontList)
    {
       int numFormattingRuns = richTextString.numFormattingRuns();
@@ -437,13 +437,32 @@ public class RichTextStringUtil
     *    <code>richTextString</code>, with <code>value</code> as it contents,
     *    formatted as specified.
     */
-   private static RichTextString createFormattedString(int numFormattingRuns,
+   public static RichTextString createFormattedString(int numFormattingRuns,
       CreationHelper helper, String value, ArrayList<Integer> beginList,
       ArrayList<Integer> newLengthList, ArrayList<Object> fontList)
    {
       // Construct the proper RichTextString.
       RichTextString newString = helper.createRichTextString(value);
 
+      formatString(newString, numFormattingRuns, beginList, newLengthList, fontList);
+      return newString;
+   }
+
+   /**
+    * Format a <code>RichTextString</code> that has already been created.
+    * @param string A <code>RichTextString</code>.
+    * @param numFormattingRuns The number of formatting runs.
+    * @param beginList A <code>List</code> of beginning indexes of formatting
+    *    runs.
+    * @param newLengthList A <code>List</code> of run lengths of formatting
+    *    runs.
+    * @param fontList A <code>List</code> of fonts of formatting runs.  If
+    *    HSSF, the items are <code>shorts</code>.  If XSSF, the items are
+    *    <code>XSSFFonts</code>.
+    */
+   public static void formatString(RichTextString string, int numFormattingRuns,
+      ArrayList<Integer> beginList, ArrayList<Integer> newLengthList, ArrayList<Object> fontList)
+   {
       // Apply the formatting runs.
       for (int i = 0; i < numFormattingRuns; i++)
       {
@@ -454,19 +473,18 @@ public class RichTextStringUtil
          {
             System.err.println("  RTSU.cFS: Applying format (" + i + "): begin=" +
                begin + ", length=" + newLengthList.get(i) + ", font=" + font +
-               " to string \"" + value + "\".");
+               " to string \"" + string.getString() + "\".");
          }
-         if (newString instanceof HSSFRichTextString)
-            newString.applyFont(begin, end, (Short) font);
-         else if (newString instanceof XSSFRichTextString)
+         if (string instanceof HSSFRichTextString)
+            string.applyFont(begin, end, (Short) font);
+         else if (string instanceof XSSFRichTextString)
          {
             if (font != null)
-               newString.applyFont(begin, end, (XSSFFont) font);
+               string.applyFont(begin, end, (XSSFFont) font);
          }
          else throw new IllegalArgumentException("Unexpected RichTextString type: " +
-            newString.getClass().getName() + ": " + newString.getString());
+            string.getClass().getName() + ": " + string.getString());
       }
-      return newString;
    }
 
    /**
