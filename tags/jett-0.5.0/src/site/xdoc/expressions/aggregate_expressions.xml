@@ -1,0 +1,36 @@
+<document>
+    <properties>
+        <author email="rgettman@users.sourceforge.net">Randy Gettman</author>
+        <title>Aggregate Expressions</title>
+    </properties>
+    <body>
+        <section name="Aggregate Expressions using jAgg">
+            <p>JETT extends JEXL to allow Aggregate Expressions inside JEXL Expressions.  An
+            <em>aggregate expression</em> is a custom registered function in JEXL:</p>
+            <source>
+jagg:eval(list, aggSpec)
+            </source>
+            <p>Here, "jagg" is a namespace identifier that identifies the jAgg extension.  Also,
+            "eval" is the name of the method that executes the jAgg functionality.  The "list" is
+            the name of the <code>List</code> variable defined in the beans map.  The "aggSpec" is
+            an <em>aggregator specification string</em>, e.g. "Sum(quantity)", that defines the
+            Aggregator used.  The "list" and "aggSpec" are simply parameters to the "eval" function
+            inside a JEXL Expression.  The "aggSpec" may be a string literal, e.g.
+            "'Sum(quantity)'", or it can be supplied with a bean variable from the beans map.</p>
+            <p>JETT uses the <a href="http://jagg.sourceforge.net">jAgg</a> library to evaluate the
+            aggregate expression.  For example, if the bean name "property" evaluates to the String
+            "salary"...</p>
+            <table style="width: 350px;">
+                <tr><td>${jagg:eval(employees, 'Avg(' + property + ')')}</td></tr>
+            </table>
+            <p>... the aggregator specification string is evaluated as "Avg(salary)", which
+            yields...</p>
+            <table style="width: 350px;">
+                <tr><td>1050</td></tr>
+            </table>
+            <p>Any Aggregator can be specified, including those built-in to the jAgg library, or
+            those <a href="http://jagg.sourceforge.net/aggs/custom.html">custom built</a> by
+            the developer.</p>
+        </section>
+    </body>
+</document>
