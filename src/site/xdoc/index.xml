@@ -5,6 +5,14 @@
     </properties>
     <body>
         <section name="News">
+            <p><strong>JETT 0.5.1 (Beta) Released</strong></p>
+            <p>New in JETT 0.5.1:</p>
+            <ul>
+                <li>Bug fix: When using the <a href="tags/span.html">span tag</a>, sometimes the
+                    background of the Cell was accidentally set to "gray50percent", even if there
+                    was no background color, foreground color, or fill pattern.  This bug is now
+                    fixed in 0.5.1.</li>
+            </ul>
             <p><strong>JETT 0.5.0 (Beta) Released</strong></p>
             <p>New in JETT 0.5.0:</p>
             <ul>

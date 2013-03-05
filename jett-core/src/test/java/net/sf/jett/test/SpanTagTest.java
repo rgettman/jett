@@ -249,7 +249,39 @@ public class SpanTagTest extends TestCase
                assertEquals(borderRightColor, TestUtility.getCellRightBorderColorString(vertBorder, r, c));
          }
       }
-      assertEquals(2, vertBorder.getNumMergedRegions());
+      // Test that the new style didn't create a "gray50percent" style!
+      assertTrue(TestUtility.isMergedRegionPresent(vertBorder, new CellRangeAddress(1, 5, 4, 5)));
+      for (int r = 1; r <= 3; r++)
+      {
+         short borderBottom = (r == 3) ? CellStyle.BORDER_THICK : CellStyle.BORDER_NONE;
+         short borderTop = (r == 1) ? CellStyle.BORDER_THICK : CellStyle.BORDER_NONE;
+         String borderBottomColor = "000000";
+         String borderTopColor = "000000";
+         for (int c = 7; c <= 9; c++)
+         {
+            short borderLeft = (c == 7) ? CellStyle.BORDER_THICK : CellStyle.BORDER_NONE;
+            short borderRight = (c == 9) ? CellStyle.BORDER_THICK : CellStyle.BORDER_NONE;
+            String borderLeftColor = "000000";
+            String borderRightColor = "000000";
+
+            CellStyle cs = TestUtility.getCellStyle(vertBorder, r, c);
+            assertEquals(borderBottom, cs.getBorderBottom());
+            assertEquals(borderTop, cs.getBorderTop());
+            assertEquals(borderLeft, cs.getBorderLeft());
+            assertEquals(borderRight, cs.getBorderRight());
+            assertEquals(CellStyle.NO_FILL, cs.getFillPattern());
+            if (borderBottom != CellStyle.BORDER_NONE)
+              assertEquals(borderBottomColor, TestUtility.getCellBottomBorderColorString(vertBorder, r, c));
+            if (borderTop != CellStyle.BORDER_NONE)
+               assertEquals(borderTopColor, TestUtility.getCellTopBorderColorString(vertBorder, r, c));
+            if (borderLeft != CellStyle.BORDER_NONE)
+               assertEquals(borderLeftColor, TestUtility.getCellLeftBorderColorString(vertBorder, r, c));
+            if (borderRight != CellStyle.BORDER_NONE)
+               assertEquals(borderRightColor, TestUtility.getCellRightBorderColorString(vertBorder, r, c));
+         }
+      }
+      // End test that the new style didn't create a "gray50percent" style!
+      assertEquals(3, vertBorder.getNumMergedRegions());
 
       Sheet horizBorder = workbook.getSheetAt(5);
       assertTrue(TestUtility.isMergedRegionPresent(horizBorder, new CellRangeAddress(1, 2, 1, 6)));

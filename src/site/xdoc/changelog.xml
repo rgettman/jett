@@ -4,7 +4,16 @@
         <title>Change Log for JETT</title>
     </properties>
     <body>
-        <section name="JETT 0.5.0 (Beta) Released - 19 Feb 2013">
+        <section name="JETT 0.5.1 (Beta) Released - 04 Mar 2013">
+            <p>New in JETT 0.5.1:</p>
+            <ul>
+                <li>Bug fix: When using the <a href="tags/span.html">span tag</a>, sometimes the
+                    background of the Cell was accidentally set to "gray50percent", even if there
+                    was no background color, foreground color, or fill pattern.  This bug is now
+                    fixed in 0.5.1.</li>
+            </ul>
+        </section>
+        <section name="JETT 0.5.0 (Beta) Released - 21 Feb 2013">
             <p>New in JETT 0.5.0:</p>
             <ul>
                 <li>The <a href="tags/style.html">style tag</a> has a new attribute: "class" for
@@ -27,7 +36,7 @@
                     collections processing in this case.</li>
             </ul>
         </section>
-        <section name="JETT 0.4.0 (Beta) Released - 29 Nov 2012">
+        <section name="JETT 0.4.0 (Beta) Released - 07 Dec 2012">
             <p>New in JETT 0.4.0:</p>
             <ul>
                 <li>New tag: <a href="tags/style.html">"style"</a> to dynamically change the style
