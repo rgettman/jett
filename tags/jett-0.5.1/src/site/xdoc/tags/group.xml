@@ -1,0 +1,58 @@
+<document>
+    <properties>
+        <author email="rgettman@users.sourceforge.net">Randy Gettman</author>
+        <title>Group Tag</title>
+    </properties>
+    <body>
+        <section name="The Group Tag">
+            <p>During transformation, Excel Groups (Outlines) may created using the "group" tag.
+            This tag must be used with a body.  Excel Groups may be created on the rows from the
+            body of the tag or on the columns from the body of the tag.  It is possible to nest
+            "group" tags.  Excel will display nested group outlines.</p>
+            <p>If the number of rows or columns to be grouped is dynamic, then it is best to use
+            a <a href="looping.html">looping tag</a>.  Looping tags support the same attributes as
+            the "group" tag, but it groups rows or columns on the transformed rows or columns, the
+            number of which is determined dynamically.</p>
+            <h1>Attributes</h1>
+            <ul>
+                <li>The "group" tag supports all <a href="basics.html">base tag attributes</a>.</li>
+                <li><strong>groupDir</strong> Required.  Create an Excel Group (Outline) out of the
+                resultant rows or columns.  Here are the possible values:</li>
+                <ul>
+                    <li><em>rows</em> Create an Excel Group (Outline) out of the resultant
+                    rows.  This is the default.</li>
+                    <li><em>cols</em> Create an Excel Group (Outline) out of the resultant
+                    columns.</li>
+                    <li><em>none</em> Do not create an Excel Group (Outline).</li>
+                </ul>
+                <li><strong>collapse: boolean</strong> Optional.  This determines whether the Excel
+                Group (Outline) created is in a collapsed state.  The default is <code>false</code>
+                (not collapsed).</li>
+            </ul>
+        </section>
+        <section name="Example">
+            <p>In this example, Excel Groups (Outlines) of rows and columns are created.  One row
+            group and one column group is nested.</p>
+            <p>Along the top of the template, adjacent cells obscure each other's contents, so here
+            is the content of the first row of cells:</p>
+            <ul>
+                <li><strong>E1:</strong> &lt;jt:group groupDir="cols"&gt;Col1</li>
+                <li><strong>F1:</strong> &lt;jt:group groupDir="cols"&gt;Col2</li>
+                <li><strong>G1:</strong> Col3&lt;/jt:group&gt;</li>
+                <li><strong>H1:</strong> Col4&lt;/jt:group&gt;</li>
+                <li><strong>I1:</strong> (empty)</li>
+                <li><strong>J1:</strong> &lt;jt:group groupDir="cols" collapse="true"&gt;Col1</li>
+                <li><strong>K1:</strong> Col2</li>
+                <li><strong>L1:</strong> Col3&lt;/jt:group&gt;</li>
+                <li><strong>M1:</strong> Show me!!!</li>
+            </ul>
+            <img src="../images/template_group.gif" alt="Group Template"/>
+            <p>After transformation, Excel Groups (Outlines) have been created.  Notice that
+            columns J, K, and L are hidden due to the collapsed column group, and that rows 12-14
+            are also hidden due to the collapsed row group.</p>
+            <img src="../images/result_group.gif" alt="Group Result"/>
+            <p>The viewer can click on the "+" signs in Excel to expand the group, and on the "-"
+            signs to collapse the group.</p>
+        </section>
+    </body>
+</document>

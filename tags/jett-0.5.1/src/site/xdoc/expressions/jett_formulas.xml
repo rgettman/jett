@@ -1,0 +1,104 @@
+<document>
+    <properties>
+        <author email="rgettman@users.sourceforge.net">Randy Gettman</author>
+        <title>JETT Formulas</title>
+    </properties>
+    <body>
+        <section name="JETT Formulas">
+            <p>JETT supports the creation of Excel formulas.  Specify a JETT Formula of the format
+            "$[Formula]" in the template spreadsheet, e.g. "$[SUM(B2)]".</p>
+            <p>JETT keeps track of all original cell references inside the JETT Formula, including
+            all transformations that occur, including shifts, copies, and removals.  Once all
+            transformation on all Sheets has completed, JETT goes back and replaces all JETT
+            formulas with Excel formulas.  Consecutive cells are recognized and merged into Excel
+            ranges, e.g. "B2, B3, B4" gets merged into "B2:B4".  JETT formula cell references may
+            include sheet references, e.g. "Sheet2!C4", "'With Spaces'!B5".  JETT does not verify
+            the existence of the Excel formula name.</p>
+            <p>Here's an example, which uses <a href="../collections/implicit.html">implicit
+            collections processing</a>.  Note that the cell containing "${employees.salary}" is
+            cell B2.</p>
+            <table style="width: 500px;">
+                <tr>
+                    <td class="bold" style="width: 250px;">Employee</td>
+                    <td class="bold" style="width: 250px;">Salary</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">${employees.lastName}, ${employees.firstName}</td>
+                    <td style="width: 250px;">${employees.salary}</td>
+                </tr>
+                <tr>
+                    <td class="bold" style="width: 250px;">Total Salary:</td>
+                    <td class="bold" style="width: 250px;">$[SUM(B2)]</td>
+                </tr>
+            </table>
+            <p>... gets transformed into...</p>
+            <table style="width: 500px;">
+                <tr>
+                    <td class="bold" style="width: 250px;">Employee</td>
+                    <td class="bold" style="width: 250px;">Salary</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Stack, Robert</td>
+                    <td style="width: 250px;">$1,000.00</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Queue, Suzie</td>
+                    <td style="width: 250px;">$900.00</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Fudd, Elmer</td>
+                    <td style="width: 250px;">$800.00</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Bunny, Bugs</td>
+                    <td style="width: 250px;">$1,500.00</td>
+                </tr>
+                <tr>
+                    <td class="bold" style="width: 250px;">Total Salary:</td>
+                    <td class="bold" style="width: 250px;">$4,200.00</td>
+                </tr>
+            </table>
+            <p>The cell with the total salary of $4,200.00 is actually an Excel formula, with
+            formula text "=SUM(B2:B5)".</p>
+        </section>
+        <section name="Default Values">
+            <p>Each cell reference in a JETT Formula may include an optional "||default" clause
+            after the cell reference (two "pipe" characters followed by the default value).  If all
+            cell references corresponding to the original cell reference are deleted (this may
+            occur when looping tags process empty Collections), then the default value is used.
+            The default value itself defaults to zero.</p>
+            <p>In this example, the "noEmployees" collection exists in the beans map, but it is
+            empty.  The Excel formula "COUNTA" is used to count the employees, but if there are no
+            cell references, zero is used in the formula, resulting in the incorrect display value
+            of "1".  So a default value is specified -- an unpopulated and unused cell is
+            referenced.</p>
+            <table style="width: 500px;">
+                <tr>
+                    <td class="bold" style="width: 250px;">Employee</td>
+                    <td class="bold" style="width: 250px;">Salary</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">${noEmployees.lastName}, ${noEmployees.firstName}</td>
+                    <td style="width: 250px;">${noEmployees.salary}</td>
+                </tr>
+                <tr>
+                    <td class="bold" style="width: 250px;">$[COUNTA(A2||$Z$1)]</td>
+                    <td class="bold" style="width: 250px;">$[SUM(B2)]</td>
+                </tr>
+            </table>
+            <p>... gets transformed into...</p>
+            <table style="width: 500px;">
+                <tr>
+                    <td class="bold" style="width: 250px;">Employee</td>
+                    <td class="bold" style="width: 250px;">Salary</td>
+                </tr>
+                <tr>
+                    <td class="bold" style="width: 250px;">0</td>
+                    <td class="bold" style="width: 250px;">$0.00</td>
+                </tr>
+            </table>
+            <p>The cell under "Employee" contains the Excel formula text "=COUNTA($Z$1)" and the
+            cell under "Salary" contains the Excel formula text "=SUM(0)".</p>
+        </section>
+    </body>
+</document>
