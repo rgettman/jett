@@ -393,7 +393,7 @@ public class SpanTag extends BaseTag
                   foundStyle = SheetUtil.createCellStyle(sheet.getWorkbook(), cs.getAlignment(), CellStyle.BORDER_NONE,
                   CellStyle.BORDER_NONE, CellStyle.BORDER_NONE, CellStyle.BORDER_NONE, cs.getDataFormatString(),
                      cs.getWrapText(), cs.getFillBackgroundColorColor(), cs.getFillForegroundColorColor(),
-                     cs.getVerticalAlignment(), cs.getVerticalAlignment(), cs.getIndention(), cs.getRotation(),
+                     cs.getFillPattern(), cs.getVerticalAlignment(), cs.getIndention(), cs.getRotation(),
                      null, null, null, null, cs.getLocked(), cs.getHidden());
                   foundStyle.setFont(f);
                }
