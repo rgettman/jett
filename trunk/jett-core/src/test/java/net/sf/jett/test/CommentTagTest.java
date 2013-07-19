@@ -72,6 +72,7 @@ public class CommentTagTest extends TestCase
       assertTrue(font == null || font.getBoldweight() == Font.BOLDWEIGHT_NORMAL);
       comment = TestUtility.getComment(sComment, 2, 0);
       assertNotNull(comment);
+      assertFalse(comment.isVisible());
       assertEquals("Team Name: Celtics", comment.getString().getString());
       rts = comment.getString();
       font = TestUtility.convertToFont(RichTextStringUtil.getFontAtIndex(rts, 0), workbook);
@@ -85,23 +86,27 @@ public class CommentTagTest extends TestCase
       assertEquals("City: Toronto", TestUtility.getStringCellValue(sComment, 6, 0));
       comment = TestUtility.getComment(sComment, 6, 0);
       assertNotNull(comment);
+      assertFalse(comment.isVisible());
       assertEquals("Team Name: Raptors", comment.getString().getString());
       assertEquals("Atlantic Division", comment.getAuthor());
 
       assertEquals("City: Los Angeles", TestUtility.getStringCellValue(sComment, 30, 0));
       comment = TestUtility.getComment(sComment, 30, 0);
       assertNotNull(comment);
+      assertFalse(comment.isVisible());
       assertEquals("Team Name: Lakers", comment.getString().getString());
       assertEquals("Pacific Division", comment.getAuthor());
       assertEquals("City: Sacramento", TestUtility.getStringCellValue(sComment, 34, 0));
       comment = TestUtility.getComment(sComment, 34, 0);
       assertNotNull(comment);
+      assertFalse(comment.isVisible());
       assertEquals("Team Name: Kings", comment.getString().getString());
       assertEquals("Pacific Division", comment.getAuthor());
 
       assertEquals("City: Harlem", TestUtility.getStringCellValue(sComment, 46, 0));
       comment = TestUtility.getComment(sComment, 46, 0);
       assertNotNull(comment);
+      assertTrue(comment.isVisible());
       assertEquals("Team Name: Globetrotters", comment.getString().getString());
       assertEquals("Of Their Own Division", comment.getAuthor());
    }
