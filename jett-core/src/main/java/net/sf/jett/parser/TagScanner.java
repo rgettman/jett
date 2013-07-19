@@ -101,7 +101,19 @@ public class TagScanner
          {
             while ((iStartOfToken + iTokenLength) < myTagText.length() &&
                    myTagText.charAt(iStartOfToken + iTokenLength) != '"')
-               iTokenLength++;
+            {
+               // Include escaped characters.
+               if (myTagText.charAt(iStartOfToken + iTokenLength) == '\\' &&
+                   (iStartOfToken + iTokenLength + 1) < myTagText.length() &&
+                   ("\"\\".indexOf(myTagText.charAt(iStartOfToken + iTokenLength + 1)) >= 0))
+               {
+                  iTokenLength += 2;
+               }
+               else
+               {
+                  iTokenLength++;
+               }
+            }
             tokenType = Token.TOKEN_STRING;
          }
       }

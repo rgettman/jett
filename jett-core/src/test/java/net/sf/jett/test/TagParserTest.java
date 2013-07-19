@@ -283,4 +283,33 @@ public class TagParserTest
       assertTrue(parser.isTag());
       assertTrue(parser.isEndTag());
    }
+
+   /**
+    * Ensure that all JETT-defined escaped sequences are recognized in
+    * attribute values.
+    * <ul>
+    * <li>\" for double-quote</li>
+    * <li>\\ for backslash</li>
+    * </ul>
+    * @since 0.5.2
+    */
+   @Test
+   public void testEscapesInAttributeValues()
+   {
+      Sheet sheet = theWorkbook.getSheetAt(0);
+      Row row = sheet.getRow(14);
+      Cell cell = row.getCell(0);
+      TagParser parser = new TagParser(cell);
+      parser.parse();
+
+      Map<String, RichTextString> attributes = parser.getAttributes();
+      List<String> attrNames = Arrays.asList("doublequote", "backslash");
+      // Note: the expected results must still be Java-escaped here, just to make it into the string.
+      List<String> attrValues = Arrays.asList("Embedded \"double-quotes\"", "Embedded \\backslash");
+      for (int i = 0; i < 2; i++)
+      {
+         assertNotNull(attributes.containsKey(attrNames.get(i)));
+         assertEquals(attrValues.get(i), attributes.get(attrNames.get(i)).getString());
+      }
+   }
 }
