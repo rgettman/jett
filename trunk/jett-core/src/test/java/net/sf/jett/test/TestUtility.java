@@ -140,6 +140,37 @@ public class TestUtility
    }
 
    /**
+    * Returns some fictional <code>Counties</code> in a collection known as
+    * "county", to test a specific part of implicit collections processing.
+    * @return A <code>Map</code> of beans containing a <code>List</code> of
+    *     dummy <code>County</code> objects.
+    * @since 0.5.2
+    */
+   public static Map<String, Object> getFictionalCountyData()
+   {
+      Map<String, Object> beans = new HashMap<String, Object>();
+      List<County> county = new ArrayList<County>();
+      county.add(new County("Carburetor", 150, 7089, 2006, "Radiator Springs", "99001"));
+      county.add(new County("Cobblestone", 45678, 855, 1960, "Bedrock", "99003"));
+      county.add(new County("Gotham", 10000000, 790, 1940, "Gotham", "99005"));
+      county.add(new County("Greenbow", 123456, 10234, 1994, "Greenbow City", "99007"));
+      county.add(new County("Hazzard", 1234, 4567, 1979, "Hazzard City", "99009"));
+      county.add(new County("Heimlich", 34567, 10001, 1997, "Arlen", "99011"));
+      county.add(new County("Hill", 1567890, 5034, 1985, "Hill Valley", "99013"));
+      county.add(new County("Mayberry", 23456, 7501, 1960, "Mayberry", "99015"));
+      county.add(new County("Maycomb", 13579, 489, 1960, "Maycomb", "99017"));
+      county.add(new County("Metropolis", 10900000, 790, 1939, "Metropolis", "99019"));
+      county.add(new County("Mist", 800, 8602, 1974, "Lake Wobegon", "99021"));
+      county.add(new County("Springfield", 1357920, 1268, 1989, "Springfield", "99023"));
+      // We call the bean "county" here, and there is a property "countySeat"
+      // (method "getCountySeat") that should NOT be affected by implicit
+      // collections processing.
+      beans.put("county", county);
+
+      return beans;
+   }
+
+   /**
     * Gets a beans map with a <code>List</code> of division beans, most of
     * which contain <code>Team</code> beans.  The name is "divisionsList".
     * @return A <code>Map</code> of beans containing a <code>List</code> of

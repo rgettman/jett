@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.RichTextString;
 
 import net.sf.jett.exception.TagParseException;
@@ -189,9 +190,14 @@ public class TagParser
                   throw new TagParseException("Value found without attribute name: " + myCellText);
                // Store the RichTextString attribute value.
                int pos = myStartIdx + scanner.getNextPosition();
+               CreationHelper helper = myCell.getSheet().getWorkbook().getCreationHelper();
                RichTextString attrValue = RichTextStringUtil.substring(myCellRichTextString,
-                  myCell.getSheet().getWorkbook().getCreationHelper(),
-                  pos - scanner.getCurrLexeme().length(), pos);
+                  helper, pos - scanner.getCurrLexeme().length(), pos);
+               // Perform escape-sequence replacement
+               // \" => "
+               attrValue = RichTextStringUtil.replaceAll(attrValue, helper, "\\\"", "\"");
+               // \\ => \
+               attrValue = RichTextStringUtil.replaceAll(attrValue, helper, "\\\\", "\\");
                myAttributes.put(attrName, attrValue);
                attrName = null;
             }
