@@ -7,7 +7,7 @@
         <section name="Comparison of JETT to jXLS">
         <p>JETT is similar to jXLS, because JETT performs the same function -- translating Excel
         template spreadsheets into spreadsheets with the desired data populated.  Here, JETT
-        0.4.0 is compared with the latest version of jXLS, 1.0.1:</p>
+        0.5.2 is compared with the latest version of jXLS, 1.0.2:</p>
         <table style="width: 750px;">
             <tr>
                 <th style="width: 200px">Feature</th>

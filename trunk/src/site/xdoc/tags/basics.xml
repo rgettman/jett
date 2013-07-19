@@ -33,6 +33,13 @@
                 <li><a href="style.html">&lt;jt:style&gt;</a></li>
                 <li><a href="total.html">&lt;jt:total&gt;</a></li>
             </ul>
+            <p>Like XML, attribute values are always enclosed in double-quote characters, e.g.
+            <code>attr="value"</code>.  JETT supports escaping literal double-quote characters with
+            a backslash, and escaping backslash characters as well:</p>
+            <ul>
+                <li><code>\"</code> => <code>"</code></li>
+                <li><code>\\</code> => <code>\</code></li>
+            </ul>
             <p>All tags in the JETT Tag Library, and any custom tags that subclass
             <code>BaseTag</code>, support the following common attribute:</p>
             <h1>Attributes</h1>
