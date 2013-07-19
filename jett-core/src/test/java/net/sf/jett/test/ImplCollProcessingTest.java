@@ -261,6 +261,12 @@ public class ImplCollProcessingTest extends TestCase
       assertEquals("Harlem", TestUtility.getStringCellValue(limit, 37, 0));
       assertTrue(TestUtility.isCellBlank(limit, 38, 0));
       assertTrue(TestUtility.isCellBlank(limit, 39, 0));
+
+      // Test replacing collection name, but not as part of a large identifier.
+      Sheet collNameReplace = workbook.getSheetAt(12);
+      assertEquals("Radiator Springs", TestUtility.getStringCellValue(collNameReplace, 2, 4));
+      assertEquals("Springfield", TestUtility.getStringCellValue(collNameReplace, 13, 4));
+      assertTrue(TestUtility.isCellBlank(collNameReplace, 14, 4));
    }
 
    /**
@@ -283,6 +289,7 @@ public class ImplCollProcessingTest extends TestCase
       beans.putAll(TestUtility.getStateData());
       beans.putAll(TestUtility.getSpecificDivisionData(4, "pacific"));
       beans.putAll(TestUtility.getSpecificDivisionData(7, "ofTheirOwn"));
+      beans.putAll(TestUtility.getFictionalCountyData());
       return beans;
    }
 }

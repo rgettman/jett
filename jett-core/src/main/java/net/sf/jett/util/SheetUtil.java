@@ -1556,7 +1556,7 @@ public class SheetUtil
                {
                   RichTextString value = cell.getRichStringCellValue();
                   cell.setCellValue(RichTextStringUtil.replaceAll(
-                     value, helper, collExpr, itemName));
+                     value, helper, collExpr, itemName, false, 0, true));
                }
             }
          }
