@@ -83,6 +83,36 @@ public class RichTextStringUtil
    public static RichTextString replaceAll(RichTextString richTextString,
       CreationHelper helper, String target, String replacement, boolean firstOnly, int startIdx)
    {
+      return replaceAll(richTextString, helper, target, replacement, firstOnly, startIdx, false);
+   }
+
+   /**
+    * Replaces all occurrences of the given target string with the replacement
+    * string.
+    * Preserves rich text formatting as much as possible.
+    * @param richTextString The <code>RichTextString</code> to manipulate.
+    * @param helper A <code>CreationHelper</code> that can create the proper
+    *    <code>RichTextString</code>.
+    * @param target The string to replace.
+    * @param replacement The replacement string.
+    * @param firstOnly Whether to stop after replacing the first found instance
+    *    of <code>target</code>.
+    * @param startIdx Start replacing after this 0-based index into the
+    *    <code>richTextString</code>.
+    * @param identifierMode If true, makes sure that the <code>target</code> is
+    *    NOT replaced if the target string is part of a larger identifier.
+    *    E.g. if <code>target</code> is <code>"activity"</code>, don't replace
+    *    the <code>"activity"</code> substring within <code>"activityDay"</code>.
+    * @return A new <code>RichTextString</code> with replaced values, or the
+    *    same <code>RichTextString</code> if <code>replace</code> is
+    *    <code>null</code> or empty.
+    *
+    * @since 0.5.2
+    */
+   public static RichTextString replaceAll(RichTextString richTextString,
+      CreationHelper helper, String target, String replacement, boolean firstOnly, int startIdx,
+      boolean identifierMode)
+   {
       if (target == null || target.length() == 0)
          return richTextString;
 
@@ -109,6 +139,21 @@ public class RichTextStringUtil
       {
          if (DEBUG)
             System.err.println("    beginIdx=" + beginIdx);
+
+         // Identifier Mode: If there is a "Java Identifier Part" just before
+         // or just after the target, then don't replace it, because we've
+         // found part of a larger identifier that is not equal to the target.
+         if (identifierMode &&
+             ((beginIdx > 0 && Character.isJavaIdentifierPart(value.charAt(beginIdx - 1))) ||
+              (beginIdx + target.length() < value.length() && Character.isJavaIdentifierPart(value.charAt(beginIdx + target.length()))))
+            )
+         {
+            // Still setup for next loop.
+            beginIdx = value.indexOf(target, beginIdx + target.length());
+            
+            continue;
+         }
+
          // Take care to skip any already processed part of the value string.
          value = value.substring(0, beginIdx) + replacement + value.substring(beginIdx + target.length());
 
