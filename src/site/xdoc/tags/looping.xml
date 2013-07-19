@@ -13,7 +13,6 @@
             <code>BaseLoopTag</code>, which itself subclasses the abstract class
             <code>BaseTag</code>.  These are JETT's built-in looping tags:</p>
             <ul>
-                <li>All looping tags support all <a href="basics.html">base tag attributes</a>.</li>
                 <li><a href="for.html">"for" tag</a></li>
                 <li><a href="forEach.html">"forEach" tag</a></li>
                 <li><a href="multiForEach.html">"multiForEach" tag</a></li>
@@ -21,6 +20,7 @@
             <p>All looping tags support several common attributes:</p>
             <h1>Attributes</h1>
             <ul>
+                <li>All looping tags support all <a href="basics.html">base tag attributes</a>.</li>
                 <li><strong>copyRight: Boolean</strong> Optional.  Normally, content below the
                 block is shifted downward to make room for the copied blocks.  But if this
                 attribute is true, then this will shift content to the right of the block out of

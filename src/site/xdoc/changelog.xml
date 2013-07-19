@@ -4,6 +4,26 @@
         <title>Change Log for JETT</title>
     </properties>
     <body>
+        <section name="JETT 0.5.2 (Beta) Released - 19 Jul 2013">
+            <p>New in JETT 0.5.2:</p>
+            <ul>
+                <li>Bug fix (Ticket #5): JETT now allows the inclusion of double-quote character in
+                    tag attribute values.  Normally a double-quote character delimits the beginning
+                    and ending of an attribute value, but now JETT allows the escaping of the
+                    double-quote character with a backslash: <code>\"</code> means a literal
+                    <code>"</code>, e.g. <code>attr="\"Escape it!\", he said."</code>.  JETT also
+                    allows the backslash character to escape itself: <code>\\</code> means a
+                    literal <code>\</code>, e.g. <code>attr="C:\\Program Files\\Java\\"</code>.</li>
+                <li>Bug fix (No ticket #): If Implicit Collections Processing is operating on a
+                    collection, but a property elsewhere in an expression contained that collection
+                    name as a substring (e.g. <code>${collection.collectionValue}</code>, then JETT
+                    had a problem with it.  JETT now takes into account this case and processes it
+                    correctly.</li>
+                <li>Additional test cases have been added for the
+                    <a href="tags/comment.html">comment tag</a> concerning the comment's Excel
+                    visibility.</li>
+            </ul>
+        </section>
         <section name="JETT 0.5.1 (Beta) Released - 04 Mar 2013">
             <p>New in JETT 0.5.1:</p>
             <ul>
