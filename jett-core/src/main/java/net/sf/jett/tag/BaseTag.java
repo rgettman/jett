@@ -135,13 +135,14 @@ public abstract class BaseTag implements Tag
    }
 
    /**
-    * <p>Checks the <code>Tag's</code> attributes to ensure that:</p>
+    * <p>Checks the <code>Tag's</code> attributes to ensure that certain
+    * requirements are met:</p>
     * <ol>
     * <li>All required attributes are present, and
     * <li>All attributes present are recognized.
     * <li>All attributes are validated through the method
     *    <code>validateAttributes</code> (i.e. that method doesn't throw an
-    *    <code>Exception</code>.
+    *    <code>Exception</code>).
     * </ol>
     * <p>A <code>TagParseException</code> is thrown if not all conditions above
     * are not met.</p>
@@ -182,7 +183,7 @@ public abstract class BaseTag implements Tag
    }
 
    /**
-    * <p>Validates all attributes and attribute values.  Processes this
+    * <p>Validates all attributes and attribute values and processes this
     * <code>Tag</code>.</p>
     * <p>For 0.3.0, the methods "checkAttributes" and "process" were removed
     * and replaced by this method, to allow for additional logic.</p>

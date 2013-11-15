@@ -5,54 +5,30 @@
     </properties>
     <body>
         <section name="News">
-            <p><strong>JETT 0.5.2 (Beta) Released</strong></p>
-            <p>New in JETT 0.5.2:</p>
+            <p><strong>JETT 0.6.0 (Beta) Released</strong></p>
+            <p>New in JETT 0.6.0:</p>
             <ul>
-                <li>Bug fix (Ticket #5): JETT now allows the inclusion of double-quote character in
-                    tag attribute values.  Normally a double-quote character delimits the beginning
-                    and ending of an attribute value, but now JETT allows the escaping of the
-                    double-quote character with a backslash: <code>\"</code> means a literal
-                    <code>"</code>, e.g. <code>attr="\"Escape it!\", he said."</code>.  JETT also
-                    allows the backslash character to escape itself: <code>\\</code> means a
-                    literal <code>\</code>, e.g. <code>attr="C:\\Program Files\\Java\\"</code>.</li>
-                <li>Bug fix (No ticket #): If Implicit Collections Processing is operating on a
-                    collection, but a property elsewhere in an expression contained that collection
-                    name as a substring (e.g. <code>${collection.collectionValue}</code>, then JETT
-                    had a problem with it.  JETT now takes into account this case and processes it
-                    correctly.</li>
-                <li>Additional test cases have been added for the
-                    <a href="tags/comment.html">comment tag</a> concerning the comment's Excel
-                    visibility.</li>
-            </ul>
-            <p><strong>JETT 0.5.1 (Beta) Released</strong></p>
-            <p>New in JETT 0.5.1:</p>
-            <ul>
-                <li>Bug fix: When using the <a href="tags/span.html">span tag</a>, sometimes the
-                    background of the Cell was accidentally set to "gray50percent", even if there
-                    was no background color, foreground color, or fill pattern.  This bug is now
-                    fixed in 0.5.1.</li>
-            </ul>
-            <p><strong>JETT 0.5.0 (Beta) Released</strong></p>
-            <p>New in JETT 0.5.0:</p>
-            <ul>
-                <li>The <a href="tags/style.html">style tag</a> has a new attribute: "class" for
-                    assigning styles to a block of cells defined in a ".css" file, which is very
-                    much like a CSS file in web design.</li>
-                <li>If the <a href="tags/style.html">style tag</a> is used extensively, then JETT's
-                    performance suffers.  Now, JETT maintains caches for styles and fonts used,
-                    for easy, fast lookup and reuse.</li>
-                <li>Additional test cases have been added to the JUnit test case that tests the
-                    <a href="tags/hyperlink.html">hyperlink</a> tag.</li>
-                <li>Bug fix: When cell borders were used in the same cell as a
-                    <a href="tags/span.html">span tag</a>, the borders were not changed to match
-                    the new merged region.  Now, the borders are changed to match the new merged
-                    region.</li>
-                <li>Bug fix: When an expression contains the method call "size()" on a collection,
-                    JETT didn't properly recognize that the collection expression shouldn't be
-                    processed with <a href="collections/implicit.html">implicit collections
-                    processing</a>, i.e. one block for every collection item.  Now JETT properly
-                    recognizes the "size()" method on a collection and doesn't perform implicit
-                    collections processing in this case.</li>
+                <li><a href="misc/jdbc_executor.html">JDBC Template Execution is here!</a>
+                    Create a <code>JDBCExecutor</code>, expose it
+                    in the beans, and use it to execute SQL queries specified directly in the
+                    template spreadsheet.  Straight "select" statements are supported, and "select"
+                    statements with JDBC "?" values are supported as well.</li>
+                <li>Two new
+                    <a href="apidocs/net/sf/jett/transform/ExcelTransformer.html"><code>transform</code>
+                    methods</a> are added.  These operate on an already created <code>Workbook</code>
+                    object.  Also, the existing <code>transform</code> methods that take an input
+                    filename as a parameter no longer create the <code>Workbook</code> with a
+                    <code>FileInputStream</code>; they use a <code>File</code> instead,
+                    <a href="http://poi.apache.org/spreadsheet/quick-guide.html#Files+vs+InputStreams">
+                    to save memory</a>.</li>
+                <li>Bug fix (Ticket #6): Unpaired double-quote in a cell value results in an
+                    infinite loop in the <code>TagParser</code>.  This has been fixed.</li>
+                <li>Bug fix (Ticket #7): <code>BigDecimals</code> are not supported.
+                    <code>BigDecimals</code> and <code>BigIntegers</code> are now supported.  Their
+                    values, when entered into a <code>Cell</code>, follow what Excel does when a
+                    user enters large numbers.  If the number can be expressed as a normal
+                    <code>double</code>, then the cell will contain a numeric value, else it will
+                    be interpreted as a <code>String</code> value.</li>
             </ul>
             <p>View a history of all changes at the <a href="changelog.html">Change Log</a>.</p>
         </section>

@@ -3,13 +3,13 @@
     <parent>
         <groupId>net.sf.jett</groupId>
         <artifactId>jett</artifactId>
-        <version>0.5.3-SNAPSHOT</version>
+        <version>0.6.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.sf.jett</groupId>
     <artifactId>jett-core</artifactId>
     <packaging>jar</packaging>
-    <version>0.5.3-SNAPSHOT</version>
+    <version>0.6.0-SNAPSHOT</version>
 
     <name>jett-core</name>
     <url>http://jett.sourceforge.net</url>

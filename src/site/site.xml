@@ -57,6 +57,7 @@
             <item name="Tag Loop Listeners" href="misc/tag_loop_listeners.html"/>
             <item name="JEXL Settings" href="misc/jexl_settings.html"/>
             <item name="Working With Charts" href="misc/charts.html"/>
+            <item name="JDBC Execution" href="misc/jdbc_executor.html"/>
         </menu>
         <menu ref="reports"/>
     </body>

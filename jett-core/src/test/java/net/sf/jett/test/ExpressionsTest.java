@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.math.BigInteger;
+import java.math.BigDecimal;
 
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -15,6 +17,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 import net.sf.jett.test.model.Team;
+import net.sf.jett.jdbc.ResultSetRow;
 
 /**
  * This JUnit Test class tests the evaluation of expressions and replacement
@@ -134,6 +137,18 @@ public class ExpressionsTest extends TestCase
       assertEquals("B17", TestUtility.getStringCellValue(sheet, 16, 1));
       assertEquals("B17:D18", TestUtility.getStringCellValue(sheet, 16, 3));
       assertEquals("JETT supports static method calling!", TestUtility.getStringCellValue(sheet, 17, 1));
+
+      assertEquals(0, TestUtility.getNumericCellValue(sheet, 19, 1), Math.ulp(0));
+      assertEquals(42, TestUtility.getNumericCellValue(sheet, 20, 1), Math.ulp(42));
+      assertEquals(1.2345678901234567890E39, TestUtility.getNumericCellValue(sheet, 21, 1), Math.ulp(1.2345678901234567890E39));
+      assertEquals("359538626972463140000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+              TestUtility.getStringCellValue(sheet, 22, 1));
+
+      assertEquals(0, TestUtility.getNumericCellValue(sheet, 23, 1), Math.ulp(0));
+      assertEquals(8.6, TestUtility.getNumericCellValue(sheet, 24, 1), Math.ulp(8.6));
+      assertEquals(0, TestUtility.getNumericCellValue(sheet, 25, 1), Math.ulp(0));
+      assertEquals("359538626972463141629054847463408713596141135051689993197834953606314521560057077521179117265533756343080917907028764928468642653778928365536935093407075033972099821153102564152490980180778657888151737016910267884609166473806445896331617118664246696549595652408289446337476354361838599762500808052368249716736",
+              TestUtility.getStringCellValue(sheet, 26, 1));
    }
 
    /**
@@ -177,6 +192,30 @@ public class ExpressionsTest extends TestCase
       beans.put("feat6", "superscript");
       beans.put("feat7", "subscript");
       beans.put("feat8", "one");
+
+      beans.put("biZero", BigInteger.ZERO);
+      beans.put("biAnswer", new BigInteger("42"));
+      // 40 digits is longer than long.
+      beans.put("biBiggerThanLong", new BigInteger("1234567890123456789012345678901234567890"));
+      // This should be approximately twice Double.MAX_VALUE.
+      beans.put("biBiggerThanDouble", new BigInteger(
+        //        10        20        30        40        50        60        70        80        90       100        10        20        30        40        50        60        70        80        90       200        10        20        30        40        50        60        70        80        90       300        10
+        //1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+         "359538626972463140000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      ));
+
+      beans.put("bdZero", BigDecimal.ZERO);
+      beans.put("bdAnswer", new BigDecimal(8.6));
+      // I would have put "Double.MIN_NORMAL / 2" here, but that constant was
+      // created for JDK 1.6.
+      beans.put("bdSmallerThanNormal", Double.longBitsToDouble(0x0010000000000000L) / 2);
+      beans.put("bdBiggerThanDouble", new BigDecimal(Double.MAX_VALUE).multiply(new BigDecimal(2)));
+
+      ResultSetRow row = new ResultSetRow();
+      row.set("answer", 42);
+      row.set("IHaveAQuestion", 8.6);
+
+      beans.put("valueHolder", row);
 
       return beans;
    }

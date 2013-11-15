@@ -122,12 +122,8 @@ public class RichTextStringUtil
          System.err.println("RTSU.replaceAll: \"" + value + "\" (" + value.length() +
             "): numFormattingRuns=" + numFormattingRuns + ", replacing \"" + target +
             "\" with \"" + replacement + "\".");
-      ArrayList<Integer> beginList = new ArrayList<Integer>();
-      ArrayList<Integer> lengthList = new ArrayList<Integer>();
-      ArrayList<Object> fontList = new ArrayList<Object>();
 
-      determineFormattingRunStats(richTextString, beginList, lengthList, fontList);
-      ArrayList<Integer> newLengthList = new ArrayList<Integer>(lengthList);
+      List<FormattingRun> formattingRuns = determineFormattingRunStats(richTextString);
 
       // Replace target(s) with the replacement.
       if (DEBUG)
@@ -161,8 +157,9 @@ public class RichTextStringUtil
          int fmtIndex = -1;
          for (int j = 0; j < numFormattingRuns; j++)
          {
-            int currBeginIdx = beginList.get(j);
-            int currLength = newLengthList.get(j);
+            FormattingRun run = formattingRuns.get(j);
+            int currBeginIdx = run.getBegin();
+            int currLength = run.getLength();
             if (DEBUG)
                System.err.println("    j=" + j + ", currBeginIdx=" + currBeginIdx +
                   ", currLength=" + currLength + ", beginIdx=" + beginIdx);
@@ -177,21 +174,22 @@ public class RichTextStringUtil
          if (fmtIndex != -1)
          {
             // Change the length of the formatting run.
-            newLengthList.set(fmtIndex, newLengthList.get(fmtIndex) + change);
+            FormattingRun run = formattingRuns.get(fmtIndex);
+            run.setLength(run.getLength() + change);
 
             // This affects the beginning positions of all subsequent runs!
             for (int j = fmtIndex + 1; j < numFormattingRuns; j++)
             {
+               run = formattingRuns.get(j);
                if (DEBUG)
                   System.err.println("    RTSU.replaceAll: Changing beginning of formatting run " +
-                     j + " from " + beginList.get(j) + " to " + (beginList.get(j) + change));
-               beginList.set(j, beginList.get(j) + change);
+                     j + " from " + run.getBegin() + " to " + (run.getBegin() + change));
+               run.setBegin(run.getBegin() + change);
             }
 
             if (DEBUG)
                System.err.println("  RTSU.replaceAll: Formatting run length changed (" +
-                  fmtIndex + "): oldLength=" + lengthList.get(fmtIndex) +
-                  ", newLength=" + newLengthList.get(fmtIndex));
+                  fmtIndex + "): newLength=" + formattingRuns.get(fmtIndex).getLength());
          }
          else
          {
@@ -203,10 +201,11 @@ public class RichTextStringUtil
             // This affects the beginning positions of all runs!
             for (int j = 0; j < numFormattingRuns; j++)
             {
+               FormattingRun run = formattingRuns.get(j);
                if (DEBUG)
                   System.err.println("    RTSU.replaceAll: changing beginning of formatting run " +
-                     j + " from " + beginList.get(j) + " to " + (beginList.get(j) + change));
-               beginList.set(j, beginList.get(j) + change);
+                     j + " from " + run.getBegin() + " to " + (run.getBegin() + change));
+               run.setBegin(run.getBegin() + change);
             }
          }
 
@@ -219,7 +218,7 @@ public class RichTextStringUtil
          beginIdx = value.indexOf(target, beginIdx + replacement.length());
       }
 
-      return createFormattedString(numFormattingRuns, helper, value, beginList, newLengthList, fontList);
+      return createFormattedString(numFormattingRuns, helper, value, formattingRuns);
    }
 
    /**
@@ -247,12 +246,8 @@ public class RichTextStringUtil
       if (DEBUG)
          System.err.println("RTSU.replaceValues: \"" + value + "\" (" + value.length() +
             "): numFormattingRuns=" + numFormattingRuns + ", replacements: " + targets.size());
-      ArrayList<Integer> beginList = new ArrayList<Integer>();
-      ArrayList<Integer> lengthList = new ArrayList<Integer>();
-      ArrayList<Object> fontList = new ArrayList<Object>();
 
-      determineFormattingRunStats(richTextString, beginList, lengthList, fontList);
-      ArrayList<Integer> newLengthList = new ArrayList<Integer>(lengthList);
+      List<FormattingRun> formattingRuns = determineFormattingRunStats(richTextString);
 
       // Replace targets with replacements.
       for (int i = 0; i < targets.size(); i++)
@@ -270,8 +265,9 @@ public class RichTextStringUtil
             int fmtIndex = -1;
             for (int j = 0; j < numFormattingRuns; j++)
             {
-               int currBeginIdx = beginList.get(j);
-               int currLength = newLengthList.get(j);
+               FormattingRun run = formattingRuns.get(j);
+               int currBeginIdx = run.getBegin();
+               int currLength = run.getLength();
                if (DEBUG)
                   System.err.println("    j=" + j + ", currBeginIdx=" + currBeginIdx +
                      ", currLength=" + currLength + ", beginIdx=" + beginIdx);
@@ -286,29 +282,30 @@ public class RichTextStringUtil
             if (fmtIndex != -1)
             {
                // Change the length of the formatting run.
+               FormattingRun run = formattingRuns.get(fmtIndex);
                int change = replaceWith.length() - replaceMe.length();
-               newLengthList.set(fmtIndex, newLengthList.get(fmtIndex) + change);
+               run.setLength(run.getLength() + change);
 
                // This affects the beginning positions of all subsequent runs!
                for (int j = fmtIndex + 1; j < numFormattingRuns; j++)
                {
+                  run = formattingRuns.get(j);
                   if (DEBUG)
                      System.err.println("    RTSU.replaceValues: Changing beginning of formatting run " +
-                        j + " from " + beginList.get(j) + " to " + (beginList.get(j) + change));
-                  beginList.set(j, beginList.get(j) + change);
+                        j + " from " + run.getBegin() + " to " + (run.getBegin() + change));
+                  run.setBegin(run.getBegin() + change);
                }
 
                if (DEBUG)
                   System.err.println("  RTSU.replaceValues: Formatting run length changed (" +
-                     fmtIndex + "): oldLength=" + lengthList.get(fmtIndex) +
-                     ", newLength=" + newLengthList.get(fmtIndex));
+                     fmtIndex + "): newLength=" + formattingRuns.get(fmtIndex).getLength());
             }
          }
          else
             break;
       }
 
-      return createFormattedString(numFormattingRuns, helper, value, beginList, newLengthList, fontList);
+      return createFormattedString(numFormattingRuns, helper, value, formattingRuns);
    }
 
    /**
@@ -334,21 +331,17 @@ public class RichTextStringUtil
          System.err.println("RTSU.substring: \"" + value + "\" (" + value.length() +
             "): numFormattingRuns=" + numFormattingRuns + ", beginIndex: " + beginIndex +
             ", endIndex: " + endIndex);
-      ArrayList<Integer> beginList = new ArrayList<Integer>();
-      ArrayList<Integer> lengthList = new ArrayList<Integer>();
-      ArrayList<Object> fontList = new ArrayList<Object>();
 
-      determineFormattingRunStats(richTextString, beginList, lengthList, fontList);
+      List<FormattingRun> formattingRuns = determineFormattingRunStats(richTextString);
 
       // Determine which runs apply in the new substring's range.
-      ArrayList<Integer> substrBeginList = new ArrayList<Integer>();
-      ArrayList<Integer> substrLengthList = new ArrayList<Integer>();
-      ArrayList<Object> substrFontList = new ArrayList<Object>();
+      List<FormattingRun> substrFormattingRuns = new ArrayList<FormattingRun>();
       int begin, end;
       for (int i = 0; i < numFormattingRuns; i++)
       {
-         begin = beginList.get(i);
-         end = begin + lengthList.get(i);
+         FormattingRun run = formattingRuns.get(i);
+         begin = run.getBegin();
+         end = begin + run.getLength();
          if ((begin < beginIndex && end < beginIndex) ||
              (begin >= endIndex && end >= endIndex))
          {
@@ -365,30 +358,22 @@ public class RichTextStringUtil
             // Partial cover at end.
             end = endIndex;
          }
-         substrBeginList.add(begin - beginIndex);
-         substrLengthList.add(end - begin);
-         substrFontList.add(fontList.get(i));
+         substrFormattingRuns.add(new FormattingRun(begin - beginIndex, end - begin, run.getFont()));
       }
-      return createFormattedString(substrBeginList.size(), helper, value.substring(beginIndex, endIndex),
-         substrBeginList, substrLengthList, substrFontList);
+      return createFormattedString(substrFormattingRuns.size(), helper, value.substring(beginIndex, endIndex),
+         substrFormattingRuns);
    }
 
    /**
     * Determine formatting run statistics for the given
     * <code>RichTextString</code>.  Adds elements to the arrays.
     * @param richTextString The <code>RichTextString</code>.
-    * @param beginList Adds to this <code>List</code> the beginning indexes of
-    *    all formatting runs found.
-    * @param lengthList Adds to this <code>List</code> the length of all
-    *    formatting runs found.
-    * @param fontList Adds to this <code>List</code> the fonts of all
-    *    formatting runs found.  If HSSF, stores <code>short</code> font
-    *    indexes.  If XSSF, stores <code>XSSFFont</code> objects.
+    * @return A <code>List</code> of all <code>FormattingRun</code>s found.
     */
-   public static void determineFormattingRunStats(RichTextString richTextString,
-      ArrayList<Integer> beginList, ArrayList<Integer> lengthList, ArrayList<Object> fontList)
+   public static List<FormattingRun> determineFormattingRunStats(RichTextString richTextString)
    {
       int numFormattingRuns = richTextString.numFormattingRuns();
+      List<FormattingRun> formattingRuns = new ArrayList<FormattingRun>(numFormattingRuns);
       if (richTextString instanceof HSSFRichTextString)
       {
          HSSFRichTextString hssfRichTextString = (HSSFRichTextString) richTextString;
@@ -417,9 +402,7 @@ public class RichTextStringUtil
                System.err.println("  RTSU.dFRS: HSSF Formatting run found: (" + fmtIdx +
                   ") begin=" + begin + ", length=" + length + ", font=" + fontIndex);
             }
-            beginList.add(begin);
-            lengthList.add(length);
-            fontList.add(fontIndex);
+            formattingRuns.add(new FormattingRun(begin, length, fontIndex));
          }
       }
       else if (richTextString instanceof XSSFRichTextString)
@@ -456,11 +439,10 @@ public class RichTextStringUtil
                System.err.println("  RTSU.dFRS: XSSF Formatting run found: (" + fmtIdx +
                   ") begin=" + begin + ", length=" + length + ", font=" + fontIndex);
             }
-            beginList.add(begin);
-            lengthList.add(length);
-            fontList.add(fontIndex);
+            formattingRuns.add(new FormattingRun(begin, length, fontIndex));
          }
       }
+      return formattingRuns;
    }
 
    /**
@@ -471,25 +453,18 @@ public class RichTextStringUtil
     *    to construct.
     * @param helper A <code>CreationHelper</code> that can create the proper
     *    <code>RichTextString</code>.
-    * @param beginList A <code>List</code> of beginning indexes of formatting
-    *    runs.
-    * @param newLengthList A <code>List</code> of run lengths of formatting
-    *    runs.
-    * @param fontList A <code>List</code> of fonts of formatting runs.  If
-    *    HSSF, the items are <code>shorts</code>.  If XSSF, the items are
-    *    <code>XSSFFonts</code>.
+    * @param formattingRuns A <code>List</code> of <code>FormattingRuns</code>.
     * @return A new <code>RichTextString</code>, the same type as
     *    <code>richTextString</code>, with <code>value</code> as it contents,
     *    formatted as specified.
     */
    public static RichTextString createFormattedString(int numFormattingRuns,
-      CreationHelper helper, String value, ArrayList<Integer> beginList,
-      ArrayList<Integer> newLengthList, ArrayList<Object> fontList)
+      CreationHelper helper, String value, List<FormattingRun> formattingRuns)
    {
       // Construct the proper RichTextString.
       RichTextString newString = helper.createRichTextString(value);
 
-      formatString(newString, numFormattingRuns, beginList, newLengthList, fontList);
+      formatString(newString, numFormattingRuns, formattingRuns);
       return newString;
    }
 
@@ -497,27 +472,22 @@ public class RichTextStringUtil
     * Format a <code>RichTextString</code> that has already been created.
     * @param string A <code>RichTextString</code>.
     * @param numFormattingRuns The number of formatting runs.
-    * @param beginList A <code>List</code> of beginning indexes of formatting
-    *    runs.
-    * @param newLengthList A <code>List</code> of run lengths of formatting
-    *    runs.
-    * @param fontList A <code>List</code> of fonts of formatting runs.  If
-    *    HSSF, the items are <code>shorts</code>.  If XSSF, the items are
-    *    <code>XSSFFonts</code>.
+    * @param formattingRuns A <code>List</code> of <code>FormattingRuns</code>.
     */
    public static void formatString(RichTextString string, int numFormattingRuns,
-      ArrayList<Integer> beginList, ArrayList<Integer> newLengthList, ArrayList<Object> fontList)
+      List<FormattingRun> formattingRuns)
    {
       // Apply the formatting runs.
       for (int i = 0; i < numFormattingRuns; i++)
       {
-         int begin = beginList.get(i);
-         int end = begin + newLengthList.get(i);
-         Object font = fontList.get(i);
+         FormattingRun run = formattingRuns.get(i);
+         int begin = run.getBegin();
+         int end = begin + run.getLength();
+         Object font = run.getFont();
          if (DEBUG)
          {
             System.err.println("  RTSU.cFS: Applying format (" + i + "): begin=" +
-               begin + ", length=" + newLengthList.get(i) + ", font=" + font +
+               begin + ", length=" + run.getLength() + ", font=" + font +
                " to string \"" + string.getString() + "\".");
          }
          if (string instanceof HSSFRichTextString)
@@ -767,5 +737,75 @@ public class RichTextStringUtil
       if (DEBUG)
          System.err.println("    Did NOT find existing, matching Font!");
       return null;
+   }
+}
+
+/**
+ * A <code>FormattingRun</code> holds information about one "run" of a
+ * <code>RichTextString</code> that is of the same <code>Font</code>.
+ */
+class FormattingRun
+{
+   private int myBeginIdx;
+   private int myLength;
+   private Object myFont;
+
+   /**
+    * Construct a <code>FormattingRun</code> with 
+    * @param beginIdx The beginning 0-based index of the run.
+    * @param length The length of the run.
+    * @param font The font.  It should be a <code>Short</code> index for
+    *    <code>HSSF</code> or an <code>XSSFFont</code> for <code>XSSF</code>.
+    */
+   public FormattingRun(int beginIdx, int length, Object font) {
+      myBeginIdx = beginIdx;
+      myLength = length;
+      myFont = font;
+   }
+
+   /**
+    * Returns the beginning 0-based index of the run.
+    * @return The beginning 0-based index of the run.
+    */
+   public int getBegin()
+   {
+      return myBeginIdx;
+   }
+
+   /**
+    * Sets the beginning 0-based index of the run.
+    * @param begin The beginning 0-based index of the run.
+    */
+   public void setBegin(int begin)
+   {
+      myBeginIdx = begin;
+   }
+
+   /**
+    * Returns the length of the run.
+    * @return The length of the run.
+    */
+   public int getLength()
+   {
+      return myLength;
+   }
+
+   /**
+    * Sets the new formatting run length.
+    * @param length The new formatting run length.
+    */
+   public void setLength(int length)
+   {
+      myLength = length;
+   }
+
+   /**
+    * Returns the font.
+    * @return A <code>Short</code> index for <code>HSSF</code> or an
+    *    <code>XSSFFont</code> for <code>XSSF</code>.
+    */
+   public Object getFont()
+   {
+      return myFont;
    }
 }

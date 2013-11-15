@@ -1,5 +1,7 @@
 package net.sf.jett.util;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -41,6 +43,12 @@ import net.sf.jett.model.WorkbookContext;
 public class SheetUtil
 {
    private static final boolean DEBUG = false;
+
+   private static final BigDecimal BD_MAX_DOUBLE = new BigDecimal(Double.MAX_VALUE);
+   // Only necessary because Double.MIN_NORMAL wasn't defined until JDK 1.6.
+   private static final double MIN_NORMAL = Double.longBitsToDouble(0x0010000000000000L);
+   private static final BigDecimal BD_MIN_DOUBLE = new BigDecimal(MIN_NORMAL);
+   private static final BigInteger BI_MAX_DOUBLE = BD_MAX_DOUBLE.toBigInteger();
 
    /**
     * Copy only the column widths in the given range of column indexes left by
@@ -541,6 +549,35 @@ public class SheetUtil
          cell.setCellValue((Byte) value);
       else if (value instanceof Boolean)
          cell.setCellValue((Boolean) value);
+      else if (value instanceof BigInteger)
+      {
+         // Use the double value if it makes sense.
+         BigInteger bi = (BigInteger) value;
+         BigInteger abs = bi.abs();
+         if (abs.compareTo(BI_MAX_DOUBLE) <= 0)
+         {
+            cell.setCellValue(bi.doubleValue());
+         }
+         else
+         {
+            cell.setCellValue(bi.toString());
+         }
+      }
+      else if (value instanceof BigDecimal)
+      {
+         // Use the double value if it makes sense.
+         BigDecimal bd = (BigDecimal) value;
+         BigDecimal abs = bd.abs();
+         if (abs.compareTo(BigDecimal.ZERO) == 0 ||
+             (abs.compareTo(BD_MIN_DOUBLE) >= 0 && abs.compareTo(BD_MAX_DOUBLE) <= 0))
+         {
+            cell.setCellValue(bd.doubleValue());
+         }
+         else
+         {
+            cell.setCellValue(bd.toString());
+         }
+      }
       else
       {
          newValue = helper.createRichTextString(value.toString());

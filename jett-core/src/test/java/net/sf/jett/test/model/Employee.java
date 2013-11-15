@@ -169,18 +169,29 @@ public class Employee
     * @return Whether this <code>Employee</code> is a manager.
     * @since 0.4.0
     */
-   public boolean isManager()
+   public boolean isAManager()
    {
       return amIManager;
    }
 
    /**
     * Sets whether this <code>Employee</code> is a manager.
-    * @param isManager Whether this <code>Employee</code> is a manager.
+    * @param isAManager Whether this <code>Employee</code> is a manager.
     * @since 0.4.0
     */
-   public void setManager(boolean isManager)
+   public void setAManager(boolean isAManager)
    {
-      amIManager = isManager;
+      amIManager = isAManager;
+   }
+
+   /**
+    * Returns the name in "Last, First" format.
+    * @return The name in "Last, First" format.
+    * @since 0.6.0
+    */
+   @Override
+   public String toString()
+   {
+      return getLastName() + ", " + getFirstName();
    }
 }

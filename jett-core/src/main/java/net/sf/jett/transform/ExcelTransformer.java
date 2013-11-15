@@ -2,6 +2,7 @@ package net.sf.jett.transform;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -41,35 +42,44 @@ import net.sf.jett.util.FormulaUtil;
  * in the form of <em>beans</em>.  This class is the entry point API for JETT.
  * </p>
  *
- * <p>There are four main methods that accomplish all of the work, all with the
- * overloaded name "transform":</p>
+ * <p>There are six entry-point methods that accomplish all of the work, all
+ * with the overloaded name "transform".  The first 3 apply all bean values to
+ * all sheets.  The third method does the work; the preceding 2 each call it
+ * to perform the actual transformation.  The last 3 apply specific sets of
+ * bean values to specific sheets.  The last method does the work; the
+ * preceding 2 each call it to perform the actual transformation.</p>
  * <ul>
- * <li><code>public void transform(String inFilename, String outFilename, Map<String, Object> beans)
- *    throws IOException, InvalidFormatException</code>
+ * <li><code>public void transform(String inFilename, String outFilename, Map&lt;String, Object&gt; beans)
+ *    throws IOException, InvalidFormatException</code></li>
  * <li><code>public Workbook transform(InputStream is, Map&lt;String, Object&gt; beans)
- *    throws IOException, InvalidFormatException</code>
- * <li><code>public void transform(String inFilename, String outFilename, List<String> templateSheetNamesList,
-      List<String> newSheetNamesList, List<Map<String, Object>> beansList)
-      throws IOException, InvalidFormatException</code>
+ *    throws IOException, InvalidFormatException</code></li>
+ * <li><code>public void transform(Workbook workbook, Map&lt;String, Object&gt; beans)</code></li>
+ * <li><code>public void transform(String inFilename, String outFilename, List&lt;String&gt; templateSheetNamesList,
+      List&lt;String&gt; newSheetNamesList, List&lt;Map&lt;String, Object&gt;&gt; beansList)
+      throws IOException, InvalidFormatException</code></li>
  * <li><code>public Workbook transform(InputStream is, List&lt;String&gt; templateSheetNamesList, List&lt;String&gt; newSheetNamesList,
- *    List&lt;Map&lt;tring, Object&gt;&gt; beansList) throws IOException, InvalidFormatException</code>
+ *    List&lt;Map&lt;String, Object&gt;&gt; beansList) throws IOException, InvalidFormatException</code></li>
+ * <li><code>public void transform(Workbook workbook, List&lt;String&gt; templateSheetNamesList,
+      List&lt;String&gt; newSheetNamesList, List&lt;Map&lt;String, Object&gt;&gt; beansList)</code></li>
  * </ul>
  * <p>The first method reads the template spreadsheet from the input filename,
- * applies the bean values across all sheets, and writes the transformed
- * spreadsheet to the output filename.</p>
+ * transforms the spreadsheet by calling the third method, and writes the
+ * transformed spreadsheet to the output filename.</p>
  * <p>The second method reads the template spreadsheet from the given input
- * stream (usually a file), applies the bean values across all sheets, and
- * returs a <code>Workbook</code> object representing the transformed
- * spreadsheet, which can be written to a file if desired.  The first method
- * calls the second method to do its work.</p>
- * <p>The third method reads the template spreadsheet from the input filename,
- * applies specific bean values to specific sheets, and writes the transformed
- * spreadsheet to the output filename.</p>
- * <p>The fourth method reads the template spreadsheet from the given input
- * stream (usually a file), applies specific bean values to specific sheets,
- * and returs a <code>Workbook</code> object representing the transformed
- * spreadsheet, which can be written to a file if desired.  The third method
- * calls the fourth method to do its work.</p>
+ * stream (usually a file), transforms the spreadsheet by calling the third
+ * method, and returs a <code>Workbook</code> object representing the
+ * transformed spreadsheet, which can be written to a file if desired.</p>
+ * <p>The third method performs the actual transformation on a
+ * <code>Workbook</code>, applying bean values to all sheets.</p>
+ * <p>The fourth method reads the template spreadsheet from the input filename,
+ * transforms the spreadsheet by calling the sixth method, and writes the
+ * transformed spreadsheet to the output filename.</p>
+ * <p>The fifth method reads the template spreadsheet from the given input
+ * stream (usually a file), transforms the spreadsheet by calling the sixth
+ * method, and returs a <code>Workbook</code> object representing the
+ * transformed spreadsheet, which can be written to a file if desired.</p>
+ * <p>The sixth method performs the actual transformation on a
+ * <code>Workbook</code>, applying specific bean values to specific sheets.</p>
  * <p>The <code>ExcelTransformer</code>'s settings can be changed with the
  * other public methods of this class, including recognizing custom tag
  * libraries, adding <code>CellListeners</code>, using fixed size collections,
@@ -284,19 +294,15 @@ public class ExcelTransformer
       throws IOException, InvalidFormatException
    {
       FileOutputStream fileOut = null;
-      InputStream fileIn = null;
-      Workbook workbook;
       try
       {
          fileOut = new FileOutputStream(outFilename);
-         fileIn = new BufferedInputStream(new FileInputStream(inFilename));
-         workbook = transform(fileIn, beans);
+         Workbook workbook = WorkbookFactory.create(new File(inFilename));
+         transform(workbook, beans);
          workbook.write(fileOut);
       }
       finally
       {
-         if (fileIn != null)
-            try { fileIn.close(); } catch (IOException ignored) {}
          if (fileOut != null)
             try { fileOut.close(); } catch (IOException ignored) {}
       }
@@ -319,6 +325,21 @@ public class ExcelTransformer
       throws IOException, InvalidFormatException
    {
       Workbook workbook = WorkbookFactory.create(is);
+      transform(workbook, beans);
+      return workbook;
+   }
+
+   /**
+    * Transforms the template Excel spreadsheet represented by the given
+    * <code>Workbook</code>.  Applies the given <code>Map</code> of beans
+    * to all sheets.
+    * @param workbook A <code>Workbook</code> object.  Transformation is
+    *    performed directly on this object.
+    * @param beans The <code>Map</code> of bean names to bean objects.
+    * @since 0.6.0
+    */
+   public void transform(Workbook workbook, Map<String, Object> beans)
+   {
       // This is done for performance reasons, related to identifying
       // collection names in expression text, which may vary from beans
       // map to beans map.
@@ -335,7 +356,6 @@ public class ExcelTransformer
       {
          replaceFormulas(workbook, context, sheetTransformer);
       }
-      return workbook;
    }
 
    /**
@@ -414,6 +434,31 @@ public class ExcelTransformer
       throws IOException, InvalidFormatException
    {
       Workbook workbook = WorkbookFactory.create(is);
+      transform(workbook, templateSheetNamesList, newSheetNamesList, beansList);
+      return workbook;
+   }
+
+   /**
+    * Transforms the template Excel spreadsheet represented by the given
+    * <code>Workbook</code>.  If a sheet name is represented <em>n</em>
+    * times in the list of template sheet names, then it will cloned to make
+    * <em>n</em> total copies and the clones will receive the corresponding
+    * sheet name from the list of sheet names.  Each resulting sheet has a
+    * corresponding <code>Map</code> of bean names to bean values exposed to
+    * it.
+    * @param workbook A <code>Workbook</code> object.  Transformation is
+    *    performed directly on this object.
+    * @param templateSheetNamesList A <code>List</code> of template sheet
+    *    names, with duplicates indicating to clone sheets.
+    * @param newSheetNamesList A <code>List</code> of resulting sheet names
+    *    corresponding to the template sheet names list.
+    * @param beansList A <code>List</code> of <code>Maps</code> representing
+    *    the beans map exposed to each resulting sheet.
+    * @since 0.6.0
+    */
+   public void transform(Workbook workbook, List<String> templateSheetNamesList,
+      List<String> newSheetNamesList, List<Map<String, Object>> beansList)
+   {
       String prevSheetName = "";
       if (DEBUG)
       {
@@ -484,7 +529,6 @@ public class ExcelTransformer
       {
          replaceFormulas(workbook, context, sheetTransformer);
       }
-      return workbook;
    }
 
    /**
