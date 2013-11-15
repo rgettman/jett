@@ -7,7 +7,7 @@
         <section name="Comparison of JETT to jXLS">
         <p>JETT is similar to jXLS, because JETT performs the same function -- translating Excel
         template spreadsheets into spreadsheets with the desired data populated.  Here, JETT
-        0.5.2 is compared with the latest version of jXLS, 1.0.2:</p>
+        0.6.0 is compared with the latest version of jXLS, 1.0.2:</p>
         <table style="width: 750px;">
             <tr>
                 <th style="width: 200px">Feature</th>
@@ -370,7 +370,8 @@
             <tr>
                 <td>SQL Execution in the Template</td>
                 <td>Supported, with the ReportManager bean.</td>
-                <td>Not supported</td>
+                <td>Supported, with the JDBCExecutor bean.  Also supported are "?" placeholders in
+                the query, plus additional arguments passed as bind variable values.</td>
             </tr>
             <tr>
                 <td>Access to POI Objects in the Template</td>
@@ -672,6 +673,41 @@
                     <td style="width: 150px;">&nbsp;</td>
                     <td style="width: 150px;">&nbsp;</td>
                     <td style="width: 150px;">&nbsp;</td>
+                </tr>
+            </table>
+            <h1>JDBC Query Excecution in the Template</h1>
+            <p>Here is an example of the usage of the <code>ReportManager</code> in jXLS:</p>
+<source>
+    Connection conn = getConnection();
+    Map&lt;String, Object&gt; beans = new HashMap&lt;String, Object&gt;();
+    ReportManager rm = new ReportManagerImpl(conn, beans);
+    beans.put("rm", rm);
+    Workbook workbook = transformer.transformXLS(inputStream, beans);
+</source>
+            <table>
+                <tr>
+                    <td>&lt;jx:forEach items="${rm.exec('SELECT first_name, last_name, salary, title FROM employee')}" var="employee"></td>
+                </tr>
+            </table>
+            <p>JETT's <code>JDBCExecutor</code> is very similar:</p>
+<source>
+    Connection conn = getConnection();
+    Map&lt;String, Object&gt; beans = new HashMap&lt;String, Object&gt;();
+    JDBCExecutor jdbc = new JDBCExecutor(conn);
+    beans.put("jdbc", jdbc);
+    Workbook workbook = transformer.transform(inputStream, beans);
+</source>
+            <table>
+                <tr>
+                    <td>&lt;jt:forEach items="${jdbc.execQuery('SELECT first_name, last_name, salary, title FROM employee')}" var="employee"></td>
+                </tr>
+            </table>
+            <p>However, a <code>JDBCExecutor</code> also has the ability to run JDBC select
+                statements that contain <code>?</code> placeholders.  There must be one additional
+                argument passed to the <code>execQuery</code> method for each <code>?</code>.</p>
+            <table>
+                <tr>
+                    <td>&lt;jt:forEach items="${jdbc.execQuery('SELECT first_name, last_name, salary, title FROM employee WHERE title = ?', myTitle)}" var="employee"></td>
                 </tr>
             </table>
         </section>

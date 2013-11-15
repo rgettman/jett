@@ -110,7 +110,8 @@ public class TagParser
       TagScanner.Token token = scanner.getNextToken();
       while (token != TagScanner.Token.TOKEN_BEGIN_ANGLE_BRACKET &&
              token != TagScanner.Token.TOKEN_BEGIN_ANGLE_BRACKET_SLASH &&
-             token != TagScanner.Token.TOKEN_EOI)
+             token != TagScanner.Token.TOKEN_EOI &&
+             token != TagScanner.Token.TOKEN_ERROR_EOI_IN_DQUOTES)
       {
          token = scanner.getNextToken();
       }

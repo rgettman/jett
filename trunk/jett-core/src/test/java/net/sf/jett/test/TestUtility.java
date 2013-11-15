@@ -486,19 +486,30 @@ public class TestUtility
    public static Map<String, Object> getEmployeeData()
    {
       Map<String, Object> beans = new HashMap<String, Object>();
+      beans.put("employees", getEmployees());
+      return beans;
+   }
+
+   /**
+    * Returns a <code>List</code> of <code>Employees</code>.
+    * @return A <code>List</code> of <code>Employees</code>.
+    * @since 0.6.0
+    */
+   public static List<Employee> getEmployees()
+   {
       Employee robert = new Employee();
       robert.setFirstName("Robert");
       robert.setLastName("Stack");
       robert.setSalary(1000);
       robert.setTitle("Data Structures Programmer");
-      robert.setManager(true);
+      robert.setAManager(true);
       Employee bugs = new Employee();
       bugs.setFirstName("Bugs");
       bugs.setLastName("Bunny");
       bugs.setSalary(1500);
       bugs.setCatchPhrase("Ah, what's up Doc?");
       bugs.setTitle("Cartoon Character");
-      bugs.setManager(true);
+      bugs.setAManager(true);
       Employee suzie = new Employee();
       suzie.setFirstName("Suzie");
       suzie.setLastName("Queue");
@@ -512,10 +523,7 @@ public class TestUtility
       elmer.setManager(bugs);
       elmer.setCatchPhrase("I'm hunting wabbits!  Huh-uh-uh!");
       elmer.setTitle("Cartoon Character");
-      List<Employee> employees = Arrays.asList(robert, suzie, elmer, bugs);
-
-      beans.put("employees", employees);
-      return beans;
+      return Arrays.asList(robert, suzie, elmer, bugs);
    }
 
    /**

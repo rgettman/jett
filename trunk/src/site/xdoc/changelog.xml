@@ -4,6 +4,32 @@
         <title>Change Log for JETT</title>
     </properties>
     <body>
+        <section name="JETT 0.6.0 (Beta) Released - 30 Oct 2013">
+            <p>New in JETT 0.6.0:</p>
+            <ul>
+                 <li><a href="misc/jdbc_executor.html">JDBC Template Execution is here!</a>
+                    Create a <code>JDBCExecutor</code>, expose it
+                    in the beans, and use it to execute SQL queries specified directly in the
+                    template spreadsheet.  Straight "select" statements are supported, and "select"
+                    statements with JDBC "?" values are supported as well.</li>
+                <li>Two new
+                    <a href="apidocs/net/sf/jett/transform/ExcelTransformer.html"><code>transform</code>
+                    methods</a> are added.  These operate on an already created <code>Workbook</code>
+                    object.  Also, the existing <code>transform</code> methods that take an input
+                    filename as a parameter no longer create the <code>Workbook</code> with a
+                    <code>FileInputStream</code>; they use a <code>File</code> instead,
+                    <a href="http://poi.apache.org/spreadsheet/quick-guide.html#Files+vs+InputStreams">
+                    to save memory</a>.</li>
+                <li>Bug fix (Ticket #6): Unpaired double-quote in a cell value results in an
+                    infinite loop in the <code>TagParser</code>.  This has been fixed.</li>
+                <li>Bug fix (Ticket #7): <code>BigDecimals</code> are not supported.
+                    <code>BigDecimals</code> and <code>BigIntegers</code> are now supported.  Their
+                    values, when entered into a <code>Cell</code>, follow what Excel does when a
+                    user enters large numbers.  If the number can be expressed as a normal
+                    <code>double</code>, then the cell will contain a numeric value, else it will
+                    be interpreted as a <code>String</code> value.</li>
+            </ul>
+        </section>
         <section name="JETT 0.5.2 (Beta) Released - 19 Jul 2013">
             <p>New in JETT 0.5.2:</p>
             <ul>
