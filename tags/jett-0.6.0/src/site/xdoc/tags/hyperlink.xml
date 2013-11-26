@@ -1,0 +1,72 @@
+<document>
+    <properties>
+        <author email="rgettman@users.sourceforge.net">Randy Gettman</author>
+        <title>Hyperlink Tag</title>
+    </properties>
+    <body>
+        <section name="The Hyperlink Tag">
+            <p>During transformation, Excel Hyperlinks may be created using the "hyperlink" tag.
+            This tag must be used in the bodiless form.  When processed, the "hyperlink" tag
+            creates a new Excel Hyperlink in the Cell.</p>
+            <h1>Attributes</h1>
+            <ul>
+                <li>The "hyperlink" tag supports all <a href="basics.html">base tag attributes</a>.</li>
+                <li><strong>type: String</strong> Optional.  This describes the type of the
+                hyperlink, which means the type of the target address.  These are the possible
+                values:</li>
+                <ul>
+                    <li><em>url</em> This is a link to a web address.  This is the default.</li>
+                    <li><em>email</em> This is an email link.</li>
+                    <li><em>file</em> This is a link to open a local file.  The address is a
+                    pathname.</li>
+                    <li><em>doc</em> This is a document link.  The address is a cell reference.</li>
+                </ul>
+                <li><strong>address</strong> Required.  The destination address for the link.</li>
+                <li><strong>value</strong> Required.  The contents of the Cell that make up the
+                newly created hyperlink.  Rich Text String formatting is respected.</li>
+            </ul>
+        </section>
+        <section name="Example">
+            <p>This example contains Hyperlinks of all four types, in order: url, email, file, and
+            doc.  The "doc" link contains a cell reference to the "Target Sheet", cell B3.  The
+            <code>HyperlinkData</code> objects used here are not necessary, nor are they built-in
+            objects to JETT.  Any Expression and any objects may be used in the attributes.</p>
+            <table>
+                <tr>
+                    <th>Type</th>
+                    <th>Address</th>
+                    <th>Label</th>
+                </tr>
+                <tr>
+                    <td>url</td>
+                    <td>http://jett.sourceforge.net</td>
+                    <td>JETT on SourceForge</td>
+                </tr>
+                <tr>
+                    <td>email</td>
+                    <td>mailto:jett-users@lists.sourceforge.net</td>
+                    <td>Email jett-users</td>
+                </tr>
+                <tr>
+                    <td>file</td>
+                    <td>../templates/HyperlinkTagTemplate.xlsx</td>
+                    <td>Template For This Test (.xlsx)</td>
+                </tr>
+                <tr>
+                    <td>doc</td>
+                    <td>'Target Sheet'!B3</td>
+                    <td>Intra-spreadsheet Link</td>
+                </tr>
+            </table>
+            <p>Here is the template.</p>
+            <img src="../images/template_hyperlink1.gif" alt="Hyperlinks Template"/>
+            <p>Here is the other sheet, "Target Sheet".</p>
+            <img src="../images/template_hyperlink2.gif" alt="Target Sheet Template"/>
+            <p>After transformation, 4 hyperlinks have been created.</p>
+            <img src="../images/result_hyperlink1.gif" alt="Hyperlinks Result"/>
+            <p>When the viewer clicks on the "document" link, labelled "Intra-spreadsheet Link",
+            then the "Target Sheet" is shown, with the target cell selected.</p>
+            <img src="../images/result_hyperlink2.gif" alt="Target Sheet Result"/>
+        </section>
+    </body>
+</document>

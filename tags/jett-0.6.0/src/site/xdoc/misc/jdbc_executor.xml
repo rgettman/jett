@@ -1,0 +1,103 @@
+<document>
+    <properties>
+        <author email="rgettman@users.sourceforge.net">Randy Gettman</author>
+        <title>Comparison to jXLS</title>
+    </properties>
+    <body>
+        <section name="JDBC Executor">
+            <p>A <code>JDBCExecutor</code> is an object that is capable of executing "select"
+            queries and returning the results in a form that is suitable for processing with JETT,
+            outputting the results to the destination Excel spreadsheet.  Normally, an instance is
+            created in Java code, taking an open <code>Connection</code> as an argument.  Then, it
+            is exposed in a beans map to make it visible in the template processing.  Then, the
+            template contains an expression that executes the <code>execQuery</code> method, which
+            executes the "select" query it's given, and returns a list of results that can be
+            processed by JETT.  Usually this list is given as the value of the attribute
+            <code>items</code> in a <a href="../tags/forEach.html"><code>forEach</code> tag</a>.</p>
+            <p>Here is example code that creates and exposes a <code>JDBCExecutor</code>.</p>
+<source>
+Connection conn = getConnection();  // Gets a Connection by other means
+JDBCExecutor jdbc = new JDBCExecutor(conn);
+Map&lt;String, Object&gt; beans = new HashMap&lt;String, Object&gt;();
+beans.put("jdbc", jdbc);
+// transformation code here
+</source>
+            <p>Here is an example template spreadsheet that uses the <code>JDBCExecutor</code>.</p>
+            <table style="width: 750px;">
+                <tr>
+                    <td class="bold" style="width: 250px;">First</td>
+                    <td class="bold" style="width: 150px;">Last</td>
+                    <td class="bold" style="width: 350px;">Salary</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">&lt;jt:forEach items="${jdbc.execQuery('SELECT first_name, last_name, salary FROM employee')}" var="employee"&gt;${employee.first_name}</td>
+                    <td style="width: 150px;">${employee.last_name}</td>
+                    <td style="width: 350px;">${employee.salary}&lt;/jt:forEach&gt;</td>
+                </tr>
+            </table>
+            <p>This is the result.</p>
+            <table style="width: 750px;">
+                <tr>
+                    <td class="bold" style="width: 250px;">First</td>
+                    <td class="bold" style="width: 150px;">Last</td>
+                    <td class="bold" style="width: 350px;">Salary</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Robert</td>
+                    <td style="width: 150px;">Stack</td>
+                    <td style="width: 350px;">$1,000.00</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Suzie</td>
+                    <td style="width: 150px;">Queue</td>
+                    <td style="width: 350px;">$900.00</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Elmer</td>
+                    <td style="width: 150px;">Fudd</td>
+                    <td style="width: 350px;">$800.00</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Bugs</td>
+                    <td style="width: 150px;">Bunny</td>
+                    <td style="width: 350px;">$1,500.00</td>
+                </tr>
+            </table>
+            <p>It is also possible to include JDBC placeholders (<code>"?"</code> characters) in
+            the query.  Supply one additional parameter to the <code>execQuery</code> method for
+            every <code>?</code> character in the query.  Assuming the bean <code>theTitle</code>
+            is the string <code>"Cartoon Character"</code>...</p>
+            <table style="width: 750px;">
+                <tr>
+                    <td class="bold" style="width: 250px;">First</td>
+                    <td class="bold" style="width: 150px;">Last</td>
+                    <td class="bold" style="width: 350px;">Salary</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">&lt;jt:forEach items="${jdbc.execQuery('SELECT first_name, last_name, salary FROM employee WHERE title = ?', theTitle)}" var="employee"&gt;${employee.first_name}</td>
+                    <td style="width: 150px;">${employee.last_name}</td>
+                    <td style="width: 350px;">${employee.salary}&lt;/jt:forEach&gt;</td>
+                </tr>
+            </table>
+            <p>... gets translated to:</p>
+
+            <table style="width: 750px;">
+                <tr>
+                    <td class="bold" style="width: 250px;">First</td>
+                    <td class="bold" style="width: 150px;">Last</td>
+                    <td class="bold" style="width: 350px;">Salary</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Elmer</td>
+                    <td style="width: 150px;">Fudd</td>
+                    <td style="width: 350px;">$800.00</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Bugs</td>
+                    <td style="width: 150px;">Bunny</td>
+                    <td style="width: 350px;">$1,500.00</td>
+                </tr>
+            </table>
+        </section>
+    </body>
+</document>

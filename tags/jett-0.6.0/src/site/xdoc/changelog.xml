@@ -1,0 +1,187 @@
+<document>
+    <properties>
+        <author email="rgettman@users.sourceforge.net">Randy Gettman</author>
+        <title>Change Log for JETT</title>
+    </properties>
+    <body>
+        <section name="JETT 0.6.0 (Beta) Released - 26 Nov 2013">
+            <p>New in JETT 0.6.0:</p>
+            <ul>
+                 <li><a href="misc/jdbc_executor.html">JDBC Template Execution is here!</a>
+                    Create a <code>JDBCExecutor</code>, expose it
+                    in the beans, and use it to execute SQL queries specified directly in the
+                    template spreadsheet.  Straight "select" statements are supported, and "select"
+                    statements with JDBC "?" values are supported as well.</li>
+                <li>Two new
+                    <a href="apidocs/net/sf/jett/transform/ExcelTransformer.html"><code>transform</code>
+                    methods</a> are added.  These operate on an already created <code>Workbook</code>
+                    object.  Also, the existing <code>transform</code> methods that take an input
+                    filename as a parameter no longer create the <code>Workbook</code> with a
+                    <code>FileInputStream</code>; they use a <code>File</code> instead,
+                    <a href="http://poi.apache.org/spreadsheet/quick-guide.html#Files+vs+InputStreams">
+                    to save memory</a>.</li>
+                <li>Bug fix (Ticket #6): Unpaired double-quote in a cell value results in an
+                    infinite loop in the <code>TagParser</code>.  This has been fixed.</li>
+                <li>Bug fix (Ticket #7): <code>BigDecimals</code> are not supported.
+                    <code>BigDecimals</code> and <code>BigIntegers</code> are now supported.  Their
+                    values, when entered into a <code>Cell</code>, follow what Excel does when a
+                    user enters large numbers.  If the number can be expressed as a normal
+                    <code>double</code>, then the cell will contain a numeric value, else it will
+                    be interpreted as a <code>String</code> value.</li>
+            </ul>
+        </section>
+        <section name="JETT 0.5.2 (Beta) Released - 19 Jul 2013">
+            <p>New in JETT 0.5.2:</p>
+            <ul>
+                <li>Bug fix (Ticket #5): JETT now allows the inclusion of double-quote character in
+                    tag attribute values.  Normally a double-quote character delimits the beginning
+                    and ending of an attribute value, but now JETT allows the escaping of the
+                    double-quote character with a backslash: <code>\"</code> means a literal
+                    <code>"</code>, e.g. <code>attr="\"Escape it!\", he said."</code>.  JETT also
+                    allows the backslash character to escape itself: <code>\\</code> means a
+                    literal <code>\</code>, e.g. <code>attr="C:\\Program Files\\Java\\"</code>.</li>
+                <li>Bug fix (No ticket #): If Implicit Collections Processing is operating on a
+                    collection, but a property elsewhere in an expression contained that collection
+                    name as a substring (e.g. <code>${collection.collectionValue}</code>, then JETT
+                    had a problem with it.  JETT now takes into account this case and processes it
+                    correctly.</li>
+                <li>Additional test cases have been added for the
+                    <a href="tags/comment.html">comment tag</a> concerning the comment's Excel
+                    visibility.</li>
+            </ul>
+        </section>
+        <section name="JETT 0.5.1 (Beta) Released - 04 Mar 2013">
+            <p>New in JETT 0.5.1:</p>
+            <ul>
+                <li>Bug fix: When using the <a href="tags/span.html">span tag</a>, sometimes the
+                    background of the Cell was accidentally set to "gray50percent", even if there
+                    was no background color, foreground color, or fill pattern.  This bug is now
+                    fixed in 0.5.1.</li>
+            </ul>
+        </section>
+        <section name="JETT 0.5.0 (Beta) Released - 21 Feb 2013">
+            <p>New in JETT 0.5.0:</p>
+            <ul>
+                <li>The <a href="tags/style.html">style tag</a> has a new attribute: "class" for
+                    assigning styles to a block of cells defined in a ".css" file, which is very
+                    much like a CSS file in web design.</li>
+                <li>If the <a href="tags/style.html">style tag</a> is used extensively, then JETT's
+                    performance suffers.  Now, JETT maintains caches for styles and fonts used,
+                    for easy, fast lookup and reuse.</li>
+                <li>Additional test cases have been added to the JUnit test case that tests the
+                    <a href="tags/hyperlink.html">hyperlink</a> tag.</li>
+                <li>Bug fix: When cell borders were used in the same cell as a
+                    <a href="tags/span.html">span tag</a>, the borders were not changed to match
+                    the new merged region.  Now, the borders are changed to match the new merged
+                    region.</li>
+                <li>Bug fix: When an expression contains the method call "size()" on a collection,
+                    JETT didn't properly recognize that the collection expression shouldn't be
+                    processed with <a href="collections/implicit.html">implicit collections
+                    processing</a>, i.e. one block for every collection item.  Now JETT properly
+                    recognizes the "size()" method on a collection and doesn't perform implicit
+                    collections processing in this case.</li>
+            </ul>
+        </section>
+        <section name="JETT 0.4.0 (Beta) Released - 07 Dec 2012">
+            <p>New in JETT 0.4.0:</p>
+            <ul>
+                <li>New tag: <a href="tags/style.html">"style"</a> to dynamically change the style
+                on the Cells in the body of the tag, e.g.
+                <code>&lt;jt:style style="font-weight: bold;font-height-in-points: 20"&gt;${expr}&lt;/jt:style&gt;</code>.</li>
+                <li>New tag: <a href="tags/formula.html">"formula"</a> to dynamically create Excel
+                formulas unaffected by JETT formula processing.</li>
+                <li>New attributes on the <a href="tags/agg.html">"agg"</a> tag to support rollups,
+                cubes, and grouping sets.</li>
+                <li>New attribute on the <a href="tags/span.html">"span"</a> tag to make an
+                adjustment to the size of a merged region, adding a number to the size.</li>
+                <li>A new POI bean is exposed: "cell" that represents the <code>Cell</code> that
+                contains the expression.</li>
+                <li>One can now reference static Java methods in JEXL directly, e.g.
+                <code>${java.lang.String.format("%d / %d", numerator, denominator)}</code></li>
+                <li>New JETT functionality presented as registered functions, e.g.
+                <code>${jett:cellRef(1, 2)} => "C2"</code>, and
+                <code>${jett:cellRef(1, 2, 2, 2)} => "C2:D3"</code>.</li>
+                <li>Bug fix: If an expression was repeated more than once, and is present with
+                other expresssions in a Cell, then the value replacement wasn't working right.
+                This is now fixed.</li>
+                <li>Bug fix: Boolean values were being populated as the strings "true" and "false".
+                Now they are properly populated as the Excel boolean values <code>TRUE</code> and
+                <code>FALSE</code>.  Boolean expressions within strings will still yield "true"
+                and "false".</li>
+                <li>Lots of JUnit test cases have been added for all the new features.</li>
+                <li>There is a new "readme.txt" file.</li>
+            </ul>
+        </section>
+        <section name="JETT 0.3.0 (Beta) Released - 26 Sep 2012">
+            <p>New in JETT 0.3.0:</p>
+            <ul>
+                <li><code>TagListeners</code> may now be created, which get called when any tag
+                is finished processing.  All <code>Tags</code> that subclass <code>BaseTag</code>
+                now support the <code>onProcessed</code> attribute for specifying
+                <code>TagListeners</code>.</li>
+                <li><code>TagLoopListeners</code> may now be created, which get called when every
+                loop of a looping tag (<code>Tags</code> that subclass <code>BaseLoopTag</code>)
+                is finished processing.  All <code>Tags</code> that subclass
+                <code>BaseLoopTag</code> now support the <code>onLoopProcessed</code> attribute for
+                specifying <code>TagLoopListeners</code>.</li>
+                <li>There are 2 new attributes for <a href="tags/forEach.html">forEach</a> tags:</li>
+                <ul>
+                    <li><code>groupBy</code> supports separating the collection into separate
+                    groups with identical properties for further processing.</li>
+                    <li><code>orderBy</code> supports ordering the collection items before
+                    displaying them.</li>
+                </ul>
+                <li>For <a href="collections/implicit.html">Implicit Collections Processing</a>,
+                4 additional metadata keys are added:</li>
+                <ul>
+                    <li><code>indexVar</code> supports a zero-based looping variable name that
+                    works just like the same-named attribute on the
+                    <a href="tags/multiForEach.html">multiForEach</a> tag.</li>
+                    <li><code>limit</code> supports a limit to the number of collection items
+                    processed that works like the same-named attribute on the
+                    <a href="tags/multiForEach.html">multiForEach</a> tag.</li>
+                    <li><code>onProcessed</code> supports <code>TagListeners</code> just the same
+                    as all <code>BaseTags</code> do.</li>
+                    <li><code>onLoopProcessed</code> supports <code>TagLoopListeners</code> just
+                    the same as all looping tags do.</li>
+                </ul>
+                <li>A bug was fixed in Formulas processing.  If a JETT formula is specified in
+                the middle of a Cell's text, because tag text preceded it, JETT will no longer
+                throw an uncaught Exception.</li>
+                <li>Lots of JUnit test cases have been added for all the new features.</li>
+                <li>This is the first JETT release to be submitted to the Sonatype OSS Maven
+                Repository, which will make JETT available in the Maven Central Repository.</li>
+            </ul>
+        </section>
+        <section name="JETT 0.2.0 (Beta) Released - 08 Aug 2012">
+            <p>New in JETT 0.2.0:</p>
+            <ul>
+                <li>New tags: <a href="tags/comment.html">"comment"</a> to create Excel Comments on
+                Cells, <a href="tags/group.html">"group"</a> to define Excel Groups (Outlines), and
+                <a href="tags/hyperlink.html">"hyperlink"</a> to create Hyperlinks on Cells.</li>
+                <li>It is now possible to create Excel Groups (Outlines) on dynamically placed data
+                using <a href="tags/looping.html">looping tags</a> such as the
+                <a href="tags/forEach.html">forEach tag</a>.  It is also possible to specify new
+                metadata to create Excel Groups using <a href="collections/implicit.html">Implicit
+                Collections Processing</a>.</li>
+                <li>JETT has supported Rich Text using Expressions, but now it supports Rich Text
+                inside certain appropriate tag attributes that are used as actual Cell contents.</li>
+                <li>It is now possible to supply <a href="misc/jexl_settings.html">custom functions</a>
+                into a custom JEXL namespace, which can result in such Expressions as
+                <code>${custom:method(param)}</code>.</li>
+                <li>Additional convenience "transform" methods in the <code>ExcelTransformer</code>
+                class allow the developer to specify input and output filenames, and to let JETT
+                handle the reading and writing of the Excel files.</li>
+                <li>Lots of JUnit test cases have been added for all the new features, and for lots
+                of old features that needed them.</li>
+                <li>Two bugs are fixed relating to JETT Formulas.  One bug did not pick up the cell
+                reference if it was at the end of the JETT Formula, and another bug did not allow
+                negative default values to be supplied in a formula cell reference.  Both bugs are
+                now fixed.</li>
+            </ul>
+        </section>
+        <section name="JETT 0.1.0 (Beta) Released - 20 Jul 2012">
+            <p>This is the initial release of JETT.</p>
+        </section>
+    </body>
+</document>
