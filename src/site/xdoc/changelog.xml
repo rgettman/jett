@@ -4,7 +4,7 @@
         <title>Change Log for JETT</title>
     </properties>
     <body>
-        <section name="JETT 0.6.0 (Beta) Released - 15 Nov 2013">
+        <section name="JETT 0.6.0 (Beta) Released - 26 Nov 2013">
             <p>New in JETT 0.6.0:</p>
             <ul>
                  <li><a href="misc/jdbc_executor.html">JDBC Template Execution is here!</a>
