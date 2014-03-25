@@ -16,7 +16,7 @@ import net.sf.jett.model.Block;
 import net.sf.jett.model.PastEndAction;
 import net.sf.jett.model.WorkbookContext;
 import net.sf.jett.transform.BlockTransformer;
-import net.sf.jett.util.AttributeUtil;
+import net.sf.jett.util.AttributeEvaluator;
 import net.sf.jett.util.SheetUtil;
 
 /**
@@ -216,20 +216,22 @@ public abstract class BaseLoopTag extends BaseTag
       Map<String, RichTextString> attributes = getAttributes();
       Block block = context.getBlock();
 
-      amIExplicitlyCopyingRight = AttributeUtil.evaluateBoolean(attributes.get(ATTR_COPY_RIGHT), beans, false);
+      AttributeEvaluator eval = new AttributeEvaluator(context);
+
+      amIExplicitlyCopyingRight = eval.evaluateBoolean(attributes.get(ATTR_COPY_RIGHT), beans, false);
       if (amIExplicitlyCopyingRight)
          block.setDirection(Block.Direction.HORIZONTAL);
 
-      amIFixed = AttributeUtil.evaluateBoolean(attributes.get(ATTR_FIXED), beans, false);
+      amIFixed = eval.evaluateBoolean(attributes.get(ATTR_FIXED), beans, false);
 
-      String strPastEndAction = AttributeUtil.evaluateStringSpecificValues(attributes.get(ATTR_PAST_END_ACTION), beans,
+      String strPastEndAction = eval.evaluateStringSpecificValues(attributes.get(ATTR_PAST_END_ACTION), beans,
          ATTR_PAST_END_ACTION, Arrays.asList(PAST_END_ACTION_CLEAR, PAST_END_ACTION_REMOVE), PAST_END_ACTION_CLEAR);
       if (PAST_END_ACTION_CLEAR.equalsIgnoreCase(strPastEndAction))
          myPastEndAction = PastEndAction.CLEAR_CELL;
       else if (PAST_END_ACTION_REMOVE.equalsIgnoreCase(strPastEndAction))
          myPastEndAction = PastEndAction.REMOVE_CELL;
 
-      String strGroupDir = AttributeUtil.evaluateStringSpecificValues(attributes.get(ATTR_GROUP_DIR), beans,
+      String strGroupDir = eval.evaluateStringSpecificValues(attributes.get(ATTR_GROUP_DIR), beans,
          ATTR_GROUP_DIR, Arrays.asList(GROUP_DIR_ROWS, GROUP_DIR_COLS, GROUP_DIR_NONE), GROUP_DIR_NONE);
       if (GROUP_DIR_ROWS.equals(strGroupDir))
          myGroupDir = Block.Direction.VERTICAL;
@@ -238,9 +240,9 @@ public abstract class BaseLoopTag extends BaseTag
       else if (GROUP_DIR_NONE.equals(strGroupDir))
             myGroupDir = Block.Direction.NONE;
 
-      amICollapsed = AttributeUtil.evaluateBoolean(attributes.get(ATTR_COLLAPSE), beans, false);
+      amICollapsed = eval.evaluateBoolean(attributes.get(ATTR_COLLAPSE), beans, false);
 
-      myTagLoopListener = AttributeUtil.evaluateObject(attributes.get(ATTR_ON_LOOP_PROCESSED), beans,
+      myTagLoopListener = eval.evaluateObject(attributes.get(ATTR_ON_LOOP_PROCESSED), beans,
          ATTR_ON_LOOP_PROCESSED, TagLoopListener.class, null);
    }
 

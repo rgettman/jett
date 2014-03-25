@@ -38,11 +38,11 @@ public abstract class TestCase
    protected static final String XLSX_EXT = ".xlsx";
    protected static final String FILES_IND = "Files";
 
-   private boolean amISetup = false;
-   private Map<String, Object> myBeansMap;
-   private List<Map<String, Object>> myListOfBeansMaps;
-   private List<String> myTemplateSheetNames;
-   private List<String> myResultSheetNames;
+   protected boolean amISetup = false;
+   protected Map<String, Object> myBeansMap;
+   protected List<Map<String, Object>> myListOfBeansMaps;
+   protected List<String> myTemplateSheetNames;
+   protected List<String> myResultSheetNames;
 
    /**
     * Tests the .xls template spreadsheet.  This is meant to have the

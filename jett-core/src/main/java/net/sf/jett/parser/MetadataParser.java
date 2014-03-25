@@ -1,6 +1,9 @@
 package net.sf.jett.parser;
 
+import org.apache.poi.ss.usermodel.Cell;
+
 import net.sf.jett.exception.MetadataParseException;
+import net.sf.jett.util.SheetUtil;
 
 /**
  * A <code>MetadataParser</code> parses metadata at the end of cell text.
@@ -80,6 +83,7 @@ public class MetadataParser
     */
    public static final String BEGIN_METADATA = "?@";
 
+   private Cell myCell;
    private boolean amIExpectingAValue;
    private String myMetadataText;
    private String myExtraRows;
@@ -112,6 +116,16 @@ public class MetadataParser
    public MetadataParser(String metadataText)
    {
       setMetadataText(metadataText);
+   }
+
+   /**
+    * Sets the <code>Cell</code> that contains the formula to be parsed.
+    * @param cell The <code>Cell</code>.
+    * @since 0.7.0
+    */
+   public void setCell(Cell cell)
+   {
+      myCell = cell;
    }
 
    /**
@@ -225,7 +239,7 @@ public class MetadataParser
                else
                {
                   throw new MetadataParseException("Unrecognized variable name: \"" +
-                     varName + "\".");
+                     varName + "\"." + SheetUtil.getCellLocation(myCell));
                }
                varName = null;
                amIExpectingAValue = false;
@@ -235,7 +249,8 @@ public class MetadataParser
             break;
          case TOKEN_EQUALS:
             if (varName == null)
-               throw new MetadataParseException("Variable name missing before \"=\": " + myMetadataText);
+               throw new MetadataParseException("Variable name missing before \"=\": " + myMetadataText +
+                       SheetUtil.getCellLocation(myCell));
             amIExpectingAValue = true;
             break;
          case TOKEN_SEMICOLON:
@@ -246,7 +261,7 @@ public class MetadataParser
             // These just delimit Strings.
             break;
          default:
-            throw new MetadataParseException("Parse error occurred: " + myMetadataText);
+            throw new MetadataParseException("Parse error occurred: " + myMetadataText + SheetUtil.getCellLocation(myCell));
          }
          token = scanner.getNextToken();
       }
@@ -255,9 +270,11 @@ public class MetadataParser
          throw new MetadataParseException("Found end of metadata before equals sign at \"" +
             varName + "\": " + myMetadataText);
       if (amIExpectingAValue)
-         throw new MetadataParseException("Found end of metadata before variable value: " + myMetadataText);
+         throw new MetadataParseException("Found end of metadata before variable value: " + myMetadataText +
+                 SheetUtil.getCellLocation(myCell));
       if (token.getCode() < 0)
-         throw new MetadataParseException("Found end of input while scanning metadata value: " + myMetadataText);
+         throw new MetadataParseException("Found end of input while scanning metadata value: " + myMetadataText +
+                SheetUtil.getCellLocation(myCell));
    }
 
    /**

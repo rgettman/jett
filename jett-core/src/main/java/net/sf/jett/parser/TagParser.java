@@ -9,6 +9,7 @@ import org.apache.poi.ss.usermodel.RichTextString;
 
 import net.sf.jett.exception.TagParseException;
 import net.sf.jett.util.RichTextStringUtil;
+import net.sf.jett.util.SheetUtil;
 
 /**
  * A <code>TagParser</code> parses one JETT XML tag, either a begin tag or an
@@ -139,8 +140,15 @@ public class TagParser
 
       // Extract possible namespace and tag name.
       token = scanner.getNextToken();
-      if (token == TagScanner.Token.TOKEN_WHITESPACE)
-         token = scanner.getNextToken();
+      // Not a tag: "<whitespace", "<=", "<<", "<>", "<\""
+      // But "<:" is a bad tag, with no namespace.
+      if (token != TagScanner.Token.TOKEN_STRING && token != TagScanner.Token.TOKEN_COLON)
+      {
+         myTagStartIdx = -1;
+         amIATag = false;
+         return;
+      }
+
       if (token == TagScanner.Token.TOKEN_STRING)
       {
          String lexeme = scanner.getCurrLexeme();
@@ -157,7 +165,7 @@ public class TagParser
             }
             else
             {
-               throw new TagParseException("Cannot find tag name in tag text: " + myCellText);
+               throw new TagParseException("Cannot find tag name in tag text: " + myCellText + SheetUtil.getCellLocation(myCell));
             }
          }
          else
@@ -169,7 +177,7 @@ public class TagParser
       }
       else if (token == TagScanner.Token.TOKEN_COLON)
       {
-         throw new TagParseException("Cannot find namespace in tag text: " + myCellText);
+         throw new TagParseException("Cannot find namespace in tag text: " + myCellText + SheetUtil.getCellLocation(myCell));
       }
 
       // Parse any attribute name/value pairs: attrName="value".
@@ -188,7 +196,7 @@ public class TagParser
             {
                // Add newly complete attribute name/value pair.
                if (attrName == null)
-                  throw new TagParseException("Value found without attribute name: " + myCellText);
+                  throw new TagParseException("Value found without attribute name: " + myCellText + SheetUtil.getCellLocation(myCell));
                // Store the RichTextString attribute value.
                int pos = myStartIdx + scanner.getNextPosition();
                CreationHelper helper = myCell.getSheet().getWorkbook().getCreationHelper();
@@ -207,30 +215,30 @@ public class TagParser
             break;
          case TOKEN_EQUALS:
             if (attrName == null)
-               throw new TagParseException("Attribute name missing before \"=\": " + myCellText);
+               throw new TagParseException("Attribute name missing before \"=\": " + myCellText + SheetUtil.getCellLocation(myCell));
             break;
          case TOKEN_COLON:
-            throw new TagParseException("Colon not allowed in attribute name: " + myCellText);
+            throw new TagParseException("Colon not allowed in attribute name: " + myCellText + SheetUtil.getCellLocation(myCell));
          case TOKEN_DOUBLE_QUOTE:
             insideDoubleQuotes = !insideDoubleQuotes;
             break;
          case TOKEN_BEGIN_ANGLE_BRACKET:
          case TOKEN_BEGIN_ANGLE_BRACKET_SLASH:
-            throw new TagParseException("Cannot start a tag within another tag: " + myCellText);
+            throw new TagParseException("Cannot start a tag within another tag: " + myCellText + SheetUtil.getCellLocation(myCell));
          case TOKEN_EOI:
             throw new TagParseException("Tags must start with \"" + BEGIN_START_TAG + "\" or \"" +
                BEGIN_END_TAG + "\" and end with \"" + END_TAG + "\" or \"" + END_BODILESS_TAG +
-               "\": " + myCellText);
+               "\": " + myCellText + " at " + SheetUtil.getCellLocation(myCell));
          default:
-            throw new TagParseException("Parse error occurred: " + myCellText);
+            throw new TagParseException("Parse error occurred: " + myCellText + SheetUtil.getCellLocation(myCell));
          }
          token = scanner.getNextToken();
       }
       // Found end angle bracket before attribute value found.
       if (attrName != null)
-         throw new TagParseException("Found end of tag before attribute value: " + myCellText);
+         throw new TagParseException("Found end of tag before attribute value: " + myCellText + SheetUtil.getCellLocation(myCell));
       if (token.getCode() < 0)
-         throw new TagParseException("Found end of input while scanning attribute value: " + myCellText);
+         throw new TagParseException("Found end of input while scanning attribute value: " + myCellText + SheetUtil.getCellLocation(myCell));
 
       // If "/>", then the tag is bodiless, else (">") there is a body.
       amIBodiless = (token == TagScanner.Token.TOKEN_SLASH_END_ANGLE_BRACKET);

@@ -13,7 +13,7 @@ import net.sf.jett.exception.TagParseException;
 import net.sf.jett.expression.Expression;
 import net.sf.jett.model.Block;
 import net.sf.jett.model.PastEndValue;
-import net.sf.jett.util.AttributeUtil;
+import net.sf.jett.util.AttributeEvaluator;
 import net.sf.jett.util.SheetUtil;
 
 /**
@@ -203,12 +203,15 @@ public class MultiForEachTag extends BaseLoopTag
    {
       super.validateAttributes();
       if (isBodiless())
-         throw new TagParseException("MultiForEach tags must have a body.");
+         throw new TagParseException("MultiForEach tags must have a body.  Bodiless MultiForEach tag found " + getLocation());
 
       TagContext context = getContext();
       Map<String, Object> beans = context.getBeans();
 
       Map<String, RichTextString> attributes = getAttributes();
+
+      AttributeEvaluator eval = new AttributeEvaluator(context);
+
       String attrCollExpressions = attributes.get(ATTR_COLLECTIONS).getString();
       String[] collExpressions = attrCollExpressions.split(SPEC_SEP);
       myCollections = new ArrayList<Collection<Object>>();
@@ -222,9 +225,9 @@ public class MultiForEachTag extends BaseLoopTag
             items = new ArrayList<Object>(0);
          }
          if (!(items instanceof Collection))
-            throw new TagParseException("One of the items in the \"collections\" attribute is not a Collection: " +
-               collExpression);
-         Collection<Object> collection = AttributeUtil.evaluateObject(collExpression.trim(), beans, ATTR_COLLECTIONS,
+            throw new TagParseException("One of the items in the \"collections\" attribute is not a Collection in MultiForEach tag found"
+               + getLocation() + ": " + collExpression);
+         Collection<Object> collection = eval.evaluateObject(collExpression.trim(), beans, ATTR_COLLECTIONS,
             Collection.class, null);
          myCollections.add(collection);
          // Collection names.
@@ -234,19 +237,20 @@ public class MultiForEachTag extends BaseLoopTag
 
       }
 
-      myVarNames = AttributeUtil.evaluateList(attributes.get(ATTR_VARS), beans, new ArrayList<String>(0));
+      myVarNames = eval.evaluateList(attributes.get(ATTR_VARS), beans, new ArrayList<String>(0));
 
       if (myCollections.size() < 1)
-         throw new TagParseException("Must specify at least one Collection.");
+         throw new TagParseException("Must specify at least one Collection in a MultiForEachTag.  None found" + getLocation());
       if (myCollections.size() != myVarNames.size())
-         throw new TagParseException("The number of collections and the number of variable names must be the same.");
+         throw new TagParseException("The number of collections and the number of variable names must be the same.  Mismatch found" +
+            getLocation());
 
-      myIndexVarName = AttributeUtil.evaluateString(attributes.get(ATTR_INDEXVAR), beans, null);
+      myIndexVarName = eval.evaluateString(attributes.get(ATTR_INDEXVAR), beans, null);
 
       // Determine the maximum size of all collections.
       setMaxSize();
 
-      myLimit = AttributeUtil.evaluateNonNegativeInt(attributes.get(ATTR_LIMIT), beans, ATTR_LIMIT, myMaxSize);
+      myLimit = eval.evaluateNonNegativeInt(attributes.get(ATTR_LIMIT), beans, ATTR_LIMIT, myMaxSize);
 
       if (DEBUG)
          System.err.println("ForEachTag.vA: myLimit=" + myLimit);

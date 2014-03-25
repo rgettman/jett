@@ -15,7 +15,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import net.sf.jett.exception.TagParseException;
 import net.sf.jett.model.Block;
 import net.sf.jett.transform.BlockTransformer;
-import net.sf.jett.util.AttributeUtil;
+import net.sf.jett.util.AttributeEvaluator;
 import net.sf.jett.util.SheetUtil;
 
 /**
@@ -128,13 +128,15 @@ public class HyperlinkTag extends BaseTag
    {
       super.validateAttributes();
       if (!isBodiless())
-         throw new TagParseException("Hyperlink tags must not have a body.");
+         throw new TagParseException("Hyperlink tags must not have a body.  Hyperlink tag with body found" + getLocation());
 
       TagContext context = getContext();
       Map<String, Object> beans = context.getBeans();
       Map<String, RichTextString> attributes = getAttributes();
 
-      String type = AttributeUtil.evaluateStringSpecificValues(attributes.get(ATTR_TYPE), beans, ATTR_TYPE,
+      AttributeEvaluator eval = new AttributeEvaluator(context);
+
+      String type = eval.evaluateStringSpecificValues(attributes.get(ATTR_TYPE), beans, ATTR_TYPE,
          Arrays.asList(TYPE_URL, TYPE_EMAIL, TYPE_FILE, TYPE_DOC), TYPE_URL);
       if (TYPE_URL.equals(type))
             myLinkType = Hyperlink.LINK_URL;
@@ -145,7 +147,7 @@ public class HyperlinkTag extends BaseTag
          else if (TYPE_DOC.equals(type))
             myLinkType = Hyperlink.LINK_DOCUMENT;
 
-      myAddress = AttributeUtil.evaluateStringNotNull(attributes.get(ATTR_ADDRESS), beans, ATTR_ADDRESS, null);
+      myAddress = eval.evaluateStringNotNull(attributes.get(ATTR_ADDRESS), beans, ATTR_ADDRESS, null);
 
       myValue = attributes.get(ATTR_VALUE);
    }

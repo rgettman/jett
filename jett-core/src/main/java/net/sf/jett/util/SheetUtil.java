@@ -1557,7 +1557,7 @@ public class SheetUtil
          if (currSuffix == null)
             currSuffix = "";
          FormulaUtil.copyCellReferencesInRange(sheetName, context.getCellRefMap(),
-            left, right, top, bottom, 0, translateDown, currSuffix, newSuffix);
+            left, right, top, bottom, translateRight, 0, currSuffix, newSuffix);
          break;
       }
       return newBlock;
@@ -2059,6 +2059,24 @@ public class SheetUtil
          }
       }
       return color;
+   }
+
+   /**
+    * <p>Returns a <code>String</code> formatted in the following way:</p>
+    *
+    * <code>" at " + cellReference</code>
+    *
+    * <p>e.g. <code>" at Sheet2!C3"</code>.</p>
+    * @param cell The <code>Cell</code>
+    * @return The formatted location string.
+    * @since 0.7.0
+    */
+   public static String getCellLocation(Cell cell)
+   {
+      if (cell == null)
+         return "";
+      return " at " + new CellReference(
+         cell.getSheet().getSheetName(), cell.getRowIndex(), cell.getColumnIndex(), false, false).toString();
    }
 }
 

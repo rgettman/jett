@@ -13,7 +13,7 @@ import net.sf.jett.exception.TagParseException;
 import net.sf.jett.model.Block;
 import net.sf.jett.tag.BaseTag;
 import net.sf.jett.tag.TagContext;
-import net.sf.jett.util.AttributeUtil;
+import net.sf.jett.util.AttributeEvaluator;
 import net.sf.jett.util.SheetUtil;
 
 /**
@@ -83,9 +83,9 @@ public class AddOneTag extends BaseTag
       Map<String, RichTextString> attributes = getAttributes();
 
       if (!isBodiless())
-         throw new TagParseException("AddOne tags must not have a body.");
+         throw new TagParseException("AddOne tags must not have a body.  AddOne tag with body found at" + getLocation());
 
-      myValue = AttributeUtil.evaluateDouble(attributes.get(ATTR_VALUE), beans, ATTR_VALUE, 0);
+      myValue = new AttributeEvaluator(context).evaluateDouble(attributes.get(ATTR_VALUE), beans, ATTR_VALUE, 0);
    }
 
    /**

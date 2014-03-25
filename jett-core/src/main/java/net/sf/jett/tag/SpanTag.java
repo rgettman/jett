@@ -22,7 +22,7 @@ import net.sf.jett.model.Block;
 import net.sf.jett.model.CellStyleCache;
 import net.sf.jett.model.ExcelColor;
 import net.sf.jett.transform.BlockTransformer;
-import net.sf.jett.util.AttributeUtil;
+import net.sf.jett.util.AttributeEvaluator;
 import net.sf.jett.util.SheetUtil;
 
 /**
@@ -125,16 +125,18 @@ public class SpanTag extends BaseTag
       Block block = context.getBlock();
 
       if (!isBodiless())
-         throw new TagParseException("SpanTag: Must be bodiless");
+         throw new TagParseException("SpanTag: Must be bodiless.  SpanTag with body found" + getLocation());
+
+      AttributeEvaluator eval = new AttributeEvaluator(context);
 
       myValue = attributes.get(ATTR_VALUE);
 
       List<RichTextString> atLeastOne = Arrays.asList(attributes.get(ATTR_FACTOR), attributes.get(ATTR_ADJUST));
-      AttributeUtil.ensureAtLeastOneExists(atLeastOne, Arrays.asList(ATTR_FACTOR, ATTR_ADJUST));
-      myFactor = AttributeUtil.evaluateNonNegativeInt(attributes.get(ATTR_FACTOR), beans, ATTR_FACTOR, 1);
-      myAdjust = AttributeUtil.evaluateInt(attributes.get(ATTR_ADJUST), beans, ATTR_ADJUST, 0);
+      eval.ensureAtLeastOneExists(atLeastOne, Arrays.asList(ATTR_FACTOR, ATTR_ADJUST));
+      myFactor = eval.evaluateNonNegativeInt(attributes.get(ATTR_FACTOR), beans, ATTR_FACTOR, 1);
+      myAdjust = eval.evaluateInt(attributes.get(ATTR_ADJUST), beans, ATTR_ADJUST, 0);
 
-      boolean explicitlyExpandingRight = AttributeUtil.evaluateBoolean(attributes.get(ATTR_EXPAND_RIGHT), beans, false);
+      boolean explicitlyExpandingRight = eval.evaluateBoolean(attributes.get(ATTR_EXPAND_RIGHT), beans, false);
       if (explicitlyExpandingRight)
          block.setDirection(Block.Direction.HORIZONTAL);
       else
@@ -150,6 +152,7 @@ public class SpanTag extends BaseTag
     */
    public boolean process()
    {
+//      long start = System.nanoTime();
       TagContext context = getContext();
       Sheet sheet = context.getSheet();
       Block block = context.getBlock();
@@ -164,6 +167,7 @@ public class SpanTag extends BaseTag
       // Assume a "merged region" of 1 X 1 for now.
       int height = 1;
       int width = 1;
+
       int index = findMergedRegionAtCell(sheet, left, top);
       if (index != -1)
       {
@@ -321,6 +325,9 @@ public class SpanTag extends BaseTag
 
       BlockTransformer transformer = new BlockTransformer();
       transformer.transform(context, getWorkbookContext());
+//
+//      long end = System.nanoTime();
+//      System.out.println("findMergedRegionAtCell: " + (end - start) + " ns");
 
       return true;
    }

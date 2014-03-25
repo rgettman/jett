@@ -11,7 +11,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import net.sf.jett.exception.TagParseException;
 import net.sf.jett.model.Block;
 import net.sf.jett.transform.BlockTransformer;
-import net.sf.jett.util.AttributeUtil;
+import net.sf.jett.util.AttributeEvaluator;
 import net.sf.jett.util.SheetUtil;
 
 /**
@@ -104,13 +104,15 @@ public class GroupTag extends BaseTag
    {
       super.validateAttributes();
       if (isBodiless())
-         throw new TagParseException("Group tags must have a body.");
+         throw new TagParseException("Group tags must have a body.  Bodiless Group tag found" + getLocation());
 
       TagContext context = getContext();
       Map<String, Object> beans = context.getBeans();
       Map<String, RichTextString> attributes = getAttributes();
 
-      String groupDir = AttributeUtil.evaluateStringSpecificValues(attributes.get(ATTR_GROUP_DIR), beans, ATTR_GROUP_DIR,
+      AttributeEvaluator eval = new AttributeEvaluator(context);
+
+      String groupDir = eval.evaluateStringSpecificValues(attributes.get(ATTR_GROUP_DIR), beans, ATTR_GROUP_DIR,
          Arrays.asList(GROUP_DIR_ROWS, GROUP_DIR_COLS, GROUP_DIR_NONE), GROUP_DIR_ROWS);
       if (GROUP_DIR_ROWS.equals(groupDir))
          myGroupDir = Block.Direction.VERTICAL;
@@ -119,7 +121,7 @@ public class GroupTag extends BaseTag
       else if (GROUP_DIR_NONE.equals(groupDir))
             myGroupDir = Block.Direction.NONE;
 
-      amICollapsed = AttributeUtil.evaluateBoolean(attributes.get(ATTR_COLLAPSE), beans, false);
+      amICollapsed = eval.evaluateBoolean(attributes.get(ATTR_COLLAPSE), beans, false);
    }
 
    /**

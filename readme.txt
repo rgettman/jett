@@ -68,7 +68,7 @@ Repository.
 <dependency>
     <groupId>net.sf.jett</groupId>
     <artifactId>jett-core</artifactId>
-    <version>0.5.2</version>
+    <version>0.7.0</version>
 </dependency>
 
 Dependencies
@@ -77,10 +77,10 @@ Dependencies
 JETT can be used with Java 1.5+.  JETT depends on several external libraries:
 
 The following libraries are required, as they are used by JETT:
-- Apache POI 3.8 (http://poi.apache.org/download.html) (or higher)
-   - poi-3.8-20120326.jar
-   - poi-ooxml-3.8-20120326.jar
-   - poi-ooxml-schemas-3.8-20120326.jar
+- Apache POI 3.10 (http://poi.apache.org/download.html) (or higher)
+   - poi-3.10-FINAL.jar
+   - poi-ooxml-3.10-FINAL.jar
+   - poi-ooxml-schemas-3.10-FINAL.jar
    - Apache POI, in turn, depends on the following libraries: XML Beans 2.3.0, Dom4j 1.6.1, and StAX 1.0.1.
 - XML Beans 2.3.0
    - xmlbeans-2.3.0.jar (Comes with Apache POI distribution)
@@ -93,11 +93,13 @@ The following libraries are required, as they are used by JETT:
    - Apache Commons JEXL 2.1.1 in turn depends on Commons Logging 1.1.1.
 - Apache Commons Logging 1.1.1 (http://commons.apache.org/logging/download_logging.cgi)
    - commons-logging-1.1.1.jar
-- SourceForge's jAgg 0.7.0 (http://sourceforge.net/projects/jagg/files/) (or higher)
-   - jagg-core-0.7.0.jar
+- SourceForge's jAgg 0.7.2 (http://sourceforge.net/projects/jagg/files/) (or higher)
+   - jagg-core-0.7.2.jar
    - Full disclosure: I built jAgg also.
 - JUnit 4.8.2 (for testing only)
    - junit-4.8.2.jar
+- HSQLDB 1.8.0.10 (for testing only)
+   - hsqldb-1.8.0.10.jar
 
 Build Instructions
 ----------------

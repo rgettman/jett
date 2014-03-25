@@ -10,7 +10,7 @@ import org.apache.poi.ss.usermodel.RichTextString;
 
 import net.sf.jett.exception.TagParseException;
 import net.sf.jett.model.Block;
-import net.sf.jett.util.AttributeUtil;
+import net.sf.jett.util.AttributeEvaluator;
 
 /**
  * <p>A <code>ForTag</code> represents a repetitively placed <code>Block</code>
@@ -103,20 +103,22 @@ public class ForTag extends BaseLoopTag
    {
       super.validateAttributes();
       if (isBodiless())
-         throw new TagParseException("For tags must have a body.");
+         throw new TagParseException("For tags must have a body.  Bodiless For tag found" + getLocation());
 
       TagContext context = getContext();
       Map<String, Object> beans = context.getBeans();
 
       Map<String, RichTextString> attributes = getAttributes();
 
-      myVarName = AttributeUtil.evaluateString(attributes.get(ATTR_VAR), beans, null);
+      AttributeEvaluator eval = new AttributeEvaluator(context);
 
-      myStart = AttributeUtil.evaluateInt(attributes.get(ATTR_START), beans, ATTR_START, 0);
+      myVarName = eval.evaluateString(attributes.get(ATTR_VAR), beans, null);
 
-      myEnd = AttributeUtil.evaluateInt(attributes.get(ATTR_END), beans, ATTR_END, 0);
+      myStart = eval.evaluateInt(attributes.get(ATTR_START), beans, ATTR_START, 0);
 
-      myStep = AttributeUtil.evaluateNonZeroInt(attributes.get(ATTR_STEP), beans, ATTR_STEP, 1);
+      myEnd = eval.evaluateInt(attributes.get(ATTR_END), beans, ATTR_END, 0);
+
+      myStep = eval.evaluateNonZeroInt(attributes.get(ATTR_STEP), beans, ATTR_STEP, 1);
    }
 
    /**

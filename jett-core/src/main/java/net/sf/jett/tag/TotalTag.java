@@ -16,7 +16,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import net.sf.jett.exception.TagParseException;
 import net.sf.jett.model.Block;
 import net.sf.jett.transform.BlockTransformer;
-import net.sf.jett.util.AttributeUtil;
+import net.sf.jett.util.AttributeEvaluator;
 import net.sf.jett.util.SheetUtil;
 
 /**
@@ -100,18 +100,20 @@ public class TotalTag extends BaseTag
    {
       super.validateAttributes();
       if (!isBodiless())
-         throw new TagParseException("Total tags must not have a body.");
+         throw new TagParseException("Total tags must not have a body.  Total tag with body found" + getLocation());
 
       TagContext context = getContext();
       Map<String, Object> beans = context.getBeans();
       Map<String, RichTextString> attributes = getAttributes();
 
-      myList = AttributeUtil.evaluateObject(attributes.get(ATTR_ITEMS), beans, ATTR_ITEMS, List.class,
+      AttributeEvaluator eval = new AttributeEvaluator(context);
+
+      myList = eval.evaluateObject(attributes.get(ATTR_ITEMS), beans, ATTR_ITEMS, List.class,
          new ArrayList<Object>(0));
 
-      myParallelism = AttributeUtil.evaluatePositiveInt(attributes.get(ATTR_PARALLEL), beans, ATTR_PARALLEL, 1);
+      myParallelism = eval.evaluatePositiveInt(attributes.get(ATTR_PARALLEL), beans, ATTR_PARALLEL, 1);
 
-      String aggSpec = AttributeUtil.evaluateString(attributes.get(ATTR_VALUE), beans, null);
+      String aggSpec = eval.evaluateString(attributes.get(ATTR_VALUE), beans, null);
       myAggregator = Aggregator.getAggregator(aggSpec);
    }
 

@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.poi.ss.formula.SheetNameFormatter;
 
@@ -22,6 +24,11 @@ import net.sf.jett.model.WorkbookContext;
 public class FormulaUtil
 {
    private static final boolean DEBUG = false;
+
+   // Prevents a mapping of "A1" => "A21" and "A2" => "A22" from yielding
+   // "A1 + A2" => "A21 + A2" => "A221 + A22".
+   private static final String NEGATIVE_LOOKBEHIND_ALPHA = "(?<![A-Za-z])";
+   private static final String NEGATIVE_LOOKAHEAD_ALPHAN = "(?![A-Za-z0-9])";
 
    /**
     * Finds unique cell references in all <code>Formulas</code> in the given
@@ -97,6 +104,10 @@ public class FormulaUtil
       String sheetName, WorkbookContext context)
    {
       Map<String, List<CellRef>> cellRefMap = context.getCellRefMap();
+      if (DEBUG)
+      {
+         System.err.println(cellRefMap);
+      }
       List<CellRef> origCellRefs = formula.getCellRefs();
       StringBuffer buf = new StringBuffer();
       String excelFormula, suffix;
@@ -134,8 +145,35 @@ public class FormulaUtil
          // Append the suffix to the cell key to look up the correct references.
          cellKey += suffix;
 
+         // Find the appropriate cell references.
+         // It may be necessary to remove suffixes iteratively, if the cell key
+         // represents a formula cell reference outside of a looping tag.
+         List<CellRef> transCellRefs;
+         do
+         {
+            if (DEBUG)
+            {
+               System.err.println("  cellKey: " + cellKey);
+            }
+
+            transCellRefs = cellRefMap.get(cellKey);
+            // Remove suffixes, one at a time if it's not found.
+            if (transCellRefs == null)
+            {
+               int lastSuffixIdx = cellKey.lastIndexOf("[");
+               if (lastSuffixIdx != -1)
+               {
+                  cellKey = cellKey.substring(0, lastSuffixIdx);
+               }
+               else
+               {
+                  throw new IllegalStateException("Unable to find cell references for cell key \"" + cellKey + "\"!");
+               }
+            }
+         }
+         while (transCellRefs == null);
+
          // Construct the replacement string.
-         List<CellRef> transCellRefs = cellRefMap.get(cellKey);
          String cellRefs;
          // Avoid re-allocation of the internal buffer.
          buf.delete(0, buf.length());
@@ -177,7 +215,18 @@ public class FormulaUtil
          }
          // Replace the formula text, including any default value, with the
          // updated cell references.
-         excelFormula = excelFormula.replace(origCellRef.formatAsStringWithDef(), cellRefs);
+         if(DEBUG)
+         {
+            System.err.println("Regex: " + NEGATIVE_LOOKBEHIND_ALPHA +
+               Pattern.quote(origCellRef.formatAsStringWithDef()) +
+               NEGATIVE_LOOKAHEAD_ALPHAN);
+            System.err.println("cellRefs: " + Matcher.quoteReplacement(cellRefs));
+         }
+         excelFormula = excelFormula.replaceAll(
+             NEGATIVE_LOOKBEHIND_ALPHA + 
+                 Pattern.quote(origCellRef.formatAsStringWithDef()) +
+                 NEGATIVE_LOOKAHEAD_ALPHAN,
+             Matcher.quoteReplacement(cellRefs));
       }
       return excelFormula;
    }
