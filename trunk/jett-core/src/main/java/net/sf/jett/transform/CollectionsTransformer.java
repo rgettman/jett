@@ -70,6 +70,7 @@ public class CollectionsTransformer
          }
          // Parse the Metadata.
          parser = new MetadataParser(metadata);
+         parser.setCell(cell);
          parser.parse();
          // Remove the metadata text from the Cell.
          RichTextString metadataRemoved = RichTextStringUtil.replaceAll(richString,
@@ -98,17 +99,17 @@ public class CollectionsTransformer
          String lexeme = parser.getExtraRows();
          if (lexeme != null)
          {
-            bottom += evaluateInt(lexeme, beans, "extraRows");
+            bottom += evaluateInt(lexeme, beans, "extraRows", cell);
          }
          lexeme = parser.getColsLeft();
          if (lexeme != null)
          {
-            left = cell.getColumnIndex() - evaluateInt(lexeme, beans, "left");
+            left = cell.getColumnIndex() - evaluateInt(lexeme, beans, "left", cell);
          }
          lexeme = parser.getColsRight();
          if (lexeme != null)
          {
-            right = cell.getColumnIndex() + evaluateInt(lexeme, beans, "right");
+            right = cell.getColumnIndex() + evaluateInt(lexeme, beans, "right", cell);
          }
 
          copyRight = parser.getCopyingRight();
@@ -269,9 +270,10 @@ public class CollectionsTransformer
     * @param lexeme The expression.
     * @param beans A <code>Map</code> of bean names to bean values.
     * @param keyName The key name.
+    * @param cell The <code>Cell</code> on which the metadata is found.
     * @return The integer value.
     */
-   private int evaluateInt(String lexeme, Map<String, Object> beans, String keyName)
+   private int evaluateInt(String lexeme, Map<String, Object> beans, String keyName, Cell cell)
    {
       Object obj = Expression.evaluateString(lexeme, beans);
       int change;
@@ -287,11 +289,13 @@ public class CollectionsTransformer
          }
          catch (NumberFormatException e)
          {
-            throw new TagParseException("Metadata key \"" + keyName + "\" needs to be a non-negative integer: " + lexeme);
+            throw new TagParseException("Metadata key \"" + keyName + "\" needs to be a non-negative integer: " + lexeme
+               + SheetUtil.getCellLocation(cell));
          }
          if (change < 0)
          {
-            throw new TagParseException("Metadata key \"" + keyName + "\" needs to be a non-negative integer: " + lexeme);
+            throw new TagParseException("Metadata key \"" + keyName + "\" needs to be a non-negative integer: " + lexeme
+               + SheetUtil.getCellLocation(cell));
          }
       }
       return change;

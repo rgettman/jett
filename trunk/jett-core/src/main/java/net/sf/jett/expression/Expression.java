@@ -286,7 +286,7 @@ public class Expression
       }
       catch (org.apache.commons.jexl2.parser.ParseException e)
       {
-         throw new ParseException("JEXL ParseException caught: " + e.getMessage(), e);
+         throw new ParseException("JEXL ParseException caught on expression \"" + expression + "\": " + e.getMessage(), e);
       }
       // If we get here, then there is no Collection name reference.
       MAP_EXPRESSION_TO_COLL_NAMES.put(expression, "");

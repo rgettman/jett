@@ -14,9 +14,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.PrintSetup;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
 
 import net.sf.jett.event.CellListener;
 import net.sf.jett.expression.Expression;
@@ -26,6 +28,7 @@ import net.sf.jett.formula.Formula;
 //import net.sf.jett.lwxssf.LWXSSFWorkbook;
 import net.sf.jett.model.CellStyleCache;
 import net.sf.jett.model.FontCache;
+import net.sf.jett.model.MissingCloneSheetProperties;
 import net.sf.jett.model.Style;
 import net.sf.jett.model.WorkbookContext;
 import net.sf.jett.parser.StyleParser;
@@ -459,13 +462,21 @@ public class ExcelTransformer
    public void transform(Workbook workbook, List<String> templateSheetNamesList,
       List<String> newSheetNamesList, List<Map<String, Object>> beansList)
    {
-      String prevSheetName = "";
+      Map<String, Integer> firstReferencedSheets = new HashMap<String, Integer>();
+      List<MissingCloneSheetProperties> missingPropertiesList = new ArrayList<MissingCloneSheetProperties>();
       if (DEBUG)
       {
          System.err.println("templateSheetNamesList.size()=" + templateSheetNamesList.size());
          System.err.println("newSheetNamesList.size()=" + newSheetNamesList.size());
          System.err.println("beansList.size()=" + beansList.size());
       }
+      // Note down any sheet properties that are known to be "messed up" when a
+      // Sheet is cloned and/or moved.
+      for (int i = 0; i < workbook.getNumberOfSheets(); i++)
+      {
+         missingPropertiesList.add(getMissingCloneSheetProperties(workbook.getSheetAt(i)));
+      }
+      // Clone and/or move sheets.
       for (int i = 0; i < templateSheetNamesList.size(); i++)
       {
          if (DEBUG)
@@ -475,39 +486,69 @@ public class ExcelTransformer
          }
          String templateSheetName = templateSheetNamesList.get(i);
          String newSheetName = newSheetNamesList.get(i);
-         if (prevSheetName.equals(templateSheetName))
+         if (firstReferencedSheets.containsKey(templateSheetName))
          {
-            // Clone the previous sheet, name it, and reposition it.
+            int prevIndex = firstReferencedSheets.get(templateSheetName);
+            // Clone the previously referenced sheet, name it, and reposition it.
             if (DEBUG)
-               System.err.println("Cloning sheet at position " + (i - 1) + ".");
-            workbook.cloneSheet(i - 1);
+               System.err.println("Cloning sheet at position " + prevIndex + ".");
+
+            MissingCloneSheetProperties cloned = new MissingCloneSheetProperties(missingPropertiesList.get(prevIndex));
+            workbook.cloneSheet(prevIndex);
+
             if (DEBUG)
                System.err.println("Setting sheet name at position " +
                   (workbook.getNumberOfSheets() - 1) + " to \"" + newSheetName + "\".");
+
             workbook.setSheetName(workbook.getNumberOfSheets() - 1, newSheetName);
+
             if (DEBUG)
                System.err.println("Moving sheet \"" + newSheetName + "\" to position " + i + ".");
+
             workbook.setSheetOrder(newSheetName, i);
+            missingPropertiesList.add(i, cloned);
          }
          else
          {
-            // Rename the sheet.
+            // Find the sheet.
+            int index = workbook.getSheetIndex(templateSheetName);
+            if (index == -1)
+               throw new RuntimeException("Template Sheet \"" + templateSheetName + "\" not found!");
+
+            // Rename the sheet and move it to the current position.
             if (DEBUG)
-               System.err.println("Renaming sheet at position " + i + " to \"" + newSheetName + "\".");
-            workbook.setSheetName(i, newSheetName);
+               System.err.println("Renaming sheet at position " + index + " to \"" + newSheetName + "\".");
+
+            workbook.setSheetName(index, newSheetName);
+
+            if (index != i)
+            {
+               if (DEBUG)
+                  System.err.println("Moving sheet at position " + index + " to " + i + ".");
+
+               MissingCloneSheetProperties move = missingPropertiesList.remove(index);
+               workbook.setSheetOrder(newSheetName, i);
+               missingPropertiesList.add(i, move);
+            }
+            firstReferencedSheets.put(templateSheetName, i);
          }
-         prevSheetName = templateSheetName;
          if (DEBUG)
          {
             for (int j = 0; j < workbook.getNumberOfSheets(); j++)
                System.err.println("  After: Sheet(" + j + "): \"" + workbook.getSheetAt(j).getSheetName() + "\".");
          }
       }
+      // Replace the "missing" properties.
+      for (int i = 0; i < missingPropertiesList.size(); i++)
+      {
+         replaceMissingCloneSheetProperties(workbook.getSheetAt(i), missingPropertiesList.get(i));
+      }
 
       SheetTransformer sheetTransformer = new SheetTransformer();
       WorkbookContext context = createContext(workbook, sheetTransformer);
       if (DEBUG)
          System.err.println("number of Sheets=" + workbook.getNumberOfSheets());
+
       int numItemsProcessed = 0;
       for (int i = 0; i < workbook.getNumberOfSheets(); i++)
       {
@@ -528,6 +569,74 @@ public class ExcelTransformer
       if (!context.getFormulaMap().isEmpty())
       {
          replaceFormulas(workbook, context, sheetTransformer);
+      }
+   }
+
+   /**
+    * Copies the properties that won't be properly copied upon cloning and/or
+    * moving the given <code>Sheet</code>.
+    * @param sheet The <code>Sheet</code> on which to copy properties.
+    * @return A <code>MissingCloneSheetProperties</code>.
+    * @since 0.7.0
+    */
+   private MissingCloneSheetProperties getMissingCloneSheetProperties(Sheet sheet)
+   {
+      MissingCloneSheetProperties mcsp = new MissingCloneSheetProperties();
+      PrintSetup ps = sheet.getPrintSetup();
+
+      mcsp.setRepeatingColumns(sheet.getRepeatingColumns());
+      mcsp.setRepeatingRows(sheet.getRepeatingRows());
+
+      mcsp.setCopies(ps.getCopies());
+      mcsp.setDraft(ps.getDraft());
+      mcsp.setFitHeight(ps.getFitHeight());
+      mcsp.setFitWidth(ps.getFitWidth());
+      mcsp.setHResolution(ps.getHResolution());
+      mcsp.setLandscape(ps.getLandscape());
+      mcsp.setNoColor(ps.getNoColor());
+      mcsp.setLeftToRight(ps.getLeftToRight());
+      mcsp.setNotes(ps.getNotes());
+      mcsp.setPageStart(ps.getPageStart());
+      mcsp.setPaperSize(ps.getPaperSize());
+      mcsp.setScale(ps.getScale());
+      mcsp.setUsePage(ps.getUsePage());
+      mcsp.setValidSettings(ps.getValidSettings());
+      mcsp.setVResolution(ps.getVResolution());
+
+      return mcsp;
+   }
+
+   /**
+    * Copies the properties that weren't properly copied upon cloning and/or
+    * moving the given <code>Sheet</code> back into the sheet.
+    * @param sheet The <code>Sheet</code> on which to restore properties.
+    * @param mcsp The properties to copy back to the sheet.
+    * @since 0.7.0
+    */
+   private void replaceMissingCloneSheetProperties(Sheet sheet, MissingCloneSheetProperties mcsp)
+   {
+      PrintSetup ps = sheet.getPrintSetup();
+
+      sheet.setRepeatingColumns(mcsp.getRepeatingColumns());
+      sheet.setRepeatingRows(mcsp.getRepeatingRows());
+
+      if (sheet instanceof XSSFSheet)
+      {
+         ps.setCopies(mcsp.getCopies());
+         ps.setDraft(mcsp.isDraft());
+         ps.setFitHeight(mcsp.getFitHeight());
+         ps.setFitWidth(mcsp.getFitWidth());
+         ps.setHResolution(mcsp.getHResolution());
+         ps.setLandscape(mcsp.isLandscape());
+         ps.setLeftToRight(mcsp.isLeftToRight());
+         ps.setNoColor(mcsp.isNoColor());
+         ps.setNotes(mcsp.isNotes());
+         ps.setPageStart(mcsp.getPageStart());
+         ps.setPaperSize(mcsp.getPaperSize());
+         ps.setScale(mcsp.getScale());
+         ps.setUsePage(mcsp.isUsePage());
+         ps.setValidSettings(mcsp.isValidSettings());
+         ps.setVResolution(mcsp.getVResolution());
       }
    }
 

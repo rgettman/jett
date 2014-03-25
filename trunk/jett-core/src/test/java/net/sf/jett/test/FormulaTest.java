@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -77,6 +78,7 @@ public class FormulaTest extends TestCase
       assertEquals("SUM(H3:H60)", TestUtility.getFormulaCellValue(formulaTest, 60, 7));
       assertEquals("SUM(I3:I60)", TestUtility.getFormulaCellValue(formulaTest, 60, 8));
       assertEquals("\"Counties:\"&COUNTA(K3:K60)", TestUtility.getFormulaCellValue(formulaTest, 60, 10));
+      assertEquals("B61<>H61", TestUtility.getFormulaCellValue(formulaTest, 62, 2));
 
       for (int i = 1; i <= 6; i++)
       {
@@ -197,6 +199,47 @@ public class FormulaTest extends TestCase
       assertEquals("SUM(E3:E7,E11:E15,E19:E23,E27:E31,E35:E39,E43:E47,E54)", TestUtility.getFormulaCellValue(multiLevel, 55, 4));
       assertEquals("SUM(C3:C7,C11:C15,C19:C23,C27:C31,C35:C39,C43:C47,C54)/SUM(E3:E7,E11:E15,E19:E23,E27:E31,E35:E39,E43:E47,E54)",
          TestUtility.getFormulaCellValue(multiLevel, 55, 5));
+
+      Sheet copyRight = workbook.getSheetAt(10);
+      assertEquals("SUM(A1+A2)", TestUtility.getFormulaCellValue(copyRight, 2, 0));
+      assertEquals("SUM(B1+B2)", TestUtility.getFormulaCellValue(copyRight, 2, 1));
+      assertEquals("SUM(C1+C2)", TestUtility.getFormulaCellValue(copyRight, 2, 2));
+      assertEquals("SUM(D1+D2)", TestUtility.getFormulaCellValue(copyRight, 2, 3));
+      assertEquals("SUM(E1+E2)", TestUtility.getFormulaCellValue(copyRight, 2, 4));
+      assertEquals("SUM(F1+F2)", TestUtility.getFormulaCellValue(copyRight, 2, 5));
+      assertEquals("SUM(G1+G2)", TestUtility.getFormulaCellValue(copyRight, 2, 6));
+      assertEquals("SUM(H1+H2)", TestUtility.getFormulaCellValue(copyRight, 2, 7));
+      assertEquals("SUM(I1+I2)", TestUtility.getFormulaCellValue(copyRight, 2, 8));
+      assertEquals("SUM(J1+J2)", TestUtility.getFormulaCellValue(copyRight, 2, 9));
+
+      Sheet replaceTest = workbook.getSheetAt(11);
+      assertEquals("SUM(A1+A2)", TestUtility.getFormulaCellValue(replaceTest, 2, 0));
+      assertEquals("SUM(A5+A6)", TestUtility.getFormulaCellValue(replaceTest, 6, 0));
+      assertEquals("SUM(A9+A10)", TestUtility.getFormulaCellValue(replaceTest, 10, 0));
+      assertEquals("SUM(A13+A14)", TestUtility.getFormulaCellValue(replaceTest, 14, 0));
+      assertEquals("SUM(A17+A18)", TestUtility.getFormulaCellValue(replaceTest, 18, 0));
+      assertEquals("SUM(A21+A22)", TestUtility.getFormulaCellValue(replaceTest, 22, 0));
+      assertEquals("SUM(A25+A26)", TestUtility.getFormulaCellValue(replaceTest, 26, 0));
+      assertEquals("SUM(A29+A30)", TestUtility.getFormulaCellValue(replaceTest, 30, 0));
+      assertEquals("SUM(A33+A34)", TestUtility.getFormulaCellValue(replaceTest, 34, 0));
+
+      Sheet outsideReference = workbook.getSheetAt(12);
+      assertEquals("A1*B1", TestUtility.getFormulaCellValue(outsideReference, 0, 2));
+      assertEquals("A1*B5", TestUtility.getFormulaCellValue(outsideReference, 4, 2));
+      assertEquals("A1*B9", TestUtility.getFormulaCellValue(outsideReference, 8, 2));
+      assertEquals("A1*B1*D1", TestUtility.getFormulaCellValue(outsideReference, 0, 4));
+      assertEquals("A1*B1*D2", TestUtility.getFormulaCellValue(outsideReference, 1, 4));
+      assertEquals("A1*B1*D3", TestUtility.getFormulaCellValue(outsideReference, 2, 4));
+      assertEquals("A1*B1*D4", TestUtility.getFormulaCellValue(outsideReference, 3, 4));
+      assertEquals("A1*B5*D5", TestUtility.getFormulaCellValue(outsideReference, 4, 4));
+      assertEquals("A1*B5*D6", TestUtility.getFormulaCellValue(outsideReference, 5, 4));
+      assertEquals("A1*B5*D7", TestUtility.getFormulaCellValue(outsideReference, 6, 4));
+      assertEquals("A1*B5*D8", TestUtility.getFormulaCellValue(outsideReference, 7, 4));
+      assertEquals("A1*B9*D9", TestUtility.getFormulaCellValue(outsideReference, 8, 4));
+      assertEquals("A1*B9*D10", TestUtility.getFormulaCellValue(outsideReference, 9, 4));
+      assertEquals("A1*B9*D11", TestUtility.getFormulaCellValue(outsideReference, 10, 4));
+      assertEquals("A1*B9*D12", TestUtility.getFormulaCellValue(outsideReference, 11, 4));
+
    }
 
    /**
@@ -215,10 +258,13 @@ public class FormulaTest extends TestCase
     */
    protected List<String> getListOfTemplateSheetNames()
    {
-      String[] templateSheetNameArray = new String[10];
+      String[] templateSheetNameArray = new String[13];
       Arrays.fill(templateSheetNameArray, "Cloning");
       templateSheetNameArray[0] = "Formula Test";
       templateSheetNameArray[9] = "MultiLevel";
+      templateSheetNameArray[10] = "Copy Right";
+      templateSheetNameArray[11] = "ReplaceTest";
+      templateSheetNameArray[12] = "Outside Reference";
       return Arrays.asList(templateSheetNameArray);
    }
 
@@ -230,7 +276,8 @@ public class FormulaTest extends TestCase
    protected List<String> getListOfResultSheetNames()
    {
       return Arrays.asList("Formula Test", "Atlantic", "Central", "Southeast", "Northwest",
-         "Pacific", "Southwest", "Empty", "Of Their Own", "MultiLevel");
+         "Pacific", "Southwest", "Empty", "Of Their Own", "MultiLevel", "Copy Right", "ReplaceTest",
+         "Outside Reference");
    }
 
    /**
@@ -246,6 +293,16 @@ public class FormulaTest extends TestCase
       for (int i = 0; i < 8; i++)
          beansList.add(TestUtility.getSpecificDivisionData(i));
       beansList.add(TestUtility.getDivisionData());
+      // For "Copy Right" and "ReplaceTest".
+      for (int f = 0; f < 2; f++)
+         beansList.add(new HashMap<String, Object>());
+      // For "Outside Reference"
+      Map<String, Object> outsideRefsBeans = new HashMap<String, Object>();
+      outsideRefsBeans.put("two", 2);
+      outsideRefsBeans.put("primes", Arrays.asList(3, 5, 7));
+      outsideRefsBeans.put("morePrimes", Arrays.asList(11, 13, 17, 19));
+      beansList.add(outsideRefsBeans);
+
       return beansList;
    }
 }

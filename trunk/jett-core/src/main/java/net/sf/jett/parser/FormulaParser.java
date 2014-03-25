@@ -4,8 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.apache.poi.ss.usermodel.Cell;
+
 import net.sf.jett.exception.FormulaParseException;
 import net.sf.jett.formula.CellRef;
+import net.sf.jett.util.SheetUtil;
 
 /**
  * A <code>FormulaParser</code> parses formulas in formula text, extracting out
@@ -26,6 +29,7 @@ public class FormulaParser
    private String myFormulaText;
    private List<CellRef> myCellReferences;
    private String mySheetName;
+   private Cell myCell;
    private String myCellReference;
    private String myDefaultValue;
    private boolean amIInsideSingleQuotes;
@@ -47,6 +51,16 @@ public class FormulaParser
    public FormulaParser(String formulaText)
    {
       setFormulaText(formulaText);
+   }
+
+   /**
+    * Sets the <code>Cell</code> that contains the formula to be parsed.
+    * @param cell The <code>Cell</code>.
+    * @since 0.7.0
+    */
+   public void setCell(Cell cell)
+   {
+      myCell = cell;
    }
 
    /**
@@ -116,9 +130,11 @@ public class FormulaParser
             // currently in "myCellReference" it really the sheet reference.
             // Move it to the sheet name field.
             if (myCellReference == null)
-               throw new FormulaParseException("Sheet name delimiter (\"!\") found with no sheet name: " + myFormulaText);
+               throw new FormulaParseException("Sheet name delimiter (\"!\") found with no sheet name: " + myFormulaText
+                  + SheetUtil.getCellLocation(myCell));
             if (amIExpectingADefaultValue)
-               throw new FormulaParseException("Sheet name delimiter (\"!\") found while expecting a default value: " + myFormulaText);
+               throw new FormulaParseException("Sheet name delimiter (\"!\") found while expecting a default value: "
+                  + myFormulaText + SheetUtil.getCellLocation(myCell));
             mySheetName = myCellReference;
             break;
          case TOKEN_LEFT_PAREN:
@@ -146,13 +162,15 @@ public class FormulaParser
             break;
          case TOKEN_DOUBLE_PIPE:
             if (amIExpectingADefaultValue)
-               throw new FormulaParseException("Cannot have two default values for a cell reference: " + myFormulaText);
+               throw new FormulaParseException("Cannot have two default values for a cell reference: " + myFormulaText
+                  + SheetUtil.getCellLocation(myCell));
             if (myCellReference == null)
-               throw new FormulaParseException("Default value indicator (\"||\") found without a cell reference: " + myFormulaText);
+               throw new FormulaParseException("Default value indicator (\"||\") found without a cell reference: "
+                  + myFormulaText + SheetUtil.getCellLocation(myCell));
             amIExpectingADefaultValue = true;
             break;
          default:
-            throw new FormulaParseException("Parse error occurred: " + myFormulaText);
+            throw new FormulaParseException("Parse error occurred: " + myFormulaText + SheetUtil.getCellLocation(myCell));
          }
          token = scanner.getNextToken();
 
@@ -161,7 +179,7 @@ public class FormulaParser
       }
       // Found end of input but something else was expected.
       if (token.getCode() < 0)
-         throw new FormulaParseException("Found end of input while scanning formula text: " + myFormulaText);
+         throw new FormulaParseException("Found end of input while scanning formula text: " + myFormulaText + SheetUtil.getCellLocation(myCell));
       // Don't forget any last cell reference!
       addCellReferenceIfFound();
    }

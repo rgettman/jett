@@ -119,7 +119,7 @@ public class CommentTag extends BaseTag
    {
       super.validateAttributes();
       if (!isBodiless())
-         throw new TagParseException("Comment tags must not have a body.");
+         throw new TagParseException("Comment tags must not have a body.  Comment tag with body found" + getLocation());
 
       TagContext context = getContext();
       Map<String, Object> beans = context.getBeans();

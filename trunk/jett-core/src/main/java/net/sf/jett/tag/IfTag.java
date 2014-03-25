@@ -12,7 +12,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 
 import net.sf.jett.model.Block;
 import net.sf.jett.transform.BlockTransformer;
-import net.sf.jett.util.AttributeUtil;
+import net.sf.jett.util.AttributeEvaluator;
 import net.sf.jett.util.SheetUtil;
 
 /**
@@ -137,7 +137,9 @@ public class IfTag extends BaseTag
       Map<String, RichTextString> attributes = getAttributes();
       Block block = context.getBlock();
 
-      String elseAction = AttributeUtil.evaluateStringSpecificValues(attributes.get(ATTR_ELSE_ACTION), beans,
+      AttributeEvaluator eval = new AttributeEvaluator(context);
+
+      String elseAction = eval.evaluateStringSpecificValues(attributes.get(ATTR_ELSE_ACTION), beans,
          ATTR_ELSE_ACTION,
          Arrays.asList(ELSE_ACTION_SHIFT_UP, ELSE_ACTION_SHIFT_LEFT, ELSE_ACTION_CLEAR, ELSE_ACTION_REMOVE),
          ELSE_ACTION_SHIFT_UP);
@@ -174,7 +176,9 @@ public class IfTag extends BaseTag
 
       Map<String, RichTextString> attributes = getAttributes();
 
-      boolean condition = AttributeUtil.evaluateBoolean(attributes.get(ATTR_TEST), beans, true);
+      AttributeEvaluator eval = new AttributeEvaluator(context);
+
+      boolean condition = eval.evaluateBoolean(attributes.get(ATTR_TEST), beans, true);
 
       if (isBodiless())
       {

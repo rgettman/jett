@@ -13,7 +13,7 @@ import net.sf.jagg.Aggregator;
 
 import net.sf.jett.exception.TagParseException;
 import net.sf.jett.transform.BlockTransformer;
-import net.sf.jett.util.AttributeUtil;
+import net.sf.jett.util.AttributeEvaluator;
 
 /**
  * <p>An <code>AggTag</code> represents possibly many aggregate values
@@ -188,39 +188,41 @@ public class AggTag extends BaseTag
    {
       super.validateAttributes();
       if (isBodiless())
-         throw new TagParseException("Agg tags must have a body.");
+         throw new TagParseException("Agg tags must have a body.  Bodiless agg tag found" + getLocation());
 
       TagContext context = getContext();
       Map<String, Object> beans = context.getBeans();
       Map<String, RichTextString> attributes = getAttributes();
 
-      myList = AttributeUtil.evaluateObject(attributes.get(ATTR_ITEMS), beans, ATTR_ITEMS, List.class, null);
+      AttributeEvaluator eval = new AttributeEvaluator(context);
 
-      List<String> aggsList = AttributeUtil.evaluateList(attributes.get(ATTR_AGGS), beans, null);
+      myList = eval.evaluateObject(attributes.get(ATTR_ITEMS), beans, ATTR_ITEMS, List.class, null);
+
+      List<String> aggsList = new AttributeEvaluator(context).evaluateList(attributes.get(ATTR_AGGS), beans, null);
       myAggs = new ArrayList<Aggregator>(aggsList.size());
       for (String aggSpec : aggsList)
          myAggs.add(Aggregator.getAggregator(aggSpec));
 
-      myAggsVar = AttributeUtil.evaluateString(attributes.get(ATTR_AGGS_VAR), beans, null);
+      myAggsVar = eval.evaluateString(attributes.get(ATTR_AGGS_VAR), beans, null);
 
-      myValuesVar = AttributeUtil.evaluateString(attributes.get(ATTR_VALUES_VAR), beans, null);
+      myValuesVar = eval.evaluateString(attributes.get(ATTR_VALUES_VAR), beans, null);
 
-      List<String> groupByProps = AttributeUtil.evaluateList(attributes.get(ATTR_GROUP_BY), beans, new ArrayList<String>());
+      List<String> groupByProps = eval.evaluateList(attributes.get(ATTR_GROUP_BY), beans, new ArrayList<String>());
 
-      int parallelism = AttributeUtil.evaluatePositiveInt(attributes.get(ATTR_PARALLEL), beans, ATTR_PARALLEL, 1);
+      int parallelism = eval.evaluatePositiveInt(attributes.get(ATTR_PARALLEL), beans, ATTR_PARALLEL, 1);
 
-      boolean useMsd = AttributeUtil.evaluateBoolean(attributes.get(ATTR_USE_MSD), beans, false);
+      boolean useMsd = eval.evaluateBoolean(attributes.get(ATTR_USE_MSD), beans, false);
 
       RichTextString rtsRollup = attributes.get(ATTR_ROLLUP);
       RichTextString rtsRollups = attributes.get(ATTR_ROLLUPS);
       RichTextString rtsCube = attributes.get(ATTR_CUBE);
       RichTextString rtsGroupingSets = attributes.get(ATTR_GROUPING_SETS);
-      AttributeUtil.ensureAtMostOneExists(Arrays.asList(rtsRollup, rtsRollups, rtsCube, rtsGroupingSets),
+      eval.ensureAtMostOneExists(Arrays.asList(rtsRollup, rtsRollups, rtsCube, rtsGroupingSets),
          Arrays.asList(ATTR_ROLLUP, ATTR_ROLLUPS, ATTR_CUBE, ATTR_GROUPING_SETS));
-      List<Integer> rollup = AttributeUtil.evaluateIntegerArray(rtsRollup, beans, null);
-      List<Integer> cube = AttributeUtil.evaluateIntegerArray(attributes.get(ATTR_CUBE), beans, null);
-      List<List<Integer>> rollups = AttributeUtil.evaluateIntegerArrayArray(rtsRollups, beans, null);
-      List<List<Integer>> groupingSets = AttributeUtil.evaluateIntegerArrayArray(rtsGroupingSets, beans, null);
+      List<Integer> rollup = eval.evaluateIntegerArray(rtsRollup, beans, null);
+      List<Integer> cube = eval.evaluateIntegerArray(attributes.get(ATTR_CUBE), beans, null);
+      List<List<Integer>> rollups = eval.evaluateIntegerArrayArray(rtsRollups, beans, null);
+      List<List<Integer>> groupingSets = eval.evaluateIntegerArrayArray(rtsGroupingSets, beans, null);
 
       Aggregation.Builder builder = new Aggregation.Builder()
          .setAggregators(myAggs)
@@ -244,7 +246,8 @@ public class AggTag extends BaseTag
       }
       catch (RuntimeException e)
       {
-         throw new TagParseException("AggTag: RuntimeException caught during jAgg execution: " + e.getMessage(), e);
+         throw new TagParseException("AggTag: RuntimeException caught during jAgg execution" + getLocation()
+            + ": " + e.getMessage(), e);
       }
    }
 

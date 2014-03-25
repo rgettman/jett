@@ -560,7 +560,7 @@
                     <td class="bold" style="width: 150px;">Manager</td>
                     <td style="width: 150px;">&nbsp;</td>
                     <td style="width: 150px;">Stack, Robert</td>
-                    <td style="width: 150px;">Stack, Robert</td>
+                    <td style="width: 150px;">Bunny, Bugs</td>
                     <td style="width: 150px;">&nbsp;</td>
                     <td style="width: 150px;">&nbsp;</td>
                 </tr>
@@ -675,7 +675,7 @@
                     <td style="width: 150px;">&nbsp;</td>
                 </tr>
             </table>
-            <h1>JDBC Query Excecution in the Template</h1>
+            <h1>JDBC Query Execution in the Template</h1>
             <p>Here is an example of the usage of the <code>ReportManager</code> in jXLS:</p>
 <source>
     Connection conn = getConnection();

@@ -189,8 +189,7 @@ public class CellTransformer
          Cell match = findMatchingEndTag(cell, parentBlock, parser.getNamespaceAndTagName());
          if (match == null)
             throw new TagParseException("Matching tag not found for tag: " + parser.getTagText() +
-               ", located at " + sheet.getSheetName() + ", row " + cell.getRowIndex() +
-               ", col " + cell.getColumnIndex() + ", within block " + parentBlock);
+               ", located" + SheetUtil.getCellLocation(cell) + ", within block " + parentBlock);
 
          if (DEBUG_TAG)
          {
@@ -208,7 +207,7 @@ public class CellTransformer
 
       Tag tag = registry.createTag(parser, context, workbookContext);
       if (tag == null)
-         throw new TagParseException("Invalid tag: " + value);
+         throw new TagParseException("Invalid tag: " + value + SheetUtil.getCellLocation(cell));
 
       // Process the Tag.
       return tag.processTag();
@@ -307,7 +306,7 @@ public class CellTransformer
                if (innerTags.isEmpty())
                {
                   throw new TagParseException("End tag found \"" + candidateParser.getNamespaceAndTagName() +
-                     "\" does not match start tag \"" + namespaceAndTagName + "\".");
+                     "\" does not match start tag \"" + namespaceAndTagName + "\"" + SheetUtil.getCellLocation(candidate) + ".");
                }
                if (DEBUG_TAG)
                   System.err.println("    iMET: Adding end tag to list: " + candidateParser.getNamespaceAndTagName());

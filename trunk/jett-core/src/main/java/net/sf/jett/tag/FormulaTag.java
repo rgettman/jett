@@ -13,7 +13,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import net.sf.jett.exception.TagParseException;
 import net.sf.jett.expression.Expression;
 import net.sf.jett.model.Block;
-import net.sf.jett.util.AttributeUtil;
+import net.sf.jett.util.AttributeEvaluator;
 
 /**
  * <p>A <code>FormulaTag</code> represents a dynamically generated Excel
@@ -105,7 +105,7 @@ public class FormulaTag extends BaseTag
    {
       super.validateAttributes();
       if (!isBodiless())
-         throw new TagParseException("Formula tags must not have a body.");
+         throw new TagParseException("Formula tags must not have a body.  Formula tag with body found" + getLocation());
 
       TagContext context = getContext();
       Map<String, Object> beans = context.getBeans();
@@ -115,7 +115,9 @@ public class FormulaTag extends BaseTag
       RichTextString formulaBean = attributes.get(ATTR_BEAN);
       RichTextString formulaText = attributes.get(ATTR_TEXT);
 
-      AttributeUtil.ensureExactlyOneExists(Arrays.asList(formulaBean, formulaText), Arrays.asList(ATTR_BEAN, ATTR_TEXT));
+      AttributeEvaluator eval = new AttributeEvaluator(context);
+
+      eval.ensureExactlyOneExists(Arrays.asList(formulaBean, formulaText), Arrays.asList(ATTR_BEAN, ATTR_TEXT));
       if (formulaBean != null)
       {
          myFormulaExpression = Expression.evaluateString("${" + formulaBean.toString() + "}", beans).toString();

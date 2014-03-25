@@ -112,6 +112,7 @@ public class SheetTransformer
                            // Formula text is cell text without the begin and end tokens.
                            String formulaText = cellText.substring(Formula.BEGIN_FORMULA.length(), endIdx - startIdx);
                            parser.setFormulaText(formulaText);
+                           parser.setCell(cell);
                            parser.parse();
                            Formula formula = new Formula(cellText, parser.getCellReferences());
                            String key = sheetName + "!" + cellText;

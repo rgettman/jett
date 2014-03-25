@@ -6,7 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.RichTextString;
+import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
 import net.sf.jett.event.TagEvent;
@@ -14,7 +16,7 @@ import net.sf.jett.event.TagListener;
 import net.sf.jett.exception.TagParseException;
 import net.sf.jett.model.Block;
 import net.sf.jett.model.WorkbookContext;
-import net.sf.jett.util.AttributeUtil;
+import net.sf.jett.util.AttributeEvaluator;
 import net.sf.jett.util.SheetUtil;
 
 /**
@@ -162,7 +164,7 @@ public abstract class BaseTag implements Tag
          {
             if (!attributes.containsKey(reqName))
                throw new TagParseException("Required attribute \"" + reqName +
-                  "\" not found for tag \"" + getName() + "\".");
+                  "\" not found for tag \"" + getName() + "\"" + getLocation() + ".");
          }
       }
       // Ensure all attributes are in either the required list or in the
@@ -174,7 +176,7 @@ public abstract class BaseTag implements Tag
              (optional == null || !optional.contains(key)))
          {
             throw new TagParseException("Unrecognized attribute \"" + key +
-               "\" for tag \"" + getName() + "\".");
+               "\" for tag \"" + getName() + "\"" + getLocation() + ".");
          }
       }
 
@@ -306,7 +308,7 @@ public abstract class BaseTag implements Tag
       Map<String, Object> beans = context.getBeans();
       Map<String, RichTextString> attributes = getAttributes();
 
-      myTagListener = AttributeUtil.evaluateObject(attributes.get(ATTR_ON_PROCESSED), beans, ATTR_ON_PROCESSED,
+      myTagListener = new AttributeEvaluator(context).evaluateObject(attributes.get(ATTR_ON_PROCESSED), beans, ATTR_ON_PROCESSED,
          TagListener.class, null);
 
       if (DEBUG)
@@ -322,5 +324,25 @@ public abstract class BaseTag implements Tag
     *    associated with the <code>Tag</code> was removed.
     */
    public abstract boolean process();
+
+   /**
+    * Returns the location of this tag, in the format <code>" at " + cellReference</code>,
+    * e.g. <code>" at Sheet2!C3"</code>.
+    * @return The location of this tag.
+    * @since 0.7.0
+    */
+   protected String getLocation()
+   {
+      TagContext context = getContext();
+      Block block = context.getBlock();
+      Sheet sheet = context.getSheet();
+      int left = block.getLeftColNum();
+      int top = block.getTopRowNum();
+      // It should exist in this Cell; this Tag was found in it.
+      Row row = sheet.getRow(top);
+      Cell cell = row.getCell(left);
+
+      return SheetUtil.getCellLocation(cell);
+   }
 }
 

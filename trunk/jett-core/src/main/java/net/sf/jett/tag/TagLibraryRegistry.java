@@ -8,6 +8,7 @@ import org.apache.poi.ss.usermodel.RichTextString;
 import net.sf.jett.exception.TagParseException;
 import net.sf.jett.model.WorkbookContext;
 import net.sf.jett.parser.TagParser;
+import net.sf.jett.util.SheetUtil;
 
 /**
  * A <code>TagLibraryRegistry</code> represents a registry for all
@@ -83,7 +84,8 @@ public class TagLibraryRegistry
       }
       catch (Exception e)
       {
-         throw new TagParseException("Unable to create tag " + namespace + ":" + tagName, e);
+         throw new TagParseException("Unable to create tag " + namespace + ":" + tagName +
+                 SheetUtil.getCellLocation(parser.getCell()), e);
       }
    }
 }
