@@ -463,7 +463,7 @@ public class ExcelTransformer
       List<String> newSheetNamesList, List<Map<String, Object>> beansList)
    {
       Map<String, Integer> firstReferencedSheets = new HashMap<String, Integer>();
-      List<MissingCloneSheetProperties> missingPropertiesList = new ArrayList<MissingCloneSheetProperties>();
+      final List<MissingCloneSheetProperties> missingPropertiesList = new ArrayList<MissingCloneSheetProperties>();
       if (DEBUG)
       {
          System.err.println("templateSheetNamesList.size()=" + templateSheetNamesList.size());
@@ -538,11 +538,6 @@ public class ExcelTransformer
                System.err.println("  After: Sheet(" + j + "): \"" + workbook.getSheetAt(j).getSheetName() + "\".");
          }
       }
-      // Replace the "missing" properties.
-      for (int i = 0; i < missingPropertiesList.size(); i++)
-      {
-         replaceMissingCloneSheetProperties(workbook.getSheetAt(i), missingPropertiesList.get(i));
-      }
 
       SheetTransformer sheetTransformer = new SheetTransformer();
       WorkbookContext context = createContext(workbook, sheetTransformer);
@@ -550,6 +545,18 @@ public class ExcelTransformer
          System.err.println("number of Sheets=" + workbook.getNumberOfSheets());
 
       int numItemsProcessed = 0;
+      SheetTransformer.AfterOffSheetProperties missingPropertiesSetter = new SheetTransformer.AfterOffSheetProperties() {
+         /**
+          * Apply the missing clone sheet properties.
+          * @param sheet The given <code>Sheet</code>.
+          * @since 0.7.0
+          */
+         public void applySettings(Sheet sheet)
+         {
+            replaceMissingCloneSheetProperties(sheet, missingPropertiesList.get(sheet.getWorkbook().getSheetIndex(sheet)));
+         }
+      };
+
       for (int i = 0; i < workbook.getNumberOfSheets(); i++)
       {
          // Allow extra sheets found to be left alone and untouched.
@@ -562,7 +569,7 @@ public class ExcelTransformer
             // collection names in expression text, which may vary from beans
             // map to beans map.
             Expression.clearExpressionToCollNamesMap();
-            sheetTransformer.transform(sheet, context, beans);
+            sheetTransformer.transform(sheet, context, beans, missingPropertiesSetter);
          }
          numItemsProcessed++;
       }
@@ -617,9 +624,11 @@ public class ExcelTransformer
    {
       PrintSetup ps = sheet.getPrintSetup();
 
+      // Missing properties for any case.
       sheet.setRepeatingColumns(mcsp.getRepeatingColumns());
       sheet.setRepeatingRows(mcsp.getRepeatingRows());
 
+      // Missing properties for XSSF only.
       if (sheet instanceof XSSFSheet)
       {
          ps.setCopies(mcsp.getCopies());
@@ -646,7 +655,7 @@ public class ExcelTransformer
     * @param transformer A <code>SheetTransformer</code>.
     * @return A <code>WorkbookContext</code>.
     */
-   private WorkbookContext createContext(Workbook workbook, SheetTransformer transformer)
+   public WorkbookContext createContext(Workbook workbook, SheetTransformer transformer)
    {
       WorkbookContext context = new WorkbookContext();
       context.setCellListeners(myCellListeners);

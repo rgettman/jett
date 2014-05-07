@@ -87,6 +87,7 @@ public class CollectionsTransformer
       String copyRight = null;
       String fixed = null;
       String pastEndAction = null;
+      String replacementValue = "";
       String groupDir = null;
       String collapse = null;
       String tagLoopListener = null;
@@ -115,6 +116,7 @@ public class CollectionsTransformer
          copyRight = parser.getCopyingRight();
          fixed = parser.getFixed();
          pastEndAction = parser.getPastEndAction();
+         replacementValue = parser.getReplacementValue();
          groupDir = parser.getGroupDir();
          collapse = parser.getCollapsingGroup();
          tagLoopListener = parser.getTagLoopListener();
@@ -237,6 +239,8 @@ public class CollectionsTransformer
          attributes.put(BaseLoopTag.ATTR_FIXED, helper.createRichTextString(fixed));
       if (pastEndAction != null)
          attributes.put(BaseLoopTag.ATTR_PAST_END_ACTION, helper.createRichTextString(pastEndAction));
+      if (replacementValue != null)
+         attributes.put(BaseLoopTag.ATTR_REPLACE_VALUE, helper.createRichTextString(replacementValue));
       if (groupDir != null)
          attributes.put(BaseLoopTag.ATTR_GROUP_DIR, helper.createRichTextString(groupDir));
       if (collapse != null)

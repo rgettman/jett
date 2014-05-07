@@ -30,6 +30,7 @@ import net.sf.jett.util.SheetUtil;
  * <li>copyRight (optional): <code>boolean</code></li>
  * <li>fixed (optional): <code>boolean</code></li>
  * <li>pastEndAction (optional): <code>String</code></li>
+ * <li>replaceValue (optional): <code>String</code></li>
  * <li>groupDir (optional): <code>String</code></li>
  * <li>collapse (optional): <code>boolean</code></li>
  * <li>onLoopProcessed (optional): <code>TagLoopListener</code></li>
@@ -55,6 +56,7 @@ public abstract class BaseLoopTag extends BaseTag
     * with content beyond the range of looping content.
     * @see #PAST_END_ACTION_CLEAR
     * @see #PAST_END_ACTION_REMOVE
+    * @see #PAST_END_ACTION_REPLACE_EXPR
     */
    public static final String ATTR_PAST_END_ACTION = "pastEndAction";
    /**
@@ -79,6 +81,16 @@ public abstract class BaseLoopTag extends BaseTag
     * @since 0.3.0
     */
    public static final String ATTR_ON_LOOP_PROCESSED = "onLoopProcessed";
+   /**
+    * Attribute for specifying a replacement value for expressions that
+    * reference a collection that is past the end of iteration.  This defaults
+    * to an empty string <code>""</code>, and is only relevant when the "past
+    * end action" is <code>replaceExpr</code>.
+    * @see #ATTR_PAST_END_ACTION
+    * @see #PAST_END_ACTION_REPLACE_EXPR
+    * @since 0.7.0
+    */
+   public static final String ATTR_REPLACE_VALUE = "replaceValue";
 
    /**
     * The "past end action" value to clear the content of cells.
@@ -89,6 +101,12 @@ public abstract class BaseLoopTag extends BaseTag
     * borders and formatting.
     */
    public static final String PAST_END_ACTION_REMOVE = "remove";
+   /**
+    * The "past end action" value to replace only the expressions that contain
+    * past-end references.
+    * @since 0.7.0
+    */
+   public static final String PAST_END_ACTION_REPLACE_EXPR = "replaceExpr";
 
    /**
     * The "group dir" value to specify that columns should be grouped.
@@ -109,11 +127,12 @@ public abstract class BaseLoopTag extends BaseTag
 
    private static final List<String> OPT_ATTRS =
       new ArrayList<String>(Arrays.asList(ATTR_COPY_RIGHT, ATTR_FIXED, ATTR_PAST_END_ACTION,
-         ATTR_GROUP_DIR, ATTR_COLLAPSE, ATTR_ON_LOOP_PROCESSED));
+         ATTR_REPLACE_VALUE, ATTR_GROUP_DIR, ATTR_COLLAPSE, ATTR_ON_LOOP_PROCESSED));
 
    private boolean amIExplicitlyCopyingRight = false;
    private boolean amIFixed = false;
    private PastEndAction myPastEndAction = PastEndAction.CLEAR_CELL;
+   private String myReplaceExprValue = "";
    private Block.Direction myGroupDir;
    private boolean amICollapsed;
    private TagLoopListener myTagLoopListener;
@@ -149,6 +168,20 @@ public abstract class BaseLoopTag extends BaseTag
    public void setPastEndAction(PastEndAction pae)
    {
       myPastEndAction = pae;
+   }
+
+   /**
+    * Sets the replacement expression value.  This defaults to an empty string
+    * <code>""</code>.  This is only relevant if a past end action of
+    * "replaceExpr" is used.
+    * @param value The replacement expression value.
+    * @see #setPastEndAction
+    * @see #PAST_END_ACTION_REPLACE_EXPR
+    * @since 0.7.0
+    */
+   public void setReplaceExprValue(String value)
+   {
+      myReplaceExprValue = value;
    }
 
    /**
@@ -225,11 +258,17 @@ public abstract class BaseLoopTag extends BaseTag
       amIFixed = eval.evaluateBoolean(attributes.get(ATTR_FIXED), beans, false);
 
       String strPastEndAction = eval.evaluateStringSpecificValues(attributes.get(ATTR_PAST_END_ACTION), beans,
-         ATTR_PAST_END_ACTION, Arrays.asList(PAST_END_ACTION_CLEAR, PAST_END_ACTION_REMOVE), PAST_END_ACTION_CLEAR);
+         ATTR_PAST_END_ACTION,
+         Arrays.asList(PAST_END_ACTION_CLEAR, PAST_END_ACTION_REMOVE, PAST_END_ACTION_REPLACE_EXPR),
+         PAST_END_ACTION_CLEAR);
       if (PAST_END_ACTION_CLEAR.equalsIgnoreCase(strPastEndAction))
          myPastEndAction = PastEndAction.CLEAR_CELL;
       else if (PAST_END_ACTION_REMOVE.equalsIgnoreCase(strPastEndAction))
          myPastEndAction = PastEndAction.REMOVE_CELL;
+      else if (PAST_END_ACTION_REPLACE_EXPR.equalsIgnoreCase(strPastEndAction))
+         myPastEndAction = PastEndAction.REPLACE_EXPR;
+
+      myReplaceExprValue = eval.evaluateString(attributes.get(ATTR_REPLACE_VALUE), beans, "");
 
       String strGroupDir = eval.evaluateStringSpecificValues(attributes.get(ATTR_GROUP_DIR), beans,
          ATTR_GROUP_DIR, Arrays.asList(GROUP_DIR_ROWS, GROUP_DIR_COLS, GROUP_DIR_NONE), GROUP_DIR_NONE);
@@ -259,13 +298,29 @@ public abstract class BaseLoopTag extends BaseTag
    }
 
    /**
+    * Returns the replacement expression value, which defaults to am empty
+    * string <code>""</code>.  This is only relevant if the past end action is
+    * "replaceExpr".
+    * @return The replacement expression value.
+    * @see #getPastEndAction
+    * @see #PAST_END_ACTION_REPLACE_EXPR
+    * @see #ATTR_REPLACE_VALUE
+    * @since 0.7.0
+    */
+   protected String getReplacementExprValue()
+   {
+      return myReplaceExprValue;
+   }
+
+   /**
     * <p>Provide a generic way to process a tag that loops, with the Template
     * Method pattern.</p>
     * <ol>
     * <li>Decide whether content needs to be shifted out of the way, and shift
     * the content out of the way if necessary.  This involves calling
     * <code>getCollectionNames()</code> to determine if any of the collection
-    * names are "fixed".</li>
+    * names are "fixed".  This also involves calling <code>getVarNames()</code>
+    * to determine which, if any, past end actions, need to be taken.</li>
     * <li>Call <code>getNumIterations</code> to determine the number of Blocks
     * needed.</li>
     * <li>Copy the Block the needed number of times.</li>
@@ -284,6 +339,7 @@ public abstract class BaseLoopTag extends BaseTag
     * @return Whether the first <code>Cell</code> in the <code>Block</code>
     *    associated with this <code>Tag</code> was processed.
     * @see #getCollectionNames
+    * @see #getVarNames
     * @see #getNumIterations
     * @see #getLoopIterator
     * @see #beforeBlockProcessed
@@ -292,6 +348,7 @@ public abstract class BaseLoopTag extends BaseTag
    public boolean process()
    {
       TagContext context = getContext();
+      Block block = context.getBlock();
       WorkbookContext workbookContext = getWorkbookContext();
       // Important for formulas, so different cell reference map entries from
       // different loops can be distinguished.
@@ -333,6 +390,7 @@ public abstract class BaseLoopTag extends BaseTag
       }
 
       int numIterations = getNumIterations();
+      List<String> varNames = getVarNames();
       if (DEBUG)
          System.err.println("BaseLoopTag: numIterations=" + numIterations);
       if (numIterations == 0)
@@ -348,6 +406,12 @@ public abstract class BaseLoopTag extends BaseTag
             case REMOVE_CELL:
                deleteBlock();
                break;
+            case REPLACE_EXPR:
+               SheetUtil.takePastEndAction(sheet, block, varNames, myPastEndAction, myReplaceExprValue);
+               block.collapse();
+               break;
+            default:
+               throw new IllegalStateException("BaseLoopTag: Unknown PastEndAction: " + myPastEndAction);
             }
          }
          else
@@ -395,6 +459,11 @@ public abstract class BaseLoopTag extends BaseTag
                case REMOVE_CELL:
                   SheetUtil.deleteBlock(sheet, currBlock, getWorkbookContext());
                   break;
+               case REPLACE_EXPR:
+                  SheetUtil.takePastEndAction(sheet, currBlock, varNames, myPastEndAction, myReplaceExprValue);
+                  break;
+               default:
+                  throw new IllegalStateException("BaseLoopTag: Unknown PastEndAction: " + myPastEndAction);
                }
             }
 
@@ -449,7 +518,6 @@ public abstract class BaseLoopTag extends BaseTag
          }
 
          // Expand the tag block.
-         Block block = context.getBlock();
          block.expand(maxRight - block.getRightColNum(), maxBottom - block.getBottomRowNum());
 
          // Grouping - only if there was at least one item to process.
@@ -542,6 +610,15 @@ public abstract class BaseLoopTag extends BaseTag
     *    not operating on any <code>Collections</code>.
     */
    protected abstract List<String> getCollectionNames();
+
+   /**
+    * Returns the names of the variables that are being used in this
+    * <code>BaseLoopTag</code>.
+    * @return A <code>List</code> of variable names, or <code>null</code> if
+    *    there are not any variable names into any <code>Collections</code>.
+    * @since 0.7.0
+    */
+   protected abstract List<String> getVarNames();
 
    /**
     * Returns the number of iterations.

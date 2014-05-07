@@ -191,8 +191,24 @@ public class ImplCollProcessingTest extends TestCase
       Cell cPaeRemove = TestUtility.getCell(paeRemove, 6, 2);
       assertNull(cPaeRemove);
 
+      Sheet paeReplaceValue = workbook.getSheetAt(7);
+      assertEquals("Globetrotters of Harlem", TestUtility.getStringCellValue(paeReplaceValue, 2, 0));
+      assertEquals(21227, TestUtility.getNumericCellValue(paeReplaceValue, 2, 1), DELTA);
+      for (int r = 3; r < 7; r++)
+      {
+         assertEquals("- of -", TestUtility.getStringCellValue(paeReplaceValue, r, 0));
+         assertEquals("-", TestUtility.getStringCellValue(paeReplaceValue, r, 1));
+         assertEquals("-", TestUtility.getStringCellValue(paeReplaceValue, r, 2));
+         assertEquals("-", TestUtility.getStringCellValue(paeReplaceValue, r, 3));
+
+         assertEquals("c0c0c0", TestUtility.getCellForegroundColorString(paeReplaceValue, r, 0));
+      }
+      assertEquals("Lakers of Los Angeles", TestUtility.getStringCellValue(paeReplaceValue, 2, 4));
+      assertEquals(36, TestUtility.getNumericCellValue(paeReplaceValue, 3, 5), DELTA);
+      assertEquals((20.0) / (20.0 + 52.0), TestUtility.getNumericCellValue(paeReplaceValue, 6, 7), DELTA);
+      
       // Cannot test for grouping but can test for the collapse side effect.
-      Sheet groupDirNone = workbook.getSheetAt(7);
+      Sheet groupDirNone = workbook.getSheetAt(8);
       for (int r = 0; r < 48; r++)
       {
          assertFalse(groupDirNone.getRow(r) != null && groupDirNone.getRow(r).getZeroHeight());
@@ -202,7 +218,7 @@ public class ImplCollProcessingTest extends TestCase
          assertFalse(groupDirNone.isColumnHidden(c));
       }
 
-      Sheet groupDirRows = workbook.getSheetAt(8);
+      Sheet groupDirRows = workbook.getSheetAt(9);
       for (int r = 0; r < 48; r++)
       {
          // These rows are collapsed.
@@ -220,7 +236,7 @@ public class ImplCollProcessingTest extends TestCase
          assertFalse(groupDirRows.isColumnHidden(c));
       }
 
-      Sheet groupDirCols = workbook.getSheetAt(9);
+      Sheet groupDirCols = workbook.getSheetAt(10);
       for (int r = 0; r < 8; r++)
       {
          assertFalse(groupDirCols.getRow(r) != null && groupDirCols.getRow(r).getZeroHeight());
@@ -238,7 +254,7 @@ public class ImplCollProcessingTest extends TestCase
          }
       }
 
-      Sheet indexVar = workbook.getSheetAt(10);
+      Sheet indexVar = workbook.getSheetAt(11);
       assertEquals("1. Boston", TestUtility.getStringCellValue(indexVar, 2, 0));
       assertEquals("5. Toronto", TestUtility.getStringCellValue(indexVar, 6, 0));
       assertEquals("2. Indiana", TestUtility.getStringCellValue(indexVar, 10, 0));
@@ -249,7 +265,7 @@ public class ImplCollProcessingTest extends TestCase
       assertEquals("5. Houston", TestUtility.getStringCellValue(indexVar, 41, 0));
       assertEquals("1. Harlem", TestUtility.getStringCellValue(indexVar, 46, 0));
 
-      Sheet limit = workbook.getSheetAt(11);
+      Sheet limit = workbook.getSheetAt(12);
       assertEquals("Boston", TestUtility.getStringCellValue(limit, 2, 0));
       assertEquals("New York", TestUtility.getStringCellValue(limit, 4, 0));
       assertEquals("Division: Central", TestUtility.getStringCellValue(limit, 5, 0));
@@ -263,7 +279,7 @@ public class ImplCollProcessingTest extends TestCase
       assertTrue(TestUtility.isCellBlank(limit, 39, 0));
 
       // Test replacing collection name, but not as part of a large identifier.
-      Sheet collNameReplace = workbook.getSheetAt(12);
+      Sheet collNameReplace = workbook.getSheetAt(13);
       assertEquals("Radiator Springs", TestUtility.getStringCellValue(collNameReplace, 2, 4));
       assertEquals("Springfield", TestUtility.getStringCellValue(collNameReplace, 13, 4));
       assertTrue(TestUtility.isCellBlank(collNameReplace, 14, 4));

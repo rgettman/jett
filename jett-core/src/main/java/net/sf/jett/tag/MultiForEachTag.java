@@ -259,11 +259,22 @@ public class MultiForEachTag extends BaseLoopTag
    /**
     * Returns the names of the <code>Collections</code> that are being used in
     * this <code>MultiForEachTag</code>.
-    * @return A <code>List</code> of one collection name.
+    * @return A <code>List</code> of multiple collection names.
     */
    protected List<String> getCollectionNames()
    {
       return myCollectionNames;
+   }
+
+   /**
+    * Returns the names of the variables that are being used in this
+    * <code>MultiForEachTag</code>.
+    * @return A <code>List</code> of variable names.
+    * @since 0.7.0
+    */
+   protected List<String> getVarNames()
+   {
+      return myVarNames;
    }
 
    /**
@@ -327,7 +338,7 @@ public class MultiForEachTag extends BaseLoopTag
       // If not past the "collection" size, but a Collection is exhausted, then
       // take "past end actions" on individual Cells in tbe Block.
       if (index < getCollectionSize())
-         SheetUtil.takePastEndAction(context.getSheet(), currBlock, pastEndRefs, getPastEndAction());
+         SheetUtil.takePastEndAction(context.getSheet(), currBlock, pastEndRefs, getPastEndAction(), getReplacementExprValue());
 
       // Optional index counter variable.
       if (myIndexVarName != null && myIndexVarName.length() > 0)

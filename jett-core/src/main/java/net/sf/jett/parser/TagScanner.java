@@ -103,9 +103,16 @@ public class TagScanner
                    myTagText.charAt(iStartOfToken + iTokenLength) != '"')
             {
                // Include escaped characters.
+
+               // \' -> '
+               // \n -> (new line)
+               // \t => (tab)
+               // \r -> (carriage return)
+               // \b -> (backspace)
+               // \f -> (form feed)
                if (myTagText.charAt(iStartOfToken + iTokenLength) == '\\' &&
                    (iStartOfToken + iTokenLength + 1) < myTagText.length() &&
-                   ("\"\\".indexOf(myTagText.charAt(iStartOfToken + iTokenLength + 1)) >= 0))
+                   ("\"\\'ntrbf".indexOf(myTagText.charAt(iStartOfToken + iTokenLength + 1)) >= 0))
                {
                   iTokenLength += 2;
                }

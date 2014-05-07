@@ -230,6 +230,17 @@ public class ForEachTag extends BaseLoopTag
    }
 
    /**
+    * Returns the name of the variable that is being used in this
+    * <code>ForEachTag</code>.
+    * @return A <code>List</code> of one variable name.
+    * @since 0.7.0
+    */
+   protected List<String> getVarNames()
+   {
+      return Arrays.asList(myVarName);
+   }
+
+   /**
     * Returns the number of iterations.
     * @return The number of iterations.
     */

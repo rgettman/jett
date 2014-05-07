@@ -1,25 +1,30 @@
 package net.sf.jett.util;
 
+import java.util.ArrayList;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Color;
+//import org.apache.poi.ss.usermodel.ConditionalFormatting;
+//import org.apache.poi.ss.usermodel.ConditionalFormattingRule;
 import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
+//import org.apache.poi.ss.usermodel.SheetConditionalFormatting;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellReference;
@@ -28,6 +33,7 @@ import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 
+import net.sf.jett.expression.Expression;
 import net.sf.jett.formula.Formula;
 import net.sf.jett.model.Block;
 import net.sf.jett.model.ExcelColor;
@@ -49,6 +55,9 @@ public class SheetUtil
    private static final double MIN_NORMAL = Double.longBitsToDouble(0x0010000000000000L);
    private static final BigDecimal BD_MIN_DOUBLE = new BigDecimal(MIN_NORMAL);
    private static final BigInteger BI_MAX_DOUBLE = BD_MAX_DOUBLE.toBigInteger();
+
+   // Won't catch when begins with a number; test for it when used.
+   private static final Pattern POSSIBLE_VARIABLES = Pattern.compile("[A-Za-z0-9_]+");
 
    /**
     * Copy only the column widths in the given range of column indexes left by
@@ -249,6 +258,8 @@ public class SheetUtil
       }
 
       shiftMergedRegionsInRange(sheet, colStart, colEnd, rowStart, rowEnd, -numCols, 0, true, true);
+      //shiftConditionalFormattingRegionsInRange(sheet, colStart, colEnd,
+      //         rowStart, rowEnd, -numCols, 0);
    }
 
    /**
@@ -301,6 +312,8 @@ public class SheetUtil
       }
 
       shiftMergedRegionsInRange(sheet, colStart, colEnd, rowStart, rowEnd, numCols, 0, true, true);
+      //shiftConditionalFormattingRegionsInRange(sheet, colStart, colEnd,
+      //         rowStart, rowEnd, numCols, 0);
    }
 
    /**
@@ -358,6 +371,8 @@ public class SheetUtil
       }
 
       shiftMergedRegionsInRange(sheet, colStart, colEnd, rowStart, rowEnd, 0, -numRows, true, true);
+      //shiftConditionalFormattingRegionsInRange(sheet, colStart, colEnd,
+      //         rowStart, rowEnd, 0, -numRows);
    }
 
    /**
@@ -409,6 +424,8 @@ public class SheetUtil
       }
 
       shiftMergedRegionsInRange(sheet, colStart, colEnd, rowStart, rowEnd, 0, numRows, true, true);
+      //shiftConditionalFormattingRegionsInRange(sheet, colStart, colEnd,
+      //         rowStart, rowEnd, 0, numRows);
    }
 
    /**
@@ -712,6 +729,243 @@ public class SheetUtil
       }
    }
 
+   // TODO: Decide whether to even do this in this build.
+
+//   /**
+//    * Removes all conditional formatting regions found in the given range.
+//    * @param sheet The <code>Sheet</code> on which to remove conditional
+//    *    formatting regions.
+//    * @param left The 0-based index of the column on which to start removing
+//    *    conditional formatting regions.
+//    * @param right The 0-based index of the column on which to end removing
+//    *    conditional formatting regions.
+//    * @param top The 0-based index of the row on which to start removing
+//    *    conditional formatting regions.
+//    * @param bottom The 0-based index of the row on which to end removing
+//    *    conditional formatting regions.
+//    * @since 0.7.0
+//    */
+//   private static void removeConditionalFormattingRegionsInRange(Sheet sheet,
+//      int left, int right, int top, int bottom)
+//   {
+//      if (DEBUG)
+//         System.err.println("    rCFRIR: left " + left + ", right " + right +
+//            ", top " + top + ", bottom " + bottom);
+//
+//      SheetConditionalFormatting scf = sheet.getSheetConditionalFormatting();
+//      int numConditionalFormattings = scf.getNumConditionalFormattings();
+//      for (int i = 0; i < numConditionalFormattings; i++)
+//      {
+//         ConditionalFormatting cf = scf.getConditionalFormattingAt(i);
+//         CellRangeAddress[] regions = cf.getFormattingRanges();
+//         boolean[] keep = new boolean[regions.length];
+//         int numToKeep = 0;
+//         for (int j = 0; j < regions.length; j++)
+//         {
+//            CellRangeAddress region = regions[j];
+//            if (!isCellAddressWhollyContained(region, left, right, top, bottom))
+//            {
+//               keep[j] = true;
+//               numToKeep++;
+//            }
+//            if (DEBUG)
+//            {
+//               if (!keep[j])
+//               {
+//                  System.err.println("      Removing Conditional Formatting at region: " + region);
+//               }
+//            }
+//         }
+//
+//         if (numToKeep < regions.length)
+//         {
+//            ConditionalFormattingRule[] rules = null;
+//            CellRangeAddress[] newRegions = null;
+//
+//            // Only bother to extract the current data if we are keeping at
+//            // least one CellRangeAddress.
+//            if (numToKeep > 0)
+//            {
+//               int numRules = cf.getNumberOfRules();
+//               rules = new ConditionalFormattingRule[numRules];
+//               for (int r = 0; r < numRules; r++)
+//               {
+//                  rules[r] = cf.getRule(r);
+//               }
+//
+//               newRegions = new CellRangeAddress[numToKeep];
+//               int idx = 0;
+//               for (int j = 0; j < regions.length; j++)
+//               {
+//                  if (keep[j])
+//                  {
+//                     newRegions[idx++] = regions[j];
+//                  }
+//               }
+//            }
+//
+//            // Either way, remove the current one.
+//            scf.removeConditionalFormatting(i);
+//            // Only if we need to keep at least one region.
+//            if (numToKeep > 0)
+//            {
+//               scf.addConditionalFormatting(newRegions, rules);
+//            }
+//
+//            // Either way, one less to look at.
+//            numConditionalFormattings--;
+//            // Look at current index again next loop.
+//            i--;
+//         }
+//         // else no action to take.
+//      }  // end for loop over ConditionalFormattings
+//   }
+//
+//   /**
+//    * Shifts all conditional formatting regions found in the given range by the
+//    * given number of rows and columns (usually one of those two will be zero).
+//    * @param sheet The <code>Sheet</code> on which to shift conditional
+//    *    formatting regions.
+//    * @param left The 0-based index of the column on which to start shifting
+//    *    conditional formatting regions.
+//    * @param right The 0-based index of the column on which to end shifting
+//    *    conditional formatting regions.
+//    * @param top The 0-based index of the row on which to start shifting
+//    *    conditional formatting regions.
+//    * @param bottom The 0-based index of the row on which to end shifting
+//    *    conditional formatting regions.
+//    * @param numCols The number of columns to shift the conditional formatting
+//    *    region (can be negative).
+//    * @param numRows The number of rows to shift the conditional formatting
+//    *    region (can be negative).
+//    * @since 0.7.0
+//    */
+//   private static void shiftConditionalFormattingRegionsInRange(Sheet sheet,
+//      int left, int right, int top, int bottom, int numCols, int numRows)
+//   {
+//      if (DEBUG)
+//         System.err.println("    sCFRIR: left " + left + ", right " + right +
+//            ", top " + top + ", bottom " + bottom + ", numCols " + numCols +
+//            ", numRows " + numRows);
+//      if (numCols == 0 && numRows == 0)
+//         return;
+//
+//      SheetConditionalFormatting scf = sheet.getSheetConditionalFormatting();
+//      for (int i = 0; i < scf.getNumConditionalFormattings(); i++)
+//      {
+//         ConditionalFormatting cf = scf.getConditionalFormattingAt(i);
+//         CellRangeAddress[] regions = cf.getFormattingRanges();
+//         for (int j = 0; j < regions.length; j++)
+//         {
+//            CellRangeAddress region = regions[j];
+//            if (isCellAddressWhollyContained(region, left, right, top, bottom))
+//            {
+//               // Replace the region in the existing array with a new, shifted
+//               // region.
+//               int firstCol = region.getFirstColumn() + numCols;
+//               int firstRow = region.getFirstRow() + numRows;
+//               int lastCol = region.getLastColumn() + numCols;
+//               int lastRow = region.getLastRow() + numRows;
+//               CellRangeAddress shifted = new CellRangeAddress(
+//                   firstRow, lastRow, firstCol, lastCol);
+//
+//               if (DEBUG)
+//               {
+//                  System.err.println("      Shifting Conditional Formatting at region: " + region + " to: " + shifted);
+//               }
+//
+//               regions[j] = shifted;
+//            }
+//         }
+//      }
+//   }
+//
+//   /**
+//    * Copies all conditional formatting regions found in the given range by the
+//    * given number of rows and columns (usually one of those two will be zero).
+//    * @param sheet The <code>Sheet</code> on which to copy conditional
+//    *    formatting regions.
+//    * @param left The 0-based index of the column on which to start copying
+//    *    conditional formatting regions.
+//    * @param right The 0-based index of the column on which to end copying
+//    *    conditional formatting regions.
+//    * @param top The 0-based index of the row on which to start copying
+//    *    conditional formatting regions.
+//    * @param bottom The 0-based index of the row on which to end copying
+//    *    conditional formatting regions.
+//    * @param numCols The number of columns to copy the conditional formatting
+//    *    region (can be negative).
+//    * @param numRows The number of rows to copy the conditional formatting
+//    *    region (can be negative).
+//    * @since 0.7.0
+//    */
+//   private static void copyConditionalFormattingRegionsInRange(Sheet sheet,
+//      int left, int right, int top, int bottom, int numCols, int numRows)
+//   {
+//      if (DEBUG)
+//         System.err.println("    cCFRIR: left " + left + ", right " + right +
+//            ", top " + top + ", bottom " + bottom + ", numCols " + numCols +
+//            ", numRows " + numRows);
+//      if (numCols == 0 && numRows == 0)
+//         return;
+//
+//      SheetConditionalFormatting scf = sheet.getSheetConditionalFormatting();
+//      int numConditionalFormattings = scf.getNumConditionalFormattings();
+//      for (int i = 0; i < numConditionalFormattings; i++)
+//      {
+//         ConditionalFormatting cf = scf.getConditionalFormattingAt(i);
+//         CellRangeAddress[] regions = cf.getFormattingRanges();
+//         List<CellRangeAddress> newRegionsList = new ArrayList<CellRangeAddress>();
+//         for (CellRangeAddress region : regions)
+//         {
+//            if (isCellAddressWhollyContained(region, left, right, top, bottom))
+//            {
+//               // Replace the region in the existing array with a new, shifted
+//               // region.
+//               int firstCol = region.getFirstColumn() + numCols;
+//               int firstRow = region.getFirstRow() + numRows;
+//               int lastCol = region.getLastColumn() + numCols;
+//               int lastRow = region.getLastRow() + numRows;
+//               CellRangeAddress copy = new CellRangeAddress(
+//                   firstRow, lastRow, firstCol, lastCol);
+//
+//               newRegionsList.add(copy);
+//
+//               if (DEBUG)
+//               {
+//                  System.err.println("      Copying Conditional Formatting at region: " + region + " to " + copy);
+//               }
+//            }
+//         }
+//
+//         // Only remove/add with more regions if any copies were made.
+//         if (newRegionsList.size() > 0)
+//         {
+//            int numRules = cf.getNumberOfRules();
+//            ConditionalFormattingRule[] rules = new ConditionalFormattingRule[numRules];
+//            for (int r = 0; r < numRules; r++)
+//            {
+//               rules[r] = cf.getRule(r);
+//            }
+//
+//            CellRangeAddress[] newRegions = new CellRangeAddress[regions.length + newRegionsList.size()];
+//            System.arraycopy(regions, 0, newRegions, 0, regions.length);
+//            System.arraycopy(newRegionsList.toArray(new CellRangeAddress[newRegionsList.size()]),
+//                    0, newRegions, regions.length, newRegionsList.size());
+//
+//            scf.removeConditionalFormatting(i);
+//            scf.addConditionalFormatting(newRegions, rules);
+//
+//            // Don't need to look at this one again at the end of the loop.
+//            numConditionalFormattings--;
+//            // Look at current index again next loop.
+//            i--;
+//         }
+//      }
+//   }
+
+   // TODO: End of Decide whether to even do this in this build.
+
    /**
     * Determines whether the given <code>CellRangeAddress</code>, representing
     * a merged region, is wholly contained in the given area of
@@ -769,6 +1023,8 @@ public class SheetUtil
       }
       // Remove any merged regions in this Block.
       shiftMergedRegionsInRange(sheet, left, right, top, bottom, 0, 0, true, false);
+      // Remove any conditional formatting regions in this Block.
+      //removeConditionalFormattingRegionsInRange(sheet, left, right, top, bottom);
       // Lose the current cell references.
       FormulaUtil.shiftCellReferencesInRange(sheet.getSheetName(), context.getCellRefMap(),
          left, right, top, bottom,
@@ -825,15 +1081,22 @@ public class SheetUtil
     * @param pastEndAction An enumerated value representing the action to take
     *    on such a cell/expression that references collection access beyond the
     *    end of the collection.
+    * @param replacementValue If the past end action is to replace expressions,
+    *    then this is the value with which to replace those expressions, else
+    *    this is ignored.
     * @see PastEndAction
     */
    public static void takePastEndAction(Sheet sheet, Block block, List<String> pastEndRefs,
-      PastEndAction pastEndAction)
+      PastEndAction pastEndAction, String replacementValue)
    {
       int left = block.getLeftColNum();
       int right = block.getRightColNum();
       int top = block.getTopRowNum();
       int bottom = block.getBottomRowNum();
+      // No past end refs, no past end actions to take.
+      if (pastEndRefs == null || pastEndRefs.size() == 0)
+         return;
+
       if (DEBUG)
       {
          System.err.println("takePastEndAction: " + block + ", action " + pastEndAction + ".");
@@ -850,7 +1113,7 @@ public class SheetUtil
             {
                Cell c = r.getCell(cellNum);
                if (c != null)
-                  takePastEndActionOnCell(c, pastEndRefs, pastEndAction);
+                  takePastEndActionOnCell(c, pastEndRefs, pastEndAction, replacementValue);
             }
          }
       }
@@ -864,9 +1127,12 @@ public class SheetUtil
     *    expressions represent collection access beyond the end of the
     *    collection.
     * @param pastEndAction The <code>PastEndAction</code> to take.
+    * @param replacementValue If the past end action is to replace expressions,
+    *    then this is the value with which to replace those expressions, else
+    *    this is ignored.
     */
    private static void takePastEndActionOnCell(Cell cell, List<String> pastEndRefs,
-      PastEndAction pastEndAction)
+      PastEndAction pastEndAction, String replacementValue)
    {
       String strValue;
       boolean takeAction = false;
@@ -891,6 +1157,63 @@ public class SheetUtil
             break;
          case REMOVE_CELL:
             removeCell(cell.getRow(), cell);
+            break;
+         case REPLACE_EXPR:
+            // Force any expressions containing collection references beyond
+            // the end of the collection to "evaluate" to null.  (They're removed.)
+            if (cell.getCellType() == Cell.CELL_TYPE_STRING)
+            {
+               CreationHelper helper = cell.getSheet().getWorkbook().getCreationHelper();
+               RichTextString rts = cell.getRichStringCellValue();
+               String cellText = rts.getString();
+               int exprBegin = cellText.indexOf(Expression.BEGIN_EXPR);
+               int exprEnd = cellText.indexOf(Expression.END_EXPR);
+               if (DEBUG)
+                  System.err.println("  SU.tPEAOC: exprBegin = " + exprBegin + ", exprEnd = " + exprEnd);
+
+               while (exprBegin != -1 && exprEnd != -1 && exprEnd > exprBegin)
+               {
+                  String expression = cellText.substring(exprBegin + Expression.BEGIN_EXPR.length(), exprEnd - 1 + Expression.END_EXPR.length());
+                  boolean nullExpr = false;
+                  Matcher m = POSSIBLE_VARIABLES.matcher(expression);
+                  while (m.find())
+                  {
+                     String possibleVariable = m.group();
+                     if (DEBUG)
+                        System.err.println("    Found " + possibleVariable);
+                     // Pattern doesn't eliminate possible variables that start
+                     // with a digit.  Check here.
+                     if (!Character.isDigit(possibleVariable.charAt(0)) && pastEndRefs.contains(possibleVariable))
+                     {
+                        if (DEBUG)
+                           System.err.println("    It's a past end ref!");
+                        nullExpr = true;
+                        break;
+                     }
+                  }
+
+                  if (nullExpr)
+                  {
+                     String remove = cellText.substring(exprBegin, exprEnd + Expression.END_EXPR.length());
+                     if (DEBUG)
+                        System.err.println("    removing \"" + remove + "\".");
+                     rts = RichTextStringUtil.replaceAll(rts, helper, remove, replacementValue);
+                     cell.setCellValue(rts);
+                     cellText = rts.getString();
+                     if (DEBUG)
+                        System.err.println("    cellText is now \"" + cellText + "\".");
+                     exprBegin = cellText.indexOf(Expression.BEGIN_EXPR, exprBegin);
+                  }
+                  else
+                  {
+                     exprBegin = cellText.indexOf(Expression.BEGIN_EXPR, exprEnd + 1);
+                  }
+                  exprEnd = cellText.indexOf(Expression.END_EXPR, exprBegin);
+
+                  if (DEBUG)
+                     System.err.println("  SU.tPEAOC: exprBegin = " + exprBegin + ", exprEnd = " + exprEnd);
+               }
+            }
             break;
          default:
             throw new IllegalStateException("Unknown PastEndAction: " + pastEndAction);
@@ -1474,6 +1797,9 @@ public class SheetUtil
             // Copy merged regions down.
             shiftMergedRegionsInRange(sheet, left, right,
                top, bottom, 0, translateDown, false, true);
+            // Copy conditional formatting regions down.
+            //copyConditionalFormattingRegionsInRange(sheet, left, right,
+            //   top, bottom, 0, translateDown);
             copyRowHeightsDown(sheet, top, bottom, translateDown);
             newBlock = new Block(parent, left, right, newTop, newBottom);
             newBlock.setDirection(block.getDirection());
@@ -1547,6 +1873,9 @@ public class SheetUtil
          {
             // Copy merged regions right.
             shiftMergedRegionsInRange(sheet, left, right, top, bottom, translateRight, 0, false, true);
+            // Copy conditional formatting regions down.
+            //copyConditionalFormattingRegionsInRange(sheet, left, right,
+            //   top, bottom, translateRight, 0);
             copyColumnWidthsRight(sheet, left, right, translateRight);
             newBlock = new Block(parent, newLeft, newRight, top, bottom);
             newBlock.setDirection(block.getDirection());
