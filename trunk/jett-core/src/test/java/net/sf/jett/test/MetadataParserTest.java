@@ -357,4 +357,19 @@ public class MetadataParserTest
 
       assertEquals("10", parser.getLimit());
    }
+
+   /**
+    * Tests the replacement value.
+    * @since 0.7.0
+    */
+   @Test
+   public void testReplacementValue()
+   {
+      String metadata = "pastEndAction=replaceExpr;replaceValue=\"-\"";
+
+      MetadataParser parser = new MetadataParser(metadata);
+      parser.parse();
+
+      assertEquals("-", parser.getReplacementValue());
+   }
 }

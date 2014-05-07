@@ -1,5 +1,6 @@
 package net.sf.jett.parser;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -202,11 +203,14 @@ public class TagParser
                CreationHelper helper = myCell.getSheet().getWorkbook().getCreationHelper();
                RichTextString attrValue = RichTextStringUtil.substring(myCellRichTextString,
                   helper, pos - scanner.getCurrLexeme().length(), pos);
-               // Perform escape-sequence replacement
-               // \" => "
-               attrValue = RichTextStringUtil.replaceAll(attrValue, helper, "\\\"", "\"");
-               // \\ => \
-               attrValue = RichTextStringUtil.replaceAll(attrValue, helper, "\\\\", "\\");
+               // Replace all tabs, carriage returns, linefeeds with spaces.
+               attrValue = RichTextStringUtil.replaceValues(attrValue, helper,
+                  Arrays.asList("\n", "\r", "\t"),
+                  Arrays.asList(" " , " " , " " ));
+               // Perform escape-sequence replacement.
+               //attrValue = RichTextStringUtil.replaceAll(attrValue, helper, "\\\"", "\"");
+               //attrValue = RichTextStringUtil.replaceAll(attrValue, helper, "\\\\", "\\");
+               attrValue = RichTextStringUtil.performEscaping(attrValue, helper);
                myAttributes.put(attrName, attrValue);
                attrName = null;
             }

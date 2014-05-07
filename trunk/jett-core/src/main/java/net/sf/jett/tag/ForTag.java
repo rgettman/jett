@@ -132,6 +132,17 @@ public class ForTag extends BaseLoopTag
    }
 
    /**
+    * Returns the variable names of the <code>Collections</code> that are being used in
+    * this <code>ForTag</code>.
+    * @return <code>null</code>, no variables are being used for any collections.
+    * @since 0.7.0
+    */
+   protected List<String> getVarNames()
+   {
+      return null;
+   }
+
+   /**
     * Returns the number of iterations.  Note that this effectively disables
     * the "limit" attribute for <code>ForTags</code>.
     * @return The number of iterations.

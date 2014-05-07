@@ -42,6 +42,15 @@ public class MetadataParser
     */
    public static final String VAR_NAME_PAST_END_ACTION = "pastEndAction";
    /**
+    * Metadata variable name specifying the value with which to replace any
+    * expression that refers to a <code>Collection</code> that is exhausted
+    * before the end of iteration.  This defaults to an empty string
+    * <code>""</code>.  This is only relevant if the past end action is to
+    * replace expressions.
+    * @since 0.7.0
+    */
+   public static final String VAR_NAME_REPLACE_VALUE = "replaceValue";
+   /**
     * Metadata variable name specifying to create an Excel grouping for rows,
     * columns, or no grouping.
     * @since 0.2.0
@@ -93,6 +102,7 @@ public class MetadataParser
    private String myCopyingRight;
    private String myFixed;
    private String myPastEndActionValue;
+   private String myReplacementValue;
    private String myGroupDir;
    private String myCollapsingGroup;
    private String myTagLoopListener;
@@ -152,6 +162,7 @@ public class MetadataParser
       myCopyingRight = null;
       myFixed = null;
       myPastEndActionValue = null;
+      myReplacementValue = "";  // default to empty string
       myGroupDir = null;
       myCollapsingGroup = null;
       myTagLoopListener = null;
@@ -211,6 +222,10 @@ public class MetadataParser
                else if (VAR_NAME_PAST_END_ACTION.equals(varName))
                {
                   myPastEndActionValue = lexeme;
+               }
+               else if (VAR_NAME_REPLACE_VALUE.equals(varName))
+               {
+                  myReplacementValue = lexeme;
                }
                else if (VAR_NAME_GROUP_DIR.equals(varName))
                {
@@ -339,6 +354,19 @@ public class MetadataParser
    public String getPastEndAction()
    {
       return myPastEndActionValue;
+   }
+
+   /**
+    * Returns the replacement value, which is used to replace expressions that
+    * have been exhaused prior to the end of iteration, if the past end action
+    * is to replace expressions.
+    * @return The replacement value, which defaults to an empty string
+    *    <code>""</code>.
+    * @since 0.7.0
+    */
+   public String getReplacementValue()
+   {
+      return myReplacementValue;
    }
 
    /**

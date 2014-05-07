@@ -5,9 +5,13 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Footer;
+import org.apache.poi.ss.usermodel.Header;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 
+import net.sf.jett.expression.Expression;
 import net.sf.jett.formula.Formula;
 import net.sf.jett.model.Block;
 import net.sf.jett.model.WorkbookContext;
@@ -32,6 +36,23 @@ public class SheetTransformer
    private static final boolean DEBUG = false;
 
    /**
+    * Specifies a callback interface that is called after all off-sheet
+    * properties are set.  This is only necesary so the
+    * <code>ExcelTransformer</code> can safely apply these off-sheet properties
+    * that XSSF doesn't retain after the sheet name is changed.
+    * @since 0.7.0
+    */
+   public static interface AfterOffSheetProperties
+   {
+      /**
+       * Apply settings to the given <code>Sheet</code> after all off-sheet
+       * properties have been transformed.
+       * @param sheet The given <code>Sheet</code>.
+       */
+      public void applySettings(Sheet sheet);
+   }
+
+   /**
     * Transforms the given <code>Sheet</code>, using the given <code>Map</code>
     * of bean names to bean objects.
     * @param sheet The <code>Sheet</code> to transform.
@@ -40,7 +61,29 @@ public class SheetTransformer
     */
    public void transform(Sheet sheet, WorkbookContext context, Map<String, Object> beans)
    {
+      transform(sheet, context, beans, null);
+   }
+
+   /**
+    * Transforms the given <code>Sheet</code>, using the given <code>Map</code>
+    * of bean names to bean objects.
+    * @param sheet The <code>Sheet</code> to transform.
+    * @param context The <code>WorkbookContext</code>.
+    * @param beans The beans map.
+    * @param callback An optional <code>AfterOffSheetProperties</code>.  This
+    *    is only present so the <code>ExcelTransformer</code>, as the caller of
+    *    this method, can safely apply certain off-sheet properties that XSSF
+    *    doesn't retain after the sheet name is changed.
+    * @since 0.7.0
+    */
+   public void transform(Sheet sheet, WorkbookContext context, Map<String, Object> beans, AfterOffSheetProperties callback)
+   {
       exposeSheet(beans, sheet);
+
+      transformOffSheetProperties(sheet, beans);
+
+      if (callback != null)
+         callback.applySettings(sheet);
 
       // Create a Block to encompass the entire sheet of Cells.
       // Create a Block as if there was a start tag at the beginning of the
@@ -67,6 +110,47 @@ public class SheetTransformer
       tagContext.setProcessedCellsMap(new HashMap<String, Cell>());
       BlockTransformer transformer = new BlockTransformer();
       transformer.transform(tagContext, context);
+   }
+
+   /**
+    * Transform any expressions in "off-sheet" properties, including header/
+    * footer and the sheet name itself.
+    * @param sheet The <code>Sheet</code> to transform.
+    * @param beans The beans map.
+    * @since 0.7.0
+    */
+   private void transformOffSheetProperties(Sheet sheet, Map<String, Object> beans)
+   {
+      String text;
+      Object result;
+      // Header/footer.
+      Header header = sheet.getHeader();
+      text = header.getLeft();
+      result = Expression.evaluateString(text, beans);
+      header.setLeft(result.toString());
+      text = header.getCenter();
+      result = Expression.evaluateString(text, beans);
+      header.setCenter(result.toString());
+      text = header.getRight();
+      result = Expression.evaluateString(text, beans);
+      header.setRight(result.toString());
+
+      Footer footer = sheet.getFooter();
+      text = footer.getLeft();
+      result = Expression.evaluateString(text, beans);
+      footer.setLeft(result.toString());
+      text = footer.getCenter();
+      result = Expression.evaluateString(text, beans);
+      footer.setCenter(result.toString());
+      text = footer.getRight();
+      result = Expression.evaluateString(text, beans);
+      footer.setRight(result.toString());
+
+      // Sheet name
+      text = sheet.getSheetName();
+      result = Expression.evaluateString(text, beans);
+      Workbook workbook = sheet.getWorkbook();
+      workbook.setSheetName(workbook.getSheetIndex(sheet), result.toString());
    }
 
    /**

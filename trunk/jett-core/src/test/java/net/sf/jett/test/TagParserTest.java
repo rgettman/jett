@@ -290,6 +290,12 @@ public class TagParserTest
     * <ul>
     * <li>\" for double-quote</li>
     * <li>\\ for backslash</li>
+    * <li>\' for single-quote</li>
+    * <li>\b for backspace</li>
+    * <li>\f for form-feed</li>
+    * <li>\n for newline</li>
+    * <li>\r for carriage return</li>
+    * <li>\t for tab</li>
     * </ul>
     * @since 0.5.2
     */
@@ -303,10 +309,12 @@ public class TagParserTest
       parser.parse();
 
       Map<String, RichTextString> attributes = parser.getAttributes();
-      List<String> attrNames = Arrays.asList("doublequote", "backslash");
-      // Note: the expected results must still be Java-escaped here, just to make it into the string.
-      List<String> attrValues = Arrays.asList("Embedded \"double-quotes\"", "Embedded \\backslash");
-      for (int i = 0; i < 2; i++)
+      List<String> attrNames = Arrays.asList(
+         "doublequote", "backslash", "singlequote", "backspace", "formfeed", "newline", "carriagereturn", "tab");
+      // Note: the double-quote and backslash must still be Java-escaped here, just to make it into the string.
+      List<String> attrValues = Arrays.asList("Embedded \"double-quotes\"", "Embedded \\backslash", "Embedded 'single-quotes'",
+         "Embedded \bbackspace", "Embedded \fform-feed", "Embedded \nnewline", "Embedded \rcarriage-return", "Embedded \ttab");
+      for (int i = 0; i < attrNames.size(); i++)
       {
          assertNotNull(attributes.containsKey(attrNames.get(i)));
          assertEquals(attrValues.get(i), attributes.get(attrNames.get(i)).getString());

@@ -4,18 +4,18 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.HashSet;
 
 import org.apache.commons.jexl2.JexlContext;
 import org.apache.commons.jexl2.parser.ASTIdentifier;
 import org.apache.commons.jexl2.parser.ASTMethodNode;
 import org.apache.commons.jexl2.parser.ASTReference;
+import org.apache.commons.jexl2.parser.ASTSizeMethod;
 import org.apache.commons.jexl2.parser.Node;
 import org.apache.commons.jexl2.parser.Parser;
 import org.apache.commons.jexl2.parser.SimpleNode;
-import org.apache.commons.jexl2.parser.ASTSizeMethod;
 import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.RichTextString;
 

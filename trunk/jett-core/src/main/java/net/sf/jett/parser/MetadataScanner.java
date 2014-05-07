@@ -42,7 +42,8 @@ public class MetadataScanner
       }
    }
    //private static final String PUNCT_CHARS_NOT_AS_STRING = "\"';=";
-   private static final String PUNCT_CHARS_NOT_AS_STRING = ";=";
+   private static final String PUNCT_CHARS_NOT_AS_STRING = "\";=";
+   //private static final String PUNCT_CHARS_NOT_AS_STRING = ";=";
 
    private String myMetadataText;
    private int myOffset;
@@ -170,21 +171,21 @@ public class MetadataScanner
 //            tokenType = Token.TOKEN_SINGLE_QUOTE;
 //            amIInsideSingleQuotes = true;
 //         }
-//         else if (myMetadataText.charAt(iStartOfToken) == '"')
-//         {
-//            // Double Quote.
-//            iTokenLength = 1;
-//            tokenType = Token.TOKEN_DOUBLE_QUOTE;
-//            amIInsideDoubleQuotes = true;
-//         }
-//         else if (Character.isWhitespace(myMetadataText.charAt(iStartOfToken)))
-//         {
-//            // Whitespace.
-//            while ((iStartOfToken + iTokenLength) < myMetadataText.length() &&
-//                   Character.isWhitespace(myMetadataText.charAt(iStartOfToken + iTokenLength)))
-//               iTokenLength++;
-//            tokenType = Token.TOKEN_WHITESPACE;
-//         }
+         else if (myMetadataText.charAt(iStartOfToken) == '"')
+         {
+            // Double Quote.
+            iTokenLength = 1;
+            tokenType = Token.TOKEN_DOUBLE_QUOTE;
+            amIInsideDoubleQuotes = true;
+         }
+         else if (Character.isWhitespace(myMetadataText.charAt(iStartOfToken)))
+         {
+            // Whitespace.
+            while ((iStartOfToken + iTokenLength) < myMetadataText.length() &&
+                   Character.isWhitespace(myMetadataText.charAt(iStartOfToken + iTokenLength)))
+               iTokenLength++;
+            tokenType = Token.TOKEN_WHITESPACE;
+         }
       }  // End else from if (amIInsideDoubleQuotes)
 
       // Note down lexeme for access later.

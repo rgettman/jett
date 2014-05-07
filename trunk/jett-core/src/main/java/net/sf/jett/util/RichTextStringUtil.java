@@ -153,61 +153,7 @@ public class RichTextStringUtil
          // Take care to skip any already processed part of the value string.
          value = value.substring(0, beginIdx) + replacement + value.substring(beginIdx + target.length());
 
-         // Find the formatting run that applies at beginIdx.
-         int fmtIndex = -1;
-         for (int j = 0; j < numFormattingRuns; j++)
-         {
-            FormattingRun run = formattingRuns.get(j);
-            int currBeginIdx = run.getBegin();
-            int currLength = run.getLength();
-            if (DEBUG)
-               System.err.println("    j=" + j + ", currBeginIdx=" + currBeginIdx +
-                  ", currLength=" + currLength + ", beginIdx=" + beginIdx);
-            // Don't pick a zero-length run.
-            if (beginIdx >= currBeginIdx && beginIdx < currBeginIdx + currLength)
-            {
-               fmtIndex = j;
-               break;
-            }
-         }
-         // Found a run to apply.  The length has changed.
-         if (fmtIndex != -1)
-         {
-            // Change the length of the formatting run.
-            FormattingRun run = formattingRuns.get(fmtIndex);
-            run.setLength(run.getLength() + change);
-
-            // This affects the beginning positions of all subsequent runs!
-            for (int j = fmtIndex + 1; j < numFormattingRuns; j++)
-            {
-               run = formattingRuns.get(j);
-               if (DEBUG)
-                  System.err.println("    RTSU.replaceAll: Changing beginning of formatting run " +
-                     j + " from " + run.getBegin() + " to " + (run.getBegin() + change));
-               run.setBegin(run.getBegin() + change);
-            }
-
-            if (DEBUG)
-               System.err.println("  RTSU.replaceAll: Formatting run length changed (" +
-                  fmtIndex + "): newLength=" + formattingRuns.get(fmtIndex).getLength());
-         }
-         else
-         {
-            // It's possible for there to be no formatting run if it's an
-            // HSSFRichTextString and the value to replace is before any
-            // formatting.  The first formatting "run" is considered to be the
-            // format of the Cell and is not present in the formatting runs.
-
-            // This affects the beginning positions of all runs!
-            for (int j = 0; j < numFormattingRuns; j++)
-            {
-               FormattingRun run = formattingRuns.get(j);
-               if (DEBUG)
-                  System.err.println("    RTSU.replaceAll: changing beginning of formatting run " +
-                     j + " from " + run.getBegin() + " to " + (run.getBegin() + change));
-               run.setBegin(run.getBegin() + change);
-            }
-         }
+         updateFormattingRuns(formattingRuns, beginIdx, change);
 
          if (firstOnly)
             break;
@@ -257,55 +203,87 @@ public class RichTextStringUtil
          {
             String replaceMe = targets.get(i);
             String replaceWith = replacements.get(i);
+            int change = replaceWith.length() - replaceMe.length();
             if (DEBUG)
                System.err.println("  Replacing \"" + replaceMe + "\" with \"" + replaceWith + "\".");
             value = value.replace(replaceMe, replaceWith);
 
-            // Find the formatting run that applies at beginIdx.
-            int fmtIndex = -1;
-            for (int j = 0; j < numFormattingRuns; j++)
-            {
-               FormattingRun run = formattingRuns.get(j);
-               int currBeginIdx = run.getBegin();
-               int currLength = run.getLength();
-               if (DEBUG)
-                  System.err.println("    j=" + j + ", currBeginIdx=" + currBeginIdx +
-                     ", currLength=" + currLength + ", beginIdx=" + beginIdx);
-               // Don't pick a zero-length run.
-               if (beginIdx >= currBeginIdx && beginIdx < currBeginIdx + currLength)
-               {
-                  fmtIndex = j;
-                  break;
-               }
-            }
-            // Found a run to apply.  The length has changed.
-            if (fmtIndex != -1)
-            {
-               // Change the length of the formatting run.
-               FormattingRun run = formattingRuns.get(fmtIndex);
-               int change = replaceWith.length() - replaceMe.length();
-               run.setLength(run.getLength() + change);
-
-               // This affects the beginning positions of all subsequent runs!
-               for (int j = fmtIndex + 1; j < numFormattingRuns; j++)
-               {
-                  run = formattingRuns.get(j);
-                  if (DEBUG)
-                     System.err.println("    RTSU.replaceValues: Changing beginning of formatting run " +
-                        j + " from " + run.getBegin() + " to " + (run.getBegin() + change));
-                  run.setBegin(run.getBegin() + change);
-               }
-
-               if (DEBUG)
-                  System.err.println("  RTSU.replaceValues: Formatting run length changed (" +
-                     fmtIndex + "): newLength=" + formattingRuns.get(fmtIndex).getLength());
-            }
+            updateFormattingRuns(formattingRuns, beginIdx, change);
          }
-         else
-            break;
       }
 
       return createFormattedString(numFormattingRuns, helper, value, formattingRuns);
+   }
+
+   /**
+    * <p>Update all <code>FormattingRuns</code> affected by a change to a
+    * <code>RichTextString</code> at the given index by the given change
+    * amount.</p>
+    * <p>This code was extracted from duplicated code</p>.
+    * @param formattingRuns A <code>List</code> of <code>FormattingRuns</code>.
+    * @param beginIdx The 0-based position at which a change occurred.
+    * @param change The change amount.  If negative, the string is shrinking.
+    *    If positive, the string is growing.
+    * @since 0.7.0
+    */
+   private static void updateFormattingRuns(List<FormattingRun> formattingRuns, int beginIdx, int change)
+   {
+      int numFormattingRuns = formattingRuns.size();
+      // Find the formatting run that applies at beginIdx.
+      int fmtIndex = -1;
+      for (int j = 0; j < numFormattingRuns; j++)
+      {
+         FormattingRun run = formattingRuns.get(j);
+         int currBeginIdx = run.getBegin();
+         int currLength = run.getLength();
+         if (DEBUG)
+            System.err.println("    j=" + j + ", currBeginIdx=" + currBeginIdx +
+                    ", currLength=" + currLength + ", beginIdx=" + beginIdx);
+         // Don't pick a zero-length run.
+         if (beginIdx >= currBeginIdx && beginIdx < currBeginIdx + currLength)
+         {
+            fmtIndex = j;
+            break;
+         }
+      }
+      // Found a run to apply.  The length has changed.
+      if (fmtIndex != -1)
+      {
+         // Change the length of the formatting run.
+         FormattingRun run = formattingRuns.get(fmtIndex);
+         run.setLength(run.getLength() + change);
+
+         // This affects the beginning positions of all subsequent runs!
+         for (int j = fmtIndex + 1; j < numFormattingRuns; j++)
+         {
+            run = formattingRuns.get(j);
+            if (DEBUG)
+               System.err.println("    RTSU.updateFormattingRuns: Changing beginning of formatting run " +
+                       j + " from " + run.getBegin() + " to " + (run.getBegin() + change));
+            run.setBegin(run.getBegin() + change);
+         }
+
+         if (DEBUG)
+            System.err.println("  RTSU.updateFormattingRuns: Formatting run length changed (" +
+                    fmtIndex + "): newLength=" + formattingRuns.get(fmtIndex).getLength());
+      }
+      else
+      {
+         // It's possible for there to be no formatting run if it's an
+         // HSSFRichTextString and the value to replace is before any
+         // formatting.  The first formatting "run" is considered to be the
+         // format of the Cell and is not present in the formatting runs.
+
+         // This affects the beginning positions of all runs!
+         for (int j = 0; j < numFormattingRuns; j++)
+         {
+            FormattingRun run = formattingRuns.get(j);
+            if (DEBUG)
+               System.err.println("    RTSU.updateFormattingRuns: changing beginning of formatting run " +
+                       j + " from " + run.getBegin() + " to " + (run.getBegin() + change));
+            run.setBegin(run.getBegin() + change);
+         }
+      }
    }
 
    /**
@@ -737,6 +715,90 @@ public class RichTextStringUtil
       if (DEBUG)
          System.err.println("    Did NOT find existing, matching Font!");
       return null;
+   }
+
+   /**
+    * <p>Performs escaping.  Preserves rich text formatting as much as
+    * possible.  The following escape sequences are recognized:</p>
+    * <ul>
+    *   <li><code>\"</code> => <code>"</code></li>
+    *   <li><code>\'</code> => <code>'</code></li>
+    *   <li><code>\\</code> => <code>\</code></li>
+    *   <li><code>\b</code> => <code>(backspace)</code></li>
+    *   <li><code>\f</code> => <code>(form feed)</code></li>
+    *   <li><code>\n</code> => <code>(newline)</code></li>
+    *   <li><code>\r</code> => <code>(carriage return)</code></li>
+    *   <li><code>\t</code> => <code>(tab)</code></li>
+    * </ul>
+    * @param richTextString The <code>RichTextString</code> to manipulate.
+    * @param helper A <code>CreationHelper</code> that can create the proper
+    *    <code>RichTextString</code>.
+    * @return A new <code>RichTextString</code> with escape sequences replaced
+    *    with the actual characters.
+    * @since 0.7.0
+    */
+   public static RichTextString performEscaping(RichTextString richTextString,
+      CreationHelper helper)
+   {
+      int numFormattingRuns = richTextString.numFormattingRuns();
+      String value = richTextString.getString();
+      if (DEBUG)
+         System.err.println("RTSU.performEscaping: \"" + value + "\" (" + value.length() +
+                 "): numFormattingRuns=" + numFormattingRuns);
+
+      List<FormattingRun> formattingRuns = determineFormattingRunStats(richTextString);
+      StringBuilder buf = new StringBuilder();
+
+      for (int i = 0; i < value.length(); i++)
+      {
+         char curr = value.charAt(i);
+         // Beginning of escape sequence
+         if (curr == '\\' &&  // Backslash to start escape sequence found
+             (i + 1) < value.length() &&  // Not at end of string
+             "\\\"\'bfnrt".indexOf(value.charAt(i + 1)) != -1)   // Valid 2nd character of escape sequence
+         {
+            switch (value.charAt(i + 1))
+            {
+            case '\\':
+               buf.append('\\');
+               break;
+            case '\"':
+               buf.append('\"');
+               break;
+            case '\'':
+               buf.append('\'');
+               break;
+            case 'b':
+               buf.append('\b');
+               break;
+            case 'f':
+               buf.append('\f');
+               break;
+            case 'n':
+               buf.append('\n');
+               break;
+            case 'r':
+               buf.append('\r');
+               break;
+            case 't':
+               buf.append('\t');
+               break;
+            default:
+               throw new IllegalStateException("Accidentally recognized invalid escape sequence: \"\\" +
+                   value.charAt(i + 1) + "\"!");
+            }
+
+            updateFormattingRuns(formattingRuns, i, -1);
+            // Bypass the second character!
+            i++;
+         }
+         else
+         {
+            buf.append(curr);
+         }
+      }
+
+      return createFormattedString(numFormattingRuns, helper, buf.toString(), formattingRuns);
    }
 }
 

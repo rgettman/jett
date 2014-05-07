@@ -1,23 +1,25 @@
 package net.sf.jett.test;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.math.BigInteger;
-import java.math.BigDecimal;
 
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.Footer;
+import org.apache.poi.ss.usermodel.Header;
+import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.RichTextString;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-import net.sf.jett.test.model.Team;
 import net.sf.jett.jdbc.ResultSetRow;
+import net.sf.jett.test.model.Team;
 
 /**
  * This JUnit Test class tests the evaluation of expressions and replacement
@@ -149,6 +151,19 @@ public class ExpressionsTest extends TestCase
       assertEquals(0, TestUtility.getNumericCellValue(sheet, 25, 1), Math.ulp(0));
       assertEquals("359538626972463141629054847463408713596141135051689993197834953606314521560057077521179117265533756343080917907028764928468642653778928365536935093407075033972099821153102564152490980180778657888151737016910267884609166473806445896331617118664246696549595652408289446337476354361838599762500808052368249716736",
               TestUtility.getStringCellValue(sheet, 26, 1));
+
+      assertEquals(42, TestUtility.getNumericCellValue(sheet, 27, 1), Math.ulp(0));
+      assertEquals(8.6, TestUtility.getNumericCellValue(sheet, 28, 1), Math.ulp(0));
+
+      Header header = sheet.getHeader();
+      assertEquals("Header Left: 1", header.getLeft());
+      assertEquals("Header Center: 3", header.getCenter());
+      assertEquals("Header Right: 7", header.getRight());
+      Footer footer = sheet.getFooter();
+      assertEquals("Footer Left: 10", footer.getLeft());
+      assertEquals("Footer Center: 11", footer.getCenter());
+      assertEquals("Footer Right: 23", footer.getRight());
+      assertEquals("ExprTest", sheet.getSheetName());
    }
 
    /**
@@ -216,6 +231,8 @@ public class ExpressionsTest extends TestCase
       row.set("IHaveAQuestion", 8.6);
 
       beans.put("valueHolder", row);
+
+      beans.put("newSheetName", "ExprTest");
 
       return beans;
    }
