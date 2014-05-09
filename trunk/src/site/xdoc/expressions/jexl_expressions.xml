@@ -10,8 +10,9 @@
             spreadsheet.  JETT interprets everything between "${" and "}" to be a JEXL Expression.
             The JEXL Expression is evaluated as the result of getting the property "property" from
             the bean "beanName", which is retrieved from the bean Map with the key "beanName".
-            JETT replaces the Expression with the result of the evaluation.  In this example, a
-            ValueObject is a JETT user's own type, not a JETT built-in type.</p>
+            JETT replaces the Expression with the result of the evaluation.  JETT will also
+            evaluate expressions found in the sheet name and in the sheet header and footer.</p>
+            <p>In this example, a ValueObject is a JETT user's own type, not a JETT built-in type.</p>
             <source>
 Map&lt;String, Object&gt; beans = new HashMap&lt;String, Object&gt;();
 ValueObject beanName = new ValueObject();

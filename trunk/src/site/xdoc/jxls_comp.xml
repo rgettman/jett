@@ -7,7 +7,7 @@
         <section name="Comparison of JETT to jXLS">
         <p>JETT is similar to jXLS, because JETT performs the same function -- translating Excel
         template spreadsheets into spreadsheets with the desired data populated.  Here, JETT
-        0.6.0 is compared with the latest version of jXLS, 1.0.2:</p>
+        0.7.0 is compared with the latest version of jXLS, 1.0.5:</p>
         <table style="width: 750px;">
             <tr>
                 <th style="width: 200px">Feature</th>
@@ -52,6 +52,8 @@
                         <li><code>extraRows=n</code> Include extra rows in each repeating block.</li>
                         <li><code>pastEndAction=action</code> State what action is to be taken when
                         processing Collections with less data than other Collections.</li>
+                        <li><code>replaceValue=value</code> When the pastEndAction is "replaceExpr",
+                        specify a replacement value for affected expressions.</li>
                         <li><code>groupDir=dir</code> Create an Excel Group (Outline) with rows or
                         columns on the processed data.</li>
                         <li><code>collapse=true/false</code> When creating an Excel Group
@@ -122,7 +124,8 @@
                     <li>transformer.<br/>transformXLS(InputStream is, Map beanParams);</li></ul></td>
                 <td><ul>
                     <li>transformer.<br/>transform(InputStream is, Map&lt;String, Object&gt; beans);</li>
-                    <li>transformer.transform(String inFilename, String outFilename, Map&lt;String, Object&gt; beans)</li></ul></td>
+                    <li>transformer.transform(String inFilename, String outFilename, Map&lt;String, Object&gt; beans)</li>
+                    <li>transformer.transform(Workbook workbook, Map&lt;String, Object&gt; beans);</li></ul></td>
             </tr>
             <tr>
                 <td>Transform One Template Sheet Into Many Result Sheets</td>
@@ -134,7 +137,9 @@
                     <li>transformer.<br/>transform(InputStream is, List&lt;String&gt; templateSheetNamesList,
                 List&lt;String&gt; newSheetNamesList, List&lt;Map&lt;String, Object&gt;&gt; beansList);</li>
                     <li>transformer.<br/>transform(String inFilename, String outFilename, List&lt;String&gt; templateSheetNamesList,
-                List&lt;String&gt; newSheetNamesList, List&lt;Map&lt;String, Object&gt;&gt; beansList)</li></ul></td>
+                List&lt;String&gt; newSheetNamesList, List&lt;Map&lt;String, Object&gt;&gt; beansList)</li>
+                    <li>transformer.<br/>transform(Workbook workbook, List&lt;String&gt; templateSheetNamesList,
+                List&lt;String&gt; newSheetNamesList, List&lt;Map&lt;String, Object&gt;&gt; beansList);</li></ul></td>
             </tr>
             <tr>
                 <td>Fixed Collection Names</td>
@@ -213,6 +218,8 @@
                         way; assume that the spreadsheet has "room" for the collection content.</li>
                         <li><code>pastEndAction</code> attribute - Controls what happens when the
                         iterations proceeds beyond the end of a Collection.</li>
+                        <li><code>replaceValue</code> attribute - Controls the replacement value
+                        if <code>pastEndAction</code> is "replaceExpr".</li>
                         <li><code>groupDir</code> attribute - After processing, create an Excel
                         Group (Outline) around all of the processed data, in rows or columns.</li>
                         <li><code>collapse</code> attribute - If creating an Excel Group (Outline),
