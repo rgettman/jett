@@ -1,0 +1,397 @@
+<document>
+    <properties>
+        <author email="rgettman@users.sourceforge.net">Randy Gettman</author>
+        <title>If Tag</title>
+    </properties>
+    <body>
+        <section name="The If Tag">
+            <p>Content may be conditionally processed using the "if" tag.  This tag may be used in
+            two forms: a bodiless form, which provides a value for one cell only, and with a body,
+            which conditionally processes an entire block of cells.</p>
+            <h1>Attributes</h1>
+            <ul>
+                <li>The "if" tag supports all <a href="basics.html">base tag attributes</a>.</li>
+                <li><strong>test: Boolean</strong> Required.  This is the test condition.  A JEXL
+                Expression can evaluate to the boolean values <code>true</code> or
+                <code>false</code>, or the string literals "true" or "false".</li>
+                <li><strong>elseAction: String</strong> Optional.  Available only if the tag has a
+                body.  This value describes the action taken when the test condition is
+                <code>false</code>.  The following values are supported:</li>
+                <ul>
+                    <li><em>shiftUp</em> This is the default.  Block contents will be deleted, and
+                    any existing cell contents from below the block will be shifted up.</li>
+                    <li><em>shiftLeft</em> Block contents will be deleted, and any existing cell
+                    contents from the right of the block will be shifted left.</li>
+                    <li><em>clear</em> Block contents will be cleared.  No shifting occurs.</li>
+                    <li><em>remove</em> Block contents will be removed, including all borders,
+                    merged regions, and formatting.</li>
+                </ul>
+                <li><strong>then: Object</strong> Required if the tag is bodiless.  This is the
+                value of the cell if the condition is true.</li>
+                <li><strong>else: Object</strong> Optional, but only available if the tag is
+                bodiless.  This is the value of the cell if the condition is false.  This defaults
+                to an empty cell.</li>
+            </ul>
+        </section>
+        <section name="If With a Body">
+            <p>The "if" tag evaluates the condition specified in the required attribute "test".  If
+            true, then the "if" tag transforms the entire body, and any "elseAction" value is
+            ignored.  If false, then the entire body is removed.  Upon removal, content that lies
+            below that block is shifted up to overwrite the block.</p>
+            <table style="width: 750px;">
+                <tr>
+                    <td style="width: 250px;">&lt;jt:if test="${condition}"&gt;${expr1}</td>
+                    <td style="width: 100px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 175px;">&nbsp;</td>
+                    <td style="width: 100px;">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">&nbsp;</td>
+                    <td style="width: 100px;">${expr2}</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 175px;">To be erased if false!</td>
+                    <td style="width: 100px;">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">${expr3}</td>
+                    <td style="width: 100px;">&nbsp;</td>
+                    <td style="width: 125px;">${expr4}</td>
+                    <td style="width: 175px;">&lt;/jt:if&gt;</td>
+                    <td style="width: 100px;">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Shift</td>
+                    <td style="width: 100px;">me</td>
+                    <td style="width: 125px;">up!</td>
+                    <td style="width: 175px;">&nbsp;</td>
+                    <td style="width: 100px;">&nbsp;</td>
+                </tr>
+            </table>
+            <p>... if the condition is true, then the above block gets transformed into...</p>
+            <table style="width: 750px;">
+                <tr>
+                    <td style="width: 250px;">Expression 1</td>
+                    <td style="width: 100px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 175px;">&nbsp;</td>
+                    <td style="width: 100px;">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">&nbsp;</td>
+                    <td style="width: 100px;">Expression 2</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 175px;">To be erased if false!</td>
+                    <td style="width: 100px;">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Expression 3</td>
+                    <td style="width: 100px;">&nbsp;</td>
+                    <td style="width: 125px;">Expression 4</td>
+                    <td style="width: 175px;">&nbsp;</td>
+                    <td style="width: 100px;">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Shift</td>
+                    <td style="width: 100px;">me</td>
+                    <td style="width: 125px;">up!</td>
+                    <td style="width: 175px;">&nbsp;</td>
+                    <td style="width: 100px;">&nbsp;</td>
+                </tr>
+            </table>
+            <p>... else, if the condition is false... </p>
+            <table style="width: 750px;">
+                <tr>
+                    <td style="width: 250px;">Shift</td>
+                    <td style="width: 100px;">me</td>
+                    <td style="width: 125px;">up!</td>
+                    <td style="width: 175px;">&nbsp;</td>
+                    <td style="width: 100px;">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">&nbsp;</td>
+                    <td style="width: 100px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 175px;">&nbsp;</td>
+                    <td style="width: 100px;">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">&nbsp;</td>
+                    <td style="width: 100px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 175px;">&nbsp;</td>
+                    <td style="width: 100px;">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">&nbsp;</td>
+                    <td style="width: 100px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 175px;">&nbsp;</td>
+                    <td style="width: 100px;">&nbsp;</td>
+                </tr>
+            </table>
+            <p>The optional "elseAction" attribute controls how the content of the block is removed
+            when the condition is false.  The value "shiftLeft" changes the default direction of
+            the shifting to left, i.e. content to the right of the block is shifted left to
+            overwrite the block.  The default value for this attribute is "shiftUp", which is shown
+            above.</p>
+            <table style="width: 750px;">
+                <tr>
+                    <td style="width: 250px;">&lt;jt:if test="${condition}" <strong>elseAction="shiftLeft"</strong>&gt;${expr1}</td>
+                    <td style="width: 100px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 175px;">${expr2}</td>
+                    <td style="width: 100px;">Additional</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">&nbsp;</td>
+                    <td style="width: 100px;">${expr3}</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 175px;">&nbsp;</td>
+                    <td style="width: 100px;">Content</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">&nbsp;</td>
+                    <td style="width: 100px;">&nbsp;</td>
+                    <td style="width: 125px;">Label:</td>
+                    <td style="width: 175px;">&nbsp;</td>
+                    <td style="width: 100px;">Is Shifted</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">&nbsp;</td>
+                    <td style="width: 100px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 175px;">${expr4}&lt;/jt:if&gt;</td>
+                    <td style="width: 100px;">Left</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Below,</td>
+                    <td style="width: 100px;">things</td>
+                    <td style="width: 125px;">don't</td>
+                    <td style="width: 175px;">change</td>
+                    <td style="width: 100px;">!!!</td>
+                </tr>
+            </table>
+            <p>... if the condition is false...</p>
+            <table style="width: 750px;">
+                <tr>
+                    <td style="width: 250px;">Additional</td>
+                    <td style="width: 100px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 175px;">&nbsp;</td>
+                    <td style="width: 100px;">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Content</td>
+                    <td style="width: 100px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 175px;">&nbsp;</td>
+                    <td style="width: 100px;">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Is Shifted</td>
+                    <td style="width: 100px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 175px;">&nbsp;</td>
+                    <td style="width: 100px;">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Left</td>
+                    <td style="width: 100px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 175px;">&nbsp;</td>
+                    <td style="width: 100px;">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Below,</td>
+                    <td style="width: 100px;">things</td>
+                    <td style="width: 125px;">don't</td>
+                    <td style="width: 175px;">change</td>
+                    <td style="width: 100px;">!!!</td>
+                </tr>
+            </table>
+            <p>The elseAction value "clear" indicates not to perform any shifting of content
+            outside of the block.  Instead, values inside the block's cells are simply cleared.
+            Other things such as borders, formatting, and merged regions remain intact.</p>
+            <table style="width: 750px;">
+                <tr>
+                    <td style="width: 250px;">&lt;jt:if test="${condition}" <strong>elseAction="clear"</strong>&gt;${expr1}</td>
+                    <td style="width: 100px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 175px;">${expr2}</td>
+                    <td style="width: 100px;">Additional</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">&nbsp;</td>
+                    <td style="width: 225px;" colspan="2">${expr3}</td>
+                    <td style="width: 175px;">&nbsp;</td>
+                    <td style="width: 100px;">Content</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">&nbsp;</td>
+                    <td style="width: 100px;">&nbsp;</td>
+                    <td style="width: 125px;">Label:</td>
+                    <td style="width: 175px;">&nbsp;</td>
+                    <td style="width: 100px;">Is Not Shifted</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">&nbsp;</td>
+                    <td style="width: 100px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 175px;">${expr4}&lt;/jt:if&gt;</td>
+                    <td style="width: 100px;">Left</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Below,</td>
+                    <td style="width: 100px;">things</td>
+                    <td style="width: 125px;">don't</td>
+                    <td style="width: 175px;">change</td>
+                    <td style="width: 100px;">!!!</td>
+                </tr>
+            </table>
+            <p>... if the condition is false...</p>
+            <table style="width: 750px;">
+                <tr>
+                    <td style="width: 250px;">&nbsp;</td>
+                    <td style="width: 100px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 175px;">&nbsp;</td>
+                    <td style="width: 100px;">Additional</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">&nbsp;</td>
+                    <td style="width: 225px;" colspan="2">&nbsp;</td>
+                    <td style="width: 175px;">&nbsp;</td>
+                    <td style="width: 100px;">Content</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">&nbsp;</td>
+                    <td style="width: 100px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 175px;">&nbsp;</td>
+                    <td style="width: 100px;">Is Not Shifted</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">&nbsp;</td>
+                    <td style="width: 100px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 175px;">&nbsp;</td>
+                    <td style="width: 100px;">Left</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Below,</td>
+                    <td style="width: 100px;">things</td>
+                    <td style="width: 125px;">don't</td>
+                    <td style="width: 175px;">change</td>
+                    <td style="width: 100px;">!!!</td>
+                </tr>
+            </table>
+            <p>The elseAction value "remove" also does not perform any content shifting outside of
+            the block.  However, unlike the "clear" value, "remove" will additionally remove the
+            entire cells of the block, which removes all borders, merged regions, and formatting.</p>
+            <table style="width: 750px;">
+                <tr>
+                    <td style="width: 250px;">&lt;jt:if test="${condition}" <strong>elseAction="remove"</strong>&gt;${expr1}</td>
+                    <td style="width: 100px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 175px;">${expr2}</td>
+                    <td style="width: 100px;">Additional</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">&nbsp;</td>
+                    <td style="width: 225px;" colspan="2">${expr3}</td>
+                    <td style="width: 175px;">&nbsp;</td>
+                    <td style="width: 100px;">Content</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">&nbsp;</td>
+                    <td style="width: 100px;">&nbsp;</td>
+                    <td style="width: 125px;">Label:</td>
+                    <td style="width: 175px;">&nbsp;</td>
+                    <td style="width: 100px;">Is Not Shifted</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">&nbsp;</td>
+                    <td style="width: 100px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 175px;">${expr4}&lt;/jt:if&gt;</td>
+                    <td style="width: 100px;">Left</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Below,</td>
+                    <td style="width: 100px;">things</td>
+                    <td style="width: 125px;">don't</td>
+                    <td style="width: 175px;">change</td>
+                    <td style="width: 100px;">!!!</td>
+                </tr>
+            </table>
+            <p>... if the condition is false...</p>
+            <table style="width: 750px;">
+                <tr>
+                    <td style="width: 250px;">&nbsp;</td>
+                    <td style="width: 100px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 175px;">&nbsp;</td>
+                    <td style="width: 100px;">Additional</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">&nbsp;</td>
+                    <td style="width: 100px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 175px;">&nbsp;</td>
+                    <td style="width: 100px;">Content</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">&nbsp;</td>
+                    <td style="width: 100px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 175px;">&nbsp;</td>
+                    <td style="width: 100px;">Is Not Shifted</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">&nbsp;</td>
+                    <td style="width: 100px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 175px;">&nbsp;</td>
+                    <td style="width: 100px;">Left</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Below,</td>
+                    <td style="width: 100px;">things</td>
+                    <td style="width: 125px;">don't</td>
+                    <td style="width: 175px;">change</td>
+                    <td style="width: 100px;">!!!</td>
+                </tr>
+            </table>
+        </section>
+        <section name="Bodiless If">
+            <p>In the bodiless form, the "if" tag also requires a "then" tag, and it can accept an
+            optional "else" tag.  Rich Text String formatting is supported in the "then" and "else"
+            attributes.</p>
+            <table style="width: 750px;">
+                <tr>
+                    <td style="width: 150px;">&nbsp;</td>
+                    <td style="width: 450px;">&lt;jt:if test="${condition}" then="<span class="greenText">${value1}</span>"
+                        else="<span class="redText">${value2}</span>"/&gt;</td>
+                    <td style="width: 150px;">&nbsp;</td>
+                </tr>
+            </table>
+            <p>... if the condition is true...</p>
+            <table style="width: 750px;">
+                <tr>
+                    <td style="width: 150px;">&nbsp;</td>
+                    <td style="width: 450px;"><span class="greenText">Result1</span></td>
+                    <td style="width: 150px;">&nbsp;</td>
+                </tr>
+            </table>
+            <p>... else if the condition is false...</p>
+            <table style="width: 750px;">
+                <tr>
+                    <td style="width: 150px;">&nbsp;</td>
+                    <td style="width: 450px;"><span class="redText">Result2</span></td>
+                    <td style="width: 150px;">&nbsp;</td>
+                </tr>
+            </table>
+        </section>
+    </body>
+</document>
