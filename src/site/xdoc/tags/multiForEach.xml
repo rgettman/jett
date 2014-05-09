@@ -159,6 +159,74 @@
                     <td style="width: 125px;">&nbsp;</td>
                 </tr>
             </table>
+            <p>Another example uses the "replaceExpr" value and the "replaceValue" attribute to
+            replace those expressions past the end of the managers collection.  If the
+            "replaceValue" attribute wasn't specified, then the expressions wouuld be replaced by
+            an empty string instead of a "-".  The value of the attribute "replaceValue" can itself
+            be an expression, e.g. <code>replaceValue="${replVal}"</code>.</p>
+            <table style="width: 750px;">
+                <tr>
+                    <td class="bold" style="width: 250px;" colspan="2">Manager Name</td>
+                    <td class="bold" style="width: 125px;">Manager Salary</td>
+                    <td class="bold" style="width: 125px;">Department ID</td>
+                    <td class="bold" style="width: 125px;">Department Name</td>
+                    <td class="bold" style="width: 125px;">Department Floor</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;" colspan="2">&lt;jt:multiForEach collections="${managers};${departments}" vars="mgr;dept" pastEndAction="replaceExpr" replaceValue="-" &gt;${mgr.lastName}, ${mgr.firstName}</td>
+                    <td style="width: 125px;">${mgr.salary}</td>
+                    <td style="width: 125px;">${dept.id}</td>
+                    <td style="width: 125px;">${dept.name}</td>
+                    <td style="width: 125px;">${dept.floor}&lt;/jt:multiForEach&gt;</td>
+                </tr>
+                <tr>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                </tr>
+            </table>
+            <p>...gets transformed into...</p>
+            <table style="width: 750px;">
+                <tr>
+                    <td class="bold" style="width: 250px;" colspan="2">Manager Name</td>
+                    <td class="bold" style="width: 125px;">Manager Salary</td>
+                    <td class="bold" style="width: 125px;">Department ID</td>
+                    <td class="bold" style="width: 125px;">Department Name</td>
+                    <td class="bold" style="width: 125px;">Department Floor</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;" colspan="2">Stack, Robert</td>
+                    <td style="width: 125px;">$1000.00</td>
+                    <td style="width: 125px;">101</td>
+                    <td style="width: 125px;">Application Development</td>
+                    <td style="width: 125px;">5</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;" colspan="2">Bunny, Bugs</td>
+                    <td style="width: 125px;">$1500.00</td>
+                    <td style="width: 125px;">102</td>
+                    <td style="width: 125px;">Human Resources</td>
+                    <td style="width: 125px;">4</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;" colspan="2">-, -</td>
+                    <td style="width: 125px;">-</td>
+                    <td style="width: 125px;">103</td>
+                    <td style="width: 125px;">Quality Assurance</td>
+                    <td style="width: 125px;">5</td>
+                </tr>
+                <tr>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                </tr>
+            </table>
         </section>
     </body>
 </document>

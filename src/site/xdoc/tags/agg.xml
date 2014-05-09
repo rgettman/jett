@@ -17,7 +17,7 @@
                 <li><strong>aggs: String</strong> Required.  This is a list of <em>aggregator
                 specification strings</em>, delimited by semicolons, e.g.
                 "Avg(price);Sum(quantity)".  These represent aggregate operations to perform on the
-                list of values.</li>
+                list of values.  A property may be nested, e.g. "Avg(stock.price)".</li>
                 <li><strong>aggsVar: String</strong> Optional.  If given, this is the name under
                 which the array of <code>Aggregator</code> objects will be published in the beans
                 map.  This new bean can only be referenced from within the Block defined by the
@@ -28,7 +28,8 @@
                 <li><strong>groupBy: String</strong> Optional.  This is a semicolon-separated list
                 of property names that represents categories under which to group aggregate
                 results.  Default: no categories.  If this is specified, then there may be multiple
-                rows of aggregate results to display.</li>
+                rows of aggregate results to display.  A property may be nested, e.g.
+                "item.elementB.displayName".</li>
                 <li><strong>parallel: int</strong> Optional.  Specify a degree of parallelism
                 directly to the jAgg library.  Default: 1</li>
                 <li><strong>useMsd: boolean</strong> Optional.  Specify whether to use Multiset

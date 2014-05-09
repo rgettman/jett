@@ -14,11 +14,11 @@
             your classpath.</p>
             <p>The following libraries are also required to exist on your classpath:</p>
             <ul>
-                <li><a href="http://poi.apache.org/download.html">Apache POI 3.8</a> (or higher)</li>
+                <li><a href="http://poi.apache.org/download.html">Apache POI 3.10</a> (or higher)</li>
                 <li><a href="http://commons.apache.org/jexl/download_jexl.cgi">Apache Commons JEXL 2.1.1</a></li>
                 <li><a href="http://commons.apache.org/logging/download_logging.cgi">Apache Commons Logging 1.1.1</a>
                     (or higher)</li>
-                <li><a href="http://sourceforge.net/projects/jagg/files/">SourceForge jAgg 0.7.0</a>
+                <li><a href="http://sourceforge.net/projects/jagg/files/">SourceForge jAgg 0.8.0</a>
                     (or higher)</li>
             </ul>
             <p>The JETT library does rely on <a href="http://www.junit.org/node/588">JUnit 4.8.2</a>,
@@ -29,7 +29,7 @@
 &lt;dependency&gt;
     &lt;groupId&gt;net.sf.jett&lt;/groupId&gt;
     &lt;artifactId&gt;jett-core&lt;/artifactId&gt;
-    &lt;version&gt;0.6.0&lt;/version&gt;
+    &lt;version&gt;0.7.0&lt;/version&gt;
 &lt;/dependency&gt;
             </source>
         </section>
