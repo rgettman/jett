@@ -2,6 +2,8 @@ package net.sf.jett.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.poi.hssf.usermodel.HSSFRichTextString;
 import org.apache.poi.ss.usermodel.Cell;
@@ -12,6 +14,7 @@ import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
+import net.sf.jett.expression.Expression;
 
 /**
  * The <code>RichTextStringUtil</code> utility class provides methods for
@@ -206,10 +209,21 @@ public class RichTextStringUtil
             int change = replaceWith.length() - replaceMe.length();
             if (DEBUG)
                System.err.println("  Replacing \"" + replaceMe + "\" with \"" + replaceWith + "\".");
-            value = value.replace(replaceMe, replaceWith);
+            value = value.replaceFirst(Expression.NEGATIVE_LOOKBEHIND_BACKSLASH + Pattern.quote(replaceMe),
+               Matcher.quoteReplacement(replaceWith));
 
             updateFormattingRuns(formattingRuns, beginIdx, change);
          }
+      }
+
+      // Replace "\${" with "${".
+      int beginIdx = value.indexOf("\\" + Expression.BEGIN_EXPR);
+      while (beginIdx != -1)
+      {
+         value = value.replace("\\" + Expression.BEGIN_EXPR, Expression.BEGIN_EXPR);
+         updateFormattingRuns(formattingRuns, beginIdx, -1);
+
+         beginIdx = value.indexOf("\\" + Expression.BEGIN_EXPR);
       }
 
       return createFormattedString(numFormattingRuns, helper, value, formattingRuns);

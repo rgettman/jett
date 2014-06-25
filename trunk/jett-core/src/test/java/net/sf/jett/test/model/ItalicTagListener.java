@@ -21,6 +21,17 @@ import net.sf.jett.model.Block;
 public class ItalicTagListener implements TagListener
 {
    /**
+    * Doesn't do anything.
+    * @param event A <code>TagEvent</code>.
+    * @return <code>true</code>.
+    * @since 0.8.0
+    */
+   public boolean beforeTagProcessed(TagEvent event)
+   {
+      return true;
+   }
+
+   /**
     * Turns all cell text italic!
     * @param event The <code>TagEvent</code>.
     */

@@ -21,6 +21,28 @@ import net.sf.jett.model.Block;
 public class BoldTagListener implements TagListener
 {
    /**
+    * In B1, sets a new expression.  Prevents B2 from being processed.
+    * @param event A <code>TagEvent</code>.
+    * @return <code>true</code>.
+    * @since 0.8.0
+    */
+   public boolean beforeTagProcessed(TagEvent event)
+   {
+      Sheet sheet = event.getSheet();
+      String sheetName = sheet.getSheetName();
+      Block block = event.getBlock();
+      int row = block.getTopRowNum();
+      int col = block.getLeftColNum();
+      if ("before".equals(sheetName) && row == 0 && col == 1) // B1
+      {
+         Row r = sheet.getRow(0);
+         Cell cell = r.getCell(1);
+         cell.setCellValue("${employees.size()}");
+      }
+      return !("before".equals(sheetName) && row == 1 && col == 1); // B2; Don't process this cell.
+   }
+
+   /**
     * Turns all cell text bold!
     * @param event The <code>TagEvent</code>.
     */

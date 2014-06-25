@@ -21,6 +21,7 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 
 import net.sf.jett.event.CellListener;
+import net.sf.jett.event.SheetListener;
 import net.sf.jett.expression.Expression;
 import net.sf.jett.expression.ExpressionFactory;
 import net.sf.jett.formula.CellRef;
@@ -100,6 +101,7 @@ public class ExcelTransformer
 
    private TagLibraryRegistry myRegistry;
    private List<CellListener> myCellListeners;
+   private List<SheetListener> mySheetListeners;
    private List<String> myFixedSizeCollectionNames;
    private List<String> myNoImplicitProcessingCollectionNames;
    private Map<String, Style> myStyleMap;
@@ -112,6 +114,7 @@ public class ExcelTransformer
       myRegistry = new TagLibraryRegistry();
       registerTagLibrary("jt", JtTagLibrary.getJtTagLibrary());
       myCellListeners = new ArrayList<CellListener>();
+      mySheetListeners = new ArrayList<SheetListener>();
       myFixedSizeCollectionNames = new ArrayList<String>();
       myNoImplicitProcessingCollectionNames = new ArrayList<String>();
       myStyleMap = new HashMap<String, Style>();
@@ -139,6 +142,17 @@ public class ExcelTransformer
    {
       if (listener != null)
          myCellListeners.add(listener);
+   }
+
+   /**
+    * Registers the given <code>SheetListener</code>.
+    * @param listener A <code>SheetListener</code>.
+    * @since 0.8.0
+    */
+   public void addSheetListener(SheetListener listener)
+   {
+      if (listener != null)
+         mySheetListeners.add(listener);
    }
 
    /**
@@ -659,6 +673,7 @@ public class ExcelTransformer
    {
       WorkbookContext context = new WorkbookContext();
       context.setCellListeners(myCellListeners);
+      context.setSheetListeners(mySheetListeners);
       context.setRegistry(myRegistry);
       context.setFixedSizeCollectionNames(myFixedSizeCollectionNames);
       context.setNoImplicitCollectionProcessingNames(myNoImplicitProcessingCollectionNames);

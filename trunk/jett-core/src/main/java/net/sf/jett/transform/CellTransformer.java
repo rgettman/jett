@@ -56,7 +56,6 @@ public class CellTransformer
     */
    public boolean transform(Cell cell, WorkbookContext workbookContext, TagContext cellContext)
    {
-      List<CellListener> cellListeners = workbookContext.getCellListeners();
       Map<String, Object> beans = cellContext.getBeans();
       Map<String, Cell> processedCells = cellContext.getProcessedCellsMap();
 
@@ -66,6 +65,39 @@ public class CellTransformer
          return true;
 
       exposeCell(beans, cell);
+
+      Object oldValue = null;
+      switch(cell.getCellType())
+      {
+      case Cell.CELL_TYPE_STRING:
+         oldValue = cell.getStringCellValue();
+         break;
+      case Cell.CELL_TYPE_NUMERIC:
+         if (DateUtil.isCellDateFormatted(cell))
+            oldValue = cell.getDateCellValue();  // java.util.Date
+         else
+            oldValue = cell.getNumericCellValue();  // double
+         break;
+      case Cell.CELL_TYPE_BLANK:
+         oldValue = null;
+         break;
+      case Cell.CELL_TYPE_FORMULA:
+         oldValue = cell.getCellFormula();  // java.lang.String
+         break;
+      case Cell.CELL_TYPE_BOOLEAN:
+         oldValue = cell.getBooleanCellValue();  // boolean
+         break;
+      case Cell.CELL_TYPE_ERROR:
+         oldValue = cell.getErrorCellValue();  // byte
+         break;
+      }
+
+      if (!fireBeforeCellProcessedEvent(workbookContext, cell, beans, oldValue))
+      {
+         // Mark as processed without actually processing it.
+         processedCells.put(key, cell);
+         return true;
+      }
 
       if (DEBUG_GENERAL)
       {
@@ -77,13 +109,10 @@ public class CellTransformer
 
       Sheet sheet = cell.getSheet();
       boolean cellProcessed = true;
-      Object oldValue = null;
       Object newValue = null;
       switch(cell.getCellType())
       {
       case Cell.CELL_TYPE_STRING:
-         oldValue = cell.getStringCellValue();
-
          TagParser parser = new TagParser(cell);
          parser.parse();
 
@@ -124,31 +153,79 @@ public class CellTransformer
          break;
       case Cell.CELL_TYPE_NUMERIC:
          if (DateUtil.isCellDateFormatted(cell))
-            oldValue = newValue = cell.getDateCellValue();  // java.util.Date
+            newValue = cell.getDateCellValue();  // java.util.Date
          else
-            oldValue = newValue = cell.getNumericCellValue();  // double
+            newValue = cell.getNumericCellValue();  // double
          break;
       case Cell.CELL_TYPE_BLANK:
-         oldValue = newValue = null;
+         newValue = null;
          break;
       case Cell.CELL_TYPE_FORMULA:
-         oldValue = newValue = cell.getCellFormula();  // java.lang.String
+         newValue = cell.getCellFormula();  // java.lang.String
          break;
       case Cell.CELL_TYPE_BOOLEAN:
-         oldValue = newValue = cell.getBooleanCellValue();  // boolean
+         newValue = cell.getBooleanCellValue();  // boolean
          break;
       case Cell.CELL_TYPE_ERROR:
-         oldValue = newValue = cell.getErrorCellValue();  // byte
+         newValue = cell.getErrorCellValue();  // byte
+         break;
       }  // End switch on cell type
       if (cellProcessed)
       {
-         CellEvent event = new CellEvent(cell, beans, oldValue, newValue);
-         for (CellListener listener : cellListeners)
-            listener.cellProcessed(event);
+         fireCellProcessedEvent(workbookContext, cell, beans, oldValue, newValue);
          // Only mark it as processed if the Cell has actually been processed.
          processedCells.put(key, cell);
       }
       return cellProcessed;
+   }
+
+   /**
+    * Calls all <code>CellListeners'</code> <code>beforeCellProcessed</code>
+    * method, sending a <code>CellEvent</code>.  The new cell value is not
+    * available because the cell hasn't been processed yet.
+    * @param context The <code>WorkbookContext</code> object.
+    * @param cell The <code>Cell</code> that is about to be processed.
+    * @param beans A <code>Map</code> of bean names to bean values
+    * @param oldValue The old cell value.
+    * @return Whether processing of the <code>Sheet</code> should occur.  If
+    *    any <code>SheetListener's</code> <code>beforeSheetProcessed</code>
+    *    method returns <code>false</code>, then this method returns
+    *    <code>false</code>.
+    * @since 0.8.0
+    */
+   private boolean fireBeforeCellProcessedEvent(WorkbookContext context, Cell cell, Map<String, Object> beans,
+      Object oldValue)
+   {
+      boolean shouldProceed = true;
+      List<CellListener> cellListeners = context.getCellListeners();
+      CellEvent event = new CellEvent(cell, beans, oldValue, null);
+      for (CellListener listener : cellListeners)
+      {
+         shouldProceed &= listener.beforeCellProcessed(event);
+      }
+      return shouldProceed;
+   }
+
+   /**
+    * Calls all <code>CellListeners'</code> <code>cellProcessed</code>
+    * method, sending a <code>CellEvent</code>.  This functionality was
+    * extracted out of the <code>transform</code> method.
+    * @param context The <code>WorkbookContext</code> object.
+    * @param cell The <code>Cell</code> that was processed.
+    * @param beans A <code>Map</code> of bean names to bean values
+    * @param oldValue The old cell value.
+    * @param newValue The new cell value.
+    * @since 0.8.0
+    */
+   private void fireCellProcessedEvent(WorkbookContext context, Cell cell, Map<String, Object> beans,
+      Object oldValue, Object newValue)
+   {
+      List<CellListener> cellListeners = context.getCellListeners();
+      CellEvent event = new CellEvent(cell, beans, oldValue, newValue);
+      for (CellListener listener : cellListeners)
+      {
+         listener.cellProcessed(event);
+      }
    }
 
    /**

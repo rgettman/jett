@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.sf.jett.event.CellListener;
+import net.sf.jett.event.SheetListener;
 import net.sf.jett.formula.CellRef;
 import net.sf.jett.formula.Formula;
 import net.sf.jett.tag.TagLibraryRegistry;
@@ -18,6 +19,7 @@ public class WorkbookContext
 {
    private TagLibraryRegistry myRegistry;
    private List<CellListener> myCellListeners;
+   private List<SheetListener> mySheetListeners;
    private List<String> myFixedSizeCollectionNames;
    private List<String> myNoImplicitProcessingCollectionNames;
    private Map<String, Formula> myFormulaMap;
@@ -34,6 +36,7 @@ public class WorkbookContext
    {
       myRegistry = null;
       myCellListeners = null;
+      mySheetListeners = null;
       myFixedSizeCollectionNames = null;
       myNoImplicitProcessingCollectionNames = null;
       myFormulaMap = null;
@@ -69,6 +72,26 @@ public class WorkbookContext
    public List<CellListener> getCellListeners()
    {
       return myCellListeners;
+   }
+
+   /**
+    * Returns the <code>SheetListeners</code>.
+    * @return The <code>SheetListeners</code>.
+    * @since 0.8.0
+    */
+   public List<SheetListener> getSheetListeners()
+   {
+      return mySheetListeners;
+   }
+
+   /**
+    * Sets the <code>SheetListeners</code>.
+    * @param sheetListeners The <code>SheetListeners</code>.
+    * @since 0.8.0
+    */
+   public void setSheetListeners(List<SheetListener> sheetListeners)
+   {
+      mySheetListeners = sheetListeners;
    }
 
    /**

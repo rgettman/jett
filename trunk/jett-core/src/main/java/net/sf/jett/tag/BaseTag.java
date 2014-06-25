@@ -201,27 +201,51 @@ public abstract class BaseTag implements Tag
    public boolean processTag()
    {
       checkAttributes();
+      if (!fireBeforeTagProcessedEvent())
+      {
+         return true;
+      }
       boolean processed = process();
-      fireTagEvent();
+      fireTagProcessedEvent();
       return processed;
    }
 
    /**
     * If there is a <code>TagListener</code>, then create and fire a
     * <code>TagEvent</code>, with beans, block, and sheet taken from the
-    * decorated <code>BaseTag</code>.
+    * <code>TagContext</code>.
+    * @return Whether processing of the <code>Tag</code> should occur.  If
+    *    the <code>TagListener's</code> <code>beforeTagProcessed</code>
+    *    method returns <code>false</code>, then this method returns
+    *    <code>false</code>.
+    * @since 0.8.0
     */
-   private void fireTagEvent()
+   private boolean fireBeforeTagProcessedEvent()
    {
       if (myTagListener != null)
       {
-         TagEvent tagEvent = new TagEvent();
          TagContext context = getContext();
-         tagEvent.setBeans(context.getBeans());
-         tagEvent.setBlock(context.getBlock());
+         TagEvent tagEvent = new TagEvent(context.getSheet(), context.getBlock(), context.getBeans());
          if (DEBUG)
-            System.err.println("BT.fireTagEvent: context's Block is " + context.getBlock());
-         tagEvent.setSheet(context.getSheet());
+            System.err.println("BT.fireBeforeTagProcessedEvent: context's Block is " + getContext().getBlock());
+         return myTagListener.beforeTagProcessed(tagEvent);
+      }
+      return true;
+   }
+
+   /**
+    * If there is a <code>TagListener</code>, then create and fire a
+    * <code>TagEvent</code>, with beans, block, and sheet taken from the
+    * <code>TagContext</code>.
+    */
+   private void fireTagProcessedEvent()
+   {
+      if (myTagListener != null)
+      {
+         TagContext context = getContext();
+         TagEvent tagEvent = new TagEvent(context.getSheet(), context.getBlock(), context.getBeans());
+         if (DEBUG)
+            System.err.println("BT.fireTagProcessedEvent: context's Block is " + getContext().getBlock());
          myTagListener.onTagProcessed(tagEvent);
       }
    }

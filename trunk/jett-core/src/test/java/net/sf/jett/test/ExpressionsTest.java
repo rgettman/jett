@@ -155,6 +155,8 @@ public class ExpressionsTest extends TestCase
       assertEquals(42, TestUtility.getNumericCellValue(sheet, 27, 1), Math.ulp(0));
       assertEquals(8.6, TestUtility.getNumericCellValue(sheet, 28, 1), Math.ulp(0));
 
+      assertEquals("${testBean1}Hello World!${testBean2}JETT", TestUtility.getStringCellValue(sheet, 29, 1));
+
       Header header = sheet.getHeader();
       assertEquals("Header Left: 1", header.getLeft());
       assertEquals("Header Center: 3", header.getCenter());

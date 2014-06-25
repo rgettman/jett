@@ -1,26 +1,30 @@
 package net.sf.jett.test;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-import net.sf.jett.test.model.BlockShadingLoopListener;
+import net.sf.jett.test.model.AreaCellListener;
+import net.sf.jett.test.model.DemoSheetListener;
+import net.sf.jett.test.model.PopulationCellListener;
+import net.sf.jett.transform.ExcelTransformer;
 
 /**
- * This JUnit Test class tests the processing of "onLoopProcessed" on a looping
- * tag.
+ * This JUnit Test class tests the <code>SheetListener</code> feature of JETT.
  *
  * @author Randy Gettman
- * @since 0.3.0
+ * @since 0.8.0
  */
-public class TagLoopListenersTest extends TestCase
+public class SheetListenerTest extends TestCase
 {
    /**
     * Tests the .xls template spreadsheet.
@@ -51,7 +55,18 @@ public class TagLoopListenersTest extends TestCase
     */
    protected String getExcelNameBase()
    {
-      return "TagLoopListeners";
+      return "SheetListener";
+   }
+
+   /**
+    * Call certain setup-related methods on the <code>ExcelTransformer</code>
+    * before template sheet transformation.
+    * @param transformer The <code>ExcelTransformer</code> that will transform
+    *    the template worksheet(s).
+    */
+   protected void setupTransformer(ExcelTransformer transformer)
+   {
+      transformer.addSheetListener(new DemoSheetListener());
    }
 
    /**
@@ -61,32 +76,15 @@ public class TagLoopListenersTest extends TestCase
     */
    protected void check(Workbook workbook)
    {
-      for (int s = 0; s < 4; s++)
-      {
-         Sheet sheet = workbook.getSheetAt(s);
-         for (int c = 0; c < 4; c++)
-         {
-            for (int r = 1; r < 9; r++)
-            {
-               //System.err.println("TagLoopListeners: Testing s: " + s + ", c: " + c + ", r: " + r);
-               if ((r - 1) / 2 % 2 == 0)
-               {
-                  // r is 1, 2, 5, 6
-                  assertEquals(CellStyle.NO_FILL, TestUtility.getCellFillPattern(sheet, r, c));
-               }
-               else
-               {
-                  // r is 3, 4, 7, 8
-                  assertEquals(CellStyle.SOLID_FOREGROUND, TestUtility.getCellFillPattern(sheet, r, c));
-                  assertEquals(IndexedColors.GREY_25_PERCENT.getIndex(), TestUtility.getCellStyle(sheet, r, c).getFillForegroundColor());
-               }
-            }
-         }
-      }
+      Sheet first = workbook.getSheetAt(0);
+      assertEquals("Message changed by a SheetListener!", TestUtility.getStringCellValue(first, 1, 1));
+      assertEquals("Sheet Listener Message!", TestUtility.getStringCellValue(first, 2, 1));
+      assertEquals("Changed by DemoSheetListener!", TestUtility.getStringCellValue(first, 0, 5));
 
-      Sheet before = workbook.getSheetAt(4);
-      assertEquals("Three!", TestUtility.getStringCellValue(before, 0, 3));
-      assertEquals("The above count, using ${x}, should have 3 replaced!", TestUtility.getStringCellValue(before, 1, 1));
+      Sheet second = workbook.getSheetAt(1);
+      assertEquals("${message2}", TestUtility.getStringCellValue(second, 1, 1));
+      assertEquals("${message}", TestUtility.getStringCellValue(second, 2, 1));
+      assertTrue(TestUtility.isCellBlank(second, 0, 5));
    }
 
    /**
@@ -105,8 +103,9 @@ public class TagLoopListenersTest extends TestCase
     */
    protected Map<String, Object> getBeansMap()
    {
-      Map<String, Object> beans = TestUtility.getEmployeeData();
-      beans.put("blockShadingLoopListener", new BlockShadingLoopListener());
+      Map<String, Object> beans = new HashMap<String, Object>();
+      beans.put("message", "Sheet Listener Message!");
+      beans.put("message2", "Message changed by a SheetListener!");
       return beans;
    }
 }

@@ -4,9 +4,10 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.jexl2.JexlContext;
 import org.apache.commons.jexl2.parser.ASTIdentifier;
@@ -42,6 +43,13 @@ public class Expression
     * yet, in which case the result is <code>null</code>.
     */
    private static final Map<String, String> MAP_EXPRESSION_TO_COLL_NAMES = new HashMap<String, String>();
+
+   /**
+    * This pattern makes sure that there is no backslash in front of an
+    * expression that is due to be replaced with the result of its evaluation.
+    * @since 0.8.0
+    */
+   public static final String NEGATIVE_LOOKBEHIND_BACKSLASH = "(?<![\\\\])";
 
    /**
     * Determines the start of a JEXL expression.
@@ -451,11 +459,15 @@ public class Expression
 
       while (beginIdx != -1 && endIdx != -1 && endIdx > beginIdx)
       {
-         String strExpr = value.substring(beginIdx + 2, endIdx);
-         if (DEBUG)
-            System.err.println("  Expression Found: " + strExpr);
-         Expression expr = new Expression(strExpr);
-         expressions.add(expr);
+         // Skip escaped expressions, e.g. "\${...}".
+         if (beginIdx == 0 || value.charAt(beginIdx - 1) != '\\')
+         {
+            String strExpr = value.substring(beginIdx + 2, endIdx);
+            if (DEBUG)
+               System.err.println("  Expression Found: " + strExpr);
+            Expression expr = new Expression(strExpr);
+            expressions.add(expr);
+         }
 
          beginIdx = value.indexOf(Expression.BEGIN_EXPR, endIdx + 1);
          endIdx = findEndOfExpression(value, beginIdx + Expression.BEGIN_EXPR.length());
@@ -478,38 +490,39 @@ public class Expression
    private static String replaceExpressions(String value,
       List<Expression> expressions, Map<String, Object> beans)
    {
-      HashSet<String> usedExpressions = new HashSet<String>();
       // Replace Expressions with values.
       for (Expression expr : expressions)
       {
          if (DEBUG)
             System.err.println("replExprs: Loop for " + expr.myExpression);
-         if (usedExpressions.add(expr.myExpression))
+         int beginIdx = value.indexOf(Expression.BEGIN_EXPR);
+         //int endIdx = value.indexOf(Expression.END_EXPR);
+         int endIdx = beginIdx + Expression.BEGIN_EXPR.length() + expr.myExpression.length();
+         if (beginIdx != -1 && endIdx != -1 && endIdx > beginIdx)
          {
-            int beginIdx = value.indexOf(Expression.BEGIN_EXPR);
-            //int endIdx = value.indexOf(Expression.END_EXPR);
-            int endIdx = beginIdx + Expression.BEGIN_EXPR.length() + expr.myExpression.length();
-            if (beginIdx != -1 && endIdx != -1 && endIdx > beginIdx)
-            {
-               String replaceMe = value.substring(beginIdx, endIdx + 1);
-               if (DEBUG)
-                  System.err.print("  Replacing \"" + replaceMe + "\" with ");
-               Object result = expr.evaluate(beans);
-               String replaceWith = "";
-               if (result != null)
-                  replaceWith = expr.evaluate(beans).toString();
-               if (DEBUG)
-                  System.err.println("  \"" + replaceWith + "\".");
-               value = value.replace(replaceMe, replaceWith);
-               if (DEBUG)
-                  System.err.println("  value is now \"" + value + "\".");
-            }
-            else
-            {
-               break;
-            }
+            String replaceMe = value.substring(beginIdx, endIdx + 1);
+            if (DEBUG)
+               System.err.print("  Replacing \"" + replaceMe + "\" with ");
+            Object result = expr.evaluate(beans);
+            String replaceWith = "";
+            if (result != null)
+               replaceWith = expr.evaluate(beans).toString();
+            if (DEBUG)
+               System.err.println("  \"" + replaceWith + "\".");
+
+            // Don't replace an expression when the $ is escaped, e.g. "\${replaceMe}".
+            value = value.replaceFirst(NEGATIVE_LOOKBEHIND_BACKSLASH + Pattern.quote(replaceMe),
+               Matcher.quoteReplacement(replaceWith));
+            if (DEBUG)
+               System.err.println("  value is now \"" + value + "\".");
+         }
+         else
+         {
+            break;
          }
       }
+      // Respect escapes of expressions.  E.g. "\${expr}" => "${expr}", unevaluated.
+      value = value.replace("\\" + Expression.BEGIN_EXPR, Expression.BEGIN_EXPR);
       return value;
    }
 
@@ -533,12 +546,16 @@ public class Expression
       ArrayList<String> exprValues = new ArrayList<String>(expressions.size());
       for (Expression expr : expressions)
       {
+         if (DEBUG)
+            System.err.println("replExprsRTS: Loop for " + expr.myExpression);
          exprStrings.add(BEGIN_EXPR + expr.myExpression + END_EXPR);
          Object result = expr.evaluate(beans);
          if (result != null)
             exprValues.add(result.toString());
          else
             exprValues.add("");
+         if (DEBUG)
+            System.err.println("  replacement of \"" + expr.myExpression + "\" with \"" + result + "\".");
       }
       return RichTextStringUtil.replaceValues(richTextString, helper, exprStrings, exprValues);
    }
