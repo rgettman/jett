@@ -153,6 +153,8 @@ public class FormulaTag extends BaseTag
       Row row = sheet.getRow(top);
       Cell cell = row.getCell(left);
 
+      if (DEBUG)
+         System.err.println("myFormulaExpression: " + myFormulaExpression);
       String formulaText = Expression.evaluateString(myFormulaExpression, beans).toString();
       if (DEBUG)
          System.err.println("formulaText: " + formulaText);

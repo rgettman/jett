@@ -6,8 +6,6 @@ import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFCellStyle;
-import org.apache.poi.xssf.usermodel.XSSFColor;
 
 import net.sf.jett.event.TagLoopEvent;
 import net.sf.jett.event.TagLoopListener;
@@ -22,6 +20,28 @@ import net.sf.jett.model.Block;
  */
 public class BlockShadingLoopListener implements TagLoopListener
 {
+   /**
+    * In D1, sets a new expression.  Prevents B2 from being processed.
+    * @param event A <code>TagLoopEvent</code>.
+    * @return <code>true</code>.
+    * @since 0.8.0
+    */
+   public boolean beforeTagLoopProcessed(TagLoopEvent event)
+   {
+      Block block = event.getBlock();
+      Sheet sheet = event.getSheet();
+      int loopIndex = event.getLoopIndex();
+      int row = block.getTopRowNum();
+      int col = block.getLeftColNum();
+      if (loopIndex == 2) // B1 + 2 cols to the right = D1
+      {
+         Row r = sheet.getRow(row);
+         Cell cell = r.getCell(col);
+         cell.setCellValue("Three!");
+      }
+      return !(row == 1 && col == 1); // B2; Don't process this cell.
+   }
+
    /**
     * Shade alternating blocks light gray.
     * @param event The <code>TagLoopEvent</code>.

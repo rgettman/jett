@@ -469,46 +469,52 @@ public abstract class BaseLoopTag extends BaseTag
 
             // Before Block Processing.
             beforeBlockProcessed(context, currBlock, item, index);
-            // Process the block.
-            TagContext blockContext = new TagContext();
-            blockContext.setSheet(sheet);
-            blockContext.setBeans(beans);
-            blockContext.setBlock(currBlock);
-            blockContext.setProcessedCellsMap(context.getProcessedCellsMap());
-            blockContext.setDrawing(context.getDrawing());
-            if (DEBUG)
-               System.err.println("  Block Before: " + currBlock);
-            right = currBlock.getRightColNum();
-            bottom = currBlock.getBottomRowNum();
 
-            transformer.transform(blockContext, workbookContext);
-            // See if the block transformation grew or shrunk the current block.
-            if (DEBUG)
-               System.err.println("  Block After: " + currBlock);
-            colGrowth = currBlock.getRightColNum() - right;
-            rowGrowth = currBlock.getBottomRowNum() - bottom;
-            // If it did, then all pending blocks must react!
-            if (colGrowth != 0 || rowGrowth != 0)
+            // Fire a before tag loop processed event here, after the Before
+            // Block Processing occurs.
+            if (fireBeforeTagLoopProcessedEvent(currBlock, index))
             {
+               // Process the block.
+               TagContext blockContext = new TagContext();
+               blockContext.setSheet(sheet);
+               blockContext.setBeans(beans);
+               blockContext.setBlock(currBlock);
+               blockContext.setProcessedCellsMap(context.getProcessedCellsMap());
+               blockContext.setDrawing(context.getDrawing());
                if (DEBUG)
-                  System.err.println("  colGrowth is " + colGrowth + ", rowGrowth is " + rowGrowth);
-               for (int j = index + 1; j < numIterations; j++)
-               {
-                  Block pendingBlock = blocksToProcess.get(j);
-                  if (DEBUG)
-                     System.err.println("    Reacting Block: " + pendingBlock);
-                  pendingBlock.reactToGrowth(currBlock, colGrowth, rowGrowth);
-               }
-            }
-            // Get max right/bottom to expand the tag's block later.
-            if (currBlock.getRightColNum() > maxRight)
-               maxRight = currBlock.getRightColNum();
-            if (currBlock.getBottomRowNum() > maxBottom)
-               maxBottom = currBlock.getBottomRowNum();
+                  System.err.println("  Block Before: " + currBlock);
+               right = currBlock.getRightColNum();
+               bottom = currBlock.getBottomRowNum();
 
-            // Fire a tag loop event here, before the After Block Processing
-            // occurs.
-            fireTagLoopEvent(currBlock, index);
+               transformer.transform(blockContext, workbookContext);
+               // See if the block transformation grew or shrunk the current block.
+               if (DEBUG)
+                  System.err.println("  Block After: " + currBlock);
+               colGrowth = currBlock.getRightColNum() - right;
+               rowGrowth = currBlock.getBottomRowNum() - bottom;
+               // If it did, then all pending blocks must react!
+               if (colGrowth != 0 || rowGrowth != 0)
+               {
+                  if (DEBUG)
+                     System.err.println("  colGrowth is " + colGrowth + ", rowGrowth is " + rowGrowth);
+                  for (int j = index + 1; j < numIterations; j++)
+                  {
+                     Block pendingBlock = blocksToProcess.get(j);
+                     if (DEBUG)
+                        System.err.println("    Reacting Block: " + pendingBlock);
+                     pendingBlock.reactToGrowth(currBlock, colGrowth, rowGrowth);
+                  }
+               }
+               // Get max right/bottom to expand the tag's block later.
+               if (currBlock.getRightColNum() > maxRight)
+                  maxRight = currBlock.getRightColNum();
+               if (currBlock.getBottomRowNum() > maxBottom)
+                  maxBottom = currBlock.getBottomRowNum();
+
+               // Fire a tag loop processed event here, before the After Block Processing
+               // occurs.
+               fireTagLoopProcessedEvent(currBlock, index);
+            }
 
             // After Block Processing.
             afterBlockProcessed(context, currBlock, item, index);
@@ -533,17 +539,37 @@ public abstract class BaseLoopTag extends BaseTag
     * <code>Block</code>.
     * @param block The current <code>Block</code>.
     * @param index The zero-based loop index.
+    * @return Whether processing of the <code>Tag</code> loop iteration should
+    *    occur.  If the <code>TagLoopListener's</code>
+    *    <code>beforeTagLoopProcessed</code> method returns <code>false</code>,
+    *    then this method returns <code>false</code>.
+    * @since 0.8.0
     */
-   private void fireTagLoopEvent(Block block, int index)
+   private boolean fireBeforeTagLoopProcessedEvent(Block block, int index)
    {
       if (myTagLoopListener != null)
       {
-         TagLoopEvent tagLoopEvent = new TagLoopEvent();
          TagContext context = getContext();
-         tagLoopEvent.setBeans(context.getBeans());
-         tagLoopEvent.setSheet(context.getSheet());
-         tagLoopEvent.setBlock(block);
-         tagLoopEvent.setLoopIndex(index);
+         TagLoopEvent tagLoopEvent = new TagLoopEvent(context.getSheet(), block, context.getBeans(), index);
+         return myTagLoopListener.beforeTagLoopProcessed(tagLoopEvent);
+      }
+      return true;
+   }
+
+   /**
+    * If there is a <code>TagLoopListener</code>, then create and fire a
+    * <code>TagLoopEvent</code>, with beans and sheet taken from this
+    * <code>BaseLoopTag</code>, and with the given loop index and given
+    * <code>Block</code>.
+    * @param block The current <code>Block</code>.
+    * @param index The zero-based loop index.
+    */
+   private void fireTagLoopProcessedEvent(Block block, int index)
+   {
+      if (myTagLoopListener != null)
+      {
+         TagContext context = getContext();
+         TagLoopEvent tagLoopEvent = new TagLoopEvent(context.getSheet(), block, context.getBeans(), index);
          myTagLoopListener.onTagLoopProcessed(tagLoopEvent);
       }
    }

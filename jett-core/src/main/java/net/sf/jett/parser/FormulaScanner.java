@@ -50,9 +50,9 @@ public class FormulaScanner
     * <p>! for sheet!cellRef</p>
     * <p>() for function calls</p>
     * <p>, for parameter separation</p>
-    * <p>=<>&+*-/^% for Excel operators</p>
+    * <p>=<>&+*-/^%: for Excel operators</p>
     */
-   private static final String PUNCT_CHARS_NOT_AS_STRING = "'!(),=<>&+*-/^%|";
+   private static final String PUNCT_CHARS_NOT_AS_STRING = "'!(),=<>&+*-/^%:|";
 
    private String myFormulaText;
    private int myOffset;
@@ -225,7 +225,8 @@ public class FormulaScanner
                   myFormulaText.charAt(iStartOfToken) == '-' ||
                   myFormulaText.charAt(iStartOfToken) == '/' ||
                   myFormulaText.charAt(iStartOfToken) == '^' ||
-                  myFormulaText.charAt(iStartOfToken) == '%'
+                  myFormulaText.charAt(iStartOfToken) == '%' ||
+                  myFormulaText.charAt(iStartOfToken) == ':'
                  )
          {
             // Excel Operators

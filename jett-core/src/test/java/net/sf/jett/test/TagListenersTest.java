@@ -80,6 +80,12 @@ public class TagListenersTest extends TestCase
             }
          }
       }
+
+      Sheet before = workbook.getSheetAt(4);
+      assertEquals(4, TestUtility.getNumericCellValue(before, 0, 1), TestCase.DELTA);
+      assertEquals("The above will be replaced by ${employees.size()}",
+              TestUtility.getStringCellValue(before, 1, 1));
+
    }
 
    /**

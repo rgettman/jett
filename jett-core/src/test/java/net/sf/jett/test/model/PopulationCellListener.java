@@ -32,6 +32,17 @@ public class PopulationCellListener implements CellListener
    }
 
    /**
+    * Doesn't do anything.
+    * @param event A <code>SheetEvent</code>.
+    * @return <code>true</code>.
+    * @since 0.8.0
+    */
+   public boolean beforeCellProcessed(CellEvent event)
+   {
+      return true;
+   }
+
+   /**
     * Turn cell text with populations over a certain threshold bold!
     *
     * @param event The <code>CellEvent</code>.

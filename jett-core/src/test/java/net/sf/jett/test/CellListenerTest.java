@@ -123,6 +123,11 @@ public class CellListenerTest extends TestCase
             assertFalse("Expected not italic font at row " + (i + 2) + ", cell 8",
                areaFont.getItalic());
       }
+
+      Sheet before = workbook.getSheetAt(1);
+      assertEquals("California", TestUtility.getStringCellValue(before, 0, 1));
+      assertEquals("The CellListener will replace the above content with ${california.name}",
+         TestUtility.getStringCellValue(before, 1, 1));
    }
 
    /**

@@ -22,13 +22,17 @@ public class TagEvent
    private Map<String, Object> myBeans;
 
    /**
-    * Constructs a <code>TagEvent</code> with null references.
+    * Constructs a <code>TagEvent</code> built using the given
+    * <code>TagContext</code>.
+    * @param sheet A <code>Sheet</code>.
+    * @param block A <code>Block</code>.
+    * @param beans A <code>Map</code> of bean names to values.
     */
-   public TagEvent()
+   public TagEvent(Sheet sheet, Block block, Map<String, Object> beans)
    {
-      mySheet = null;
-      myBlock = null;
-      myBeans = null;
+      mySheet = sheet;
+      myBlock = block;
+      myBeans = beans;
    }
 
    /**
@@ -41,31 +45,12 @@ public class TagEvent
    }
 
    /**
-    * Sets the <code>Sheet</code> on which the block of cells was processed.
-    * @param sheet The <code>Sheet</code> on which the block of cells was
-    *    processed.
-    */
-   public void setSheet(Sheet sheet)
-   {
-      mySheet = sheet;
-   }
-
-   /**
     * Returns the <code>Block</code> of cells that was processed.
     * @return The <code>Block</code> of cells that was processed.
     */
    public Block getBlock()
    {
       return myBlock;
-   }
-
-   /**
-    * Sets the <code>Block</code> of cells that was processed.
-    * @param block The <code>Block</code> of cells that was processed.
-    */
-   public void setBlock(Block block)
-   {
-      myBlock = block;
    }
 
    /**
@@ -76,15 +61,5 @@ public class TagEvent
    public Map<String, Object> getBeans()
    {
       return myBeans;
-   }
-
-   /**
-    * Sets the <code>Map</code> of bean names to values used to process the
-    * block of cells.
-    * @param beans The <code>Map</code> of bean names to values.
-    */
-   public void setBeans(Map<String, Object> beans)
-   {
-      myBeans = beans;
    }
 }

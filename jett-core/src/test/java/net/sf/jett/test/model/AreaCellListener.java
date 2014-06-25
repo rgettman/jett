@@ -31,6 +31,24 @@ public class AreaCellListener implements CellListener
    }
 
    /**
+    * In B1, sets a new expression.  Prevents B2 from being processed.
+    * @param event A <code>CellEvent</code>.
+    * @return <code>true</code>.
+    * @since 0.8.0
+    */
+   public boolean beforeCellProcessed(CellEvent event)
+   {
+      Cell cell = event.getCell();
+      int row = cell.getRowIndex();
+      int col = cell.getColumnIndex();
+      if (row == 0 && col == 1) // B1
+      {
+         cell.setCellValue("${california.name}");
+      }
+      return !(row == 1 && col == 1); // B2; Don't process this cell.
+   }
+
+   /**
     * Turn area cells with area over a threshold italic!
     *
     * @param event The <code>CellEvent</code>.

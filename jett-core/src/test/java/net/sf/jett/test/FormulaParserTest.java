@@ -181,4 +181,27 @@ public class FormulaParserTest
       assertEquals("$Z$1", cellRef0.getDefaultValue());
       assertEquals("Sheet Name With Spaces", cellRef0.getSheetName());
    }
+
+   /**
+    * Ensure that formulas that have a colon still pick up the distinct cell
+    * references.
+    * @since 0.8.0
+    */
+   @Test
+   public void testFormulaWithColon()
+   {
+      String formula = "SUM(A9:A10)";
+
+      FormulaParser parser = new FormulaParser(formula);
+      parser.parse();
+
+      List<CellRef> cellRefs = parser.getCellReferences();
+      assertEquals(2, cellRefs.size());
+
+      CellRef cellRef0 = cellRefs.get(0);
+      assertEquals("A9", cellRef0.formatAsString());
+
+      CellRef cellRef1 = cellRefs.get(1);
+      assertEquals("A10", cellRef1.formatAsString());
+   }
 }

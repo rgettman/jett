@@ -1,6 +1,7 @@
 package net.sf.jett.transform;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -11,6 +12,8 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 
+import net.sf.jett.event.SheetEvent;
+import net.sf.jett.event.SheetListener;
 import net.sf.jett.expression.Expression;
 import net.sf.jett.formula.Formula;
 import net.sf.jett.model.Block;
@@ -80,10 +83,17 @@ public class SheetTransformer
    {
       exposeSheet(beans, sheet);
 
-      transformOffSheetProperties(sheet, beans);
+      boolean shouldProceed = fireBeforeSheetProcessedEvent(context, sheet, beans);
 
+      if (shouldProceed)
+         transformOffSheetProperties(sheet, beans);
+
+      // This will happen regardless.
       if (callback != null)
          callback.applySettings(sheet);
+      
+      if (!shouldProceed)
+         return;
 
       // Create a Block to encompass the entire sheet of Cells.
       // Create a Block as if there was a start tag at the beginning of the
@@ -110,6 +120,8 @@ public class SheetTransformer
       tagContext.setProcessedCellsMap(new HashMap<String, Cell>());
       BlockTransformer transformer = new BlockTransformer();
       transformer.transform(tagContext, context);
+
+      fireSheetProcessedEvent(context, sheet, beans);
    }
 
    /**
@@ -279,5 +291,47 @@ public class SheetTransformer
    private void exposeSheet(Map<String, Object> beans, Sheet sheet)
    {
       beans.put("sheet", sheet);
+   }
+
+   /**
+    * Calls all <code>SheetListeners'</code> <code>beforeSheetProcessed</code>
+    * method, sending a <code>SheetEvent</code>.
+    * @param context The <code>WorkbookContext</code> object.
+    * @param sheet The <code>Sheet</code> to be processed.
+    * @param beans A <code>Map</code> of bean names to bean values.
+    * @return Whether processing of the <code>Sheet</code> should occur.  If
+    *    any <code>SheetListener's</code> <code>beforeSheetProcessed</code>
+    *    method returns <code>false</code>, then this method returns
+    *    <code>false</code>.
+    * @since 0.8.0
+    */
+   private boolean fireBeforeSheetProcessedEvent(WorkbookContext context, Sheet sheet, Map<String, Object> beans)
+   {
+      boolean shouldProceed = true;
+      List<SheetListener> listeners = context.getSheetListeners();
+      SheetEvent event = new SheetEvent(sheet, beans);
+      for (SheetListener listener : listeners)
+      {
+         shouldProceed &= listener.beforeSheetProcessed(event);
+      }
+      return shouldProceed;
+   }
+
+   /**
+    * Calls all <code>SheetListeners'</code> <code>sheetProcessed</code>
+    * method, sending a <code>SheetEvent</code>.
+    * @param context The <code>WorkbookContext</code> object.
+    * @param sheet The <code>Sheet</code> to be processed.
+    * @param beans A <code>Map</code> of bean names to bean values.
+    * @since 0.8.0
+    */
+   private void fireSheetProcessedEvent(WorkbookContext context, Sheet sheet, Map<String, Object> beans)
+   {
+      List<SheetListener> listeners = context.getSheetListeners();
+      SheetEvent event = new SheetEvent(sheet, beans);
+      for (SheetListener listener : listeners)
+      {
+         listener.sheetProcessed(event);
+      }
    }
 }
