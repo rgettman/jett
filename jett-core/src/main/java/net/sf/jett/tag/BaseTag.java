@@ -260,7 +260,7 @@ public abstract class BaseTag implements Tag
       TagContext context = getContext();
       Block block = context.getBlock();
       Sheet sheet = context.getSheet();
-      SheetUtil.removeBlock(sheet, block, getWorkbookContext());
+      SheetUtil.removeBlock(sheet, context, block, getWorkbookContext());
       block.collapse();
    }
 
@@ -275,7 +275,7 @@ public abstract class BaseTag implements Tag
       TagContext context = getContext();
       Block block = context.getBlock();
       Sheet sheet = context.getSheet();
-      SheetUtil.deleteBlock(sheet, block, getWorkbookContext());
+      SheetUtil.deleteBlock(sheet, context, block, getWorkbookContext());
       block.collapse();
    }
 

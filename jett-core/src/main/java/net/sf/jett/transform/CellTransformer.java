@@ -281,6 +281,7 @@ public class CellTransformer
       context.setSheet(sheet);
       context.setProcessedCellsMap(processedCells);
       context.setDrawing(cellContext.getDrawing());
+      context.setMergedRegions(cellContext.getMergedRegions());
 
       Tag tag = registry.createTag(parser, context, workbookContext);
       if (tag == null)

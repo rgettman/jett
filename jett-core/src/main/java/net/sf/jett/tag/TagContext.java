@@ -1,10 +1,12 @@
 package net.sf.jett.tag;
 
+import java.util.List;
 import java.util.Map;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Drawing;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.util.CellRangeAddress;
 
 import net.sf.jett.model.Block;
 
@@ -21,6 +23,7 @@ public class TagContext
    private Map<String, Object> myBeans;
    private Map<String, Cell> myProcessedCells;
    private Drawing myDrawing;
+   private List<CellRangeAddress> myMergedRegions;
 
    /**
     * Construct a <code>TagContext</code>, initializing things to null.
@@ -31,6 +34,7 @@ public class TagContext
       myBlock = null;
       myBeans = null;
       myDrawing = null;
+      myMergedRegions = null;
    }
 
    /**
@@ -146,5 +150,33 @@ public class TagContext
    public void setDrawing(Drawing drawing)
    {
       myDrawing = drawing;
+   }
+
+   /**
+    * Sets the <code>List</code> of <code>CellRangeAddress</code> objects to be
+    * manipulated through this <code>TagContext</code>.  All merged region
+    * manipulation for a <code>Sheet</code> goes through this list, instead of
+    * the <code>Sheet</code> itself, for performance reasons.
+    * @param mergedRegions A <code>List</code> of
+    *    <code>CellRangeAddress</code>es.
+    * @since 0.8.0
+    */
+   public void setMergedRegions(List<CellRangeAddress> mergedRegions)
+   {
+      myMergedRegions = mergedRegions;
+   }
+
+   /**
+    * Returns the <code>List</code> of <code>CellRangeAddress</code> objects on
+    * the current <code>Sheet</code>.  For performance reasons, the
+    * <code>SheetTransformer</code> reads all merged regions into this list
+    * before transformation, all manipulations are done to this list, and after
+    * transformation, the list is re-applied to the <code>Sheet</code>.
+    * @return A <code>List</code> of <code>CellRangeAddress</code>es.
+    * @since 0.8.0
+    */
+   public List<CellRangeAddress> getMergedRegions()
+   {
+      return myMergedRegions;
    }
 }
