@@ -168,18 +168,19 @@ public class SpanTag extends BaseTag
       int height = 1;
       int width = 1;
 
-      int index = findMergedRegionAtCell(sheet, left, top);
+      List<CellRangeAddress> sheetMergedRegions = context.getMergedRegions();
+      int index = findMergedRegionAtCell(sheetMergedRegions, left, top);
       if (index != -1)
       {
          // Get the height/width and remove the old merged region.
-         CellRangeAddress remove = sheet.getMergedRegion(index);
+         CellRangeAddress remove = sheetMergedRegions.get(index);
          right = remove.getLastColumn();
          bottom = remove.getLastRow();
          height = remove.getLastRow() - remove.getFirstRow() + 1;
          width = remove.getLastColumn() - remove.getFirstColumn() + 1;
          if (DEBUG)
             System.err.println("  Removing region: " + remove + ", height=" + height + ", width=" + width);
-         sheet.removeMergedRegion(index);
+         sheetMergedRegions.remove(index);
       }
 
       short borderBottomType = CellStyle.BORDER_NONE;
@@ -270,7 +271,7 @@ public class SpanTag extends BaseTag
       {
          if (DEBUG)
             System.err.println("  Calling removeBlock on block: " + mergedBlock);
-         SheetUtil.removeBlock(sheet, mergedBlock, getWorkbookContext());
+         SheetUtil.removeBlock(sheet, context, mergedBlock, getWorkbookContext());
          return false;
       }
       // Shrink.
@@ -284,7 +285,7 @@ public class SpanTag extends BaseTag
          remove.setDirection(block.getDirection());
          if (DEBUG)
             System.err.println("  Calling removeBlock on fabricated block: " + remove + " (change " + change + ")");
-         SheetUtil.removeBlock(sheet, remove, getWorkbookContext());
+         SheetUtil.removeBlock(sheet, context, remove, getWorkbookContext());
       }
       // Expand.
       if (change > 0)
@@ -297,7 +298,7 @@ public class SpanTag extends BaseTag
          expand.setDirection(block.getDirection());
          if (DEBUG)
             System.err.println("  Calling shiftForBlock on fabricated block: " + expand + " with change " + (change + 1));
-         SheetUtil.shiftForBlock(sheet, expand, getWorkbookContext(), change + 1);
+         SheetUtil.shiftForBlock(sheet, context, expand, getWorkbookContext(), change + 1);
       }
       if (borderTopType != CellStyle.BORDER_NONE || borderBottomType != CellStyle.BORDER_NONE ||
           borderRightType != CellStyle.BORDER_NONE || borderLeftType != CellStyle.BORDER_NONE)
@@ -306,7 +307,6 @@ public class SpanTag extends BaseTag
             borderLeftType, borderRightType, borderTopType, borderBottomType,
             borderLeftColor, borderRightColor, borderTopColor, borderBottomColor);
       }
-
 
       // Set the value.
       Row row = sheet.getRow(top);
@@ -320,7 +320,7 @@ public class SpanTag extends BaseTag
          CellRangeAddress create = new CellRangeAddress(top, bottom, left, right);
          if (DEBUG)
             System.err.println("  Adding region: " + create);
-         sheet.addMergedRegion(create);
+         sheetMergedRegions.add(create);
       }
 
       BlockTransformer transformer = new BlockTransformer();
@@ -335,17 +335,19 @@ public class SpanTag extends BaseTag
    /**
     * Identify the merged region on the given <code>Sheet</code> whose top-left
     * corner is at the specified column and row indexes.
-    * @param sheet A <code>Sheet</code>.
+    * @param sheetMergedRegions A <code>List</code> of
+    *    <code>CellRangeAddress</code>es.
     * @param col The 0-based column index of the top-left corner.
     * @param row The 0-based row index of the top-left corner.
     * @return A 0-based index into the <code>Sheet's</code> list of merged
     *    regions, or -1 if not found.
     */
-   private int findMergedRegionAtCell(Sheet sheet, int col, int row)
+   private int findMergedRegionAtCell(List<CellRangeAddress> sheetMergedRegions, int col, int row)
    {
-      for (int i = 0; i < sheet.getNumMergedRegions(); i++)
+      int numMergedRegions = sheetMergedRegions.size();
+      for (int i = 0; i < numMergedRegions; i++)
       {
-         CellRangeAddress candidate = sheet.getMergedRegion(i);
+         CellRangeAddress candidate = sheetMergedRegions.get(i);
          if (candidate.getFirstRow() == row && candidate.getFirstColumn() == col)
             return i;
       }

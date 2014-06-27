@@ -39,6 +39,7 @@ import net.sf.jett.model.Block;
 import net.sf.jett.model.ExcelColor;
 import net.sf.jett.model.PastEndAction;
 import net.sf.jett.model.WorkbookContext;
+import net.sf.jett.tag.TagContext;
 
 /**
  * The <code>SheetUtil</code> utility class provides methods for
@@ -214,14 +215,15 @@ public class SheetUtil
     * <code>Cells</code> that are "in the way".  Shifts merged regions also.
     *
     * @param sheet The <code>Sheet</code> on which to move <code>Cells</code>.
+    * @param context A <code>TagContext</code>.
     * @param colStart The 0-based column index on which to start moving cells.
     * @param colEnd The 0-based column index on which to end moving cells.
     * @param rowStart The 0-based row index on which to start moving cells.
     * @param rowEnd The 0-based row index on which to end moving cells.
     * @param numCols The number of columns to move <code>Cells</code> left.
     */
-   private static void shiftCellsLeft(Sheet sheet, int colStart, int colEnd,
-      int rowStart, int rowEnd, int numCols)
+   private static void shiftCellsLeft(Sheet sheet, TagContext context,
+      int colStart, int colEnd, int rowStart, int rowEnd, int numCols)
    {
       if (DEBUG)
          System.err.println("    Shifting cells left in rows " + rowStart +
@@ -257,7 +259,7 @@ public class SheetUtil
          }
       }
 
-      shiftMergedRegionsInRange(sheet, colStart, colEnd, rowStart, rowEnd, -numCols, 0, true, true);
+      shiftMergedRegionsInRange(context, colStart, colEnd, rowStart, rowEnd, -numCols, 0, true, true);
       //shiftConditionalFormattingRegionsInRange(sheet, colStart, colEnd,
       //         rowStart, rowEnd, -numCols, 0);
    }
@@ -268,14 +270,15 @@ public class SheetUtil
     * <code>Cells</code> behind.  Shifts merged regions also.
     *
     * @param sheet The <code>Sheet</code> on which to move <code>Cells</code>.
+    * @param context A <code>TagContext</code>.
     * @param colStart The 0-based column index on which to start moving cells.
     * @param colEnd The 0-based column index on which to end moving cells.
     * @param rowStart The 0-based row index on which to start moving cells.
     * @param rowEnd The 0-based row index on which to end moving cells.
     * @param numCols The number of columns to move <code>Cells</code> right.
     */
-   private static void shiftCellsRight(Sheet sheet, int colStart, int colEnd,
-      int rowStart, int rowEnd, int numCols)
+   private static void shiftCellsRight(Sheet sheet, TagContext context,
+      int colStart, int colEnd, int rowStart, int rowEnd, int numCols)
    {
       if (DEBUG)
          System.err.println("    Shifting cells right in rows " + rowStart +
@@ -311,7 +314,7 @@ public class SheetUtil
          }
       }
 
-      shiftMergedRegionsInRange(sheet, colStart, colEnd, rowStart, rowEnd, numCols, 0, true, true);
+      shiftMergedRegionsInRange(context, colStart, colEnd, rowStart, rowEnd, numCols, 0, true, true);
       //shiftConditionalFormattingRegionsInRange(sheet, colStart, colEnd,
       //         rowStart, rowEnd, numCols, 0);
    }
@@ -322,14 +325,15 @@ public class SheetUtil
     * <code>Cells</code> behind.  Shifts merged regions also.
     *
     * @param sheet The <code>Sheet</code> on which to move <code>Cells</code>.
+    * @param context A <code>TagContext</code>.
     * @param colStart The 0-based column index on which to start moving cells.
     * @param colEnd The 0-based column index on which to end moving cells.
     * @param rowStart The 0-based row index on which to start moving cells.
     * @param rowEnd The 0-based row index on which to end moving cells.
     * @param numRows The number of columns to move <code>Cells</code> up.
     */
-   private static void shiftCellsUp(Sheet sheet, int colStart, int colEnd,
-      int rowStart, int rowEnd, int numRows)
+   private static void shiftCellsUp(Sheet sheet, TagContext context,
+      int colStart, int colEnd, int rowStart, int rowEnd, int numRows)
    {
       if (DEBUG)
          System.err.println("    Shifting cells up in rows " + rowStart +
@@ -370,7 +374,7 @@ public class SheetUtil
          }
       }
 
-      shiftMergedRegionsInRange(sheet, colStart, colEnd, rowStart, rowEnd, 0, -numRows, true, true);
+      shiftMergedRegionsInRange(context, colStart, colEnd, rowStart, rowEnd, 0, -numRows, true, true);
       //shiftConditionalFormattingRegionsInRange(sheet, colStart, colEnd,
       //         rowStart, rowEnd, 0, -numRows);
    }
@@ -381,14 +385,15 @@ public class SheetUtil
     * <code>Cells</code> behind.
     *
     * @param sheet The <code>Sheet</code> on which to move <code>Cells</code>.
+    * @param context A <code>TagContext</code>.
     * @param colStart The 0-based column index on which to start moving cells.
     * @param colEnd The 0-based column index on which to end moving cells.
     * @param rowStart The 0-based row index on which to start moving cells.
     * @param rowEnd The 0-based row index on which to end moving cells.
     * @param numRows The number of columns to move <code>Cells</code> down.
     */
-   private static void shiftCellsDown(Sheet sheet, int colStart, int colEnd,
-      int rowStart, int rowEnd, int numRows)
+   private static void shiftCellsDown(Sheet sheet, TagContext context,
+      int colStart, int colEnd, int rowStart, int rowEnd, int numRows)
    {
       if (DEBUG)
          System.err.println("    Shifting cells down in rows " + rowStart +
@@ -423,7 +428,7 @@ public class SheetUtil
          }
       }
 
-      shiftMergedRegionsInRange(sheet, colStart, colEnd, rowStart, rowEnd, 0, numRows, true, true);
+      shiftMergedRegionsInRange(context, colStart, colEnd, rowStart, rowEnd, 0, numRows, true, true);
       //shiftConditionalFormattingRegionsInRange(sheet, colStart, colEnd,
       //         rowStart, rowEnd, 0, numRows);
    }
@@ -665,7 +670,8 @@ public class SheetUtil
    /**
     * Shifts all merged regions found in the given range by the given number
     * of rows and columns (usually one of those two will be zero).
-    * @param sheet The <code>Sheet</code> on which to shift merged regions.
+    * @param context A <code>TagContext</code> that supplies the merged regions
+    *    to shift.
     * @param left The 0-based index of the column on which to start shifting
     *    merged regions.
     * @param right The 0-based index of the column on which to end shifting
@@ -684,7 +690,7 @@ public class SheetUtil
     * @param add Determines whether to add the new merged region, resulting in
     *    a copy, or not to add the new merged region, resulting in a shift.
     */
-   private static void shiftMergedRegionsInRange(Sheet sheet,
+   private static void shiftMergedRegionsInRange(TagContext context,
       int left, int right, int top, int bottom, int numCols, int numRows,
       boolean remove, boolean add)
    {
@@ -694,37 +700,53 @@ public class SheetUtil
             ", numRows " + numRows + ", remove " + remove + ", add " + add);
       if (numCols == 0 && numRows == 0 && remove && add)
          return;
-      ArrayList<CellRangeAddress> regions = new ArrayList<CellRangeAddress>();
-      for (int i = 0; i < sheet.getNumMergedRegions(); i++)
+
+      List<CellRangeAddress> sheetMergedRegions = context.getMergedRegions();
+      if (add)
       {
-         CellRangeAddress region = sheet.getMergedRegion(i);
-         if (isCellAddressWhollyContained(region, left, right, top, bottom))
+         int numMergedRegions = sheetMergedRegions.size();
+         for (int i = 0; i < numMergedRegions; i++)
          {
-            regions.add(region);
-            // Remove this range, if desired.
-            if (remove)
+            CellRangeAddress region = sheetMergedRegions.get(i);
+            if (isCellAddressWhollyContained(region, left, right, top, bottom))
             {
-               if (DEBUG)
-                  System.err.println("      Removing merged region: " + region);
-               sheet.removeMergedRegion(i);
-               // Must try this index again!
-               i--;
+               CellRangeAddress newRegion = new CellRangeAddress(
+                  region.getFirstRow() + numRows,
+                  region.getLastRow() + numRows,
+                  region.getFirstColumn() + numCols,
+                  region.getLastColumn() + numCols);
+               if (remove)
+               {
+                  if (DEBUG)
+                     System.err.println("      Updating adjusted merged region from " + region + " to " + newRegion + ".");
+                  sheetMergedRegions.set(i, newRegion);
+               }
+               else
+               {
+                  if (DEBUG)
+                     System.err.println("      Copying merged region from " + region + " to " + newRegion + ".");
+                  sheetMergedRegions.add(newRegion);
+               }
             }
          }
       }
-      // If desired, add a new region with the shifted version.
-      if (add)
+      else if (remove)
       {
-         for (CellRangeAddress region : regions)
+         int numMergedRegions = sheetMergedRegions.size();
+         List<CellRangeAddress> regionsToRemove = new ArrayList<CellRangeAddress>();
+         for (int i = 0; i < numMergedRegions; i++)
          {
-            CellRangeAddress newRegion = new CellRangeAddress(
-               region.getFirstRow() + numRows,
-               region.getLastRow() + numRows,
-               region.getFirstColumn() + numCols,
-               region.getLastColumn() + numCols);
-            if (DEBUG)
-               System.err.println("      Adding adjusted merged region: " + newRegion + ".");
-            sheet.addMergedRegion(newRegion);
+            CellRangeAddress region = sheetMergedRegions.get(i);
+            if (isCellAddressWhollyContained(region, left, right, top, bottom))
+            {
+               if (DEBUG)
+                  System.err.println("      Removing merged region: " + region);
+               regionsToRemove.add(region);
+            }
+         }
+         if (!regionsToRemove.isEmpty())
+         {
+            sheetMergedRegions.removeAll(regionsToRemove);
          }
       }
    }
@@ -994,11 +1016,12 @@ public class SheetUtil
     * Removes all <code>Cells</code> found inside the given <code>Block</code>
     * on the given <code>Sheet</code>.
     * @param sheet The <code>Sheet</code> on which to delete a
-    *    <code>Block</code>
+    *    <code>Block</code>.
+    * @param tagContext A <code>TagContext</code>.
     * @param block The <code>Block</code> of <code>Cells</code> to delete.
     * @param context The <code>WorkbookContext</code>.
     */
-   public static void deleteBlock(Sheet sheet, Block block, WorkbookContext context)
+   public static void deleteBlock(Sheet sheet, TagContext tagContext, Block block, WorkbookContext context)
    {
       if (DEBUG)
          System.err.println("  deleteBlock: " + sheet.getSheetName() + ": " + block + ".");
@@ -1022,7 +1045,7 @@ public class SheetUtil
          }
       }
       // Remove any merged regions in this Block.
-      shiftMergedRegionsInRange(sheet, left, right, top, bottom, 0, 0, true, false);
+      shiftMergedRegionsInRange(tagContext, left, right, top, bottom, 0, 0, true, false);
       // Remove any conditional formatting regions in this Block.
       //removeConditionalFormattingRegionsInRange(sheet, left, right, top, bottom);
       // Lose the current cell references.
@@ -1225,10 +1248,11 @@ public class SheetUtil
     * Removes the given <code>Block</code> of <code>Cells</code> from the given
     * <code>Sheet</code>.
     * @param sheet The <code>Sheet</code> on which to remove the block.
+    * @param tagContext A <code>TagContext</code>.
     * @param block The <code>Block</code> to remove.
     * @param context The <code>WorkbookContext</code>.
     */
-   public static void removeBlock(Sheet sheet, Block block, WorkbookContext context)
+   public static void removeBlock(Sheet sheet, TagContext tagContext, Block block, WorkbookContext context)
    {
       int left = block.getLeftColNum();
       int right = block.getRightColNum();
@@ -1256,7 +1280,7 @@ public class SheetUtil
          endRowNum = ancestor.getBottomRowNum();
 
          // Remove the contents of the Block.
-         deleteBlock(sheet, block, context);
+         deleteBlock(sheet, tagContext, block, context);
 
          // If we reached the root parent, and our block is as wide as it, then
          // shrink it too.
@@ -1268,7 +1292,7 @@ public class SheetUtil
             ancestor.expand(0, -numToShiftUp);
             copyRowHeightsUp(sheet, startRowNum, endRowNum, numToShiftUp);
          }
-         shiftCellsUp(sheet, left, right, startRowNum, endRowNum, numToShiftUp);
+         shiftCellsUp(sheet, tagContext, left, right, startRowNum, endRowNum, numToShiftUp);
          FormulaUtil.shiftCellReferencesInRange(sheet.getSheetName(), context.getCellRefMap(),
             left, right, startRowNum, endRowNum,
             0, -numToShiftUp, true, true);
@@ -1285,7 +1309,7 @@ public class SheetUtil
          endCellNum = ancestor.getRightColNum();
 
          // Remove the contents of the Block.
-         deleteBlock(sheet, block, context);
+         deleteBlock(sheet, tagContext, block, context);
 
          // If we reached the root parent, and our block is as tall as it, then
          // shrink it too.
@@ -1298,7 +1322,7 @@ public class SheetUtil
             copyColumnWidthsLeft(sheet, startCellNum, endCellNum, numToShiftLeft);
          }
 
-         shiftCellsLeft(sheet, startCellNum, endCellNum, top, bottom, numToShiftLeft);
+         shiftCellsLeft(sheet, tagContext, startCellNum, endCellNum, top, bottom, numToShiftLeft);
          FormulaUtil.shiftCellReferencesInRange(sheet.getSheetName(), context.getCellRefMap(),
             startCellNum, endCellNum, top, bottom,
             -numToShiftLeft, 0, true, true);
@@ -1307,7 +1331,7 @@ public class SheetUtil
          if (DEBUG)
             System.err.println("  Case: None");
          // Remove the Block content.
-         deleteBlock(sheet, block, context);
+         deleteBlock(sheet, tagContext, block, context);
          break;
       }
    }
@@ -1416,6 +1440,7 @@ public class SheetUtil
    /**
     * Shifts <code>Cells</code> out of the way.
     * @param sheet The <code>Sheet</code> on which to shift.
+    * @param tagContext A <code>TagContext</code>.
     * @param block The <code>Block</code> whose copies will occupy the
     *    <code>Cells</code> that will move to make way for the copies.
     * @param context The <code>WorkbookContext</code>.
@@ -1423,7 +1448,7 @@ public class SheetUtil
     *    on the case of <code>block</code> that defines the area of
     *    <code>Cells</code> to shift.
     */
-   public static void shiftForBlock(Sheet sheet, Block block, WorkbookContext context, int numBlocksAway)
+   public static void shiftForBlock(Sheet sheet, TagContext tagContext, Block block, WorkbookContext context, int numBlocksAway)
    {
       int left = block.getLeftColNum();
       int right = block.getRightColNum();
@@ -1527,7 +1552,7 @@ public class SheetUtil
             translateDown = shiftAmounts.pop();
 
             copyRowHeightsDown(sheet, toShift.getTopRowNum(), toShift.getBottomRowNum(), translateDown);
-            shiftCellsDown(sheet, toShift.getLeftColNum(), toShift.getRightColNum(),
+            shiftCellsDown(sheet, tagContext, toShift.getLeftColNum(), toShift.getRightColNum(),
                toShift.getTopRowNum(), toShift.getBottomRowNum(), translateDown);
             FormulaUtil.shiftCellReferencesInRange(sheet.getSheetName(), context.getCellRefMap(),
                toShift.getLeftColNum(), toShift.getRightColNum(), toShift.getTopRowNum(), toShift.getBottomRowNum(),
@@ -1607,7 +1632,7 @@ public class SheetUtil
             translateRight = shiftAmounts.pop();
 
             copyColumnWidthsRight(sheet, toShift.getLeftColNum(), toShift.getRightColNum(), translateRight);
-            shiftCellsRight(sheet, toShift.getLeftColNum(), toShift.getRightColNum(),
+            shiftCellsRight(sheet, tagContext, toShift.getLeftColNum(), toShift.getRightColNum(),
                toShift.getTopRowNum(), toShift.getBottomRowNum(), translateRight);
             FormulaUtil.shiftCellReferencesInRange(sheet.getSheetName(), context.getCellRefMap(),
                toShift.getLeftColNum(), toShift.getRightColNum(), toShift.getTopRowNum(), toShift.getBottomRowNum(),
@@ -1699,13 +1724,14 @@ public class SheetUtil
     * Copies an entire <code>Block</code> the given number of blocks away on
     * the given <code>Sheet</code>.
     * @param sheet The <code>Sheet</code> on which to copy.
+    * @param tagContext A <code>TagContext</code>.
     * @param block The <code>Block</code> to copy.
     * @param context The <code>WorkbookContext</code>.
     * @param numBlocksAway The number of blocks (widths or lengths, depending
     *    on the direction of <code>block</code>), away to copy.
     * @return The newly copied <code>Block</code>.
     */
-   public static Block copyBlock(Sheet sheet, Block block, WorkbookContext context, int numBlocksAway)
+   public static Block copyBlock(Sheet sheet, TagContext tagContext, Block block, WorkbookContext context, int numBlocksAway)
    {
       int left = block.getLeftColNum();
       int right = block.getRightColNum();
@@ -1795,7 +1821,7 @@ public class SheetUtil
          if (numBlocksAway > 0)
          {
             // Copy merged regions down.
-            shiftMergedRegionsInRange(sheet, left, right,
+            shiftMergedRegionsInRange(tagContext, left, right,
                top, bottom, 0, translateDown, false, true);
             // Copy conditional formatting regions down.
             //copyConditionalFormattingRegionsInRange(sheet, left, right,
@@ -1872,7 +1898,7 @@ public class SheetUtil
          if (numBlocksAway > 0)
          {
             // Copy merged regions right.
-            shiftMergedRegionsInRange(sheet, left, right, top, bottom, translateRight, 0, false, true);
+            shiftMergedRegionsInRange(tagContext, left, right, top, bottom, translateRight, 0, false, true);
             // Copy conditional formatting regions down.
             //copyConditionalFormattingRegionsInRange(sheet, left, right,
             //   top, bottom, translateRight, 0);

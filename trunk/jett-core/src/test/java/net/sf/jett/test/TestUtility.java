@@ -251,6 +251,47 @@ public class TestUtility
    }
 
    /**
+    * Gets a beans map with a <code>List</code> of 100 dummy division beans,
+    * each containing 10 <code>Team</code> beans.  The name is "divisionsList".
+    * @return A <code>Map</code> of beans containing a <code>List</code> of
+    *    100 dummy <code>Divisions</code>.
+    * @since 0.8.0
+    */
+   public static Map<String, Object> getDummyDivisionsData()
+   {
+      Map<String, Object> beans = new HashMap<String, Object>();
+      List<Division> divisionsList = new ArrayList<Division>(100);
+      for (int d = 0; d < 100; d++)
+         divisionsList.add(getDummyDivision(d));
+
+      beans.put("divisionsList", divisionsList);
+
+      return beans;
+   }
+
+   /**
+    * Get a dummy <code>Division</code>, with 10 dummy teams.
+    * @param d Determines which dummy "division".
+    * @return A dummy <code>Division</code> with 10 dummy teams.
+    * @since 0.8.0
+    */
+   public static Division getDummyDivision(int d)
+   {
+      Division div = new Division();
+      div.setName("Division " + (d + 1));
+      for (int t = 0; t < 10; t++)
+      {
+         Team team = new Team(div);
+         team.setCity("City " + (d * 10 + t + 1));
+         team.setName("The Team " + (d * 10 + t + 1) + "ers");
+         team.setWins((int) (Math.random() * 162));
+         team.setLosses(162 - team.getWins());
+         div.addTeam(team);
+      }
+      return div;
+   }
+
+   /**
     * Get a beans map with a <code>List</code> of <code>Teams</code> from all
     * <code>Divisions</code>.  The name is "teams".
     * @return A <code>Map</code> of beans, containing the <code>List</code> of
@@ -678,7 +719,8 @@ public class TestUtility
     */
    public static boolean isMergedRegionPresent(Sheet sheet, CellRangeAddress region)
    {
-      for (int i = 0; i < sheet.getNumMergedRegions(); i++)
+      int numMergedRegions = sheet.getNumMergedRegions();
+      for (int i = 0; i < numMergedRegions; i++)
       {
          CellRangeAddress candidate = sheet.getMergedRegion(i);
          if (candidate.getFirstRow() == region.getFirstRow() &&

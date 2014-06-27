@@ -206,6 +206,7 @@ public class CollectionsTransformer
       context.setSheet(sheet);
       context.setProcessedCellsMap(processedCells);
       context.setDrawing(cellContext.getDrawing());
+      context.setMergedRegions(cellContext.getMergedRegions());
 
       // Create an implicit MultiForEach tag.
       MultiForEachTag tag = new MultiForEachTag();

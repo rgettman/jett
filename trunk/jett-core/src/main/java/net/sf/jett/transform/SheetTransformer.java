@@ -1,5 +1,6 @@
 package net.sf.jett.transform;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +12,7 @@ import org.apache.poi.ss.usermodel.Header;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.util.CellRangeAddress;
 
 import net.sf.jett.event.SheetEvent;
 import net.sf.jett.event.SheetListener;
@@ -118,8 +120,12 @@ public class SheetTransformer
       tagContext.setBlock(block);
       tagContext.setBeans(beans);
       tagContext.setProcessedCellsMap(new HashMap<String, Cell>());
+      List<CellRangeAddress> mergedRegions = new ArrayList<CellRangeAddress>();
+      tagContext.setMergedRegions(mergedRegions);
+      readMergedRegions(sheet, mergedRegions);
       BlockTransformer transformer = new BlockTransformer();
       transformer.transform(tagContext, context);
+      writeMergedRegions(sheet, mergedRegions);
 
       fireSheetProcessedEvent(context, sheet, beans);
    }
@@ -332,6 +338,50 @@ public class SheetTransformer
       for (SheetListener listener : listeners)
       {
          listener.sheetProcessed(event);
+      }
+   }
+
+   /**
+    * Reads all merged regions from the given <code>Sheet</code> and populates
+    * the given <code>List</code> with them.  All transformation that
+    * manipulates merged regions will be done on this cache of merged regions,
+    * instead of directly on the <code>Sheet</code>, for performance reasons.
+    * @param sheet The <code>Sheet</code>.
+    * @param mergedRegions A <code>List</code> of
+    *    <code>CellRangeAddress</code>es, which is modified.
+    * @since 0.8.0
+    */
+   private void readMergedRegions(Sheet sheet, List<CellRangeAddress> mergedRegions)
+   {
+      int numMergedRegions = sheet.getNumMergedRegions();
+      for (int i = 0; i < numMergedRegions; i++)
+      {
+         mergedRegions.add(sheet.getMergedRegion(i));
+      }
+   }
+
+   /**
+    * Clears all merged regions on the given <code>Sheet</code> and populates
+    * the <code>Sheet</code> with the given <code>List</code> of merged
+    * regions.
+    * @param sheet The <code>Sheet</code>.
+    * @param mergedRegions A <code>List</code> of
+    *    <code>CellRangeAddresses</code>.
+    * @since 0.8.0
+    */
+   private void writeMergedRegions(Sheet sheet, List<CellRangeAddress> mergedRegions)
+   {
+      // Clear the existing merged regions on the sheet.
+      // Remove them last item first, in an attempt to avoid internal ArrayList
+      // shifting.
+      for (int i = sheet.getNumMergedRegions() - 1; i >= 0; i--)
+      {
+         sheet.removeMergedRegion(i);
+      }
+      // Send in the new regions.
+      for (CellRangeAddress mergedRegion : mergedRegions)
+      {
+         sheet.addMergedRegion(mergedRegion);
       }
    }
 }

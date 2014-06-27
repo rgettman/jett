@@ -457,7 +457,7 @@ public abstract class BaseLoopTag extends BaseTag
                   SheetUtil.clearBlock(sheet, currBlock, getWorkbookContext());
                   break;
                case REMOVE_CELL:
-                  SheetUtil.deleteBlock(sheet, currBlock, getWorkbookContext());
+                  SheetUtil.deleteBlock(sheet, context, currBlock, getWorkbookContext());
                   break;
                case REPLACE_EXPR:
                   SheetUtil.takePastEndAction(sheet, currBlock, varNames, myPastEndAction, myReplaceExprValue);
@@ -481,6 +481,7 @@ public abstract class BaseLoopTag extends BaseTag
                blockContext.setBlock(currBlock);
                blockContext.setProcessedCellsMap(context.getProcessedCellsMap());
                blockContext.setDrawing(context.getDrawing());
+               blockContext.setMergedRegions(context.getMergedRegions());
                if (DEBUG)
                   System.err.println("  Block Before: " + currBlock);
                right = currBlock.getRightColNum();
@@ -612,7 +613,7 @@ public abstract class BaseLoopTag extends BaseTag
       Block block = context.getBlock();
       Sheet sheet = context.getSheet();
       int numIterations = getNumIterations();
-      SheetUtil.shiftForBlock(sheet, block, getWorkbookContext(), numIterations);
+      SheetUtil.shiftForBlock(sheet, context, block, getWorkbookContext(), numIterations);
    }
 
    /**
@@ -626,7 +627,7 @@ public abstract class BaseLoopTag extends BaseTag
       TagContext context = getContext();
       Block block = context.getBlock();
       Sheet sheet = context.getSheet();
-      return SheetUtil.copyBlock(sheet, block, getWorkbookContext(), numBlocksAway);
+      return SheetUtil.copyBlock(sheet, context, block, getWorkbookContext(), numBlocksAway);
    }
 
    /**
