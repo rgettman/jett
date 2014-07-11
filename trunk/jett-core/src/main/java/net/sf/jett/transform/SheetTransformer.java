@@ -169,6 +169,9 @@ public class SheetTransformer
       result = Expression.evaluateString(text, beans);
       Workbook workbook = sheet.getWorkbook();
       workbook.setSheetName(workbook.getSheetIndex(sheet), result.toString());
+
+      // TODO: Change formula stuff here, so JETT formulas that reference old
+      // sheet names are updated.
    }
 
    /**
@@ -220,6 +223,9 @@ public class SheetTransformer
                            String key = sheetName + "!" + cellText;
                            if (DEBUG)
                               System.err.println("ST.gF: Formula found: " + key + " => " + formula);
+                           // TODO: Change formula stuff here, so that JETT
+                           // formulas that reference previously cloned/
+                           // changed sheet names are updated.
                            formulaMap.put(key, formula);
                         }
                      }

@@ -13,7 +13,7 @@ import net.sf.jett.exception.TagParseException;
 import net.sf.jett.expression.Expression;
 import net.sf.jett.model.Block;
 import net.sf.jett.model.PastEndValue;
-import net.sf.jett.util.AttributeEvaluator;
+import net.sf.jett.util.AttributeUtil;
 import net.sf.jett.util.SheetUtil;
 
 /**
@@ -210,8 +210,6 @@ public class MultiForEachTag extends BaseLoopTag
 
       Map<String, RichTextString> attributes = getAttributes();
 
-      AttributeEvaluator eval = new AttributeEvaluator(context);
-
       String attrCollExpressions = attributes.get(ATTR_COLLECTIONS).getString();
       String[] collExpressions = attrCollExpressions.split(SPEC_SEP);
       myCollections = new ArrayList<Collection<Object>>();
@@ -227,7 +225,7 @@ public class MultiForEachTag extends BaseLoopTag
          if (!(items instanceof Collection))
             throw new TagParseException("One of the items in the \"collections\" attribute is not a Collection in MultiForEach tag found"
                + getLocation() + ": " + collExpression);
-         Collection<Object> collection = eval.evaluateObject(collExpression.trim(), beans, ATTR_COLLECTIONS,
+         Collection<Object> collection = AttributeUtil.evaluateObject(context, collExpression.trim(), beans, ATTR_COLLECTIONS,
             Collection.class, null);
          myCollections.add(collection);
          // Collection names.
@@ -237,7 +235,7 @@ public class MultiForEachTag extends BaseLoopTag
 
       }
 
-      myVarNames = eval.evaluateList(attributes.get(ATTR_VARS), beans, new ArrayList<String>(0));
+      myVarNames = AttributeUtil.evaluateList(context, attributes.get(ATTR_VARS), beans, new ArrayList<String>(0));
 
       if (myCollections.size() < 1)
          throw new TagParseException("Must specify at least one Collection in a MultiForEachTag.  None found" + getLocation());
@@ -245,12 +243,12 @@ public class MultiForEachTag extends BaseLoopTag
          throw new TagParseException("The number of collections and the number of variable names must be the same.  Mismatch found" +
             getLocation());
 
-      myIndexVarName = eval.evaluateString(attributes.get(ATTR_INDEXVAR), beans, null);
+      myIndexVarName = AttributeUtil.evaluateString(context, attributes.get(ATTR_INDEXVAR), beans, null);
 
       // Determine the maximum size of all collections.
       setMaxSize();
 
-      myLimit = eval.evaluateNonNegativeInt(attributes.get(ATTR_LIMIT), beans, ATTR_LIMIT, myMaxSize);
+      myLimit = AttributeUtil.evaluateNonNegativeInt(context, attributes.get(ATTR_LIMIT), beans, ATTR_LIMIT, myMaxSize);
 
       if (DEBUG)
          System.err.println("ForEachTag.vA: myLimit=" + myLimit);

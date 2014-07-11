@@ -283,6 +283,68 @@ public class ImplCollProcessingTest extends TestCase
       assertEquals("Radiator Springs", TestUtility.getStringCellValue(collNameReplace, 2, 4));
       assertEquals("Springfield", TestUtility.getStringCellValue(collNameReplace, 13, 4));
       assertTrue(TestUtility.isCellBlank(collNameReplace, 14, 4));
+
+      // Test specifying "left" only.
+      Sheet leftOnly = workbook.getSheetAt(14);
+      assertEquals("Don't", TestUtility.getStringCellValue(leftOnly, 0, 0));
+      assertEquals("Division:", TestUtility.getStringCellValue(leftOnly, 0, 1));
+      assertEquals("Atlantic", TestUtility.getStringCellValue(leftOnly, 0, 6));
+      assertEquals("Do", TestUtility.getStringCellValue(leftOnly, 0, 7));
+      assertEquals("Copy", TestUtility.getStringCellValue(leftOnly, 1, 0));
+      assertEquals("Wins", TestUtility.getStringCellValue(leftOnly, 1, 3));
+      assertEquals("not", TestUtility.getStringCellValue(leftOnly, 1, 7));
+      assertEquals("Me", TestUtility.getStringCellValue(leftOnly, 2, 0));
+      assertEquals(51, TestUtility.getNumericCellValue(leftOnly, 2, 3), DELTA);
+      assertEquals(82, TestUtility.getNumericCellValue(leftOnly, 2, 6), DELTA);
+      assertEquals("copy", TestUtility.getStringCellValue(leftOnly, 2, 7));
+      assertEquals("Down!", TestUtility.getStringCellValue(leftOnly, 3, 0));
+      assertEquals(37, TestUtility.getNumericCellValue(leftOnly, 3, 3), DELTA);
+      assertEquals("downward!", TestUtility.getStringCellValue(leftOnly, 3, 7));
+      assertTrue(TestUtility.isCellBlank(leftOnly, 4, 0));
+      assertEquals(35, TestUtility.getNumericCellValue(leftOnly, 4, 3), DELTA);
+      assertTrue(TestUtility.isCellBlank(leftOnly, 4, 7));
+      assertEquals(23, TestUtility.getNumericCellValue(leftOnly, 5, 3), DELTA);
+      assertEquals(20, TestUtility.getNumericCellValue(leftOnly, 6, 3), DELTA);
+      assertEquals("Division:", TestUtility.getStringCellValue(leftOnly, 7, 1));
+      assertEquals("Central", TestUtility.getStringCellValue(leftOnly, 7, 6));
+      assertEquals("Division:", TestUtility.getStringCellValue(leftOnly, 42, 1));
+      assertEquals("Empty", TestUtility.getStringCellValue(leftOnly, 42, 6));
+      assertTrue(TestUtility.isMergedRegionPresent(leftOnly, new CellRangeAddress(42, 42, 1, 5)));
+      assertEquals("Division:", TestUtility.getStringCellValue(leftOnly, 44, 1));
+      assertEquals("Of Their Own", TestUtility.getStringCellValue(leftOnly, 44, 6));
+      assertTrue(TestUtility.isMergedRegionPresent(leftOnly, new CellRangeAddress(44, 44, 1, 5)));
+      assertEquals(21227, TestUtility.getNumericCellValue(leftOnly, 46, 3), DELTA);
+      assertEquals("After", TestUtility.getStringCellValue(leftOnly, 47, 1));
+      assertEquals(8, leftOnly.getNumMergedRegions());
+
+      // Test specifying "right" only.
+      Sheet rightOnly = workbook.getSheetAt(15);
+      assertEquals("Don't", TestUtility.getStringCellValue(rightOnly, 0, 0));
+      assertEquals("Division: Atlantic", TestUtility.getStringCellValue(rightOnly, 0, 1));
+      assertEquals("Do", TestUtility.getStringCellValue(rightOnly, 0, 7));
+      assertEquals("Copy", TestUtility.getStringCellValue(rightOnly, 1, 0));
+      assertEquals("Wins", TestUtility.getStringCellValue(rightOnly, 1, 3));
+      assertEquals("not", TestUtility.getStringCellValue(rightOnly, 1, 7));
+      assertEquals("Me", TestUtility.getStringCellValue(rightOnly, 2, 0));
+      assertEquals(51, TestUtility.getNumericCellValue(rightOnly, 2, 3), DELTA);
+      assertEquals(82, TestUtility.getNumericCellValue(rightOnly, 2, 6), DELTA);
+      assertEquals("copy", TestUtility.getStringCellValue(rightOnly, 2, 7));
+      assertEquals("Down!", TestUtility.getStringCellValue(rightOnly, 3, 0));
+      assertEquals(37, TestUtility.getNumericCellValue(rightOnly, 3, 3), DELTA);
+      assertEquals("downward!", TestUtility.getStringCellValue(rightOnly, 3, 7));
+      assertTrue(TestUtility.isCellBlank(rightOnly, 4, 0));
+      assertEquals(35, TestUtility.getNumericCellValue(rightOnly, 4, 3), DELTA);
+      assertTrue(TestUtility.isCellBlank(rightOnly, 4, 7));
+      assertEquals(23, TestUtility.getNumericCellValue(rightOnly, 5, 3), DELTA);
+      assertEquals(20, TestUtility.getNumericCellValue(rightOnly, 6, 3), DELTA);
+      assertEquals("Division: Central", TestUtility.getStringCellValue(rightOnly, 7, 1));
+      assertEquals("Division: Empty", TestUtility.getStringCellValue(rightOnly, 42, 1));
+      assertTrue(TestUtility.isMergedRegionPresent(rightOnly, new CellRangeAddress(42, 42, 1, 6)));
+      assertEquals("Division: Of Their Own", TestUtility.getStringCellValue(rightOnly, 44, 1));
+      assertTrue(TestUtility.isMergedRegionPresent(rightOnly, new CellRangeAddress(44, 44, 1, 6)));
+      assertEquals(21227, TestUtility.getNumericCellValue(rightOnly, 46, 3), DELTA);
+      assertEquals("After", TestUtility.getStringCellValue(rightOnly, 47, 1));
+      assertEquals(8, rightOnly.getNumMergedRegions());
    }
 
    /**

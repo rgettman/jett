@@ -296,6 +296,10 @@ public class ForEachTagTest extends TestCase
       }
 
       // Note different order of divisions imposed by the "group by".
+      // As of 0.8.0, this now tests dynamic properties from jAgg.
+      // The "groupBy" attribute is "division_name", not "divisionName", so
+      // that jAgg can still call "get("division_name")" and the JETT "group
+      // by" operation still succeeds.
       Sheet groupBy = workbook.getSheetAt(9);
       assertEquals("Division: Atlantic", TestUtility.getStringCellValue(groupBy, 0, 0));
       assertEquals("Boston", TestUtility.getStringCellValue(groupBy, 2, 0));

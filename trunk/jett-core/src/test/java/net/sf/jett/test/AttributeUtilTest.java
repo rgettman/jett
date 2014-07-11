@@ -14,15 +14,15 @@ import org.junit.Test;
 import net.sf.jett.exception.AttributeExpressionException;
 import net.sf.jett.test.model.Division;
 import net.sf.jett.test.model.Employee;
-import net.sf.jett.util.AttributeEvaluator;
+import net.sf.jett.util.AttributeUtil;
 
 /**
- * Tests the <code>AttributeEvaluator</code> class.
+ * Tests the <code>AttributeUtil</code> class.
  *
  * @author Randy Gettman
  * @since 0.6.0
  */
-public class AttributeEvaluatorTest
+public class AttributeUtilTest
 {
    private Map<String, Object> myBeans;
 
@@ -57,7 +57,7 @@ public class AttributeEvaluatorTest
    @Test
    public void testBooleanTrue()
    {
-      assertTrue(new AttributeEvaluator(null).evaluateBoolean(new XSSFRichTextString("${t}"), myBeans, false));
+      assertTrue(AttributeUtil.evaluateBoolean(null, new XSSFRichTextString("${t}"), myBeans, false));
    }
 
    /**
@@ -66,7 +66,7 @@ public class AttributeEvaluatorTest
    @Test
    public void testBooleanFalse()
    {
-      assertFalse(new AttributeEvaluator(null).evaluateBoolean(new XSSFRichTextString("${f}"), myBeans, true));
+      assertFalse(AttributeUtil.evaluateBoolean(null, new XSSFRichTextString("${f}"), myBeans, true));
    }
 
    /**
@@ -76,7 +76,7 @@ public class AttributeEvaluatorTest
    @Test(expected = AttributeExpressionException.class)
    public void testBooleanDNE()
    {
-      new AttributeEvaluator(null).evaluateBoolean(new XSSFRichTextString("${dne}"), myBeans, true);
+      AttributeUtil.evaluateBoolean(null, new XSSFRichTextString("${dne}"), myBeans, true);
    }
 
    /**
@@ -85,7 +85,7 @@ public class AttributeEvaluatorTest
    @Test
    public void testEvaluateInt()
    {
-      assertEquals(42, new AttributeEvaluator(null).evaluateInt(new XSSFRichTextString("${answer}"), myBeans, "attr_name", 0));
+      assertEquals(42, AttributeUtil.evaluateInt(null, new XSSFRichTextString("${answer}"), myBeans, "attr_name", 0));
    }
 
    /**
@@ -94,7 +94,7 @@ public class AttributeEvaluatorTest
    @Test(expected = AttributeExpressionException.class)
    public void testEvaluateIntBad()
    {
-      new AttributeEvaluator(null).evaluateInt(new XSSFRichTextString("${t}"), myBeans, "attr_name", 0);
+      AttributeUtil.evaluateInt(null, new XSSFRichTextString("${t}"), myBeans, "attr_name", 0);
    }
 
    /**
@@ -104,7 +104,7 @@ public class AttributeEvaluatorTest
    @Test(expected = AttributeExpressionException.class)
    public void testEvaluateIntDNE()
    {
-      new AttributeEvaluator(null).evaluateInt(new XSSFRichTextString("${dne}"), myBeans, "attr_name", 0);
+      AttributeUtil.evaluateInt(null, new XSSFRichTextString("${dne}"), myBeans, "attr_name", 0);
    }
 
    /**
@@ -113,7 +113,7 @@ public class AttributeEvaluatorTest
    @Test
    public void testEvaluateNonNegativeIntPositive()
    {
-      assertEquals(42, new AttributeEvaluator(null).evaluateNonNegativeInt(new XSSFRichTextString("${answer}"), myBeans, "attr_name", -1));
+      assertEquals(42, AttributeUtil.evaluateNonNegativeInt(null, new XSSFRichTextString("${answer}"), myBeans, "attr_name", -1));
    }
 
    /**
@@ -122,7 +122,7 @@ public class AttributeEvaluatorTest
    @Test
    public void testEvaluateNonNegativeIntZero()
    {
-      assertEquals(0, new AttributeEvaluator(null).evaluateNonNegativeInt(new XSSFRichTextString("${zero}"), myBeans, "attr_name", -1));
+      assertEquals(0, AttributeUtil.evaluateNonNegativeInt(null, new XSSFRichTextString("${zero}"), myBeans, "attr_name", -1));
    }
 
    /**
@@ -131,7 +131,7 @@ public class AttributeEvaluatorTest
    @Test(expected = AttributeExpressionException.class)
    public void testEvaluateNonNegativeNegative()
    {
-      new AttributeEvaluator(null).evaluateNonNegativeInt(new XSSFRichTextString("${isquared}"), myBeans, "attr_name", 0);
+      AttributeUtil.evaluateNonNegativeInt(null, new XSSFRichTextString("${isquared}"), myBeans, "attr_name", 0);
    }
 
    /**
@@ -140,7 +140,7 @@ public class AttributeEvaluatorTest
    @Test
    public void testEvaluatePositiveIntPositive()
    {
-      assertEquals(42, new AttributeEvaluator(null).evaluatePositiveInt(new XSSFRichTextString("${answer}"), myBeans, "attr_name", -1));
+      assertEquals(42, AttributeUtil.evaluatePositiveInt(null, new XSSFRichTextString("${answer}"), myBeans, "attr_name", -1));
    }
 
    /**
@@ -149,7 +149,7 @@ public class AttributeEvaluatorTest
    @Test(expected = AttributeExpressionException.class)
    public void testEvaluatePositiveIntZero()
    {
-      new AttributeEvaluator(null).evaluatePositiveInt(new XSSFRichTextString("${zero}"), myBeans, "attr_name", -1);
+      AttributeUtil.evaluatePositiveInt(null, new XSSFRichTextString("${zero}"), myBeans, "attr_name", -1);
    }
 
    /**
@@ -158,7 +158,7 @@ public class AttributeEvaluatorTest
    @Test(expected = AttributeExpressionException.class)
    public void testEvaluatePositiveIntNegative()
    {
-      new AttributeEvaluator(null).evaluatePositiveInt(new XSSFRichTextString("${isquared}"), myBeans, "attr_name", 0);
+      AttributeUtil.evaluatePositiveInt(null, new XSSFRichTextString("${isquared}"), myBeans, "attr_name", 0);
    }
 
    /**
@@ -167,7 +167,7 @@ public class AttributeEvaluatorTest
    @Test
    public void testEvaluateNonZeroIntPositive()
    {
-      assertEquals(42, new AttributeEvaluator(null).evaluateNonZeroInt(new XSSFRichTextString("${answer}"), myBeans, "attr_name", -1));
+      assertEquals(42, AttributeUtil.evaluateNonZeroInt(null, new XSSFRichTextString("${answer}"), myBeans, "attr_name", -1));
    }
 
    /**
@@ -176,7 +176,7 @@ public class AttributeEvaluatorTest
    @Test(expected = AttributeExpressionException.class)
    public void testEvaluateNonZeroIntZero()
    {
-      new AttributeEvaluator(null).evaluateNonZeroInt(new XSSFRichTextString("${zero}"), myBeans, "attr_name", -1);
+      AttributeUtil.evaluateNonZeroInt(null, new XSSFRichTextString("${zero}"), myBeans, "attr_name", -1);
    }
 
    /**
@@ -185,7 +185,7 @@ public class AttributeEvaluatorTest
    @Test
    public void testEvaluateNonZeroIntNegative()
    {
-      assertEquals(-1, new AttributeEvaluator(null).evaluateNonZeroInt(new XSSFRichTextString("${isquared}"), myBeans, "attr_name", 0));
+      assertEquals(-1, AttributeUtil.evaluateNonZeroInt(null, new XSSFRichTextString("${isquared}"), myBeans, "attr_name", 0));
    }
 
    /**
@@ -194,7 +194,7 @@ public class AttributeEvaluatorTest
    @Test
    public void testEvaluateDouble()
    {
-      assertEquals(8.6, new AttributeEvaluator(null).evaluateDouble(new XSSFRichTextString("${question}"), myBeans, "attr_name", 0), 0.0000001);
+      assertEquals(8.6, AttributeUtil.evaluateDouble(null, new XSSFRichTextString("${question}"), myBeans, "attr_name", 0), 0.0000001);
    }
 
    /**
@@ -203,7 +203,7 @@ public class AttributeEvaluatorTest
    @Test(expected = AttributeExpressionException.class)
    public void testEvaluateDoubleBad()
    {
-      new AttributeEvaluator(null).evaluateDouble(new XSSFRichTextString("${t}"), myBeans, "attr_name", 0);
+      AttributeUtil.evaluateDouble(null, new XSSFRichTextString("${t}"), myBeans, "attr_name", 0);
    }
 
    /**
@@ -213,7 +213,7 @@ public class AttributeEvaluatorTest
    @Test(expected = AttributeExpressionException.class)
    public void testEvaluateDoubleDNE()
    {
-      new AttributeEvaluator(null).evaluateDouble(new XSSFRichTextString("${dne}"), myBeans, "attr_name", 0);
+      AttributeUtil.evaluateDouble(null, new XSSFRichTextString("${dne}"), myBeans, "attr_name", 0);
    }
 
    /**
@@ -222,7 +222,7 @@ public class AttributeEvaluatorTest
    @Test
    public void testEvaluateString()
    {
-      assertEquals("JETT", new AttributeEvaluator(null).evaluateString(new XSSFRichTextString("${project}"), myBeans, null));
+      assertEquals("JETT", AttributeUtil.evaluateString(null, new XSSFRichTextString("${project}"), myBeans, null));
    }
 
    /**
@@ -231,14 +231,14 @@ public class AttributeEvaluatorTest
    @Test
    public void testEvaluateStringNull()
    {
-      assertNull(new AttributeEvaluator(null).evaluateString(new XSSFRichTextString("${null}"), myBeans, "notNullDefault"));
+      assertNull(AttributeUtil.evaluateString(null, new XSSFRichTextString("${null}"), myBeans, "notNullDefault"));
    }
 
    // Can't have this test, because we have to have null be a valid possible result.
    //@Test(expected = AttributeExpressionException.class)
    //public void testEvaluateStringDNE()
    //{
-   //   new AttributeEvaluator(null).evaluateString(new XSSFRichTextString("${dne}"), myBeans, null);
+   //   AttributeUtil.evaluateString(new XSSFRichTextString("${dne}"), myBeans, null);
    //}
 
    /**
@@ -247,7 +247,7 @@ public class AttributeEvaluatorTest
    @Test(expected = AttributeExpressionException.class)
    public void testEvaluateStringNotNull()
    {
-      new AttributeEvaluator(null).evaluateStringNotNull(new XSSFRichTextString("${null}"), myBeans, "attr_name", "notNullDefault");
+      AttributeUtil.evaluateStringNotNull(null, new XSSFRichTextString("${null}"), myBeans, "attr_name", "notNullDefault");
    }
 
    /**
@@ -256,7 +256,7 @@ public class AttributeEvaluatorTest
    @Test
    public void testEvaluateStringSpecificValues()
    {
-      assertEquals("JETT", new AttributeEvaluator(null).evaluateStringSpecificValues(new XSSFRichTextString("${project}"), myBeans, "attr_name",
+      assertEquals("JETT", AttributeUtil.evaluateStringSpecificValues(null, new XSSFRichTextString("${project}"), myBeans, "attr_name",
               Arrays.asList("Apache POI", "JETT", "jAgg"), null));
    }
 
@@ -267,7 +267,7 @@ public class AttributeEvaluatorTest
    @Test(expected = AttributeExpressionException.class)
    public void testEvaluateStringSpecificValuesNotFound()
    {
-      new AttributeEvaluator(null).evaluateStringSpecificValues(new XSSFRichTextString("${project}"), myBeans, "attr_name",
+      AttributeUtil.evaluateStringSpecificValues(null, new XSSFRichTextString("${project}"), myBeans, "attr_name",
               Arrays.asList("Apache POI", "jAgg"), null);
    }
 
@@ -278,7 +278,7 @@ public class AttributeEvaluatorTest
    @Test(expected = AttributeExpressionException.class)
    public void testEvaluateObjectDNE()
    {
-      new AttributeEvaluator(null).evaluateObject("${dne}", myBeans, "attr_name", String.class, "notNullDefault");
+      AttributeUtil.evaluateObject(null, "${dne}", myBeans, "attr_name", String.class, "notNullDefault");
    }
 
    /**
@@ -287,7 +287,7 @@ public class AttributeEvaluatorTest
    @Test
    public void testEvaluateObject()
    {
-      Object obj = new AttributeEvaluator(null).evaluateObject("${bugs}", myBeans, "attr_name", Employee.class, null);
+      Object obj = AttributeUtil.evaluateObject(null, "${bugs}", myBeans, "attr_name", Employee.class, null);
       assertNotNull(obj);
       assertTrue(obj instanceof Employee);
    }
@@ -298,7 +298,7 @@ public class AttributeEvaluatorTest
    @Test(expected = AttributeExpressionException.class)
    public void testEvaluateObjectWrongClass()
    {
-      new AttributeEvaluator(null).evaluateObject("${bugs}", myBeans, "attr_name", Division.class, null);
+      AttributeUtil.evaluateObject(null, "${bugs}", myBeans, "attr_name", Division.class, null);
    }
 
    /**
@@ -307,7 +307,7 @@ public class AttributeEvaluatorTest
    @Test
    public void testEvaluateObjectInstantiate()
    {
-      Object obj = new AttributeEvaluator(null).evaluateObject("net.sf.jett.test.model.Employee", myBeans, "attr_name", Employee.class, null);
+      Object obj = AttributeUtil.evaluateObject(null, "net.sf.jett.test.model.Employee", myBeans, "attr_name", Employee.class, null);
       assertNotNull(obj);
       assertTrue(obj instanceof Employee);
    }
@@ -318,7 +318,7 @@ public class AttributeEvaluatorTest
    @Test(expected = AttributeExpressionException.class)
    public void testEvaluateObjectInstantiateWrongClass()
    {
-      new AttributeEvaluator(null).evaluateObject("net.sf.jett.test.model.Employee", myBeans, "attr_name", Division.class, null);
+      AttributeUtil.evaluateObject(null, "net.sf.jett.test.model.Employee", myBeans, "attr_name", Division.class, null);
    }
 
    /**
@@ -328,7 +328,7 @@ public class AttributeEvaluatorTest
    @Test(expected = AttributeExpressionException.class)
    public void testEvaluateListDNE()
    {
-      new AttributeEvaluator(null).evaluateList(new XSSFRichTextString("${dne}"), myBeans, null);
+      AttributeUtil.evaluateList(null, new XSSFRichTextString("${dne}"), myBeans, null);
    }
 
    /**
@@ -337,7 +337,7 @@ public class AttributeEvaluatorTest
    @Test
    public void testEvaluateList()
    {
-      Object obj = new AttributeEvaluator(null).evaluateList(new XSSFRichTextString("${acronym}"), myBeans, null);
+      Object obj = AttributeUtil.evaluateList(null, new XSSFRichTextString("${acronym}"), myBeans, null);
       assertNotNull(obj);
       assertTrue(obj instanceof List);
       List list = (List) obj;
@@ -351,7 +351,7 @@ public class AttributeEvaluatorTest
    //@SuppressWarnings("unchecked")
    public void testEvaluateListSemicolonSeparated()
    {
-      Object obj = new AttributeEvaluator(null).evaluateList(new XSSFRichTextString("four;eight;fifteen;sixteen;twenty-three;forty-two"), myBeans, null);
+      Object obj = AttributeUtil.evaluateList(null, new XSSFRichTextString("four;eight;fifteen;sixteen;twenty-three;forty-two"), myBeans, null);
       assertNotNull(obj);
       assertTrue(obj instanceof List);
       List list = (List) obj;
@@ -370,7 +370,7 @@ public class AttributeEvaluatorTest
    @Test(expected = AttributeExpressionException.class)
    public void testEvaluateIntegerArrayDNE()
    {
-      new AttributeEvaluator(null).evaluateIntegerArray(new XSSFRichTextString("${dne}"), myBeans, Arrays.asList(1));
+      AttributeUtil.evaluateIntegerArray(null, new XSSFRichTextString("${dne}"), myBeans, Arrays.asList(1));
    }
 
    /**
@@ -379,7 +379,7 @@ public class AttributeEvaluatorTest
    @Test
    public void testEvaluateIntegerArray()
    {
-      List<Integer> intList = new AttributeEvaluator(null).evaluateIntegerArray(new XSSFRichTextString("${[4, 8, 15, 16, 23, 42]}"), myBeans, null);
+      List<Integer> intList = AttributeUtil.evaluateIntegerArray(null, new XSSFRichTextString("${[4, 8, 15, 16, 23, 42]}"), myBeans, null);
       assertNotNull(intList);
       assertEquals(6, intList.size());
       List<Integer> expected = Arrays.asList(4, 8, 15, 16, 23, 42);
@@ -395,7 +395,7 @@ public class AttributeEvaluatorTest
    @Test
    public void testEvaluateIntegerArrayIntegerArray()
    {
-      List<Integer> intList = new AttributeEvaluator(null).evaluateIntegerArray(new XSSFRichTextString("${integerArray}"), myBeans, null);
+      List<Integer> intList = AttributeUtil.evaluateIntegerArray(null, new XSSFRichTextString("${integerArray}"), myBeans, null);
       assertNotNull(intList);
       assertEquals(6, intList.size());
       List<Integer> expected = Arrays.asList(4, 8, 15, 16, 23, 42);
@@ -411,7 +411,7 @@ public class AttributeEvaluatorTest
    @Test
    public void testEvaluateIntegerArrayParse()
    {
-      List<Integer> intList = new AttributeEvaluator(null).evaluateIntegerArray(new XSSFRichTextString("4;8;15;16;23;42"), myBeans, null);
+      List<Integer> intList = AttributeUtil.evaluateIntegerArray(null, new XSSFRichTextString("4;8;15;16;23;42"), myBeans, null);
       assertNotNull(intList);
       assertEquals(6, intList.size());
       List<Integer> expected = Arrays.asList(4, 8, 15, 16, 23, 42);
@@ -430,7 +430,7 @@ public class AttributeEvaluatorTest
    {
       List<List<Integer>> def = new ArrayList<List<Integer>>();
       def.add(Arrays.asList(1));
-      new AttributeEvaluator(null).evaluateIntegerArrayArray(new XSSFRichTextString("${dne}"), myBeans, def);
+      AttributeUtil.evaluateIntegerArrayArray(null, new XSSFRichTextString("${dne}"), myBeans, def);
    }
 
    /**
@@ -439,7 +439,7 @@ public class AttributeEvaluatorTest
    @Test
    public void testEvaluateIntegerArrayArray()
    {
-      List<List<Integer>> intList = new AttributeEvaluator(null).evaluateIntegerArrayArray(new XSSFRichTextString("${[[4, 8], [15, 16, 23], [42]]}"), myBeans, null);
+      List<List<Integer>> intList = AttributeUtil.evaluateIntegerArrayArray(null, new XSSFRichTextString("${[[4, 8], [15, 16, 23], [42]]}"), myBeans, null);
       assertNotNull(intList);
       assertEquals(3, intList.size());
 
@@ -466,7 +466,7 @@ public class AttributeEvaluatorTest
    @Test
    public void testEvaluateIntegerArrayArrayIntegerArrayArray()
    {
-      List<List<Integer>> intList = new AttributeEvaluator(null).evaluateIntegerArrayArray(new XSSFRichTextString("${integerArrayArray}"), myBeans, null);
+      List<List<Integer>> intList = AttributeUtil.evaluateIntegerArrayArray(null, new XSSFRichTextString("${integerArrayArray}"), myBeans, null);
       assertNotNull(intList);
       assertEquals(3, intList.size());
 
@@ -493,7 +493,7 @@ public class AttributeEvaluatorTest
    @Test
    public void testEvaluateIntegerArrayArrayParse()
    {
-      List<List<Integer>> intList = new AttributeEvaluator(null).evaluateIntegerArrayArray(new XSSFRichTextString("4,8;15,16,23;42"), myBeans, null);
+      List<List<Integer>> intList = AttributeUtil.evaluateIntegerArrayArray(null, new XSSFRichTextString("4,8;15,16,23;42"), myBeans, null);
       assertNotNull(intList);
       assertEquals(3, intList.size());
 
