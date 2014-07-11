@@ -140,6 +140,23 @@ public class Team
    }
 
    /**
+    * Returns a dynamic property.  For now, only "division_name" is recognized,
+    * although others could be recognized.  This is for dynamic property
+    * testing.
+    * @param key The key.
+    * @return The dynamic property value, or <code>null</code> if the dynamic
+    *    property name was not recognized.
+    * @since 0.8.0
+    */
+   public Object get(String key)
+   {
+      if ("division_name".equals(key))
+         return myDivision.getName();
+
+      return null;
+   }
+
+   /**
     * The string representation.
     * @return The string representation.
     * @since 0.2.0

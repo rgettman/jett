@@ -102,17 +102,7 @@ public class CollectionsTransformer
          {
             bottom += evaluateInt(lexeme, beans, "extraRows", cell);
          }
-         lexeme = parser.getColsLeft();
-         if (lexeme != null)
-         {
-            left = cell.getColumnIndex() - evaluateInt(lexeme, beans, "left", cell);
-         }
-         lexeme = parser.getColsRight();
-         if (lexeme != null)
-         {
-            right = cell.getColumnIndex() + evaluateInt(lexeme, beans, "right", cell);
-         }
-
+         
          copyRight = parser.getCopyingRight();
          fixed = parser.getFixed();
          pastEndAction = parser.getPastEndAction();
@@ -126,6 +116,24 @@ public class CollectionsTransformer
 
          if (parser.isDefiningCols())
          {
+            lexeme = parser.getColsLeft();
+            if (lexeme != null)
+            {
+               left = cell.getColumnIndex() - evaluateInt(lexeme, beans, "left", cell);
+            }
+            else
+            {
+               left = cell.getColumnIndex();
+            }
+            lexeme = parser.getColsRight();
+            if (lexeme != null)
+            {
+               right = cell.getColumnIndex() + evaluateInt(lexeme, beans, "right", cell);
+            }
+            else
+            {
+               right = cell.getColumnIndex();
+            }
             // Column range can't go outside parent's column range.
             if (left < parentBlock.getLeftColNum())
                left = parentBlock.getLeftColNum();
@@ -353,7 +361,7 @@ public class CollectionsTransformer
             System.err.println("  Trying same row: row " + startRowIndex + ", col " + cellNum);
          // First, check remaining Cells in the same row.
          Cell cell = startRow.getCell(cellNum);
-         if (cell != null)
+         if (cell != null && cell.getCellType() == Cell.CELL_TYPE_STRING)
          {
             RichTextString richString = cell.getRichStringCellValue();
             List<String> collExprs = Expression.getImplicitCollectionExpr(richString.toString(),
@@ -380,7 +388,7 @@ public class CollectionsTransformer
             for (int cellNum = startCellNum; cellNum <= endCellNum; cellNum++)
             {
                Cell cell = row.getCell(cellNum);
-               if (cell != null)
+               if (cell != null && cell.getCellType() == Cell.CELL_TYPE_STRING)
                {
                   RichTextString richString = cell.getRichStringCellValue();
                   List<String> collExprs = Expression.getImplicitCollectionExpr(richString.toString(),

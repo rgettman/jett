@@ -28,7 +28,7 @@ import net.sf.jett.model.Style;
 import net.sf.jett.model.WorkbookContext;
 import net.sf.jett.parser.StyleParser;
 import net.sf.jett.transform.BlockTransformer;
-import net.sf.jett.util.AttributeEvaluator;
+import net.sf.jett.util.AttributeUtil;
 import net.sf.jett.util.SheetUtil;
 
 /**
@@ -141,11 +141,9 @@ public class StyleTag extends BaseTag
       Map<String, Object> beans = context.getBeans();
       Map<String, RichTextString> attributes = getAttributes();
 
-      AttributeEvaluator eval = new AttributeEvaluator(context);
-
       myStyle = new Style();
 
-      List<String> styleClasses = eval.evaluateList(attributes.get(ATTR_CLASS), beans, null);
+      List<String> styleClasses = AttributeUtil.evaluateList(context, attributes.get(ATTR_CLASS), beans, null);
       if (styleClasses != null)
       {
          for (String styleClass : styleClasses)
@@ -156,7 +154,7 @@ public class StyleTag extends BaseTag
          }
       }
 
-      String line = eval.evaluateString(attributes.get(ATTR_STYLE), beans, null);
+      String line = AttributeUtil.evaluateString(context, attributes.get(ATTR_STYLE), beans, null);
       if (line != null)
       {
          String[] styles = line.split(SPLIT_SPEC);

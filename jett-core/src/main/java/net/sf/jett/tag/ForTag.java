@@ -10,7 +10,7 @@ import org.apache.poi.ss.usermodel.RichTextString;
 
 import net.sf.jett.exception.TagParseException;
 import net.sf.jett.model.Block;
-import net.sf.jett.util.AttributeEvaluator;
+import net.sf.jett.util.AttributeUtil;
 
 /**
  * <p>A <code>ForTag</code> represents a repetitively placed <code>Block</code>
@@ -110,15 +110,13 @@ public class ForTag extends BaseLoopTag
 
       Map<String, RichTextString> attributes = getAttributes();
 
-      AttributeEvaluator eval = new AttributeEvaluator(context);
+      myVarName = AttributeUtil.evaluateString(context, attributes.get(ATTR_VAR), beans, null);
 
-      myVarName = eval.evaluateString(attributes.get(ATTR_VAR), beans, null);
+      myStart = AttributeUtil.evaluateInt(context, attributes.get(ATTR_START), beans, ATTR_START, 0);
 
-      myStart = eval.evaluateInt(attributes.get(ATTR_START), beans, ATTR_START, 0);
+      myEnd = AttributeUtil.evaluateInt(context, attributes.get(ATTR_END), beans, ATTR_END, 0);
 
-      myEnd = eval.evaluateInt(attributes.get(ATTR_END), beans, ATTR_END, 0);
-
-      myStep = eval.evaluateNonZeroInt(attributes.get(ATTR_STEP), beans, ATTR_STEP, 1);
+      myStep = AttributeUtil.evaluateNonZeroInt(context, attributes.get(ATTR_STEP), beans, ATTR_STEP, 1);
    }
 
    /**

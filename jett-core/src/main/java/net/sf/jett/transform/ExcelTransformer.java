@@ -105,6 +105,9 @@ public class ExcelTransformer
    private List<String> myFixedSizeCollectionNames;
    private List<String> myNoImplicitProcessingCollectionNames;
    private Map<String, Style> myStyleMap;
+   private boolean amIEvaluatingFormulas;
+   private boolean amIForcingRecalculationOnOpening;
+   private boolean amIChangingForcingRecalculation;
 
    /**
     * Construct an <code>ExcelTransformer</code>.
@@ -118,6 +121,9 @@ public class ExcelTransformer
       myFixedSizeCollectionNames = new ArrayList<String>();
       myNoImplicitProcessingCollectionNames = new ArrayList<String>();
       myStyleMap = new HashMap<String, Style>();
+      amIEvaluatingFormulas = false;
+      amIForcingRecalculationOnOpening = false;
+      amIChangingForcingRecalculation = false;
    }
 
    /**
@@ -295,6 +301,39 @@ public class ExcelTransformer
    }
 
    /**
+    * After transformation, this determines whether JETT will evaluate all
+    * formulas and store their results in the <code>Workbook</code>.  This
+    * defaults to <code>false</code>.  If this is not set, then other tools may
+    * or may not evaluate the formulas in the workbook.  If this is set, then
+    * the results will be stored, assuming that all formulas evaluated are
+    * supported by the underlying Apache POI library.
+    * @param evaluate Whether to have JETT evaluate all formulas and store
+    *    their resuls.
+    * @since 0.8.0
+    */
+   public void setEvaluateFormulas(boolean evaluate)
+   {
+      amIEvaluatingFormulas = evaluate;
+   }
+
+   /**
+    * After transformation, if this was called, then JETT will set whether to
+    * force recalculation of formulas when Excel opens this workbook.  If this
+    * is not called, then JETT will not change any value that may be present
+    * already in the workbook.  This will not control whether JETT will attempt
+    * to evaluate all formulas; it will set or clear a flag that controls
+    * whether Excel will recalculate all formulas when it opens the workbook.
+    * @param forceRecalc The flag for Excel to determine whether to recalculate
+    *    all formulas when opening the workbook.
+    * @since 0.8.0
+    */
+   public void setForceRecalculationOnOpening(boolean forceRecalc)
+   {
+      amIChangingForcingRecalculation = true;
+      amIForcingRecalculationOnOpening = forceRecalc;
+   }
+
+   /**
     * Transforms the template Excel spreadsheet represented by the given input
     * filename.  Applies the given <code>Map</code> of beans to all sheets.
     * Writes the resultant Excel spreadsheet to the given output filename.
@@ -369,10 +408,7 @@ public class ExcelTransformer
          Sheet sheet = workbook.getSheetAt(s);
          sheetTransformer.transform(sheet, context, beans);
       }
-      if (!context.getFormulaMap().isEmpty())
-      {
-         replaceFormulas(workbook, context, sheetTransformer);
-      }
+      postTransformation(workbook, context, sheetTransformer);
    }
 
    /**
@@ -587,9 +623,33 @@ public class ExcelTransformer
          }
          numItemsProcessed++;
       }
+      postTransformation(workbook, context, sheetTransformer);
+   }
+
+   /**
+    * Perform post-transformation processing.  This currently includes
+    * replacing all JETT formulas with Excel formulas, recalculating all
+    * formulas, and/or marking the workbook to be recalculated when Excel opens
+    * it.
+    * @param workbook The <code>Workbook</code>.
+    * @param context The <code>WorkbookContext</code>.
+    * @param sheetTransformer The <code>SheetTransformer</code> used to
+    *    transform the sheets.
+    * @since 0.8.0
+    */
+   private void postTransformation(Workbook workbook, WorkbookContext context, SheetTransformer sheetTransformer)
+   {
       if (!context.getFormulaMap().isEmpty())
       {
          replaceFormulas(workbook, context, sheetTransformer);
+      }
+      if (amIEvaluatingFormulas)
+      {
+         workbook.getCreationHelper().createFormulaEvaluator().evaluateAll();
+      }
+      if (amIChangingForcingRecalculation)
+      {
+         workbook.setForceFormulaRecalculation(amIForcingRecalculationOnOpening);
       }
    }
 

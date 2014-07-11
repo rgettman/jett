@@ -18,7 +18,7 @@ import net.sf.jett.exception.TagParseException;
 import net.sf.jett.expression.Expression;
 import net.sf.jett.model.Block;
 import net.sf.jett.model.Group;
-import net.sf.jett.util.AttributeEvaluator;
+import net.sf.jett.util.AttributeUtil;
 import net.sf.jett.util.GroupOrderByComparator;
 import net.sf.jett.util.OrderByComparator;
 
@@ -152,10 +152,8 @@ public class ForEachTag extends BaseLoopTag
       TagContext context = getContext();
       Map<String, Object> beans = context.getBeans();
 
-      AttributeEvaluator eval = new AttributeEvaluator(context);
-
       Map<String, RichTextString> attributes = getAttributes();
-      myCollection = eval.evaluateObject(attributes.get(ATTR_ITEMS), beans, ATTR_ITEMS, Collection.class,
+      myCollection = AttributeUtil.evaluateObject(context, attributes.get(ATTR_ITEMS), beans, ATTR_ITEMS, Collection.class,
          new ArrayList<Object>(0));
 
       // Collection name.
@@ -171,9 +169,9 @@ public class ForEachTag extends BaseLoopTag
       if (DEBUG)
          System.err.println("ForEachTag: Collection \"" + attrItems + "\" has size " + myCollection.size());
 
-      myVarName = eval.evaluateString(attributes.get(ATTR_VAR), beans, null);
+      myVarName = AttributeUtil.evaluateString(context, attributes.get(ATTR_VAR), beans, null);
 
-      myIndexVarName = eval.evaluateString(attributes.get(ATTR_INDEXVAR), beans, null);
+      myIndexVarName = AttributeUtil.evaluateString(context, attributes.get(ATTR_INDEXVAR), beans, null);
 
       RichTextString rtsCondition = attributes.get(ATTR_WHERE);
       if (rtsCondition != null)
@@ -184,7 +182,7 @@ public class ForEachTag extends BaseLoopTag
          for (Object item : myCollection)
          {
             beans.put(myVarName, item);
-            boolean condition = eval.evaluateBoolean(rtsCondition, beans, true);
+            boolean condition = AttributeUtil.evaluateBoolean(context, rtsCondition, beans, true);
             if (condition)
             {
                newCollection.add(item);
@@ -194,7 +192,7 @@ public class ForEachTag extends BaseLoopTag
          myCollection = newCollection;
       }
 
-      List<String> orderByProperties = eval.evaluateList(attributes.get(ATTR_ORDER_BY), beans, new ArrayList<String>(0));
+      List<String> orderByProperties = AttributeUtil.evaluateList(context, attributes.get(ATTR_ORDER_BY), beans, new ArrayList<String>(0));
       OrderByComparator<Object> comp = null;
       if (!orderByProperties.isEmpty())
       {
@@ -202,7 +200,7 @@ public class ForEachTag extends BaseLoopTag
          sortTheCollection(comp);
       }
 
-      myGroupByProperties = eval.evaluateList(attributes.get(ATTR_GROUP_BY), beans, new ArrayList<String>(0));
+      myGroupByProperties = AttributeUtil.evaluateList(context, attributes.get(ATTR_GROUP_BY), beans, new ArrayList<String>(0));
       if (!myGroupByProperties.isEmpty())
       {
          List<Group> groups = groupTheCollection();
@@ -213,7 +211,7 @@ public class ForEachTag extends BaseLoopTag
          myCollection = new ArrayList<Object>(groups);
       }
 
-      myLimit = eval.evaluateNonNegativeInt(attributes.get(ATTR_LIMIT), beans, ATTR_LIMIT, myCollection.size());
+      myLimit = AttributeUtil.evaluateNonNegativeInt(context, attributes.get(ATTR_LIMIT), beans, ATTR_LIMIT, myCollection.size());
 
       if (DEBUG)
          System.err.println("ForEachTag.vA: myLimit=" + myLimit);

@@ -22,7 +22,7 @@ import net.sf.jett.model.Block;
 import net.sf.jett.model.CellStyleCache;
 import net.sf.jett.model.ExcelColor;
 import net.sf.jett.transform.BlockTransformer;
-import net.sf.jett.util.AttributeEvaluator;
+import net.sf.jett.util.AttributeUtil;
 import net.sf.jett.util.SheetUtil;
 
 /**
@@ -127,16 +127,14 @@ public class SpanTag extends BaseTag
       if (!isBodiless())
          throw new TagParseException("SpanTag: Must be bodiless.  SpanTag with body found" + getLocation());
 
-      AttributeEvaluator eval = new AttributeEvaluator(context);
-
       myValue = attributes.get(ATTR_VALUE);
 
       List<RichTextString> atLeastOne = Arrays.asList(attributes.get(ATTR_FACTOR), attributes.get(ATTR_ADJUST));
-      eval.ensureAtLeastOneExists(atLeastOne, Arrays.asList(ATTR_FACTOR, ATTR_ADJUST));
-      myFactor = eval.evaluateNonNegativeInt(attributes.get(ATTR_FACTOR), beans, ATTR_FACTOR, 1);
-      myAdjust = eval.evaluateInt(attributes.get(ATTR_ADJUST), beans, ATTR_ADJUST, 0);
+      AttributeUtil.ensureAtLeastOneExists(atLeastOne, Arrays.asList(ATTR_FACTOR, ATTR_ADJUST));
+      myFactor = AttributeUtil.evaluateNonNegativeInt(context, attributes.get(ATTR_FACTOR), beans, ATTR_FACTOR, 1);
+      myAdjust = AttributeUtil.evaluateInt(context, attributes.get(ATTR_ADJUST), beans, ATTR_ADJUST, 0);
 
-      boolean explicitlyExpandingRight = eval.evaluateBoolean(attributes.get(ATTR_EXPAND_RIGHT), beans, false);
+      boolean explicitlyExpandingRight = AttributeUtil.evaluateBoolean(context, attributes.get(ATTR_EXPAND_RIGHT), beans, false);
       if (explicitlyExpandingRight)
          block.setDirection(Block.Direction.HORIZONTAL);
       else

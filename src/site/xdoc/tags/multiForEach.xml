@@ -161,7 +161,7 @@
             </table>
             <p>Another example uses the "replaceExpr" value and the "replaceValue" attribute to
             replace those expressions past the end of the managers collection.  If the
-            "replaceValue" attribute wasn't specified, then the expressions wouuld be replaced by
+            "replaceValue" attribute wasn't specified, then the expressions would be replaced by
             an empty string instead of a "-".  The value of the attribute "replaceValue" can itself
             be an expression, e.g. <code>replaceValue="${replVal}"</code>.</p>
             <table style="width: 750px;">

@@ -11,7 +11,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import net.sf.jett.exception.TagParseException;
 import net.sf.jett.model.Block;
 import net.sf.jett.transform.BlockTransformer;
-import net.sf.jett.util.AttributeEvaluator;
+import net.sf.jett.util.AttributeUtil;
 import net.sf.jett.util.SheetUtil;
 
 /**
@@ -110,9 +110,7 @@ public class GroupTag extends BaseTag
       Map<String, Object> beans = context.getBeans();
       Map<String, RichTextString> attributes = getAttributes();
 
-      AttributeEvaluator eval = new AttributeEvaluator(context);
-
-      String groupDir = eval.evaluateStringSpecificValues(attributes.get(ATTR_GROUP_DIR), beans, ATTR_GROUP_DIR,
+      String groupDir = AttributeUtil.evaluateStringSpecificValues(context, attributes.get(ATTR_GROUP_DIR), beans, ATTR_GROUP_DIR,
          Arrays.asList(GROUP_DIR_ROWS, GROUP_DIR_COLS, GROUP_DIR_NONE), GROUP_DIR_ROWS);
       if (GROUP_DIR_ROWS.equals(groupDir))
          myGroupDir = Block.Direction.VERTICAL;
@@ -121,7 +119,7 @@ public class GroupTag extends BaseTag
       else if (GROUP_DIR_NONE.equals(groupDir))
             myGroupDir = Block.Direction.NONE;
 
-      amICollapsed = eval.evaluateBoolean(attributes.get(ATTR_COLLAPSE), beans, false);
+      amICollapsed = AttributeUtil.evaluateBoolean(context, attributes.get(ATTR_COLLAPSE), beans, false);
    }
 
    /**

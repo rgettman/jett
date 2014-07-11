@@ -105,7 +105,8 @@
                 is <em>replaceExpr</em>, then all expressions that reference collections that have
                 been exhausted are replaced with this value.  This is ignored if
                 <strong>pastEndAction</strong> is not <em>replaceExpr</em>.  Default: an empty
-                string.</li>
+                string.  This acts just like the "replaceExpr" attribute of
+                <a href="../tags/looping.html">looping tags</a>.</li>
                 <li><strong>groupDir: String</strong> Optional.  Create an Excel Group (Outline)
                 on the resultant rows or columns.  This acts just like the "groupDir" attribute of
                 <a href="../tags/looping.html">looping tags</a>.  Here are the possible values:</li>

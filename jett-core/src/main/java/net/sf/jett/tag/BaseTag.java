@@ -16,7 +16,7 @@ import net.sf.jett.event.TagListener;
 import net.sf.jett.exception.TagParseException;
 import net.sf.jett.model.Block;
 import net.sf.jett.model.WorkbookContext;
-import net.sf.jett.util.AttributeEvaluator;
+import net.sf.jett.util.AttributeUtil;
 import net.sf.jett.util.SheetUtil;
 
 /**
@@ -332,7 +332,7 @@ public abstract class BaseTag implements Tag
       Map<String, Object> beans = context.getBeans();
       Map<String, RichTextString> attributes = getAttributes();
 
-      myTagListener = new AttributeEvaluator(context).evaluateObject(attributes.get(ATTR_ON_PROCESSED), beans, ATTR_ON_PROCESSED,
+      myTagListener = AttributeUtil.evaluateObject(context, attributes.get(ATTR_ON_PROCESSED), beans, ATTR_ON_PROCESSED,
          TagListener.class, null);
 
       if (DEBUG)

@@ -62,6 +62,8 @@ public class FormulaTest extends TestCase
     */
    protected void setupTransformer(ExcelTransformer transformer)
    {
+      transformer.setEvaluateFormulas(true);
+      transformer.setForceRecalculationOnOpening(false);
    }
 
    /**
@@ -79,6 +81,10 @@ public class FormulaTest extends TestCase
       assertEquals("SUM(I3:I60)", TestUtility.getFormulaCellValue(formulaTest, 60, 8));
       assertEquals("\"Counties:\"&COUNTA(K3:K60)", TestUtility.getFormulaCellValue(formulaTest, 60, 10));
       assertEquals("B61<>H61", TestUtility.getFormulaCellValue(formulaTest, 62, 2));
+
+      // Test turning on formula evaluation.
+      assertTrue(TestUtility.getBooleanCellValue(formulaTest, 62, 2));
+      assertFalse(workbook.getForceFormulaRecalculation());
 
       for (int i = 1; i <= 6; i++)
       {
