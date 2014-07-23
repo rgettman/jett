@@ -257,7 +257,7 @@ public class FormulaTest extends TestCase
       return true;
    }
 
-/**
+   /**
     * For multiple beans map tests, return the <code>List</code> of template
     * sheet names.
     * @return A <code>List</code> of template sheet names.

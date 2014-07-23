@@ -1049,7 +1049,7 @@ public class SheetUtil
       // Remove any conditional formatting regions in this Block.
       //removeConditionalFormattingRegionsInRange(sheet, left, right, top, bottom);
       // Lose the current cell references.
-      FormulaUtil.shiftCellReferencesInRange(sheet.getSheetName(), context.getCellRefMap(),
+      FormulaUtil.shiftCellReferencesInRange(sheet.getSheetName(), context,
          left, right, top, bottom,
          0, 0, true, false);
    }
@@ -1086,7 +1086,7 @@ public class SheetUtil
          }
       }
       // Lose the current cell references.
-      FormulaUtil.shiftCellReferencesInRange(sheet.getSheetName(), context.getCellRefMap(),
+      FormulaUtil.shiftCellReferencesInRange(sheet.getSheetName(), context,
          left, right, top, bottom,
          0, 0, true, false);
    }
@@ -1293,7 +1293,7 @@ public class SheetUtil
             copyRowHeightsUp(sheet, startRowNum, endRowNum, numToShiftUp);
          }
          shiftCellsUp(sheet, tagContext, left, right, startRowNum, endRowNum, numToShiftUp);
-         FormulaUtil.shiftCellReferencesInRange(sheet.getSheetName(), context.getCellRefMap(),
+         FormulaUtil.shiftCellReferencesInRange(sheet.getSheetName(), context,
             left, right, startRowNum, endRowNum,
             0, -numToShiftUp, true, true);
          break;
@@ -1323,7 +1323,7 @@ public class SheetUtil
          }
 
          shiftCellsLeft(sheet, tagContext, startCellNum, endCellNum, top, bottom, numToShiftLeft);
-         FormulaUtil.shiftCellReferencesInRange(sheet.getSheetName(), context.getCellRefMap(),
+         FormulaUtil.shiftCellReferencesInRange(sheet.getSheetName(), context,
             startCellNum, endCellNum, top, bottom,
             -numToShiftLeft, 0, true, true);
          break;
@@ -1554,7 +1554,7 @@ public class SheetUtil
             copyRowHeightsDown(sheet, toShift.getTopRowNum(), toShift.getBottomRowNum(), translateDown);
             shiftCellsDown(sheet, tagContext, toShift.getLeftColNum(), toShift.getRightColNum(),
                toShift.getTopRowNum(), toShift.getBottomRowNum(), translateDown);
-            FormulaUtil.shiftCellReferencesInRange(sheet.getSheetName(), context.getCellRefMap(),
+            FormulaUtil.shiftCellReferencesInRange(sheet.getSheetName(), context,
                toShift.getLeftColNum(), toShift.getRightColNum(), toShift.getTopRowNum(), toShift.getBottomRowNum(),
                0, translateDown, true, true);
          }
@@ -1634,7 +1634,7 @@ public class SheetUtil
             copyColumnWidthsRight(sheet, toShift.getLeftColNum(), toShift.getRightColNum(), translateRight);
             shiftCellsRight(sheet, tagContext, toShift.getLeftColNum(), toShift.getRightColNum(),
                toShift.getTopRowNum(), toShift.getBottomRowNum(), translateRight);
-            FormulaUtil.shiftCellReferencesInRange(sheet.getSheetName(), context.getCellRefMap(),
+            FormulaUtil.shiftCellReferencesInRange(sheet.getSheetName(), context,
                toShift.getLeftColNum(), toShift.getRightColNum(), toShift.getTopRowNum(), toShift.getBottomRowNum(),
                translateRight, 0, true, true);
          }
@@ -1835,7 +1835,7 @@ public class SheetUtil
 
          if (currSuffix == null)
             currSuffix = "";
-         FormulaUtil.copyCellReferencesInRange(sheetName, context.getCellRefMap(),
+         FormulaUtil.copyCellReferencesInRange(sheetName, context,
             left, right, top, bottom, 0, translateDown, currSuffix, newSuffix);
          break;
       case HORIZONTAL:
@@ -1911,7 +1911,7 @@ public class SheetUtil
 
          if (currSuffix == null)
             currSuffix = "";
-         FormulaUtil.copyCellReferencesInRange(sheetName, context.getCellRefMap(),
+         FormulaUtil.copyCellReferencesInRange(sheetName, context,
             left, right, top, bottom, translateRight, 0, currSuffix, newSuffix);
          break;
       }

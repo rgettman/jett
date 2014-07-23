@@ -123,7 +123,7 @@ public class CellRef extends CellReference implements Comparable<CellRef>
       if (getSheetName() != null)
          sheetName1 = getSheetName();
       if (other.getSheetName() != null)
-         sheetName2 = getSheetName();
+         sheetName2 = other.getSheetName();
       int comp = sheetName1.compareTo(sheetName2);
       if (comp != 0)
          return comp;

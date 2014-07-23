@@ -53,6 +53,44 @@ public class TestUtility
    public static Map<String, Object> getStateData()
    {
       Map<String, Object> beans = new HashMap<String, Object>();
+      beans.put("california", getCalifornia());
+      beans.put("nevada", getNevada());
+
+      return beans;
+   }
+
+   /**
+    * Returns a specific state under the given bean name.
+    * @param code A code (currently 0 = California, 1 = Nevada).
+    * @param name The bean name to create.
+    * @return A <code>Map</code> of the bean name to the bean value -- the
+    *    <code>State</code>.
+    * @since 0.8.0
+    */
+   public static Map<String, Object> getSpecificStateData(int code, String name)
+   {
+      Map<String, Object> beans = new HashMap<String, Object>();
+      State state = null;
+      switch(code)
+      {
+      case 0:
+         state = getCalifornia();
+         break;
+      case 1:
+         state = getNevada();
+         break;
+      }
+      beans.put(name, state);
+      return beans;
+   }
+
+   /**
+    * Get California state data.
+    * @return A <code>State</code>.
+    * @since 0.8.0
+    */
+   private static State getCalifornia()
+   {
       State california = new State();
       california.setName("California");
       california.addCounty(new County("Los Angeles", 10363850, 10515, 1850, "Los Angeles", "06037"));
@@ -113,7 +151,16 @@ public class TestUtility
       california.addCounty(new County("Modoc", 9702, 10215, 1874, "Alturas", "06049"));
       california.addCounty(new County("Sierra", 3380, 2468, 1852, "Downieville", "06091"));
       california.addCounty(new County("Alpine", 1222, 1914, 1864, "Markleeville", "06003"));
-      beans.put("california", california);
+      return california;
+   }
+
+   /**
+    * Get Nevada state data.
+    * @return A <code>State</code>.
+    * @since 0.8.0
+    */
+   private static State getNevada()
+   {
 
       State nevada = new State();
       nevada.setName("Nevada");
@@ -134,9 +181,7 @@ public class TestUtility
       nevada.addCounty(new County("Storey", 3399, 684, 1861, "Virginia City", "32029"));
       nevada.addCounty(new County("Eureka", 1651, 10816, 1873, "Eureka", "32011"));
       nevada.addCounty(new County("Esmeralda", 971, 9295, 1861, "Goldfield", "32009"));
-      beans.put("nevada", nevada);
-
-      return beans;
+      return nevada;
    }
 
    /**

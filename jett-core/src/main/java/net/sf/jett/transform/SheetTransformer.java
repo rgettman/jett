@@ -88,7 +88,7 @@ public class SheetTransformer
       boolean shouldProceed = fireBeforeSheetProcessedEvent(context, sheet, beans);
 
       if (shouldProceed)
-         transformOffSheetProperties(sheet, beans);
+         transformOffSheetProperties(sheet, beans, context);
 
       // This will happen regardless.
       if (callback != null)
@@ -135,9 +135,10 @@ public class SheetTransformer
     * footer and the sheet name itself.
     * @param sheet The <code>Sheet</code> to transform.
     * @param beans The beans map.
+    * @param context The <code>WorkbookContext</code>.
     * @since 0.7.0
     */
-   private void transformOffSheetProperties(Sheet sheet, Map<String, Object> beans)
+   private void transformOffSheetProperties(Sheet sheet, Map<String, Object> beans, WorkbookContext context)
    {
       String text;
       Object result;
@@ -168,10 +169,24 @@ public class SheetTransformer
       text = sheet.getSheetName();
       result = Expression.evaluateString(text, beans);
       Workbook workbook = sheet.getWorkbook();
-      workbook.setSheetName(workbook.getSheetIndex(sheet), result.toString());
+      if (result != null)
+      {
+         String newSheetName = result.toString();
+         if (!sheet.getSheetName().equals(newSheetName))
+         {
+            String oldSheetName = sheet.getSheetName();
+            workbook.setSheetName(workbook.getSheetIndex(sheet), newSheetName);
+            // Apache POI seems to update all Excel formulas on a sheet name change.
+            // The only exception is on named ranges that are scoped to a different
+            // sheet than the sheet being renamed, and only on XSSFSheets (looks like
+            // an Apache POI bug; it works on HSSFSheets).  JETT won't be messing
+            // around with actual Excel formulas here.
 
-      // TODO: Change formula stuff here, so JETT formulas that reference old
-      // sheet names are updated.
+            // We still need to update all JETT formula references in the cell ref map.
+            FormulaUtil.replaceSheetNameRefs(context, oldSheetName, newSheetName);
+         }
+      }
+
    }
 
    /**
@@ -223,9 +238,6 @@ public class SheetTransformer
                            String key = sheetName + "!" + cellText;
                            if (DEBUG)
                               System.err.println("ST.gF: Formula found: " + key + " => " + formula);
-                           // TODO: Change formula stuff here, so that JETT
-                           // formulas that reference previously cloned/
-                           // changed sheet names are updated.
                            formulaMap.put(key, formula);
                         }
                      }

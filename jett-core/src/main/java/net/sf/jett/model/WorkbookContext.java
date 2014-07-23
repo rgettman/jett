@@ -1,5 +1,6 @@
 package net.sf.jett.model;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -28,6 +29,8 @@ public class WorkbookContext
    private CellStyleCache myCellStyleCache;
    private FontCache myFontCache;
    private Map<String, Style> myStyleMap;
+   private List<String> myTemplateSheetNames;
+   private List<String> mySheetNames;
 
    /**
     * Initializes things to null/0.
@@ -45,6 +48,8 @@ public class WorkbookContext
       myCellStyleCache = null;
       myFontCache = null;
       myStyleMap = null;
+      myTemplateSheetNames = null;
+      mySheetNames = null;
    }
 
    /**
@@ -270,5 +275,45 @@ public class WorkbookContext
    public void setStyleMap(Map<String, Style> styleMap)
    {
       myStyleMap = styleMap;
+   }
+
+   /**
+    * Returns a <code>List</code> of template sheet names.
+    * @return A <code>List</code> of template sheet names.
+    * @since 0.8.0
+    */
+   public List<String> getTemplateSheetNames()
+   {
+      return myTemplateSheetNames;
+   }
+
+   /**
+    * Stores a copy of the given <code>List</code> of template sheet names.
+    * @param templateSheetNames A <code>List</code> of template sheet names.
+    * @since 0.8.0
+    */
+   public void setTemplateSheetNames(List<String> templateSheetNames)
+   {
+      myTemplateSheetNames = new ArrayList<String>(templateSheetNames);
+   }
+
+   /**
+    * Returns a <code>List</code> of sheet names.
+    * @return A <code>List</code> of sheet names.
+    * @since 0.8.0
+    */
+   public List<String> getSheetNames()
+   {
+      return mySheetNames;
+   }
+
+   /**
+    * Stores a copy of the given <code>List</code> of sheet names.
+    * @param sheetNames A <code>List</code> of sheet names.
+    * @since 0.8.0
+    */
+   public void setSheetNames(List<String> sheetNames)
+   {
+      mySheetNames = new ArrayList<String>(sheetNames);
    }
 }

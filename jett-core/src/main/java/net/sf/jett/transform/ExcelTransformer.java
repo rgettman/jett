@@ -526,6 +526,7 @@ public class ExcelTransformer
       {
          missingPropertiesList.add(getMissingCloneSheetProperties(workbook.getSheetAt(i)));
       }
+
       // Clone and/or move sheets.
       for (int i = 0; i < templateSheetNamesList.size(); i++)
       {
@@ -590,7 +591,8 @@ public class ExcelTransformer
       }
 
       SheetTransformer sheetTransformer = new SheetTransformer();
-      WorkbookContext context = createContext(workbook, sheetTransformer);
+      WorkbookContext context = createContext(workbook, sheetTransformer, templateSheetNamesList, newSheetNamesList);
+      FormulaUtil.updateSheetNameRefsAfterClone(context);
       if (DEBUG)
          System.err.println("number of Sheets=" + workbook.getNumberOfSheets());
 
@@ -731,6 +733,23 @@ public class ExcelTransformer
     */
    public WorkbookContext createContext(Workbook workbook, SheetTransformer transformer)
    {
+      return createContext(workbook, transformer, new ArrayList<String>(), new ArrayList<String>());
+   }
+
+   /**
+    * Creates a <code>WorkbookContext</code> for a <code>Workbook</code>.
+    * @param workbook The <code>Workbook</code>.
+    * @param transformer A <code>SheetTransformer</code>.
+    * @param templateSheetNames A <code>List</code> of template sheet names,
+    *    from the <code>transform</code> method.
+    * @param sheetNames A <code>List</code> of sheet names, from the
+    *    <code>transform</code> method.
+    * @return A <code>WorkbookContext</code>.
+    * @since 0.8.0
+    */
+   public WorkbookContext createContext(Workbook workbook, SheetTransformer transformer,
+      List<String> templateSheetNames, List<String> sheetNames)
+   {
       WorkbookContext context = new WorkbookContext();
       context.setCellListeners(myCellListeners);
       context.setSheetListeners(mySheetListeners);
@@ -746,6 +765,8 @@ public class ExcelTransformer
       FontCache fCache = new FontCache(workbook);
       context.setFontCache(fCache);
       context.setStyleMap(myStyleMap);
+      context.setTemplateSheetNames(templateSheetNames);
+      context.setSheetNames(sheetNames);
       if (DEBUG)
       {
          System.err.println("Formula Map:");
