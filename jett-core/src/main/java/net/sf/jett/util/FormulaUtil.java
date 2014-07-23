@@ -371,10 +371,16 @@ public class FormulaUtil
       Map<String, List<CellRef>> cellRefMap = context.getCellRefMap();
       List<String> templateSheetNamesList = context.getTemplateSheetNames();
       List<String> newSheetNamesList = context.getSheetNames();
-      System.err.println("FU.uSNRAC...");
+      if (DEBUG)
+      {
+         System.err.println("FU.uSNRAC...");
+      }
       for (String key : cellRefMap.keySet())
       {
-         System.err.println("key: \"" + key + "\".");
+         if (DEBUG)
+         {
+            System.err.println("key: \"" + key + "\".");
+         }
          // Formula keys always are of the format "Sheet!CellRef".
          // The key was created internally, so "!" is expected.
          // 1. templateSheet!cellKey => templateSheet!cellRef
@@ -395,7 +401,10 @@ public class FormulaUtil
          List<CellRef> cellRefs = cellRefMap.get(key);
          List<CellRef> addedCellRefs = new ArrayList<CellRef>();
          CellRef cellRef = cellRefs.get(0);
-         System.err.println("  cellRef: \"" + cellRef + "\".");
+         if (DEBUG)
+         {
+            System.err.println("  cellRef: \"" + cellRef + "\".");
+         }
          String templateRefSheetName = cellRef.getSheetName();
 
          // No cell ref sheet reference means a simple reference, e.g "B2",
@@ -415,13 +424,19 @@ public class FormulaUtil
                      cellRef.isRowAbsolute(), cellRef.isColAbsolute());
                   if (updatedFirstAlready)
                   {
-                     System.err.println("    refers to other sheet: Adding \"" + newCellRef + "\".");
+                     if (DEBUG)
+                     {
+                        System.err.println("    refers to other sheet: Adding \"" + newCellRef + "\".");
+                     }
                      addedCellRefs.add(newCellRef);
                   }
                   else
                   {
-                     System.err.println("    refers to other sheet: Replacing \"" + cellRef + "\" with \"" +
-                             newCellRef + "\".");
+                     if (DEBUG)
+                     {
+                        System.err.println("    refers to other sheet: Replacing \"" + cellRef + "\" with \"" +
+                           newCellRef + "\".");
+                     }
                      cellRefs.set(0, newCellRef);  // The only one so far.
                      updatedFirstAlready = true;
                   }
