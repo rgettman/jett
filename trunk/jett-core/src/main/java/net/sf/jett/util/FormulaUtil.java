@@ -8,8 +8,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.poi.ss.formula.SheetNameFormatter;
-
 import net.sf.jett.formula.CellRef;
 import net.sf.jett.formula.CellRefRange;
 import net.sf.jett.formula.Formula;
@@ -42,13 +40,17 @@ public class FormulaUtil
    public static Map<String, List<CellRef>> createCellRefMap(Map<String, Formula> formulaMap)
    {
       if (DEBUG)
+      {
          System.err.println("FU.cCRM");
+      }
       Map<String, List<CellRef>> cellRefMap = new HashMap<String, List<CellRef>>();
       for (String key : formulaMap.keySet())
       {
          Formula formula = formulaMap.get(key);
          if (DEBUG)
+         {
             System.err.println("  Processing key " + key + " => " + formula);
+         }
          // Formula keys always are of the format "Sheet!CellRef".
          // The key was created internally, so "!" is expected.
          String keySheetName = key.substring(0, key.indexOf("!"));
@@ -73,13 +75,27 @@ public class FormulaUtil
             if (!cellRefMap.containsKey(cellKey))
             {
                List<CellRef> cellRefs = new ArrayList<CellRef>();
-               // Don't store the sheet name with the CellRef.
-               CellRef mappedCellRef = new CellRef(cellRef.getRow(), cellRef.getCol(),
-                  cellRef.isRowAbsolute(), cellRef.isColAbsolute());
+               CellRef mappedCellRef;
+               if (sheetName == null || "".equals(sheetName))
+               {
+                  // Local sheet reference.
+                  mappedCellRef = new CellRef(cellRef.getRow(), cellRef.getCol(),
+                     cellRef.isRowAbsolute(), cellRef.isColAbsolute());
+               }
+               else
+               {
+                  // Refer to the template sheet name in the CellRef for now.
+                  // If necessary, it will be translated into resultant sheet
+                  // name(s) later in "updateSheetNameRefsAfterClone".
+                  mappedCellRef = new CellRef(sheetName, cellRef.getRow(), cellRef.getCol(),
+                     cellRef.isRowAbsolute(), cellRef.isColAbsolute());
+               }
                cellRefs.add(mappedCellRef);
                if (DEBUG)
+               {
                   System.err.println("    New CellRefMap entry: " + cellKey + " => [" +
                      mappedCellRef.formatAsString() + "]");
+               }
                cellRefMap.put(cellKey, cellRefs);
             }
          }
@@ -104,10 +120,6 @@ public class FormulaUtil
       String sheetName, WorkbookContext context)
    {
       Map<String, List<CellRef>> cellRefMap = context.getCellRefMap();
-      if (DEBUG)
-      {
-         System.err.println(cellRefMap);
-      }
       List<CellRef> origCellRefs = formula.getCellRefs();
       StringBuffer buf = new StringBuffer();
       String excelFormula, suffix;
@@ -129,12 +141,16 @@ public class FormulaUtil
             excelFormula.length() - Formula.END_FORMULA.length());
 
       if (DEBUG)
+      {
          System.err.println("FU.cEFS: Formula text:\"" + formulaText + "\" on sheet " + sheetName);
+      }
 
       for (CellRef origCellRef : origCellRefs)
       {
          if (DEBUG)
+         {
             System.err.println("  Original cell ref: " + origCellRef.formatAsString());
+         }
          // Look up the translated cells by cell key, which requires a sheet name.
          String cellKey;
          String origCellRefSheetName = origCellRef.getSheetName();
@@ -151,12 +167,12 @@ public class FormulaUtil
          List<CellRef> transCellRefs;
          do
          {
+            transCellRefs = cellRefMap.get(cellKey);
             if (DEBUG)
             {
-               System.err.println("  cellKey: " + cellKey);
+               System.err.println("  cellKey: " + cellKey + " => " + transCellRefs);
             }
 
-            transCellRefs = cellRefMap.get(cellKey);
             // Remove suffixes, one at a time if it's not found.
             if (transCellRefs == null)
             {
@@ -179,7 +195,9 @@ public class FormulaUtil
          buf.delete(0, buf.length());
          int numCellRefs = transCellRefs.size();
          if (DEBUG)
+         {
             System.err.println("  Number of translated cell refs: " + numCellRefs);
+         }
          if (numCellRefs > 0)
          {
             for (int i = 0; i < numCellRefs; i++)
@@ -187,17 +205,10 @@ public class FormulaUtil
                if (i > 0)
                   buf.append(",");
                String cellRef = transCellRefs.get(i).formatAsString();
-               // If there was a sheet name in the original cell reference,
-               // then prepend it here.
-               if (origCellRefSheetName != null)
-               {
-                  if (DEBUG)
-                     System.err.println("      Prepending original sheet name.");
-                  SheetNameFormatter.appendFormat(buf, origCellRefSheetName);
-                  buf.append("!");
-               }
                if (DEBUG)
+               {
                   System.err.println("    Appending cell ref string: \"" + cellRef + "\".");
+               }
                buf.append(cellRef);
             }
             cellRefs = buf.toString();
@@ -211,7 +222,9 @@ public class FormulaUtil
             if (cellRefs == null)
                cellRefs = CellRef.DEF_DEFAULT_VALUE;
             if (DEBUG)
+            {
                System.err.println("    Appending default value: \"" + cellRefs + "\".");
+            }
          }
          // Replace the formula text, including any default value, with the
          // updated cell references.
@@ -246,7 +259,10 @@ public class FormulaUtil
          // positions.
          Collections.sort(cellRefs);
          if (DEBUG)
+         {
             System.err.println("FU.fARCR: Replacing cell ref ranges for \"" + key + "\".");
+            System.err.println("  cellRefs: " + cellRefs);
+         }
          boolean vertical = false;
          boolean horizontal = false;
          CellRef first = null, prev = null;
@@ -257,7 +273,9 @@ public class FormulaUtil
          {
             CellRef curr = cellRefs.get(i);
             if (DEBUG)
+            {
                System.err.println("  curr is " + curr.formatAsString());
+            }
             if (first == null)
             {
                vertical = false;
@@ -265,12 +283,16 @@ public class FormulaUtil
                first = curr;
                firstIdx = i;
                if (DEBUG)
+               {
                   System.err.println("    Case first was null; first: " + first.formatAsString() + ", firstIdx = " + firstIdx);
+               }
             }
             else if (vertical)
             {
                if (DEBUG)
+               {
                   System.err.println("    Case vertical; first: " + first.formatAsString() + ", firstIdx = " + firstIdx);
+               }
                if (!isBelow(prev, curr))
                {
                   // End of range.  Replace sequence of vertically arranged
@@ -289,7 +311,9 @@ public class FormulaUtil
             else if (horizontal)
             {
                if (DEBUG)
+               {
                   System.err.println("    Case horizontal; first: " + first.formatAsString() + ", firstIdx = " + firstIdx);
+               }
                if (!isRightOf(prev, curr))
                {
                   // End of range.  Replace sequence of vertically arranged
@@ -318,8 +342,10 @@ public class FormulaUtil
                   firstIdx = i;
                }
                if (DEBUG)
+               {
                   System.err.println("    Case none; first: " + first.formatAsString() + ", firstIdx = " + firstIdx +
                      ", horizontal=" + horizontal + ", vertical = " + vertical);
+               }
             }
             prev = curr;
          }
@@ -328,6 +354,177 @@ public class FormulaUtil
          if (horizontal || vertical)
             replaceRange(cellRefs, firstIdx, size - 1);
       }
+   }
+
+   /**
+    * After sheets have been cloned, all sheets could have been renamed,
+    * leaving the situation where in the cell ref map, all cell keys are of the
+    * new sheet names, but the <code>CellRefs</code> still refer to the
+    * template sheet names.  This updates all <code>CellRefs</code> in the cell
+    * ref map to the new sheet names, cloning the references if necessary.
+    * @param context The <code>WorkbookContext</code>, which contains the cell
+    *    rep map, the template sheet names, and the new sheet names.
+    * @since 0.8.0
+    */
+   public static void updateSheetNameRefsAfterClone(WorkbookContext context)
+   {
+      Map<String, List<CellRef>> cellRefMap = context.getCellRefMap();
+      List<String> templateSheetNamesList = context.getTemplateSheetNames();
+      List<String> newSheetNamesList = context.getSheetNames();
+      System.err.println("FU.uSNRAC...");
+      for (String key : cellRefMap.keySet())
+      {
+         System.err.println("key: \"" + key + "\".");
+         // Formula keys always are of the format "Sheet!CellRef".
+         // The key was created internally, so "!" is expected.
+         // 1. templateSheet!cellKey => templateSheet!cellRef
+         // Must update cell refs to resultant sheet cell ref(s).
+         // 2. resultantSheet!cellKey => cellRef
+         // Don't update these.
+         String templateSheetName = key.substring(0, key.indexOf("!"));
+         // Determine if it's a template sheet name.
+         int index = templateSheetNamesList.indexOf(templateSheetName);
+         if (index == -1)
+         {
+            // Assumed to be a resultant sheet name; skip.
+            continue;
+         }
+         // At this point, keySheetName is known to be a template sheet name.
+         // No transformation has taken place yet, so there should be exactly
+         // one cell ref in the list.
+         List<CellRef> cellRefs = cellRefMap.get(key);
+         List<CellRef> addedCellRefs = new ArrayList<CellRef>();
+         CellRef cellRef = cellRefs.get(0);
+         System.err.println("  cellRef: \"" + cellRef + "\".");
+         String templateRefSheetName = cellRef.getSheetName();
+
+         // No cell ref sheet reference means a simple reference, e.g "B2",
+         // meaning "this sheet", which means don't update.
+         if (templateRefSheetName != null)
+         {
+            // Update the reference, plus clone the reference too, if more
+            // than one template sheet name matches.
+            boolean updatedFirstAlready = false;
+            for (int j = 0; j < templateSheetNamesList.size(); j++)
+            {
+               String sheetName = templateSheetNamesList.get(j);
+               if (sheetName.equals(templateSheetName))
+               {
+                  String newSheetName = newSheetNamesList.get(j);
+                  CellRef newCellRef = new CellRef(newSheetName, cellRef.getRow(), cellRef.getCol(),
+                     cellRef.isRowAbsolute(), cellRef.isColAbsolute());
+                  if (updatedFirstAlready)
+                  {
+                     System.err.println("    refers to other sheet: Adding \"" + newCellRef + "\".");
+                     addedCellRefs.add(newCellRef);
+                  }
+                  else
+                  {
+                     System.err.println("    refers to other sheet: Replacing \"" + cellRef + "\" with \"" +
+                             newCellRef + "\".");
+                     cellRefs.set(0, newCellRef);  // The only one so far.
+                     updatedFirstAlready = true;
+                  }
+               }
+            }  // End for loop on template sheet names
+         }  // End null check on templateSheetRefName
+         cellRefs.addAll(addedCellRefs);
+      }  // End for loop on cell keys.
+   }
+
+   /**
+    * When a <code>Sheet</code> is renamed, then this updates all
+    * <code>CellRefs</code> in the cell reference map need to be updated too.
+    * @param context The <code>WorkbookContext</code>, on which the formula map
+    *    and the cell ref map can be found.
+    * @param oldSheetName The old sheet name.
+    * @param newSheetName The new sheet name.
+    * @since 0.8.0
+    */
+   public static void replaceSheetNameRefs(WorkbookContext context, String oldSheetName, String newSheetName)
+   {
+      // Update new sheet name list (local copy, doesn't affect the original
+      // list passed in to ExcelTransformer.transform).
+      List<String> newSheetNames = context.getSheetNames();
+      int index = newSheetNames.indexOf(oldSheetName);
+      if (index != -1)
+      {
+         newSheetNames.set(index, newSheetName);
+      }
+
+      // Formula map: update keys.
+      Map<String, Formula> formulaMap = context.getFormulaMap();
+      List<String> removeFromFormulaMap = new ArrayList<String>();
+      Map<String, Formula> addToFormulaMap = new HashMap<String, Formula>();
+      for (String key : formulaMap.keySet())
+      {
+         if (key.startsWith(oldSheetName))
+         {
+            Formula formula = formulaMap.get(key);
+            removeFromFormulaMap.add(key);
+            index = key.indexOf("!");  // Expected to be present in all cell keys
+            String newKey = newSheetName + "!" + key.substring(index + 1);
+            if (DEBUG)
+            {
+               System.err.println("FU.rSNR: Replacing formula map key " + key + " with " + newKey);
+            }
+            addToFormulaMap.put(newKey, formula);
+         }
+      }
+      // Now remove all the keys marked to be removed, now that we're past the
+      // Iterator and a possible ConcurrentModificationException.
+      for (String key : removeFromFormulaMap)
+      {
+         formulaMap.remove(key);
+      }
+      // Put back all the replacements.
+      formulaMap.putAll(addToFormulaMap);
+
+      // Cell Ref Map: update keys and cell refs.
+      Map<String, List<CellRef>> cellRefMap = context.getCellRefMap();
+      List<String> removeFromCellRefMap = new ArrayList<String>();
+      Map<String, List<CellRef>> addToCellRefMap = new HashMap<String, List<CellRef>>();
+      for (String key : cellRefMap.keySet())
+      {
+         List<CellRef> cellRefs = cellRefMap.get(key);
+         // If the sheet name in the key changed, then we must replace the entry.
+         // This occurs with JETT formulas in a sheet whose name was changed
+         // via an expression, when those formulas refer to local sheet cells.
+         if (key.startsWith(oldSheetName))
+         {
+            removeFromCellRefMap.add(key);
+            index = key.indexOf("!");  // Expected to be present in all cell keys
+            String newKey = newSheetName + "!" + key.substring(index + 1);
+            if (DEBUG)
+            {
+               System.err.println("FU.rSNR: Replacing cell ref map key " + key + " with " + newKey);
+            }
+            addToCellRefMap.put(newKey, cellRefs);
+         }
+         for (int i = 0; i < cellRefs.size(); i++)
+         {
+            CellRef cellRef = cellRefs.get(i);
+            String cellRefSheetName = cellRef.getSheetName();
+            if (cellRefSheetName != null && cellRefSheetName.equals(oldSheetName))
+            {
+               CellRef newCellRef = new CellRef(newSheetName, cellRef.getRow(), cellRef.getCol(),
+                       cellRef.isRowAbsolute(), cellRef.isColAbsolute());
+               if (DEBUG)
+               {
+                  System.err.println("FU.rSNR: replacing cell ref " + cellRef + " with " + newCellRef);
+               }
+               cellRefs.set(i, newCellRef);
+            }
+         }
+      }
+      // Now remove all the keys marked to be removed, now that we're past the
+      // Iterator and a possible ConcurrentModificationException.
+      for (String key : removeFromCellRefMap)
+      {
+         cellRefMap.remove(key);
+      }
+      // Put back all the replacements.
+      cellRefMap.putAll(addToCellRefMap);
    }
 
    /**
@@ -392,8 +589,10 @@ public class FormulaUtil
          first.isRowAbsolute(), first.isColAbsolute());
       range.setRangeEndCellRef(prev);
       if (DEBUG)
+      {
          System.err.println("  Replacing " + first.formatAsString() + " through " +
             prev.formatAsString() + " with " + range.formatAsString());
+      }
       // Replace the first with the range.
       cellRefs.set(startIdx, range);
       // Remove the others in the range.  The end index for the "subList"
@@ -408,9 +607,8 @@ public class FormulaUtil
     * the values of <code>cellRefMap</code>.
     * @param sheetName The name of the <code>Sheet</code> on which to shift
     *    cell references.
-    * @param cellRefMap The <code>Map</code> of cell key strings, representing
-    *    original cell locations, to <code>Lists</code> of current
-    *    <code>CellRefs</code>.
+    * @param context The <code>WorkbookContext</code> which holds the cell ref
+    *    map, template sheet names, and new sheet names.
     * @param left The 0-based index of the column on which to start shifting
     *    cell references.
     * @param right The 0-based index of the column on which to end shifting
@@ -429,56 +627,79 @@ public class FormulaUtil
     * @param add Determines whether to add the new cell reference, resulting in
     *    a copy, or not to add the new cell reference, resulting in a shift.
     */
-   public static void shiftCellReferencesInRange(String sheetName, Map<String, List<CellRef>> cellRefMap,
+   public static void shiftCellReferencesInRange(String sheetName, WorkbookContext context,
       int left, int right, int top, int bottom, int numCols, int numRows,
       boolean remove, boolean add)
    {
       if (DEBUG)
+      {
          System.err.println("    FU.sCRIR: left " + left + ", right " + right +
             ", top " + top + ", bottom " + bottom + ", numCols " + numCols +
             ", numRows " + numRows + ", remove " + remove + ", add " + add);
+      }
+      Map<String, List<CellRef>> cellRefMap = context.getCellRefMap();
+      List<String> templateSheetNames = context.getTemplateSheetNames();
+      List<String> newSheetNames = context.getSheetNames();
       if (numCols == 0 && numRows == 0 && remove && add)
          return;
       for (String cellKey : cellRefMap.keySet())
       {
          // All cell keys have the sheet name in them.
          String keySheetName = cellKey.substring(0, cellKey.indexOf("!"));
-         if (keySheetName.equals(sheetName))
+         if (!keySheetName.equals(sheetName))
          {
-            List<CellRef> cellRefs = cellRefMap.get(cellKey);
-            List<CellRef> delete = new ArrayList<CellRef>();
-            List<CellRef> insert = new ArrayList<CellRef>();
-            for (CellRef cellRef : cellRefs)
+            // No exact match.  Check the corresponding template sheet name, if
+            // it exists.
+            int index = newSheetNames.indexOf(sheetName);
+            if (index != -1 && keySheetName.equals(templateSheetNames.get(index)))
             {
-               String cellRefSheetName = cellRef.getSheetName();
-               int row = cellRef.getRow();
-               int col = cellRef.getCol();
-               if ((cellRefSheetName == null || keySheetName.equals(cellRefSheetName)) &&
-                   (row >= top && row <= bottom && col >= left && col <= right))
+               // Template sheet name match.
+               // Update keySheetName (the template sheet name) to the new sheet name.
+               keySheetName = sheetName;
+            }
+            else
+            {
+               continue;
+            }
+         }
+
+         List<CellRef> cellRefs = cellRefMap.get(cellKey);
+         List<CellRef> delete = new ArrayList<CellRef>();
+         List<CellRef> insert = new ArrayList<CellRef>();
+         for (CellRef cellRef : cellRefs)
+         {
+            String cellRefSheetName = cellRef.getSheetName();
+            int row = cellRef.getRow();
+            int col = cellRef.getCol();
+            if ((cellRefSheetName == null || keySheetName.equals(cellRefSheetName)) &&
+                    (row >= top && row <= bottom && col >= left && col <= right))
+            {
+               if (remove)
                {
-                  if (remove)
+                  if (DEBUG)
                   {
-                     if (DEBUG)
-                        System.err.println("      Deleting cell reference: " + cellRef.formatAsString() +
-                           " for cell key " + cellKey);
-                     delete.add(cellRef);
+                     System.err.println("      Deleting cell reference: " + cellRef.formatAsString() +
+                             " for cell key " + cellKey);
                   }
-                  if (add)
+                  delete.add(cellRef);
+               }
+               if (add)
+               {
+                  CellRef adjCellRef = new CellRef(cellRefSheetName, row + numRows, col + numCols,
+                          cellRef.isRowAbsolute(), cellRef.isColAbsolute());
+                  if (DEBUG)
                   {
-                     CellRef adjCellRef = new CellRef(cellRefSheetName, row + numRows, col + numCols,
-                        cellRef.isRowAbsolute(), cellRef.isColAbsolute());
-                     if (DEBUG)
-                        System.err.println("      Adding cell reference: " + adjCellRef.formatAsString() +
-                           " for cell key " + cellKey);
-                     insert.add(adjCellRef);
+                     System.err.println("      Adding cell reference: " + adjCellRef.formatAsString() +
+                             " for cell key " + cellKey);
                   }
+                  insert.add(adjCellRef);
                }
             }
-            if (remove)
-               cellRefs.removeAll(delete);
-            if (add)
-               cellRefs.addAll(insert);
          }
+         if (remove)
+            cellRefs.removeAll(delete);
+         if (add)
+            cellRefs.addAll(insert);
       }
    }
 
@@ -489,9 +710,8 @@ public class FormulaUtil
     * that are the values of <code>cellRefMap</code>.
     * @param sheetName The name of the <code>Sheet</code> on which to copy
     *    references.
-    * @param cellRefMap The <code>Map</code> of cell key strings, representing
-    *    original cell locations, to <code>Lists</code> of current
-    *    <code>CellRefs</code>.
+    * @param context The <code>WorkbookContext</code> which holds the cell ref
+    *    map, template sheet names, and new sheet names.
     * @param left The 0-based index of the column on which to start shifting
     *    cell references.
     * @param right The 0-based index of the column on which to end shifting
@@ -507,24 +727,46 @@ public class FormulaUtil
     * @param currSuffix The current "[loop,iter]*" suffix we're already in.
     * @param newSuffix The new "[loop,iter]" suffix to add for new entries.
     */
-   public static void copyCellReferencesInRange(String sheetName, Map<String, List<CellRef>> cellRefMap,
+   public static void copyCellReferencesInRange(String sheetName, WorkbookContext context,
       int left, int right, int top, int bottom, int numCols, int numRows, String currSuffix, String newSuffix)
    {
       if (DEBUG)
+      {
          System.err.println("    FU.cCRIR: left " + left + ", right " + right +
             ", top " + top + ", bottom " + bottom + ", numCols " + numCols +
             ", numRows " + numRows + ", currSuffix: \"" + currSuffix + "\", newSuffix: \"" + newSuffix + "\"");
+      }
+      Map<String, List<CellRef>> cellRefMap = context.getCellRefMap();
       Map<String, List<CellRef>> newCellRefEntries = new HashMap<String, List<CellRef>>();
+      List<String> templateSheetNames = context.getTemplateSheetNames();
+      List<String> newSheetNames = context.getSheetNames();
       for (String cellKey : cellRefMap.keySet())
       {
          // All cell keys have the sheet name in them.
          String keySheetName = cellKey.substring(0, cellKey.indexOf("!"));
+         if (!keySheetName.equals(sheetName))
+         {
+            // No exact match.  Check the corresponding template sheet name, if
+            // it exists.
+            int index = newSheetNames.indexOf(sheetName);
+            if (index != -1 && keySheetName.equals(templateSheetNames.get(index)))
+            {
+               // Template sheet name match.
+               // Update keySheetName (the template sheet name) to the new sheet name.
+               keySheetName = sheetName;
+            }
+            else
+            {
+               continue;
+            }
+         }
+
          // A cell key may have a suffix, e.g. [0,1].
          String keySuffix = "";
          int idx = cellKey.indexOf("[");
          if (idx > -1)
             keySuffix = cellKey.substring(idx);
-         if (keySheetName.equals(sheetName) && currSuffix.startsWith(keySuffix)) // Sheet and Suffix match
+         if (currSuffix.startsWith(keySuffix)) // Suffix matches
          {
             List<CellRef> cellRefs = cellRefMap.get(cellKey);
             List<CellRef> insert = new ArrayList<CellRef>();
@@ -556,8 +798,10 @@ public class FormulaUtil
                      List<CellRef> newCellRefs = new ArrayList<CellRef>();
                      newCellRefs.add(adjCellRef);
                      if (DEBUG)
+                     {
                         System.err.println("      Adding new entry: " + newCellKey + " => [" +
                            adjCellRef.formatAsString() + "]");
+                     }
                      newCellRefEntries.put(newCellKey, newCellRefs);
                   }
                }
