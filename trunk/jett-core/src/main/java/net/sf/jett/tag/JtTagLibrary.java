@@ -29,6 +29,7 @@ public class JtTagLibrary implements TagLibrary
       myTagMap.put("hyperlink"   , HyperlinkTag.class);
       myTagMap.put("if"          , IfTag.class);
       myTagMap.put("multiForEach", MultiForEachTag.class);
+      myTagMap.put("name"        , NameTag.class);
       myTagMap.put("null"        , NullTag.class);
       myTagMap.put("span"        , SpanTag.class);
       myTagMap.put("style"       , StyleTag.class);

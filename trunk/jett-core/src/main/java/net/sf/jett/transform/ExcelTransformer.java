@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.Name;
 import org.apache.poi.ss.usermodel.PrintSetup;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -34,6 +35,7 @@ import net.sf.jett.model.Style;
 import net.sf.jett.model.WorkbookContext;
 import net.sf.jett.parser.StyleParser;
 import net.sf.jett.tag.JtTagLibrary;
+import net.sf.jett.tag.NameTag;
 import net.sf.jett.tag.TagLibrary;
 import net.sf.jett.tag.TagLibraryRegistry;
 import net.sf.jett.util.FormulaUtil;
@@ -88,10 +90,10 @@ import net.sf.jett.util.FormulaUtil;
  * other public methods of this class, including recognizing custom tag
  * libraries, adding <code>CellListeners</code>, using fixed size collections,
  * turning off implicit collections processing, passing <code>silent</code> and
- * <code>lenient</code> flags through to the underlying JEXL Engine,
- * passing a cache size to the internal JEXL Engine, passing namespace objects
- * to register custom functions in the JEXL Engine, and passing CSS files/text
- * to be recognized by the {@link net.sf.jett.tag.StyleTag} later.</p>
+ * <code>lenient</code> flags through to the underlying JEXL Engine, passing a
+ * cache size to the internal JEXL Engine, passing namespace objects to
+ * register custom functions in the JEXL Engine, and passing CSS files/text to
+ * be recognized by the {@link net.sf.jett.tag.StyleTag} later.</p>
  *
  * @author Randy Gettman
  */
@@ -545,18 +547,23 @@ public class ExcelTransformer
                System.err.println("Cloning sheet at position " + prevIndex + ".");
 
             MissingCloneSheetProperties cloned = new MissingCloneSheetProperties(missingPropertiesList.get(prevIndex));
+
             workbook.cloneSheet(prevIndex);
 
             if (DEBUG)
                System.err.println("Setting sheet name at position " +
                   (workbook.getNumberOfSheets() - 1) + " to \"" + newSheetName + "\".");
 
-            workbook.setSheetName(workbook.getNumberOfSheets() - 1, newSheetName);
+            int clonePos = workbook.getNumberOfSheets() - 1;
+            workbook.setSheetName(clonePos, newSheetName);
+            cloneNamedRanges(workbook, prevIndex);
 
             if (DEBUG)
                System.err.println("Moving sheet \"" + newSheetName + "\" to position " + i + ".");
 
             workbook.setSheetOrder(newSheetName, i);
+            updateNamedRangesScope(workbook, clonePos, i);
+
             missingPropertiesList.add(i, cloned);
          }
          else
@@ -578,7 +585,10 @@ public class ExcelTransformer
                   System.err.println("Moving sheet at position " + index + " to " + i + ".");
 
                MissingCloneSheetProperties move = missingPropertiesList.remove(index);
+
                workbook.setSheetOrder(newSheetName, i);
+               updateNamedRangesScope(workbook, index, i);
+
                missingPropertiesList.add(i, move);
             }
             firstReferencedSheets.put(templateSheetName, i);
@@ -626,6 +636,72 @@ public class ExcelTransformer
          numItemsProcessed++;
       }
       postTransformation(workbook, context, sheetTransformer);
+   }
+
+   /**
+    * Clones all named ranges that are scoped to the <code>Sheet</code> at the
+    * given index, and scopes the newly cloned named ranges to the last sheet
+    * in the workbook, where it is assumed that the cloned sheet still exists.
+    * @param workbook A <code>Workbook</code>.
+    * @param prevIndex The 0-based sheet index from which to clone named
+    *    ranges.
+    * @since 0.8.0
+    */
+   private void cloneNamedRanges(Workbook workbook, int prevIndex)
+   {
+      int numNamedRanges = workbook.getNumberOfNames();
+      int clonedSheetIndex = workbook.getNumberOfSheets() - 1;
+      for (int i = 0; i < numNamedRanges; i++)
+      {
+         Name name = workbook.getNameAt(i);
+         // Avoid copying Excel's "built-in" (and hidden) named ranges.
+         if (name.getSheetIndex() == prevIndex && !NameTag.EXCEL_BUILT_IN_NAMES.contains(name.getNameName()))
+         {
+            Name clone = workbook.createName();
+            // This will be a sheet-scoped clone of a name that could be workbook-scoped.
+            clone.setSheetIndex(clonedSheetIndex);
+            clone.setNameName(name.getNameName());
+            clone.setComment(name.getComment());
+            clone.setFunction(name.isFunctionName());
+            clone.setRefersToFormula(name.getRefersToFormula());
+         }
+      }
+   }
+
+   /**
+    * The sheet order has changed; a <code>Sheet</code> has been moved from one
+    * position to another.  Apache POI doesn't change the scopes of named
+    * ranges to match this change.  This accomplishes the task here.
+    * @param workbook The <code>Workbook</code> on which a sheet was moved.
+    * @param fromIndex The 0-based previous index of the <code>Sheet</code>
+    *    that was moved.
+    * @param toIndex The 0-based current index of the <code>Sheet</code> that
+    *    was moved.
+    * @since 0.8.0
+    */
+   private void updateNamedRangesScope(Workbook workbook, int fromIndex, int toIndex)
+   {
+      if (fromIndex != toIndex)
+      {
+         int numNamedRanges = workbook.getNumberOfNames();
+         for (int i = 0; i < numNamedRanges; i++)
+         {
+            Name name = workbook.getNameAt(i);
+            int scopeIndex = name.getSheetIndex();
+            if (scopeIndex == fromIndex)
+            {
+               name.setSheetIndex(toIndex);
+            }
+            else if (fromIndex < scopeIndex && scopeIndex < toIndex)
+            {
+               name.setSheetIndex(scopeIndex - 1);
+            }
+            else if (toIndex < scopeIndex && scopeIndex < fromIndex)
+            {
+               name.setSheetIndex(scopeIndex + 1);
+            }
+         }
+      }
    }
 
    /**
@@ -815,11 +891,11 @@ public class ExcelTransformer
     */
    private void replaceFormulas(Workbook workbook, WorkbookContext context, SheetTransformer transformer)
    {
+      Map<String, Formula> formulaMap = context.getFormulaMap();
       Map<String, List<CellRef>> cellRefMap = context.getCellRefMap();
       FormulaUtil.findAndReplaceCellRanges(cellRefMap);
       if (DEBUG)
       {
-         Map<String, Formula> formulaMap = context.getFormulaMap();
          System.err.println("Formula Map after transformation:");
          for (String key : formulaMap.keySet())
          {
@@ -838,6 +914,65 @@ public class ExcelTransformer
       {
          Sheet sheet = workbook.getSheetAt(i);
          transformer.replaceFormulas(sheet, context);
+      }
+      // Replaced named range formulas that had JETT formulas present in the
+      // formula map.
+      int numNamedRanges = workbook.getNumberOfNames();
+      for (String key : formulaMap.keySet())
+      {
+         // Look for a "?", which must be present in the keys for all formulas
+         // created from a NameTag, but won't be present in the keys for normal
+         // JETT formulas, because "?" is an illegal character for an Excel
+         // sheet name.
+         int questionMark = key.indexOf("?");
+         if (questionMark == -1)
+            continue;
+
+         int exclamation = key.indexOf("!");
+         if (exclamation == -1)
+         {
+            throw new IllegalStateException("Expected '!' character not found in formula key \"" + key + "\"!");
+         }
+         // sheetName!namedRangeName?[scope]
+         String sheetName = key.substring(0, exclamation);
+         String namedRangeName = key.substring(exclamation + 1, questionMark);
+         String scopeSheetName = key.substring(questionMark + 1);
+
+         int sheetScopeIndex = -1; // workbook scope
+         if (scopeSheetName != null && scopeSheetName.length() > 0)
+         {
+            sheetScopeIndex = workbook.getSheetIndex(scopeSheetName);
+         }
+
+         Name namedRange = null;
+         for (int i = 0; i < numNamedRanges; i++)
+         {
+            Name n = workbook.getNameAt(i);
+            if (n.getNameName().equals(namedRangeName) &&
+                n.getSheetIndex() == sheetScopeIndex)
+            {
+               namedRange = n;
+               break;
+            }
+         }
+
+         if (namedRange != null)
+         {
+            Formula formula = formulaMap.get(key);
+            if (formula != null)
+            {
+               // Replace all original cell references with translated cell references.
+               String excelFormula = FormulaUtil.createExcelFormulaString(formula.getFormulaText(), formula, sheetName, context);
+               if (DEBUG)
+               {
+                  System.err.println("  For named range " + namedRangeName +
+                          ", scope " + ("".equals(scopeSheetName) ? "workbook" : ("\"" + scopeSheetName + "\"")) +
+                          ", mapped to " + formula +
+                          ", replacing formula \"" + formula.getFormulaText() + "\" with \"" + excelFormula + "\".");
+               }
+               namedRange.setRefersToFormula(excelFormula);
+            }
+         }
       }
    }
 
