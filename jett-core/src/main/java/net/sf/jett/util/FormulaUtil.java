@@ -58,20 +58,7 @@ public class FormulaUtil
          for (CellRef cellRef : formula.getCellRefs())
          {
             String sheetName = cellRef.getSheetName();
-            String cellKey;
-            // If no sheet name, then prepend the sheet name from the Formula key.
-            if (sheetName == null || "".equals(sheetName))
-            {
-               // Prepend sheet name from formula key.
-               cellKey = keySheetName + "!" + cellRef.formatAsString();
-            }
-            else
-            {
-               // Single quotes may be in the cell reference.
-               // Don't store single-quotes in cell key:
-               // "'Test Sheet'!C3" => "Test Sheet!C3"
-               cellKey = cellRef.formatAsString().replace("'", "");
-            }
+            String cellKey = getCellKey(cellRef, keySheetName);
             if (!cellRefMap.containsKey(cellKey))
             {
                List<CellRef> cellRefs = new ArrayList<CellRef>();
@@ -101,6 +88,39 @@ public class FormulaUtil
          }
       }
       return cellRefMap;
+   }
+
+   /**
+    * Creates a "cell key" from a cell ref, with a sheet name supplied if the
+    * cell ref doesn't refer to a sheet name.  The returned string is suitable
+    * as a key in the cell ref map.
+    * @param cellRef The <code>CellRef</code>.
+    * @param sheetName The sheet name to use if the <code>CellRef</code>
+    *    doesn't supply one.
+    * @return A string of the format "sheetName!cellRef", where "sheetName" is
+    *    from the <code>CellRef</code> or it defaults to the
+    *    <code>sheetName</code> parameter if it doesn't exist.  No single-
+    *    quotes are in the cell key.
+    * @since 0.8.0
+    */
+   public static String getCellKey(CellRef cellRef, String sheetName)
+   {
+      String cellKey;
+      String cellRefSheetName = cellRef.getSheetName();
+      // If no sheet name, then prepend the sheet name from the Formula key.
+      if (cellRefSheetName == null || "".equals(cellRefSheetName))
+      {
+         // Prepend sheet name from formula key.
+         cellKey = sheetName + "!" + cellRef.formatAsString();
+      }
+      else
+      {
+         // Single quotes may be in the cell reference.
+         // Don't store single-quotes in cell key:
+         // "'Test Sheet'!C3" => "Test Sheet!C3"
+         cellKey = cellRef.formatAsString().replace("'", "");
+      }
+      return cellKey;
    }
 
    /**
@@ -152,12 +172,7 @@ public class FormulaUtil
             System.err.println("  Original cell ref: " + origCellRef.formatAsString());
          }
          // Look up the translated cells by cell key, which requires a sheet name.
-         String cellKey;
-         String origCellRefSheetName = origCellRef.getSheetName();
-         if (origCellRefSheetName != null)
-            cellKey = origCellRef.formatAsString().replace("'", "");  // Lose any single quotes in the sheet name.
-         else
-            cellKey = sheetName + "!" + origCellRef.formatAsString();
+         String cellKey = getCellKey(origCellRef, sheetName);
          // Append the suffix to the cell key to look up the correct references.
          cellKey += suffix;
 

@@ -14,15 +14,14 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
- * This JUnit Test class tests the behavior of JETT Formulas and Excel named
- * ranges when sheet names change, either as part of the transformation and
- * cloning process, or as part of the evaluation of an expression in the sheet
- * name.
+ * This JUnit Test class tests the behavior of JETT Formulas and when sheet
+ * names change, either as part of the transformation and cloning process, or
+ * as part of the evaluation of an expression in the sheet name.
  *
  * @author Randy Gettman
  * @since 0.8.0
  */
-public class FormulasAndNamedRangesTest extends TestCase
+public class FormulasAndClonedSheetsTest extends TestCase
 {
    /**
     * Tests the .xls template spreadsheet.
@@ -53,7 +52,7 @@ public class FormulasAndNamedRangesTest extends TestCase
     */
    protected String getExcelNameBase()
    {
-      return "FormulasAndNamedRanges";
+      return "FormulasAndClonedSheets";
    }
 
    /**
