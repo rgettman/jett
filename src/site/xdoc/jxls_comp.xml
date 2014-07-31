@@ -7,7 +7,7 @@
         <section name="Comparison of JETT to jXLS">
         <p>JETT is similar to jXLS, because JETT performs the same function -- translating Excel
         template spreadsheets into spreadsheets with the desired data populated.  Here, JETT
-        0.7.0 is compared with the latest version of jXLS, 1.0.5:</p>
+        0.8.0 is compared with the latest version of jXLS, 1.0.5:</p>
         <table style="width: 750px;">
             <tr>
                 <th style="width: 200px">Feature</th>
@@ -150,6 +150,16 @@
                 <td>Turn Off Implicit Collections Processing</td>
                 <td>transformer.<br/>setJexlInnerCollectionsAccess<br/>(true);</td>
                 <td>transformer.<br/>turnOffImplicitCollectionProcessing<br/>("employees");</td>
+            </tr>
+            <tr>
+                <td>Evaluate all formulas after transformation</td>
+                <td>Not supported</td>
+                <td>transformer.setEvaluateFormulas(true);<br/></td>
+            </tr>
+            <tr>
+                <td>Force formula recalculation upon opening</td>
+                <td>Not supported</td>
+                <td>transformer.setForceRecalculationOnOpening(boolean);</td>
             </tr>
             <tr>
                 <th colspan="3">Tags</th>
@@ -320,6 +330,13 @@
                 </td>
             </tr>
             <tr>
+                <td>Dynamic Named Range Manipulation</td>
+                <td>Not supported</td>
+                <td>
+                    <p>jt:name tag</p>
+                </td>
+            </tr>
+            <tr>
                 <td>Dynamic Style</td>
                 <td>Not supported</td>
                 <td>
@@ -369,7 +386,7 @@
             <tr>
                 <td>Don't Transform an Expression</td>
                 <td>Not supported</td>
-                <td>jt:null tag</td>
+                <td>jt:null tag, and also <code>\${expression}</code></td>
             </tr>
             <tr>
                 <th colspan="3">Other</th>
@@ -388,7 +405,7 @@
             <tr>
                 <td>Execution Hooks for Custom Processing</td>
                 <td>CellProcessor, PropertyPreprocessor, RowProcessor</td>
-                <td>CellListener, TagListener, TagLoopListener</td>
+                <td>CellListener, TagListener, TagLoopListener, SheetListener</td>
             </tr>
             <tr>
                 <td>Fixed Size Collections</td>

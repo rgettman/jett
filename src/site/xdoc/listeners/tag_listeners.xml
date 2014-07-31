@@ -14,8 +14,9 @@
             <code>TagListener</code> interface may be supplied in the <code>onProcessed</code>
             attribute of any <code>Tag</code> that subclasses <code>BaseTag</code>, as all JETT
             built-in tags do.  The <code>TagListener</code>
-            interface contains a single method:</p>
+            interface contains two methods:</p>
             <source>
+public boolean beforeTagProcessed(TagEvent event);
 public void onTagProcessed(TagEvent event);
             </source>
             <p>Specify a TagListener object or a fully-qualified TagListener class name with a Tag.
@@ -28,9 +29,15 @@ public void onTagProcessed(TagEvent event);
             <source>
 &lt;jt:if test="${condition}" then="${trueValue}" onProcessed="com.mycompany.myproject.CustomTagListener"/&gt;
             </source>
+            <p>Before a Tag is processed, if it has a TagListener, then it creates a
+            <code>TagEvent</code> and calls its TagListener's <code>beforeTagProcessed</code>
+            method.  If it returns <code>true</code>, then the tag is processed as normal.  If it
+            returns <code>false</code>, then the Tag is not processed.</p>
             <p>When a Tag is processed, and it has a TagListener, then it creates a
-            <code>TagEvent</code> and notifies its TagListener.  A TagListener can retrieve context
-            information by retrieving properties of the TagEvent.</p>
+            <code>TagEvent</code> and calls its TagListener's <code>onTagProcessed</code>
+            method.</p>
+            <p>A TagListener can retrieve context information by retrieving properties of the
+            TagEvent.</p>
             <source>
 Sheet sheet = event.getSheet();
 Map&lt;String, Object&gt; beans = event.getBeans();

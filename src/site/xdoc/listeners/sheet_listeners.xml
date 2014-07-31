@@ -1,0 +1,77 @@
+<document>
+    <properties>
+        <author email="rgettman@users.sourceforge.net">Randy Gettman</author>
+        <title>Sheet Listeners</title>
+    </properties>
+    <body>
+        <section name="Sheet Listeners">
+            <p>For finer control over the content and formatting of the resultant spreadsheet
+            sheets, JETT allows the user to create <code>SheetListener</code> objects that are
+            notified every time an entire sheet is being been transformed, regardless of its
+            contents.  Any object that implements the <code>SheetListener</code> interface may be
+            registered with the <code>ExcelTransformer</code> prior to transformation.  The
+            <code>SheetListener</code> interface contains two methods:</p>
+            <source>
+public boolean beforeSheetProcessed(SheetEvent event);
+public void sheetProcessed(SheetEvent event);
+            </source>
+            <p>Register a SheetListener with the ExcelTransformer:</p>
+            <source>
+transformer.addSheetListener(new MySheetListener());
+            </source>
+            <p>When a Sheet is processed, JETT generates a <code>SheetEvent</code> and notifies all
+            registered SheetListeners.  A SheetListener can retrieve context information by
+            retrieving properties of the SheetEvent.  The <code>beforeSheetProcessed</code> method
+            is called just prior to the sheet being processed.  Return <code>true</code> to process
+            the sheet as normal, and return <code>false</code> to prevent the processing of the
+            sheet, which stops <code>sheetProcessed</code> from being called.</p>
+            <source>
+Sheet sheet = event.getSheet();
+Map&lt;String, Object&gt; beans = event.getBeans();
+            </source>
+            <p>The <code>Sheet</code> is a reference to the POI Sheet object representing the
+            actual sheet in the spreadsheet.  The <code>Map</code> object is a reference to the
+            beans map used to process the sheet.  Any SheetListener can use the Sheet object to
+            gain access to the POI Workbook or any Rows or Cells on the Sheet object.</p>
+        </section>
+        <section name="Example">
+            <p>A SheetListener can be created to time the sheet processing.  The
+            <code>beforeSheetProcessed</code> method notes down the system time just prior to
+            processing.  The <code>sheetProcessed</code> method notes down the system time just
+            after processing, determines the difference, and populates the result. </p>
+            <source>
+private long startNanos;
+
+public boolean beforeSheetProcessed(SheetEvent event)
+{
+   startNanos = System.nanoTime();
+   return true;
+}
+
+public void sheetProcessed(SheetEvent event)
+{
+   long endNanos = System.nanoTime();
+   double seconds = (endNanos - startNanos) / 1000000000.0;
+   Sheet sheet = event.getSheet();
+   int lastRow = sheet.getLastRowNum();
+   Row timingRow = sheet.createRow(lastRow + 1);
+   Cell timingCell = timingRow.createCell(0);
+   timingCell.setCellValue("Sheet processing time: " + String.format("%.3f", seconds) + " s");
+}
+            </source>
+            <p>Here is what the bottom of such a sheet would look like:</p>
+            <table style="width: 750px;">
+                <tr>
+                    <td style="width: 350px;">...</td>
+                    <td style="width: 250px;">&nbsp;</td>
+                    <td style="width: 150px;">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td style="width: 350px;">Sheet processing time: 0.323 s</td>
+                    <td style="width: 250px;">&nbsp;</td>
+                    <td style="width: 150px;">&nbsp;</td>
+                </tr>
+            </table>
+        </section>
+    </body>
+</document>

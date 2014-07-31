@@ -16,7 +16,7 @@
             <h1>Attributes</h1>
             <ul>
                 <li>The "group" tag supports all <a href="basics.html">base tag attributes</a>.</li>
-                <li><strong>groupDir</strong> Required.  Create an Excel Group (Outline) out of the
+                <li><strong>groupDir: String</strong> Required.  Create an Excel Group (Outline) out of the
                 resultant rows or columns.  Here are the possible values:</li>
                 <ul>
                     <li><em>rows</em> Create an Excel Group (Outline) out of the resultant
