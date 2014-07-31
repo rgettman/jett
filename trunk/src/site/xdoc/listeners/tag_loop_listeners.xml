@@ -13,8 +13,9 @@
             is removed.  Any object that implements the <code>TagLoopListener</code> interface may
             be supplied in the <code>onLoopProcessed</code> attribute of any <code>Tag</code> that
             subclasses <code>BaseLoopTag</code>, as 3 JETT built-in tags do.  The
-            <code>TagLoopListener</code> interface contains a single method:</p>
+            <code>TagLoopListener</code> interface contains two methods:</p>
             <source>
+public void beforeTagLoopProcessed(TagLoopEvent event);
 public void onTagLoopProcessed(TagLoopEvent event);
             </source>
             <p>Specify a TagLoopListener object or a fully-qualified TagLoopListener class name
@@ -27,11 +28,18 @@ public void onTagLoopProcessed(TagLoopEvent event);
             <source>
 &lt;jt:forEach items="${employees}" var="${employee}" onLoopProcessed="com.mycompany.myproject.CustomTagLoopListener"/&gt;
             </source>
-            <p>When a looping tag is processed, and it has a TagLoopListener, then it creates a
-            <code>TagLoopEvent</code> and notifies its TagLoopListener.  A TagLoopListener can
-            retrieve context information by retrieving properties of the TagLoopEvent.  A
-            <code>TagLoopEvent</code> is a <code>TagEvent</code>, so it inherits all of
-            <code>TagEvent's</code> properties.</p>
+            <p>Before an iteration of a looping tag is processed, if it has a TagLoopListener, then
+            it creates a <code>TagLoopEvent</code> and calls its TagLoopListener's
+            <code>beforeTagLoopProcessed</code> method.  If it returns <code>true</code>, then the
+            loop iteration is processed as normal.  If it returns <code>false</code>, then the loop
+            iteration is not processed.</p>
+            <p>When a loop iteration of a looping tag is processed, if it has a TagLoopListener,
+            then it creates a <code>TagLoopEvent</code> and calls its TagLoopListener's
+            <code>onTagLoopProcessed</code> method.
+            </p>
+            <p>A TagLoopListener can retrieve context information by retrieving properties of the
+            TagLoopEvent.  A <code>TagLoopEvent</code> is a <code>TagEvent</code>, so it inherits
+            all of <code>TagEvent's</code> properties.</p>
             <source>
 Sheet sheet = event.getSheet();
 Map&lt;String, Object&gt; beans = event.getBeans();

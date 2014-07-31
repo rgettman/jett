@@ -37,6 +37,7 @@
             <item name="&amp;lt;jt:group&amp;gt; Tag" href="tags/group.html"/>
             <item name="&amp;lt;jt:hyperlink&amp;gt; Tag" href="tags/hyperlink.html"/>
             <item name="&amp;lt;jt:if&amp;gt; Tag" href="tags/if.html"/>
+            <item name="&amp;lt;jt:name&amp;gt; Tag" href="tags/name.html"/>
             <item name="&amp;lt;jt:null&amp;gt; Tag" href="tags/null.html"/>
             <item name="&amp;lt;jt:span&amp;gt; Tag" href="tags/span.html"/>
             <item name="&amp;lt;jt:style&amp;gt; Tag" href="tags/style.html"/>
@@ -51,10 +52,13 @@
             <item name="Implicit Processing" href="collections/implicit.html"/>
             <item name="Fixed Size" href="collections/fixed_size.html"/>
         </menu>
+        <menu name="Listeners">
+            <item name="Cell Listeners" href="listeners/cell_listeners.html"/>
+            <item name="Sheet Listeners" href="listeners/sheet_listeners.html"/>
+            <item name="Tag Listeners" href="listeners/tag_listeners.html"/>
+            <item name="Tag Loop Listeners" href="listeners/tag_loop_listeners.html"/>
+        </menu>
         <menu name="Miscellaneous">
-            <item name="Cell Listeners" href="misc/cell_listeners.html"/>
-            <item name="Tag Listeners" href="misc/tag_listeners.html"/>
-            <item name="Tag Loop Listeners" href="misc/tag_loop_listeners.html"/>
             <item name="JEXL Settings" href="misc/jexl_settings.html"/>
             <item name="Working With Charts" href="misc/charts.html"/>
             <item name="JDBC Execution" href="misc/jdbc_executor.html"/>

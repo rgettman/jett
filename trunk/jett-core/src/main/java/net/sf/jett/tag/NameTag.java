@@ -31,6 +31,7 @@ import net.sf.jett.util.FormulaUtil;
  * <ul>
  * <li><em>Inherits all attributes from {@link BaseTag}.</em></li>
  * <li>name (required): <code>String</code></li>
+ * <li>preferWorkbookScope (optional): <code>boolean</code></li>
  * <li>formula (required): <code>String</code></li>
  * </ul>
  *

@@ -12,8 +12,9 @@
             have their tag text removed before processing.  Any object that implements the
             <code>CellListener</code> interface may be registered with the
             <code>ExcelTransformer</code> prior to transformation.  The <code>CellListener</code>
-            interface contains a single method:</p>
+            interface contains two methods:</p>
             <source>
+public boolean beforeCellProcessed(CellEvent event);
 public void cellProcessed(CellEvent event);
             </source>
             <p>Register a CellListener with the ExcelTransformer:</p>
@@ -22,7 +23,10 @@ transformer.addCellListener(new MyCellListener());
             </source>
             <p>When a Cell is processed, JETT generates a <code>CellEvent</code> and notifies all
             registered CellListeners.  A CellListener can retrieve context information by
-            retrieving properties of the CellEvent.</p>
+            retrieving properties of the CellEvent.  The <code>beforeCellProcessed</code> method is
+            called just prior to a cell being processed.  Return <code>true</code> to process the
+            cell as normal, and return <code>false</code> to prevent the processing of the cell,
+            which stops <code>cellProcessed</code> from being called.</p>
             <source>
 Cell cell = event.getCell();
 Map&lt;String, Object&gt; beans = event.getBeans();
@@ -34,8 +38,9 @@ Object newValue = event.getNewValue();
             It may have extra beans added, if the Cell is in the middle of a "forEach" tag, or for
             that matter, any tag that adds values to the beans map.  The old value is the template
             value obtained from the template spreadsheet.  The new value is the resultant value
-            after the evaluation of any Expressions.  Any CellListener can use the Cell object to
-            gain access to the POI Row object, then the POI Sheet object, and even the POI Workbook
+            after the evaluation of any Expressions (<code>null</code> when passed to
+            <code>beforeCellProcessed</code>).  Any CellListener can use the Cell object to gain
+            access to the POI Row object, then the POI Sheet object, and even the POI Workbook
             object.</p>
         </section>
         <section name="Example">

@@ -4,6 +4,85 @@
         <title>Change Log for JETT</title>
     </properties>
     <body>
+        <section name="JETT 0.8.0 (Beta) Released - 31 Jul 2014">
+            <p>New in JETT 0.8.0:</p>
+            <ul>
+                <li>Ticket #21: Add more listener hooks to JETT execution.  JETT already had
+                    listeners for after cells were processed, after tags were processed, and after
+                    a loop iteration of a looping tag was processed.  Now, <code>CellListener</code>,
+                    <code>TagListener</code>, and <code>TagLoopListener</code> each have new
+                    "before" methods that will execute.  Additionally, there is the new
+                    <code>SheetListener</code> interface, with both "before" and "after" methods,
+                    that triggers before and after a <code>Sheet</code> is transformed.  Each
+                    "before" method returns a <code>boolean</code> that controls whether the
+                    relevant processing should continue.</li>
+                <li>Ticket #22: Performance issues were reported after JETT 0.7.0 changed
+                    <code>AttributeUtil</code> into <code>AttributeEvaluator</code> so that it
+                    could carry the state necessary to report on which cell errors were found.
+                    It has been changed back to <code>AttributeUtil</code>, with each static
+                    utility method taking a <code>TagContext</code> as a parameter to supply the
+                    necessary cell information.</li>
+                <li>Ticket #23: There was a <code>FormulaParser</code> error when a JETT formula
+                    contained a ranged cell reference such as "A10:A11".  The <code>FormulaParser</code>
+                    now recognizes the ":" character, so that each cell reference can be resolved
+                    correctly.</li>
+                <li>Ticket #25: JDBC Execution in a "forEach" tag with a "groupBy" attribute
+                    results in an <code>UnsupportedOperationException</code>.  JDBC Execution in
+                    JETT relies on a <code>get(String)</code> method existing and being invoked in
+                    an expression context.  However, JETT utilizes
+                    <a href="http://jagg.sourceforge.net">jAgg</a> for the processing of the
+                    "groupBy" attribute, which didn't recognize or search for <code>get(String)</code>
+                    methods in a bean if the normal <code>getProperty()</code> method wasn't found.
+                    JETT is now upgraded to use jAgg 0.8.1, which supplies this missing
+                    functionality.</li>
+                <li>Ticket #26: Allow expressions to be escaped so that they aren't evaluated.
+                    JETT now allows the "$" character to be escaped, such that <code>\${expression}</code>
+                    won't be evaluated.  An unrelated bug was found and fixed when implementing the
+                    changes for this ticket.  If rich text formatting was applied to a cell that
+                    contained identical expressions, then the formatting was messed up due to the
+                    fact that all of the expressions were replaced at once, but the formatting was
+                    applied only once.  Now, all expressions are replaced individually, resulting
+                    in rich text formatting being applied correctly.</li>
+                <li>Ticket #29: JETT has slow performance when transforming sheets with lots of
+                    merged regions.  When there are a large number of merged regions in a sheet,
+                    JETT, which relies on Apache POI for its access to the sheet's merged regions,
+                    suffered large performance penalties.  This occurred when attempting to process
+                    large numbers of merged regions on .xlsx workbooks.  As a workaround, JETT now
+                    caches the merged regions present on the template sheet.  It manipulates those
+                    merged regions only in its own cache, and it applies them back to the sheet
+                    after it has been transformed.  This results in a big performance boost.</li>
+                <li>Ticket #31: Add option to recalculate all formulas.  JETT now has the options
+                    to evaluate all formulas once transformation is done, with a new method in
+                    <code>ExcelTransformer</code>: <code>setEvaluateFormulas</code>.  It also can
+                    control a flag in the workbook itself to force recalculation of formulas when
+                    Excel opens the workbook, with another new method in
+                    <code>ExcelTransformer</code>: <code>setForceRecalculationOnOpening</code>.</li>
+                <li>Bug fix (Ticket #32): <a href="collections/implicit.html">Implicit Collections
+                    Processing</a> breaks when a numeric cell is in the block of cells to be
+                    processed.  JETT had assumed that the cells in the block all had text, so
+                    Apache POI threw an exception when a numeric cell was found.  This occurs when
+                    JETT is searching for collection expressions to be processed in "implicit
+                    collections processing".  Now, JETT ignores numeric cells for this purpose.
+                    Also, the calculation of the leftmost and rightmost extent of the block was
+                    wrong when exactly one of the metadata keys "right" and "left" was specified.
+                    This has been fixed also.</li>
+                <li>Ticket #33: Update JETT formulas when the sheet name changes, either due to
+                    sheet cloning, sheet repositioning, or evaluating an expression located in the
+                    sheet name.  JETT didn't update JETT formula cell references on any of these
+                    events, resulting in possible incorrect cell references or JETT simply not
+                    replacing JETT formulas with an Excel formula at all.  Now, JETT updates JETT
+                    formula cell references on all these events.</li>
+                <li>Ticket #34: Support the manipulation of existing named ranges.  Before now,
+                    JETT completely ignored named ranges.  Now, if sheets are cloned, repositioned,
+                    or renamed, any named ranges that were scoped to those sheets are re-scoped.
+                    Also, the new <a href="tags/name.html">Name tag</a> in the standard library
+                    lets the user supply a JETT formula to an existing named range, so that the
+                    formula referred to by a named range can be changed dynamically during
+                    transformation.  This allows a chart that refers to named ranges for its data
+                    ranges to have its data changed dynamically, even if it's indirectly, by
+                    updating the existing named ranges.</li>
+            </ul>
+        </section>
         <section name="JETT 0.7.0 (Beta) Released - 09 May 2014">
             <p>New in JETT 0.7.0:</p>
             <ul>

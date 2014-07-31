@@ -21,8 +21,8 @@
                     pathname.</li>
                     <li><em>doc</em> This is a document link.  The address is a cell reference.</li>
                 </ul>
-                <li><strong>address</strong> Required.  The destination address for the link.</li>
-                <li><strong>value</strong> Required.  The contents of the Cell that make up the
+                <li><strong>address: String</strong> Required.  The destination address for the link.</li>
+                <li><strong>value: Object</strong> Required.  The contents of the Cell that make up the
                 newly created hyperlink.  Rich Text String formatting is respected.</li>
             </ul>
         </section>

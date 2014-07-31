@@ -38,14 +38,15 @@ public Map&lt;String, Class&lt;? extends Tag&gt;&gt; getTagMap();
                 inherited "getContext()" method.  The TagContext object allows access to the
                 current <code>Sheet</code> object, the containing <code>Block</code> object, the
                 <code>Map</code> of beans, the <code>List</code> of registered
-                <a href="../misc/cell_listeners.html"><code>CellListeners</code></a>, and a
-                <code>Map</code> of <code>Cells</code> that have already been processed.  Call
-                BaseTag's "removeBlock()" method to delete the tag's Block (and shift Cells over).
-                To transform the body Cells of the tag's Block, create a
-                <code>BlockTransformer</code>, pass it a new <code>TagContext</code>, and call the
-                "transform()" method.  Return a <code>boolean</code> indicating whether the first
-                Cell of the block was processed.  (It may not be processed if the "process" method
-                removes or clears the Block.)</li>
+                <a href="../listeners/cell_listeners.html"><code>CellListeners</code></a>, the
+                <code>List</code> of registered <a href="../listeners/sheet_listeners.html">
+                <code>SheetListeners</code></a>, and a <code>Map</code> of <code>Cells</code> that
+                have already been processed.  Call BaseTag's "removeBlock()" method to delete the
+                tag's Block (and shift Cells over). To transform the body Cells of the tag's Block,
+                create a <code>BlockTransformer</code>, pass it a new <code>TagContext</code>, and
+                call the "transform()" method.  Return a <code>boolean</code> indicating whether
+                the first Cell of the block was processed.  (It may not be processed if the
+                "process" method removes or clears the Block.)</li>
             </ul>
         </section>
         <section name="Creating a Custom Looping Tag">
