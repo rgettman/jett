@@ -1,0 +1,232 @@
+<document>
+    <properties>
+        <author email="rgettman@users.sourceforge.net">Randy Gettman</author>
+        <title>MultiForEach Tag</title>
+    </properties>
+    <body>
+        <section name="The MultiForEach Tag">
+            <p>The "multiForEach" tag is a <a href="looping.html">looping tag</a>, like the
+            <a href="forEach.html">forEach tag</a>, but it can operate on multiple Collections
+            simultaneously.  This tag must contain a body.  The tag's block of cells is copied once
+            for each collection element found in the largest of the collections.  If a Collection
+            is exhausted before another Collection, then <a href="looping.html">"pastEndAction
+            rules"</a> apply.  If only one Collection is specified, then the behavior is equivalent
+            to a <a href="forEach.html">forEach tag</a>.</p>
+            <h1>Attributes</h1>
+            <ul>
+                <li>The "multiForEach" tag supports all <a href="basics.html">base tag attributes</a>.</li>
+                <li>The "multiForEach" tag supports all <a href="looping.html">looping tag
+                attributes</a>.</li>
+                <li><strong>collections: Collections</strong> is a semicolon-separated list of
+                Expressions that specify all Collections to be used.</li>
+                <li><strong>vars: String</strong> Required.  This is a semicolon-separated list of
+                looping variable names to be exposed in the beans map, one for each Collection in
+                the "collections" attribute.</li>
+                <li><strong>limit: int</strong> Optional.  This specifies a limit to the number of
+                Collection items displayed.  If the collection size is less than the limit, then
+                the block of cells is copied for the extra non-existent items, but the cells are
+                left blank.  For example, if the Collection has 7 items, and the limit is 10, then
+                10 rows are produced, one for each of the 7 items, and 3 additional blank rows.</li>
+                <li><strong>indexVar: String</strong> Optional.  This specifies an integer
+                "counter" variable name to be exposed in the beans map.  This variable starts at
+                index zero.</li>
+            </ul>
+        </section>
+        <section name="Example">
+            <p>There are 2 Managers and there are 3 Departments.  Notice the blank cells below the
+            end of the display for the managers.</p>
+            <table style="width: 750px;">
+                <tr>
+                    <td class="bold" style="width: 125px;">Manager First Name</td>
+                    <td class="bold" style="width: 125px;">Manager Last Name</td>
+                    <td class="bold" style="width: 125px;">Manager Salary</td>
+                    <td class="bold" style="width: 125px;">Department ID</td>
+                    <td class="bold" style="width: 125px;">Department Name</td>
+                    <td class="bold" style="width: 125px;">Department Floor</td>
+                </tr>
+                <tr>
+                    <td style="width: 125px;">&lt;jt:multiForEach collections="${managers};${departments}" vars="mgr;dept"&gt;${mgr.firstName}</td>
+                    <td style="width: 125px;">${mgr.lastName}</td>
+                    <td style="width: 125px;">${mgr.salary}</td>
+                    <td style="width: 125px;">${dept.id}</td>
+                    <td style="width: 125px;">${dept.name}</td>
+                    <td style="width: 125px;">${dept.floor}&lt;/jt:multiForEach&gt;</td>
+                </tr>
+            </table>
+            <p>...gets transformed into...</p>
+            <table style="width: 750px;">
+                <tr>
+                    <td class="bold" style="width: 125px;">Manager First Name</td>
+                    <td class="bold" style="width: 125px;">Manager Last Name</td>
+                    <td class="bold" style="width: 125px;">Manager Salary</td>
+                    <td class="bold" style="width: 125px;">Department ID</td>
+                    <td class="bold" style="width: 125px;">Department Name</td>
+                    <td class="bold" style="width: 125px;">Department Floor</td>
+                </tr>
+                <tr>
+                    <td style="width: 125px;">Robert</td>
+                    <td style="width: 125px;">Stack</td>
+                    <td style="width: 125px;">$1000.00</td>
+                    <td style="width: 125px;">101</td>
+                    <td style="width: 125px;">Application Development</td>
+                    <td style="width: 125px;">5</td>
+                </tr>
+                <tr>
+                    <td style="width: 125px;">Bugs</td>
+                    <td style="width: 125px;">Bunny</td>
+                    <td style="width: 125px;">$1500.00</td>
+                    <td style="width: 125px;">102</td>
+                    <td style="width: 125px;">Human Resources</td>
+                    <td style="width: 125px;">4</td>
+                </tr>
+                <tr>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 125px;">103</td>
+                    <td style="width: 125px;">Quality Assurance</td>
+                    <td style="width: 125px;">5</td>
+                </tr>
+            </table>
+        </section>
+        <section name="PastEndAction Example">
+            <p>Here's an example that uses the "pastEndAction" attribute.  Notice how the "remove"
+            value removes all formatting, including the merged region, past the end of the managers
+            collection.  If the "pastEndAction" attribute was not specified, or it was specified as
+            the default value "clear", then the cells would be blank, but the merged region (plus
+            any other borders and formatting) would remain.</p>
+            <table style="width: 750px;">
+                <tr>
+                    <td class="bold" style="width: 250px;" colspan="2">Manager Name</td>
+                    <td class="bold" style="width: 125px;">Manager Salary</td>
+                    <td class="bold" style="width: 125px;">Department ID</td>
+                    <td class="bold" style="width: 125px;">Department Name</td>
+                    <td class="bold" style="width: 125px;">Department Floor</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;" colspan="2">&lt;jt:multiForEach collections="${managers};${departments}" vars="mgr;dept" pastEndAction="remove"&gt;${mgr.lastName}, ${mgr.firstName}</td>
+                    <td style="width: 125px;">${mgr.salary}</td>
+                    <td style="width: 125px;">${dept.id}</td>
+                    <td style="width: 125px;">${dept.name}</td>
+                    <td style="width: 125px;">${dept.floor}&lt;/jt:multiForEach&gt;</td>
+                </tr>
+                <tr>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                </tr>
+            </table>
+            <p>...gets transformed into...</p>
+            <table style="width: 750px;">
+                <tr>
+                    <td class="bold" style="width: 250px;" colspan="2">Manager Name</td>
+                    <td class="bold" style="width: 125px;">Manager Salary</td>
+                    <td class="bold" style="width: 125px;">Department ID</td>
+                    <td class="bold" style="width: 125px;">Department Name</td>
+                    <td class="bold" style="width: 125px;">Department Floor</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;" colspan="2">Stack, Robert</td>
+                    <td style="width: 125px;">$1000.00</td>
+                    <td style="width: 125px;">101</td>
+                    <td style="width: 125px;">Application Development</td>
+                    <td style="width: 125px;">5</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;" colspan="2">Bunny, Bugs</td>
+                    <td style="width: 125px;">$1500.00</td>
+                    <td style="width: 125px;">102</td>
+                    <td style="width: 125px;">Human Resources</td>
+                    <td style="width: 125px;">4</td>
+                </tr>
+                <tr>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 125px;">103</td>
+                    <td style="width: 125px;">Quality Assurance</td>
+                    <td style="width: 125px;">5</td>
+                </tr>
+                <tr>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                </tr>
+            </table>
+            <p>Another example uses the "replaceExpr" value and the "replaceValue" attribute to
+            replace those expressions past the end of the managers collection.  If the
+            "replaceValue" attribute wasn't specified, then the expressions would be replaced by
+            an empty string instead of a "-".  The value of the attribute "replaceValue" can itself
+            be an expression, e.g. <code>replaceValue="${replVal}"</code>.</p>
+            <table style="width: 750px;">
+                <tr>
+                    <td class="bold" style="width: 250px;" colspan="2">Manager Name</td>
+                    <td class="bold" style="width: 125px;">Manager Salary</td>
+                    <td class="bold" style="width: 125px;">Department ID</td>
+                    <td class="bold" style="width: 125px;">Department Name</td>
+                    <td class="bold" style="width: 125px;">Department Floor</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;" colspan="2">&lt;jt:multiForEach collections="${managers};${departments}" vars="mgr;dept" pastEndAction="replaceExpr" replaceValue="-" &gt;${mgr.lastName}, ${mgr.firstName}</td>
+                    <td style="width: 125px;">${mgr.salary}</td>
+                    <td style="width: 125px;">${dept.id}</td>
+                    <td style="width: 125px;">${dept.name}</td>
+                    <td style="width: 125px;">${dept.floor}&lt;/jt:multiForEach&gt;</td>
+                </tr>
+                <tr>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                </tr>
+            </table>
+            <p>...gets transformed into...</p>
+            <table style="width: 750px;">
+                <tr>
+                    <td class="bold" style="width: 250px;" colspan="2">Manager Name</td>
+                    <td class="bold" style="width: 125px;">Manager Salary</td>
+                    <td class="bold" style="width: 125px;">Department ID</td>
+                    <td class="bold" style="width: 125px;">Department Name</td>
+                    <td class="bold" style="width: 125px;">Department Floor</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;" colspan="2">Stack, Robert</td>
+                    <td style="width: 125px;">$1000.00</td>
+                    <td style="width: 125px;">101</td>
+                    <td style="width: 125px;">Application Development</td>
+                    <td style="width: 125px;">5</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;" colspan="2">Bunny, Bugs</td>
+                    <td style="width: 125px;">$1500.00</td>
+                    <td style="width: 125px;">102</td>
+                    <td style="width: 125px;">Human Resources</td>
+                    <td style="width: 125px;">4</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;" colspan="2">-, -</td>
+                    <td style="width: 125px;">-</td>
+                    <td style="width: 125px;">103</td>
+                    <td style="width: 125px;">Quality Assurance</td>
+                    <td style="width: 125px;">5</td>
+                </tr>
+                <tr>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                </tr>
+            </table>
+        </section>
+    </body>
+</document>

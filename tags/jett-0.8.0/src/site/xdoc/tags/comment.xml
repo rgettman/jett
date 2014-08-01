@@ -1,0 +1,42 @@
+<document>
+    <properties>
+        <author email="rgettman@users.sourceforge.net">Randy Gettman</author>
+        <title>Comment Tag</title>
+    </properties>
+    <body>
+        <section name="The Comment Tag">
+            <p>During transformation, Excel Comments may be created by using the "comment" tag.
+            This tag must be used in the bodiless form.  When processed, the "comment" tag creates
+            a new Excel Comment on the Cell.</p>
+            <p>In the internal Apache POI library's API, the method "createDrawingPatriarch" is
+            called in order to create the Comment.  On older Excel spreadsheets (.xls, versions
+            97-2003), this appears to corrupt other existing drawings such as shapes and charts.
+            However, on newer Excel spreadsheets (.xlsx, versions 2007+), this leaves existing
+            drawings such as shapes and charts intact.</p>
+            <h1>Attributes</h1>
+            <ul>
+                <li>The "comment" tag supports all <a href="basics.html">base tag attributes</a>.</li>
+                <li><strong>value: RichTextString</strong> Required.  This becomes the contents of
+                the actual Cell to which the Excel Comment is attached.  Rich Text String
+                formatting is respected.</li>
+                <li><strong>author: String</strong> Required.  This is the "author" portion of the
+                Excel Comment.</li>
+                <li><strong>comment: RichTextString</strong> Required.  This is the contents of the
+                Excel Comment.  Rich Text String formatting is respected.</li>
+                <li><strong>visible: boolean</strong> Optional.  This determines whether the Excel
+                Comment will be initially visible.  If <code>false</code>, then the viewer must
+                mouse-over the Cell to view the Comment.  The default is <code>false</code>.</li>
+            </ul>
+        </section>
+        <section name="Example">
+            <p>In this example, Bugs Bunny comments on Elmer Fudd's line.  Notice how Rich Text
+            String formatting is preserved for both the Cell contents and the Comment contents.</p>
+            <p>Here is the template spreadsheet:</p>
+            <img src="../images/template_comment.gif" alt="Comment Template"/>
+            <p>.. gets transformed into...</p>
+            <img src="../images/result_comment1.gif" alt="Comment Result"/>
+            <p>When the viewer places the mouse over the Cell, the Comment pops up.</p>
+            <img src="../images/result_comment2.gif" alt="Comment Mouseover"/>
+        </section>
+    </body>
+</document>

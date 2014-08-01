@@ -1,0 +1,485 @@
+<document>
+    <properties>
+        <author email="rgettman@users.sourceforge.net">Randy Gettman</author>
+        <title>ForEach Tag</title>
+    </properties>
+    <body>
+        <section name="The ForEach Tag">
+            <p>The "forEach" tag is a <a href="looping.html">looping tag</a> that allows looping
+            over bean values that are <code>Collections</code>.  This tag must contain a body.  The
+            tag's block of cells is copied and processed once for each collection element found.</p>
+            <h1>Attributes</h1>
+            <ul>
+                <li>The "forEach" tag supports all <a href="basics.html">base tag attributes</a>.</li>
+                <li>The "forEach" tag supports all <a href="looping.html">looping tag
+                attributes</a>.</li>
+                <li><strong>items: Collection</strong> Required.  This specifies the
+                <code>Collection</code> over which to iterate.</li>
+                <li><strong>var: String</strong> Required.  This specifies the name of the variable
+                to be exposed in the beans map for the collection item, i.e. the looping variable.</li>
+                <li><strong>where: Boolean</strong> Optional.  This specifies a condition under
+                which a collection item will be displayed.  Items for which this condition is false
+                will not be displayed.</li>
+                <li><strong>limit: int</strong> Optional.  This specifies a limit to the number of
+                Collection items displayed.  If the collection size is less than the limit, then
+                the block of cells is copied for the extra non-existent items, but the cells are
+                left blank.  For example, if the Collection has 7 items, and the limit is 10, then
+                10 rows are produced, one for each of the 7 items, and 3 additional blank rows.</li>
+                <li><strong>indexVar: String</strong> Optional.  This specifies an integer
+                "counter" variable name to be exposed in the beans map.  This variable starts at
+                index zero.</li>
+                <li><strong>groupBy: List&lt;String&gt;</strong> Optional.  Specify a list of
+                properties to partition the collection into sublists, where each member of a
+                sublist has properties that compare equal.  Specify an actual <code>List</code> or
+                a semicolon-separated string of property names.  If this is specified, then the
+                variable specified by the <code>var</code> attribute will be a <code>Group</code>,
+                which has the following properties available:</li>
+                <ul>
+                    <li><em>obj</em> This property contains the <em>representative object</em>,
+                    which holds one item from the collection to represent all items with the same
+                    group-by properties.</li>
+                    <li><em>items</em> This property contains a <code>List</code> of all items
+                    whose group-by properties are the same.  The representative object is present
+                    in this list.  This can be used as the <code>items</code> attribute in a nested
+                    "forEach" tag.</li>
+                </ul>
+                <li><strong>orderBy: List&lt;String&gt;</strong> Optional.  Specify a list of
+                properties by which to order the collection before display.  This option works
+                whether the <code>groupBy</code> attribute is specified or not.  Specify an actual
+                <code>List</code> or a semicolon-separated string of property names.  Ascending or
+                descending can be specified for each property, as well as whether to place null
+                values first or last.  The default ordering for each property is ascending, nulls
+                last.  If descending, then nulls default to first.  Here is the format for each
+                order-by property:</li>
+                <ul>
+                    <li>propertyName [asc|desc] [nulls [first|last]]</li>
+                </ul>
+            </ul>
+        </section>
+        <section name="Examples">
+            <p>There are 4 Employees, 2 of which have a manager.  Notice the use of the nested
+            <a href="if.html">if tag</a> to conditionally display the manager name and avoid a
+            NullPointerException.</p>
+            <table style="width: 750px;">
+                <tr>
+                    <td class="bold" style="width: 250px;">Employee</td>
+                    <td class="bold" style="width: 150px;">Salary</td>
+                    <td class="bold" style="width: 350px;">Manager</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">&lt;jt:forEach items="${employees}" var="employee"&gt;${employee.lastName}, ${employee.firstName}</td>
+                    <td style="width: 150px;">${employee.salary}</td>
+                    <td style="width: 350px;">&lt;jt:if test="${employee.getManager() != null}" then="${employee.manager.lastName}, ${employee.manager.firstName}"/&gt;&lt;/jt:forEach&gt;</td>
+                </tr>
+            </table>
+            <p>...gets transformed into...</p>
+            <table style="width: 750px;">
+                 <tr>
+                    <td class="bold" style="width: 250px;">Employee</td>
+                    <td class="bold" style="width: 150px;">Salary</td>
+                    <td class="bold" style="width: 350px;">Manager</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Stack, Robert</td>
+                    <td style="width: 150px;">$1000.00</td>
+                    <td style="width: 350px;">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Queue, Suzie</td>
+                    <td style="width: 150px;">$900.00</td>
+                    <td style="width: 350px;">Stack, Robert</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Fudd, Elmer</td>
+                    <td style="width: 150px;">$800.00</td>
+                    <td style="width: 350px;">Stack, Robert</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Bunny, Bugs</td>
+                    <td style="width: 150px;">$1500.00</td>
+                    <td style="width: 350px;">&nbsp;</td>
+                </tr>
+            </table>
+        </section>
+        <section name="Copy Right Example">
+            <p>Here's an example that uses the "copyRight" attribute.</p>
+            <table style="width: 700px;">
+                <tr>
+                    <td style="width: 300px;">&lt;jt:forEach items="${numberList}" var="number" copyRight="true"&gt;${number}&lt;/jt:forEach&gt;</td>
+                    <td style="width: 100px;">Shift me right!</td>
+                    <td style="width: 100px;">&nbsp;</td>
+                    <td style="width: 100px;">&nbsp;</td>
+                    <td style="width: 100px;">&nbsp;</td>
+                </tr>
+            </table>
+            <p>...gets transformed into...</p>
+            <table style="width: 700px;">
+                <tr>
+                    <td style="width: 300px;">3</td>
+                    <td style="width: 100px;">23</td>
+                    <td style="width: 100px;">100</td>
+                    <td style="width: 100px;">-10</td>
+                    <td style="width: 100px;">Shift me right!</td>
+                </tr>
+            </table>
+        </section>
+        <section name="Where Example">
+            <p>Here's an example that uses the "where" attribute, limiting those records displayed
+            to those with a salary greater than or equal to 900.</p>
+            <table style="width: 750px;">
+                <tr>
+                    <td class="bold" style="width: 250px;">Employee</td>
+                    <td class="bold" style="width: 150px;">Salary</td>
+                    <td class="bold" style="width: 350px;">Manager</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">&lt;jt:forEach items="${employees}" var="employee" where="${employee.salary &gt;= 900}"&gt;${employee.lastName}, ${employee.firstName}</td>
+                    <td style="width: 150px;">${employee.salary}</td>
+                    <td style="width: 350px;">&lt;jt:if test="${employee.getManager() != null}" then="${employee.manager.lastName}, ${employee.manager.firstName}"/&gt;&lt;/jt:forEach&gt;</td>
+                </tr>
+            </table>
+            <p>...gets transformed into...</p>
+            <table style="width: 750px;">
+                 <tr>
+                    <td class="bold" style="width: 250px;">Employee</td>
+                    <td class="bold" style="width: 150px;">Salary</td>
+                    <td class="bold" style="width: 350px;">Manager</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Stack, Robert</td>
+                    <td style="width: 150px;">$1000.00</td>
+                    <td style="width: 350px;">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Queue, Suzie</td>
+                    <td style="width: 150px;">$900.00</td>
+                    <td style="width: 350px;">Stack, Robert</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Bunny, Bugs</td>
+                    <td style="width: 150px;">$1500.00</td>
+                    <td style="width: 350px;">&nbsp;</td>
+                </tr>
+            </table>
+        </section>
+        <section name="Limit Example">
+            <p>Here's an example that uses the "limit" attribute, once with a limit less than the
+            collection size, and once with a limit more than the collection size.</p>
+            <table style="width: 750px;">
+                <tr>
+                    <td class="bold" style="width: 250px;">Employee</td>
+                    <td class="bold" style="width: 150px;">Salary</td>
+                    <td class="bold" style="width: 350px;">Manager</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">&lt;jt:forEach items="${employees}" var="employee" limit="${limit}"&gt;${employee.lastName}, ${employee.firstName}</td>
+                    <td style="width: 150px;">${employee.salary}</td>
+                    <td style="width: 350px;">&lt;jt:if test="${employee.getManager() != null}" then="${employee.manager.lastName}, ${employee.manager.firstName}"/&gt;&lt;/jt:forEach&gt;</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Content</td>
+                    <td style="width: 150px;">Below</td>
+                    <td style="width: 350px;">the Block</td>
+                </tr>
+            </table>
+            <p>...if "limit" is only 2, then it gets transformed into...</p>
+            <table style="width: 750px;">
+                <tr>
+                    <td class="bold" style="width: 250px;">Employee</td>
+                    <td class="bold" style="width: 150px;">Salary</td>
+                    <td class="bold" style="width: 350px;">Manager</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Stack, Robert</td>
+                    <td style="width: 150px;">$1000.00</td>
+                    <td style="width: 350px;">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Queue, Suzie</td>
+                    <td style="width: 150px;">$900.00</td>
+                    <td style="width: 350px;">Stack, Robert</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Content</td>
+                    <td style="width: 150px;">Below</td>
+                    <td style="width: 350px;">the Block</td>
+                </tr>
+            </table>
+            <p>...but if "limit" is 6, then it gets transformed into...</p>
+            <table style="width: 750px;">
+                <tr>
+                    <td class="bold" style="width: 250px;">Employee</td>
+                    <td class="bold" style="width: 150px;">Salary</td>
+                    <td class="bold" style="width: 350px;">Manager</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Stack, Robert</td>
+                    <td style="width: 150px;">$1000.00</td>
+                    <td style="width: 350px;">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Queue, Suzie</td>
+                    <td style="width: 150px;">$900.00</td>
+                    <td style="width: 350px;">Stack, Robert</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Fudd, Elmer</td>
+                    <td style="width: 150px;">$800.00</td>
+                    <td style="width: 350px;">Stack, Robert</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Bunny, Bugs</td>
+                    <td style="width: 150px;">$1500.00</td>
+                    <td style="width: 350px;">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">&nbsp;</td>
+                    <td style="width: 150px;">&nbsp;</td>
+                    <td style="width: 350px;">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">&nbsp;</td>
+                    <td style="width: 150px;">&nbsp;</td>
+                    <td style="width: 350px;">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Content</td>
+                    <td style="width: 150px;">Below</td>
+                    <td style="width: 350px;">the Block</td>
+                </tr>
+            </table>
+        </section>
+        <section name="Fixed Example">
+            <p>Here's an example that uses the "fixed" attribute.  Notice how there is already room
+            for the collection content, and that any content below the block does not get shifted.</p>
+            <table style="width: 750px;">
+                <tr>
+                    <td class="bold" style="width: 250px;">Employee</td>
+                    <td class="bold" style="width: 150px;">Salary</td>
+                    <td class="bold" style="width: 350px;">Manager</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">&lt;jt:forEach items="${employees}" var="employee" fixed="true"&gt;${employee.lastName}, ${employee.firstName}</td>
+                    <td style="width: 150px;">${employee.salary}</td>
+                    <td style="width: 350px;">&lt;jt:if test="${employee.getManager() != null}" then="${employee.manager.lastName}, ${employee.manager.firstName}"/&gt;&lt;/jt:forEach&gt;</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">&nbsp;</td>
+                    <td style="width: 150px;">&nbsp;</td>
+                    <td style="width: 350px;">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">&nbsp;</td>
+                    <td style="width: 150px;">&nbsp;</td>
+                    <td style="width: 350px;">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">&nbsp;</td>
+                    <td style="width: 150px;">&nbsp;</td>
+                    <td style="width: 350px;">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">I am</td>
+                    <td style="width: 150px;">not getting</td>
+                    <td style="width: 350px;">moved!</td>
+                </tr>
+            </table>
+            <p>...gets transformed into...</p>
+            <table style="width: 750px;">
+                <tr>
+                    <td class="bold" style="width: 250px;">Employee</td>
+                    <td class="bold" style="width: 150px;">Salary</td>
+                    <td class="bold" style="width: 350px;">Manager</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Stack, Robert</td>
+                    <td style="width: 150px;">$1000.00</td>
+                    <td style="width: 350px;">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Queue, Suzie</td>
+                    <td style="width: 150px;">$900.00</td>
+                    <td style="width: 350px;">Stack, Robert</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Fudd, Elmer</td>
+                    <td style="width: 150px;">$800.00</td>
+                    <td style="width: 350px;">Stack, Robert</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Bunny, Bugs</td>
+                    <td style="width: 150px;">$1500.00</td>
+                    <td style="width: 350px;">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">I am</td>
+                    <td style="width: 150px;">not getting</td>
+                    <td style="width: 350px;">moved!</td>
+                </tr>
+            </table>
+        </section>
+        <section name="IndexVar Example">
+            <p>Here's an example that uses the "indexVar" attribute.  Notice that the variable is
+            zero-based, and one is added so it can start with "1.".</p>
+            <table style="width: 750px;">
+                <tr>
+                    <td class="bold" style="width: 250px;">Employee</td>
+                    <td class="bold" style="width: 150px;">Salary</td>
+                    <td class="bold" style="width: 350px;">Manager</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">&lt;jt:forEach items="${employees}" var="employee" indexVar="index"&gt;<span class="bold">${index + 1}.</span> ${employee.lastName}, ${employee.firstName}</td>
+                    <td style="width: 150px;">${employee.salary}</td>
+                    <td style="width: 350px;">&lt;jt:if test="${employee.getManager() != null}" then="${employee.manager.lastName}, ${employee.manager.firstName}"/&gt;&lt;/jt:forEach&gt;</td>
+                </tr>
+            </table>
+            <p>...gets transformed into...</p>
+            <table style="width: 750px;">
+                <tr>
+                    <td class="bold" style="width: 250px;">Employee</td>
+                    <td class="bold" style="width: 150px;">Salary</td>
+                    <td class="bold" style="width: 350px;">Manager</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;"><span class="bold">1.</span> Stack, Robert</td>
+                    <td style="width: 150px;">$1000.00</td>
+                    <td style="width: 350px;">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;"><span class="bold">2.</span> Queue, Suzie</td>
+                    <td style="width: 150px;">$900.00</td>
+                    <td style="width: 350px;">Stack, Robert</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;"><span class="bold">3.</span> Fudd, Elmer</td>
+                    <td style="width: 150px;">$800.00</td>
+                    <td style="width: 350px;">Stack, Robert</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;"><span class="bold">4.</span> Bunny, Bugs</td>
+                    <td style="width: 150px;">$1500.00</td>
+                    <td style="width: 350px;">&nbsp;</td>
+                </tr>
+            </table>
+        </section>
+        <section name="GroupBy Example">
+            <p>Here's an example that uses the "groupBy" attribute.  Notice that there are two
+            employees in each of two departments.</p>
+            <table style="width: 750px;">
+                <tr>
+                    <td class="bold" style="width: 750px;" colspan="3">&lt;jt:forEach items="${employees}" var="dept" groupBy="deptName">Department Name: ${dept.obj.deptName}</td>
+                </tr>
+                <tr>
+                    <td class="bold" style="width: 250px;">&lt;jt:forEach items="${dept.items}" var="employee"&gt;Employee</td>
+                    <td class="bold" style="width: 150px;">Salary</td>
+                    <td class="bold" style="width: 350px;">Manager</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">${employee.lastName}, ${employee.firstName}</td>
+                    <td style="width: 150px;">${employee.salary}</td>
+                    <td style="width: 350px;">&lt;jt:if test="${employee.getManager() != null}" then="${employee.manager.lastName}, ${employee.manager.firstName}"/&gt;&lt;/jt:forEach&gt;&lt;/jt:forEach&gt;</td>
+                </tr>
+            </table>
+            <p>...gets transformed into...</p>
+            <table style="width: 750px;">
+                <tr>
+                    <td class="bold" style="width: 750px;" colspan="3">Department Name: Cartoon Characters</td>
+                </tr>
+                <tr>
+                    <td class="bold" style="width: 250px;">Employee</td>
+                    <td class="bold" style="width: 150px;">Salary</td>
+                    <td class="bold" style="width: 350px;">Manager</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Fudd, Elmer</td>
+                    <td style="width: 150px;">$800.00</td>
+                    <td style="width: 350px;">Stack, Robert</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Bunny, Bugs</td>
+                    <td style="width: 150px;">$1500.00</td>
+                    <td style="width: 350px;">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td class="bold" style="width: 750px;" colspan="3">Department Name: Data Structures Programmers</td>
+                </tr>
+                <tr>
+                    <td class="bold" style="width: 250px;">Employee</td>
+                    <td class="bold" style="width: 150px;">Salary</td>
+                    <td class="bold" style="width: 350px;">Manager</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Stack, Robert</td>
+                    <td style="width: 150px;">$1000.00</td>
+                    <td style="width: 350px;">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Queue, Suzie</td>
+                    <td style="width: 150px;">$900.00</td>
+                    <td style="width: 350px;">Stack, Robert</td>
+                </tr>
+            </table>
+        </section>
+        <section name="OrderBy Example">
+            <p>Building on the "groupBy" example, this example adds an "orderBy" attribute.  The
+            "orderBy" attribute works well with or without a "groupBy" attribute.  But if both are
+            present, then any "orderBy" properties that are present in the "groupBy" attribute must
+            be specified BEFORE any "orderBy" properties that are not present in the "groupBy"
+            attribute.</p>
+            <table style="width: 750px;">
+                <tr>
+                    <td class="bold" style="width: 750px;" colspan="3">&lt;jt:forEach items="${employees}" var="dept" groupBy="deptName" orderBy="deptName desc;lastName"&gt;Department Name: ${dept.obj.deptName}</td>
+                </tr>
+                <tr>
+                    <td class="bold" style="width: 250px;">&lt;jt:forEach items="${dept.items}" var="employee"&gt;Employee</td>
+                    <td class="bold" style="width: 150px;">Salary</td>
+                    <td class="bold" style="width: 350px;">Manager</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">${employee.lastName}, ${employee.firstName}</td>
+                    <td style="width: 150px;">${employee.salary}</td>
+                    <td style="width: 350px;">&lt;jt:if test="${employee.getManager() != null}" then="${employee.manager.lastName}, ${employee.manager.firstName}"/&gt;&lt;/jt:forEach&gt;&lt;/jt:forEach&gt;</td>
+                </tr>
+            </table>
+            <p>...gets transformed into...</p>
+            <table style="width: 750px;">
+                <tr>
+                    <td class="bold" style="width: 750px;" colspan="3">Department Name: Data Structures Programmers</td>
+                </tr>
+                <tr>
+                    <td class="bold" style="width: 250px;">Employee</td>
+                    <td class="bold" style="width: 150px;">Salary</td>
+                    <td class="bold" style="width: 350px;">Manager</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Queue, Suzie</td>
+                    <td style="width: 150px;">$900.00</td>
+                    <td style="width: 350px;">Stack, Robert</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Stack, Robert</td>
+                    <td style="width: 150px;">$1000.00</td>
+                    <td style="width: 350px;">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td class="bold" style="width: 750px;" colspan="3">Department Name: Cartoon Characters</td>
+                </tr>
+                <tr>
+                    <td class="bold" style="width: 250px;">Employee</td>
+                    <td class="bold" style="width: 150px;">Salary</td>
+                    <td class="bold" style="width: 350px;">Manager</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Bunny, Bugs</td>
+                    <td style="width: 150px;">$1500.00</td>
+                    <td style="width: 350px;">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">Fudd, Elmer</td>
+                    <td style="width: 150px;">$800.00</td>
+                    <td style="width: 350px;">Stack, Robert</td>
+                </tr>
+            </table>
+        </section>
+    </body>
+</document>
