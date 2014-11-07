@@ -136,9 +136,9 @@ public class NameTag extends BaseTag
 
       Map<String, RichTextString> attributes = getAttributes();
 
-      String name = AttributeUtil.evaluateStringNotNull(context, attributes.get(ATTR_NAME), beans, ATTR_NAME, "");
+      String name = AttributeUtil.evaluateStringNotNull(this, attributes.get(ATTR_NAME), beans, ATTR_NAME, "");
 
-      boolean preferWorkbookScopeFirst = AttributeUtil.evaluateBoolean(context,
+      boolean preferWorkbookScopeFirst = AttributeUtil.evaluateBoolean(this,
          attributes.get(ATTR_PREFER_WORKBOOK_SCOPE), beans, false);
 
       int numNamedRanges = workbook.getNumberOfNames();
@@ -181,7 +181,7 @@ public class NameTag extends BaseTag
             name + "\" in the workbook.  Reference found" + getLocation());
       }
 
-      myJettFormula = AttributeUtil.evaluateStringNotNull(context, attributes.get(ATTR_FORMULA), beans, ATTR_FORMULA, "");
+      myJettFormula = AttributeUtil.evaluateStringNotNull(this, attributes.get(ATTR_FORMULA), beans, ATTR_FORMULA, "");
       if (!myJettFormula.startsWith(Formula.BEGIN_FORMULA) || !myJettFormula.endsWith(Formula.END_FORMULA))
       {
          throw new AttributeExpressionException("NameTag: Expected JETT formula of the form \"" +

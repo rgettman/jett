@@ -24,6 +24,7 @@ public class WorkbookContext
    private List<String> myFixedSizeCollectionNames;
    private List<String> myNoImplicitProcessingCollectionNames;
    private Map<String, Formula> myFormulaMap;
+   private Map<String, String> myTagLocationsMap;
    private Map<String, List<CellRef>> myCellRefMap;
    private int mySequenceNbr;
    private CellStyleCache myCellStyleCache;
@@ -171,6 +172,34 @@ public class WorkbookContext
    public void setFormulaMap(Map<String, Formula> formulaMap)
    {
       myFormulaMap = formulaMap;
+   }
+
+   /**
+    * Returns the tag locations map, a <code>Map</code> of current tag location
+    * cell references to original tag location cell references, with the cell
+    * references being in the format "Sheet!B1".  This is curently used only to
+    * identify original tag locations for exception messages.
+    * @return A <code>Map</code> of current tag location cell references to
+    *    original tag location cell references.
+    * @since 0.9.0
+    */
+   public Map<String, String> getTagLocationsMap()
+   {
+      return myTagLocationsMap;
+   }
+
+   /**
+    * Sets the tag locations map, a <code>Map</code> of current tag location
+    * cell references to original tag location cell references, with the cell
+    * references being in the format "Sheet!B1".  This is curently used only to
+    * identify original tag locations for exception messages.
+    * @param tagLocationsMap A <code>Map</code> of current tag location cell
+    *    references to original tag location cell references.
+    * @since 0.9.0
+    */
+   public void setTagLocationsMap(Map<String, String> tagLocationsMap)
+   {
+      myTagLocationsMap = tagLocationsMap;
    }
 
    /**

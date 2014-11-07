@@ -134,7 +134,7 @@ public class HyperlinkTag extends BaseTag
       Map<String, Object> beans = context.getBeans();
       Map<String, RichTextString> attributes = getAttributes();
 
-      String type = AttributeUtil.evaluateStringSpecificValues(context, attributes.get(ATTR_TYPE), beans, ATTR_TYPE,
+      String type = AttributeUtil.evaluateStringSpecificValues(this, attributes.get(ATTR_TYPE), beans, ATTR_TYPE,
          Arrays.asList(TYPE_URL, TYPE_EMAIL, TYPE_FILE, TYPE_DOC), TYPE_URL);
       if (TYPE_URL.equals(type))
             myLinkType = Hyperlink.LINK_URL;
@@ -145,7 +145,7 @@ public class HyperlinkTag extends BaseTag
          else if (TYPE_DOC.equals(type))
             myLinkType = Hyperlink.LINK_DOCUMENT;
 
-      myAddress = AttributeUtil.evaluateStringNotNull(context, attributes.get(ATTR_ADDRESS), beans, ATTR_ADDRESS, null);
+      myAddress = AttributeUtil.evaluateStringNotNull(this, attributes.get(ATTR_ADDRESS), beans, ATTR_ADDRESS, null);
 
       myValue = attributes.get(ATTR_VALUE);
    }

@@ -7,12 +7,15 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.ConditionalFormatting;
 import org.apache.poi.ss.usermodel.Footer;
 import org.apache.poi.ss.usermodel.Header;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.SheetConditionalFormatting;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.ss.util.CellReference;
 
 import net.sf.jett.event.SheetEvent;
 import net.sf.jett.event.SheetListener;
@@ -21,6 +24,7 @@ import net.sf.jett.formula.Formula;
 import net.sf.jett.model.Block;
 import net.sf.jett.model.WorkbookContext;
 import net.sf.jett.parser.FormulaParser;
+import net.sf.jett.parser.TagParser;
 import net.sf.jett.tag.TagContext;
 import net.sf.jett.util.FormulaUtil;
 import net.sf.jett.util.SheetUtil;
@@ -123,6 +127,9 @@ public class SheetTransformer
       List<CellRangeAddress> mergedRegions = new ArrayList<CellRangeAddress>();
       tagContext.setMergedRegions(mergedRegions);
       readMergedRegions(sheet, mergedRegions);
+      List<List<CellRangeAddress>> conditionalFormattingRegions = new ArrayList<List<CellRangeAddress>>();
+      tagContext.setConditionalFormattingRegions(conditionalFormattingRegions);
+      readConditionalFormattingRegions(sheet, conditionalFormattingRegions);
       BlockTransformer transformer = new BlockTransformer();
       transformer.transform(tagContext, context);
       writeMergedRegions(sheet, mergedRegions);
@@ -191,13 +198,19 @@ public class SheetTransformer
 
    /**
     * Searches for all <code>Formulas</code> contained on the given
-    * <code>Sheet</code>.  Adds them to the given formula map.
+    * <code>Sheet</code>.  Adds them to the given formula map.  Searches for
+    * tags on the given <code>Sheet</code>.  Adds them to the given tag
+    * locations map.
+    *
     * @param sheet The <code>Sheet</code> on which to search for
     *    <code>Formulas</code>.
     * @param formulaMap A <code>Map</code> of strings to <code>Formulas</code>,
     *    with the keys of the format "sheetName!formulaText".
+    * @param tagLocationsMap A <code>Map</code> of cell reference strings to
+    *    original cell reference strings.
     */
-   public void gatherFormulas(Sheet sheet, Map<String, Formula> formulaMap)
+   public void gatherFormulasAndTagLocations(Sheet sheet, Map<String, Formula> formulaMap,
+      Map<String, String> tagLocationsMap)
    {
       int top = sheet.getFirstRowNum();
       int bottom = sheet.getLastRowNum();
@@ -221,16 +234,17 @@ public class SheetTransformer
                   String cellText = cell.getStringCellValue();
                   if (cellText != null)
                   {
-                     int startIdx = cellText.indexOf(Formula.BEGIN_FORMULA);
-                     if (startIdx != -1)
+                     // Formula?
+                     int formulaStartIdx = cellText.indexOf(Formula.BEGIN_FORMULA);
+                     if (formulaStartIdx != -1)
                      {
-                        int endIdx = cellText.indexOf(Formula.END_FORMULA, startIdx);
-                        if (endIdx != -1)  // End token after Begin token
+                        int formulaEndIdx = cellText.indexOf(Formula.END_FORMULA, formulaStartIdx);
+                        if (formulaEndIdx != -1)  // End token after Begin token
                         {
                            // Grab the formula, begin and end tokens and all, e.g. $[SUM(C3)]
-                           cellText = cellText.substring(startIdx, endIdx + Formula.END_FORMULA.length());
+                           cellText = cellText.substring(formulaStartIdx, formulaEndIdx + Formula.END_FORMULA.length());
                            // Formula text is cell text without the begin and end tokens.
-                           String formulaText = cellText.substring(Formula.BEGIN_FORMULA.length(), endIdx - startIdx);
+                           String formulaText = cellText.substring(Formula.BEGIN_FORMULA.length(), formulaEndIdx - formulaStartIdx);
                            parser.setFormulaText(formulaText);
                            parser.setCell(cell);
                            parser.parse();
@@ -239,6 +253,26 @@ public class SheetTransformer
                            if (DEBUG)
                               System.err.println("ST.gF: Formula found: " + key + " => " + formula);
                            formulaMap.put(key, formula);
+                        }
+                     }
+
+                     // Tag?
+                     int tagStartIdx = cellText.indexOf(TagParser.BEGIN_START_TAG);
+                     if (tagStartIdx != -1 && tagStartIdx < cellText.length() - 1)
+                     {
+                        char next = cellText.charAt(tagStartIdx + 1);
+                        // "<" followed by not whitespace, "=", "<", ">", "\""
+                        // THIS MATCHES WHAT TagParser LOOKS FOR TO DETERMINE IF
+                        // IT'S THE START OF A TAG.
+                        // Also, don't count "/", because that is an end tag.
+                        if (!Character.isWhitespace(next) &&
+                            "=<>\"/".indexOf(next) == -1)
+                        {
+                           String cellRef = new CellReference(sheet.getSheetName(),
+                              cell.getRowIndex(), cell.getColumnIndex(), false, false).formatAsString();
+                           if (DEBUG)
+                              System.err.println("ST.gF: Tag text found: " + cellText + " for " + cellRef);
+                           tagLocationsMap.put(cellRef, cellRef);
                         }
                      }
                   }
@@ -400,6 +434,33 @@ public class SheetTransformer
       for (CellRangeAddress mergedRegion : mergedRegions)
       {
          sheet.addMergedRegion(mergedRegion);
+      }
+   }
+
+   /**
+    * Reads all conditional formatting regions from the given <code>Sheet</code>
+    * and populates the given <code>List</code> with them.  All transformation
+    * that manipulates conditional formatting regions will be done on this
+    * cache of regions, instead of directly on the <code>Sheet</code>.
+    * @param sheet The <code>Sheet</code>.
+    * @param regions A <code>List</code> of <code>Lists</code> of
+    *    <code>CellRangeAddress</code>es, which is modified.
+    * @since 0.9.0
+    */
+   private void readConditionalFormattingRegions(Sheet sheet, List<List<CellRangeAddress>> regions)
+   {
+      SheetConditionalFormatting scf = sheet.getSheetConditionalFormatting();
+      int numConditionalFormattings = scf.getNumConditionalFormattings();
+      for (int i = 0; i < numConditionalFormattings; i++)
+      {
+         ConditionalFormatting cf = scf.getConditionalFormattingAt(i);
+         CellRangeAddress[] ranges = cf.getFormattingRanges();
+         List<CellRangeAddress> copies = new ArrayList<CellRangeAddress>(ranges.length);
+         for (CellRangeAddress range : ranges)
+         {
+            copies.add(range.copy());
+         }
+         regions.add(copies);
       }
    }
 }

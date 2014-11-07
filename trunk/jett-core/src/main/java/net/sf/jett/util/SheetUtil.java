@@ -39,6 +39,7 @@ import net.sf.jett.model.Block;
 import net.sf.jett.model.ExcelColor;
 import net.sf.jett.model.PastEndAction;
 import net.sf.jett.model.WorkbookContext;
+import net.sf.jett.tag.Tag;
 import net.sf.jett.tag.TagContext;
 
 /**
@@ -216,13 +217,14 @@ public class SheetUtil
     *
     * @param sheet The <code>Sheet</code> on which to move <code>Cells</code>.
     * @param context A <code>TagContext</code>.
+    * @param workbookContext A <code>WorkbookContext</code>.
     * @param colStart The 0-based column index on which to start moving cells.
     * @param colEnd The 0-based column index on which to end moving cells.
     * @param rowStart The 0-based row index on which to start moving cells.
     * @param rowEnd The 0-based row index on which to end moving cells.
     * @param numCols The number of columns to move <code>Cells</code> left.
     */
-   private static void shiftCellsLeft(Sheet sheet, TagContext context,
+   private static void shiftCellsLeft(Sheet sheet, TagContext context, WorkbookContext workbookContext,
       int colStart, int colEnd, int rowStart, int rowEnd, int numCols)
    {
       if (DEBUG)
@@ -232,6 +234,7 @@ public class SheetUtil
       Row row;
       Cell cell, newCell;
       int newColIndex;
+      Map<String, String> tagLocationsMap = workbookContext.getTagLocationsMap();
       for (int rowIndex = rowStart; rowIndex <= rowEnd; rowIndex++)
       {
          row = sheet.getRow(rowIndex);
@@ -249,6 +252,20 @@ public class SheetUtil
                   if (newCell == null)
                      newCell = row.createCell(newColIndex);
                   copyCell(cell, newCell);
+
+                  String cellRef = getCellKey(cell);
+                  String newCellRef = getCellKey(newCell);
+                  String origCellRef = tagLocationsMap.get(cellRef);
+                  if (origCellRef != null)
+                  {
+                     tagLocationsMap.remove(cellRef);
+                     tagLocationsMap.put(newCellRef, origCellRef);
+                     if (DEBUG)
+                     {
+                        System.err.println("SU.sCL: Replacing " + cellRef + " => " + origCellRef + " with " +
+                            newCellRef + " => " + origCellRef);
+                     }
+                  }
 
                   // Remove the just copied Cell if we detect that it won't be
                   // overwritten by future loops.
@@ -271,13 +288,14 @@ public class SheetUtil
     *
     * @param sheet The <code>Sheet</code> on which to move <code>Cells</code>.
     * @param context A <code>TagContext</code>.
+    * @param workbookContext A <code>WorkbookContext</code>.
     * @param colStart The 0-based column index on which to start moving cells.
     * @param colEnd The 0-based column index on which to end moving cells.
     * @param rowStart The 0-based row index on which to start moving cells.
     * @param rowEnd The 0-based row index on which to end moving cells.
     * @param numCols The number of columns to move <code>Cells</code> right.
     */
-   private static void shiftCellsRight(Sheet sheet, TagContext context,
+   private static void shiftCellsRight(Sheet sheet, TagContext context, WorkbookContext workbookContext,
       int colStart, int colEnd, int rowStart, int rowEnd, int numCols)
    {
       if (DEBUG)
@@ -287,6 +305,7 @@ public class SheetUtil
       Row row;
       Cell cell, newCell;
       int newColIndex;
+      Map<String, String> tagLocationsMap = workbookContext.getTagLocationsMap();
       for (int rowIndex = rowStart; rowIndex <= rowEnd; rowIndex++)
       {
          row = sheet.getRow(rowIndex);
@@ -304,6 +323,20 @@ public class SheetUtil
                   if (newCell == null)
                      newCell = row.createCell(newColIndex);
                   copyCell(cell, newCell);
+
+                  String cellRef = getCellKey(cell);
+                  String newCellRef = getCellKey(newCell);
+                  String origCellRef = tagLocationsMap.get(cellRef);
+                  if (origCellRef != null)
+                  {
+                     tagLocationsMap.remove(cellRef);
+                     tagLocationsMap.put(newCellRef, origCellRef);
+                     if (DEBUG)
+                     {
+                        System.err.println("SU.sCR: Replacing " + cellRef + " => " + origCellRef + " with " +
+                           newCellRef + " => " + origCellRef);
+                     }
+                  }
 
                   // Remove the just copied Cell if we detect that it won't be
                   // overwritten by future loops.
@@ -326,13 +359,14 @@ public class SheetUtil
     *
     * @param sheet The <code>Sheet</code> on which to move <code>Cells</code>.
     * @param context A <code>TagContext</code>.
+    * @param workbookContext A <code>WorkbookContext</code>.
     * @param colStart The 0-based column index on which to start moving cells.
     * @param colEnd The 0-based column index on which to end moving cells.
     * @param rowStart The 0-based row index on which to start moving cells.
     * @param rowEnd The 0-based row index on which to end moving cells.
     * @param numRows The number of columns to move <code>Cells</code> up.
     */
-   private static void shiftCellsUp(Sheet sheet, TagContext context,
+   private static void shiftCellsUp(Sheet sheet, TagContext context, WorkbookContext workbookContext,
       int colStart, int colEnd, int rowStart, int rowEnd, int numRows)
    {
       if (DEBUG)
@@ -342,6 +376,7 @@ public class SheetUtil
       int newRowIndex;
       Row oldRow, newRow;
       Cell cell, newCell;
+      Map<String, String> tagLocationsMap = workbookContext.getTagLocationsMap();
       for (int colIndex = colStart; colIndex <= colEnd; colIndex++)
       {
          for (int rowIndex = rowStart; rowIndex <= rowEnd; rowIndex++)
@@ -366,6 +401,20 @@ public class SheetUtil
                   newCell = newRow.createCell(colIndex);
                copyCell(cell, newCell);
 
+               String cellRef = getCellKey(cell);
+               String newCellRef = getCellKey(newCell);
+               String origCellRef = tagLocationsMap.get(cellRef);
+               if (origCellRef != null)
+               {
+                  tagLocationsMap.remove(cellRef);
+                  tagLocationsMap.put(newCellRef, origCellRef);
+                  if (DEBUG)
+                  {
+                      System.err.println("SU.sCU: Replacing " + cellRef + " => " + origCellRef + " with " +
+                         newCellRef + " => " + origCellRef);
+                  }
+               }
+
                // Remove the just copied Cell if we detect that it won't be
                // overwritten by future loops.
                if (rowIndex > rowEnd - numRows && rowIndex <= rowEnd)
@@ -386,13 +435,14 @@ public class SheetUtil
     *
     * @param sheet The <code>Sheet</code> on which to move <code>Cells</code>.
     * @param context A <code>TagContext</code>.
+    * @param workbookContext A <code>WorkbookContext</code>.
     * @param colStart The 0-based column index on which to start moving cells.
     * @param colEnd The 0-based column index on which to end moving cells.
     * @param rowStart The 0-based row index on which to start moving cells.
     * @param rowEnd The 0-based row index on which to end moving cells.
     * @param numRows The number of columns to move <code>Cells</code> down.
     */
-   private static void shiftCellsDown(Sheet sheet, TagContext context,
+   private static void shiftCellsDown(Sheet sheet, TagContext context, WorkbookContext workbookContext,
       int colStart, int colEnd, int rowStart, int rowEnd, int numRows)
    {
       if (DEBUG)
@@ -402,6 +452,7 @@ public class SheetUtil
       int newRowIndex;
       Row oldRow, newRow;
       Cell cell, newCell;
+      Map<String, String> tagLocationsMap = workbookContext.getTagLocationsMap();
       for (int rowIndex = rowEnd; rowIndex >= rowStart; rowIndex--)
       {
          newRowIndex = rowIndex + numRows;
@@ -420,6 +471,21 @@ public class SheetUtil
             if (newCell == null)
                newCell = newRow.createCell(colIndex);
             copyCell(cell, newCell);
+
+            String cellRef = getCellKey(cell);
+            String newCellRef = getCellKey(newCell);
+            String origCellRef = tagLocationsMap.get(cellRef);
+            if (origCellRef != null)
+            {
+               tagLocationsMap.remove(cellRef);
+               tagLocationsMap.put(newCellRef, origCellRef);
+
+               if (DEBUG)
+               {
+                   System.err.println("SU.sD: Replacing " + cellRef + " => " + origCellRef + " with " +
+                         newCellRef + " => " + origCellRef);
+               }
+            }
 
             // Remove the just copied Cell if we detect that it won't be
             // overwritten by future loops.
@@ -1029,6 +1095,7 @@ public class SheetUtil
       int right = block.getRightColNum();
       int top = block.getTopRowNum();
       int bottom = block.getBottomRowNum();
+      Map<String, String> tagLocationsMap = context.getTagLocationsMap();
 
       // Blank out the Cells.
       for (int rowNum = top; rowNum <= bottom; rowNum++)
@@ -1040,7 +1107,16 @@ public class SheetUtil
             {
                Cell c = r.getCell(cellNum);
                if (c != null)
+               {
+                  String cellRef = getCellKey(c);
                   removeCell(r, c);
+                  tagLocationsMap.remove(cellRef);
+
+                  if (DEBUG)
+                  {
+                     System.err.println("SU.dB: Removing " + cellRef);
+                  }
+               }
             }
          }
       }
@@ -1070,6 +1146,7 @@ public class SheetUtil
       int right = block.getRightColNum();
       int top = block.getTopRowNum();
       int bottom = block.getBottomRowNum();
+      Map<String, String> tagLocationsMap = context.getTagLocationsMap();
 
       // Blank out the Cells.
       for (int rowNum = top; rowNum <= bottom; rowNum++)
@@ -1081,7 +1158,15 @@ public class SheetUtil
             {
                Cell c = r.getCell(cellNum);
                if (c != null)
+               {
+                  String cellRef = getCellKey(c);
                   c.setCellType(Cell.CELL_TYPE_BLANK);
+                  tagLocationsMap.remove(cellRef);
+                  if (DEBUG)
+                  {
+                     System.err.println("SU.cB: Removing " + cellRef);
+                  }
+               }
             }
          }
       }
@@ -1292,7 +1377,7 @@ public class SheetUtil
             ancestor.expand(0, -numToShiftUp);
             copyRowHeightsUp(sheet, startRowNum, endRowNum, numToShiftUp);
          }
-         shiftCellsUp(sheet, tagContext, left, right, startRowNum, endRowNum, numToShiftUp);
+         shiftCellsUp(sheet, tagContext, context, left, right, startRowNum, endRowNum, numToShiftUp);
          FormulaUtil.shiftCellReferencesInRange(sheet.getSheetName(), context,
             left, right, startRowNum, endRowNum,
             0, -numToShiftUp, true, true);
@@ -1322,7 +1407,7 @@ public class SheetUtil
             copyColumnWidthsLeft(sheet, startCellNum, endCellNum, numToShiftLeft);
          }
 
-         shiftCellsLeft(sheet, tagContext, startCellNum, endCellNum, top, bottom, numToShiftLeft);
+         shiftCellsLeft(sheet, tagContext, context, startCellNum, endCellNum, top, bottom, numToShiftLeft);
          FormulaUtil.shiftCellReferencesInRange(sheet.getSheetName(), context,
             startCellNum, endCellNum, top, bottom,
             -numToShiftLeft, 0, true, true);
@@ -1552,7 +1637,7 @@ public class SheetUtil
             translateDown = shiftAmounts.pop();
 
             copyRowHeightsDown(sheet, toShift.getTopRowNum(), toShift.getBottomRowNum(), translateDown);
-            shiftCellsDown(sheet, tagContext, toShift.getLeftColNum(), toShift.getRightColNum(),
+            shiftCellsDown(sheet, tagContext, context, toShift.getLeftColNum(), toShift.getRightColNum(),
                toShift.getTopRowNum(), toShift.getBottomRowNum(), translateDown);
             FormulaUtil.shiftCellReferencesInRange(sheet.getSheetName(), context,
                toShift.getLeftColNum(), toShift.getRightColNum(), toShift.getTopRowNum(), toShift.getBottomRowNum(),
@@ -1632,7 +1717,7 @@ public class SheetUtil
             translateRight = shiftAmounts.pop();
 
             copyColumnWidthsRight(sheet, toShift.getLeftColNum(), toShift.getRightColNum(), translateRight);
-            shiftCellsRight(sheet, tagContext, toShift.getLeftColNum(), toShift.getRightColNum(),
+            shiftCellsRight(sheet, tagContext, context, toShift.getLeftColNum(), toShift.getRightColNum(),
                toShift.getTopRowNum(), toShift.getBottomRowNum(), translateRight);
             FormulaUtil.shiftCellReferencesInRange(sheet.getSheetName(), context,
                toShift.getLeftColNum(), toShift.getRightColNum(), toShift.getTopRowNum(), toShift.getBottomRowNum(),
@@ -1743,6 +1828,7 @@ public class SheetUtil
       int seqNbr = context.getSequenceNbr();
       String currSuffix = null;
       String newSuffix = "[" + seqNbr + "," + numBlocksAway + "]";
+      Map<String, String> tagLocationsMap = context.getTagLocationsMap();
       if (DEBUG)
          System.err.println("copyBlock: " + sheet.getSheetName() + ": " + block + ", numBlocksAway=" + numBlocksAway);
 
@@ -1783,7 +1869,20 @@ public class SheetUtil
                if (newCell == null)
                   newCell = newRow.createCell(c);
                if (numBlocksAway > 0)
-                 copyCell(oldCell, newCell);
+                  copyCell(oldCell, newCell);
+
+               String oldCellRef = getCellKey(oldCell);
+               String newCellRef = getCellKey(newCell);
+               String origCellRef = tagLocationsMap.get(oldCellRef);
+               if (origCellRef != null)
+               {
+                  tagLocationsMap.put(newCellRef, origCellRef);
+                  if (DEBUG)
+                  {
+                     System.err.println("SU.cB: Adding " + newCellRef + " => " + origCellRef);
+                  }
+               }
+
                // Append "[loop,iter]" on formulas.
                if (newCell.getCellType() == Cell.CELL_TYPE_STRING)
                {
@@ -1861,6 +1960,20 @@ public class SheetUtil
                   newCell = row.createCell(col + translateRight);
                if (numBlocksAway > 0)
                   copyCell(oldCell, newCell);
+
+               String oldCellRef = getCellKey(oldCell);
+               String newCellRef = getCellKey(newCell);
+               String origCellRef = tagLocationsMap.get(oldCellRef);
+               if (origCellRef != null)
+               {
+                  tagLocationsMap.put(newCellRef, origCellRef);
+
+                  if (DEBUG)
+                  {
+                     System.err.println("SU.cB: Adding " + newCellRef + " => " + origCellRef);
+                  }
+               }
+
                // Append proper "[loop,iter]" on formulas.
                if (newCell.getCellType() == Cell.CELL_TYPE_STRING)
                {
@@ -2430,8 +2543,53 @@ public class SheetUtil
    {
       if (cell == null)
          return "";
-      return " at " + new CellReference(
-         cell.getSheet().getSheetName(), cell.getRowIndex(), cell.getColumnIndex(), false, false).toString();
+      return " at " + getCellKey(cell);
+   }
+
+   /**
+    * <p>Returns a <code>String</code> formatted in the following way:</p>
+    * <code>[", at " + tagCellRef + " (originally at " + origCellRef + ")"]+</code>
+    * <p>where each instance represents the parent tag of the tag before it, in
+    * a "tag stack trace" kind of way.</p>
+    * @param tag The <code>Tag</code>.
+    * @return The formatted location string.
+    * @since 0.9.0
+    */
+   public static String getTagLocationWithHierarchy(Tag tag)
+   {
+      if (tag == null)
+         return "";
+
+      StringBuilder buf = new StringBuilder();
+      WorkbookContext workbookContext = tag.getWorkbookContext();
+      Map<String, String> tagLocationsMap = workbookContext.getTagLocationsMap();
+      do
+      {
+         TagContext tagContext = tag.getContext();
+         Sheet sheet = tagContext.getSheet();
+         Block block = tagContext.getBlock();
+         int row = block.getTopRowNum();
+         int col = block.getLeftColNum();
+         String cellRef = new CellReference(sheet.getSheetName(), row, col, false, false).formatAsString();
+         String origCellRef = tagLocationsMap.get(cellRef);
+         buf.append(System.getProperty("line.separator"));
+         buf.append("  inside tag \"");
+         buf.append(tag.getName());
+         buf.append("\" (");
+         buf.append(tag.getClass().getName());
+         buf.append("), at ");
+         buf.append(cellRef);
+         if (origCellRef != null)
+         {
+            buf.append(" (originally at ");
+            buf.append(origCellRef);
+            buf.append(")");
+         }
+
+         tag = tag.getParentTag();
+      }
+      while (tag != null);
+      return buf.toString();
    }
 }
 

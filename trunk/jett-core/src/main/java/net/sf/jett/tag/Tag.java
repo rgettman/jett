@@ -81,6 +81,22 @@ public interface Tag
    public WorkbookContext getWorkbookContext();
 
    /**
+    * Sets the parent <code>Tag</code> to this <code>Tag</code>.  The parent
+    * tag is the tag that encloses this tag in the template spreadsheet.
+    * @param parent The parent <code>Tag</code>, or <code>null</code> if none.
+    * @since 0.9.0
+    */
+   public void setParentTag(Tag parent);
+
+   /**
+    * Returns the parent <code>Tag</code> to this <code>Tag</code>.  The parent
+    * tag is the tag that encloses this tag in the template spreadsheet.
+    * @return The parent <code>Tag</code>, or <code>null</code> if none.
+    * @since 0.9.0
+    */
+   public Tag getParentTag();
+
+   /**
     * <p>Validates all attributes and attribute values.  Processes this
     * <code>Tag</code>.</p>
     * <p>For 0.3.0, the methods "checkAttributes" and "process" were removed

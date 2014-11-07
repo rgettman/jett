@@ -110,13 +110,13 @@ public class ForTag extends BaseLoopTag
 
       Map<String, RichTextString> attributes = getAttributes();
 
-      myVarName = AttributeUtil.evaluateString(context, attributes.get(ATTR_VAR), beans, null);
+      myVarName = AttributeUtil.evaluateString(this, attributes.get(ATTR_VAR), beans, null);
 
-      myStart = AttributeUtil.evaluateInt(context, attributes.get(ATTR_START), beans, ATTR_START, 0);
+      myStart = AttributeUtil.evaluateInt(this, attributes.get(ATTR_START), beans, ATTR_START, 0);
 
-      myEnd = AttributeUtil.evaluateInt(context, attributes.get(ATTR_END), beans, ATTR_END, 0);
+      myEnd = AttributeUtil.evaluateInt(this, attributes.get(ATTR_END), beans, ATTR_END, 0);
 
-      myStep = AttributeUtil.evaluateNonZeroInt(context, attributes.get(ATTR_STEP), beans, ATTR_STEP, 1);
+      myStep = AttributeUtil.evaluateNonZeroInt(this, attributes.get(ATTR_STEP), beans, ATTR_STEP, 1);
    }
 
    /**

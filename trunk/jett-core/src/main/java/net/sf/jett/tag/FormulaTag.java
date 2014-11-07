@@ -115,7 +115,7 @@ public class FormulaTag extends BaseTag
       RichTextString formulaBean = attributes.get(ATTR_BEAN);
       RichTextString formulaText = attributes.get(ATTR_TEXT);
 
-      AttributeUtil.ensureExactlyOneExists(Arrays.asList(formulaBean, formulaText), Arrays.asList(ATTR_BEAN, ATTR_TEXT));
+      AttributeUtil.ensureExactlyOneExists(this, Arrays.asList(formulaBean, formulaText), Arrays.asList(ATTR_BEAN, ATTR_TEXT));
       if (formulaBean != null)
       {
          myFormulaExpression = Expression.evaluateString("${" + formulaBean.toString() + "}", beans).toString();

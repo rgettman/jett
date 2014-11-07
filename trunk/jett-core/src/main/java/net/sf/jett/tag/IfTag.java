@@ -137,7 +137,7 @@ public class IfTag extends BaseTag
       Map<String, RichTextString> attributes = getAttributes();
       Block block = context.getBlock();
 
-      String elseAction = AttributeUtil.evaluateStringSpecificValues(context, attributes.get(ATTR_ELSE_ACTION), beans,
+      String elseAction = AttributeUtil.evaluateStringSpecificValues(this, attributes.get(ATTR_ELSE_ACTION), beans,
          ATTR_ELSE_ACTION,
          Arrays.asList(ELSE_ACTION_SHIFT_UP, ELSE_ACTION_SHIFT_LEFT, ELSE_ACTION_CLEAR, ELSE_ACTION_REMOVE),
          ELSE_ACTION_SHIFT_UP);
@@ -174,7 +174,7 @@ public class IfTag extends BaseTag
 
       Map<String, RichTextString> attributes = getAttributes();
 
-      boolean condition = AttributeUtil.evaluateBoolean(context, attributes.get(ATTR_TEST), beans, true);
+      boolean condition = AttributeUtil.evaluateBoolean(this, attributes.get(ATTR_TEST), beans, true);
 
       if (isBodiless())
       {
