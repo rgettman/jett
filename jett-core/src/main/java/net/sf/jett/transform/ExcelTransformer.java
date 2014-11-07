@@ -832,8 +832,11 @@ public class ExcelTransformer
       context.setRegistry(myRegistry);
       context.setFixedSizeCollectionNames(myFixedSizeCollectionNames);
       context.setNoImplicitCollectionProcessingNames(myNoImplicitProcessingCollectionNames);
-      Map<String, Formula> formulaMap = createFormulaMap(workbook, transformer);
+      Map<String, Formula> formulaMap = new HashMap<String, Formula>();
+      Map<String, String> tagLocationsMap = new HashMap<String, String>();
+      createFormulaAndCellMaps(workbook, transformer, formulaMap, tagLocationsMap);
       context.setFormulaMap(formulaMap);
+      context.setTagLocationsMap(tagLocationsMap);
       Map<String, List<CellRef>> cellRefMap = FormulaUtil.createCellRefMap(formulaMap);
       context.setCellRefMap(cellRefMap);
       CellStyleCache csCache = new CellStyleCache(workbook);
@@ -850,6 +853,11 @@ public class ExcelTransformer
          {
             System.err.println("  " + key + " => " + formulaMap.get(key));
          }
+         System.err.println("Tag Locations Map:");
+         for (String cellRef : tagLocationsMap.keySet())
+         {
+            System.err.println("  " + cellRef + " => " + tagLocationsMap.get(cellRef));
+         }
          System.err.println("Cell Ref Map:");
          for (String key : cellRefMap.keySet())
          {
@@ -865,21 +873,27 @@ public class ExcelTransformer
 
    /**
     * Searches for <code>Formulas</code> in the given <code>Workbook</code>.
+    * Also creates a <code>Map</code> of current cell references to original
+    * cell references, which is used when creating cell-specific exception
+    * messages.
     * @param workbook The <code>Workbook</code> in which to search.
     * @param transformer A <code>SheetTransformer</code> that searches
     *    individual <code>Sheets</code> within <code>workbook</code>.
-    * @return A <code>Map</code> of strings to <code>Formulas</code>.  The keys
-    *    are strings of the format "sheetName!formulaText".
+    * @param formulaMap Stores map entries of strings to <code>Formulas</code>
+    *    in this <code>Map</code>.  The keys are strings of the format
+    *    "sheetName!formulaText".
+    * @param tagLocationsMap Stores map entries of current cell reference
+    *    strings to original cell reference strings, e.g. "Sheet1!B1" =>
+    *    "Sheet1!B1".
     */
-   private Map<String, Formula> createFormulaMap(Workbook workbook, SheetTransformer transformer)
+   private void createFormulaAndCellMaps(Workbook workbook, SheetTransformer transformer,
+      Map<String, Formula> formulaMap, Map<String, String> tagLocationsMap)
    {
-      Map<String, Formula> formulaMap = new HashMap<String, Formula>();
       for (int i = 0; i < workbook.getNumberOfSheets(); i++)
       {
          Sheet sheet = workbook.getSheetAt(i);
-         transformer.gatherFormulas(sheet, formulaMap);
+         transformer.gatherFormulasAndTagLocations(sheet, formulaMap, tagLocationsMap);
       }
-      return formulaMap;
    }
 
    /**

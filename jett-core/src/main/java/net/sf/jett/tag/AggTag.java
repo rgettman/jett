@@ -194,33 +194,33 @@ public class AggTag extends BaseTag
       Map<String, Object> beans = context.getBeans();
       Map<String, RichTextString> attributes = getAttributes();
 
-      myList = AttributeUtil.evaluateObject(context, attributes.get(ATTR_ITEMS), beans, ATTR_ITEMS, List.class, null);
+      myList = AttributeUtil.evaluateObject(this, attributes.get(ATTR_ITEMS), beans, ATTR_ITEMS, List.class, null);
 
-      List<String> aggsList = AttributeUtil.evaluateList(context, attributes.get(ATTR_AGGS), beans, null);
+      List<String> aggsList = AttributeUtil.evaluateList(this, attributes.get(ATTR_AGGS), beans, null);
       myAggs = new ArrayList<Aggregator>(aggsList.size());
       for (String aggSpec : aggsList)
          myAggs.add(Aggregator.getAggregator(aggSpec));
 
-      myAggsVar = AttributeUtil.evaluateString(context, attributes.get(ATTR_AGGS_VAR), beans, null);
+      myAggsVar = AttributeUtil.evaluateString(this, attributes.get(ATTR_AGGS_VAR), beans, null);
 
-      myValuesVar = AttributeUtil.evaluateString(context, attributes.get(ATTR_VALUES_VAR), beans, null);
+      myValuesVar = AttributeUtil.evaluateString(this, attributes.get(ATTR_VALUES_VAR), beans, null);
 
-      List<String> groupByProps = AttributeUtil.evaluateList(context, attributes.get(ATTR_GROUP_BY), beans, new ArrayList<String>());
+      List<String> groupByProps = AttributeUtil.evaluateList(this, attributes.get(ATTR_GROUP_BY), beans, new ArrayList<String>());
 
-      int parallelism = AttributeUtil.evaluatePositiveInt(context, attributes.get(ATTR_PARALLEL), beans, ATTR_PARALLEL, 1);
+      int parallelism = AttributeUtil.evaluatePositiveInt(this, attributes.get(ATTR_PARALLEL), beans, ATTR_PARALLEL, 1);
 
-      boolean useMsd = AttributeUtil.evaluateBoolean(context, attributes.get(ATTR_USE_MSD), beans, false);
+      boolean useMsd = AttributeUtil.evaluateBoolean(this, attributes.get(ATTR_USE_MSD), beans, false);
 
       RichTextString rtsRollup = attributes.get(ATTR_ROLLUP);
       RichTextString rtsRollups = attributes.get(ATTR_ROLLUPS);
       RichTextString rtsCube = attributes.get(ATTR_CUBE);
       RichTextString rtsGroupingSets = attributes.get(ATTR_GROUPING_SETS);
-      AttributeUtil.ensureAtMostOneExists(Arrays.asList(rtsRollup, rtsRollups, rtsCube, rtsGroupingSets),
+      AttributeUtil.ensureAtMostOneExists(this, Arrays.asList(rtsRollup, rtsRollups, rtsCube, rtsGroupingSets),
          Arrays.asList(ATTR_ROLLUP, ATTR_ROLLUPS, ATTR_CUBE, ATTR_GROUPING_SETS));
-      List<Integer> rollup = AttributeUtil.evaluateIntegerArray(context, rtsRollup, beans, null);
-      List<Integer> cube = AttributeUtil.evaluateIntegerArray(context, attributes.get(ATTR_CUBE), beans, null);
-      List<List<Integer>> rollups = AttributeUtil.evaluateIntegerArrayArray(context, rtsRollups, beans, null);
-      List<List<Integer>> groupingSets = AttributeUtil.evaluateIntegerArrayArray(context, rtsGroupingSets, beans, null);
+      List<Integer> rollup = AttributeUtil.evaluateIntegerArray(this, rtsRollup, beans, null);
+      List<Integer> cube = AttributeUtil.evaluateIntegerArray(this, attributes.get(ATTR_CUBE), beans, null);
+      List<List<Integer>> rollups = AttributeUtil.evaluateIntegerArrayArray(this, rtsRollups, beans, null);
+      List<List<Integer>> groupingSets = AttributeUtil.evaluateIntegerArrayArray(this, rtsGroupingSets, beans, null);
 
       Aggregation.Builder builder = new Aggregation.Builder()
          .setAggregators(myAggs)

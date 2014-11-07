@@ -143,7 +143,7 @@ public class StyleTag extends BaseTag
 
       myStyle = new Style();
 
-      List<String> styleClasses = AttributeUtil.evaluateList(context, attributes.get(ATTR_CLASS), beans, null);
+      List<String> styleClasses = AttributeUtil.evaluateList(this, attributes.get(ATTR_CLASS), beans, null);
       if (styleClasses != null)
       {
          for (String styleClass : styleClasses)
@@ -154,7 +154,7 @@ public class StyleTag extends BaseTag
          }
       }
 
-      String line = AttributeUtil.evaluateString(context, attributes.get(ATTR_STYLE), beans, null);
+      String line = AttributeUtil.evaluateString(this, attributes.get(ATTR_STYLE), beans, null);
       if (line != null)
       {
          String[] styles = line.split(SPLIT_SPEC);

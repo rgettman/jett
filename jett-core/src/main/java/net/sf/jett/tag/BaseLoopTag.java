@@ -249,13 +249,13 @@ public abstract class BaseLoopTag extends BaseTag
       Map<String, RichTextString> attributes = getAttributes();
       Block block = context.getBlock();
 
-      amIExplicitlyCopyingRight = AttributeUtil.evaluateBoolean(context, attributes.get(ATTR_COPY_RIGHT), beans, false);
+      amIExplicitlyCopyingRight = AttributeUtil.evaluateBoolean(this, attributes.get(ATTR_COPY_RIGHT), beans, false);
       if (amIExplicitlyCopyingRight)
          block.setDirection(Block.Direction.HORIZONTAL);
 
-      amIFixed = AttributeUtil.evaluateBoolean(context, attributes.get(ATTR_FIXED), beans, false);
+      amIFixed = AttributeUtil.evaluateBoolean(this, attributes.get(ATTR_FIXED), beans, false);
 
-      String strPastEndAction = AttributeUtil.evaluateStringSpecificValues(context, attributes.get(ATTR_PAST_END_ACTION), beans,
+      String strPastEndAction = AttributeUtil.evaluateStringSpecificValues(this, attributes.get(ATTR_PAST_END_ACTION), beans,
          ATTR_PAST_END_ACTION,
          Arrays.asList(PAST_END_ACTION_CLEAR, PAST_END_ACTION_REMOVE, PAST_END_ACTION_REPLACE_EXPR),
          PAST_END_ACTION_CLEAR);
@@ -266,9 +266,9 @@ public abstract class BaseLoopTag extends BaseTag
       else if (PAST_END_ACTION_REPLACE_EXPR.equalsIgnoreCase(strPastEndAction))
          myPastEndAction = PastEndAction.REPLACE_EXPR;
 
-      myReplaceExprValue = AttributeUtil.evaluateString(context, attributes.get(ATTR_REPLACE_VALUE), beans, "");
+      myReplaceExprValue = AttributeUtil.evaluateString(this, attributes.get(ATTR_REPLACE_VALUE), beans, "");
 
-      String strGroupDir = AttributeUtil.evaluateStringSpecificValues(context, attributes.get(ATTR_GROUP_DIR), beans,
+      String strGroupDir = AttributeUtil.evaluateStringSpecificValues(this, attributes.get(ATTR_GROUP_DIR), beans,
          ATTR_GROUP_DIR, Arrays.asList(GROUP_DIR_ROWS, GROUP_DIR_COLS, GROUP_DIR_NONE), GROUP_DIR_NONE);
       if (GROUP_DIR_ROWS.equals(strGroupDir))
          myGroupDir = Block.Direction.VERTICAL;
@@ -277,9 +277,9 @@ public abstract class BaseLoopTag extends BaseTag
       else if (GROUP_DIR_NONE.equals(strGroupDir))
             myGroupDir = Block.Direction.NONE;
 
-      amICollapsed = AttributeUtil.evaluateBoolean(context, attributes.get(ATTR_COLLAPSE), beans, false);
+      amICollapsed = AttributeUtil.evaluateBoolean(this, attributes.get(ATTR_COLLAPSE), beans, false);
 
-      myTagLoopListener = AttributeUtil.evaluateObject(context, attributes.get(ATTR_ON_LOOP_PROCESSED), beans,
+      myTagLoopListener = AttributeUtil.evaluateObject(this, attributes.get(ATTR_ON_LOOP_PROCESSED), beans,
          ATTR_ON_LOOP_PROCESSED, TagLoopListener.class, null);
    }
 
@@ -480,6 +480,7 @@ public abstract class BaseLoopTag extends BaseTag
                blockContext.setProcessedCellsMap(context.getProcessedCellsMap());
                blockContext.setDrawing(context.getDrawing());
                blockContext.setMergedRegions(context.getMergedRegions());
+               blockContext.setCurrentTag(this);
                if (DEBUG)
                   System.err.println("  Block Before: " + currBlock);
                right = currBlock.getRightColNum();

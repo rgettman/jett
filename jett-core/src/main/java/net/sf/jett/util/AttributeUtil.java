@@ -6,15 +6,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.RichTextString;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
 
 import net.sf.jett.exception.AttributeExpressionException;
 import net.sf.jett.expression.Expression;
-import net.sf.jett.model.Block;
-import net.sf.jett.tag.TagContext;
+import net.sf.jett.tag.Tag;
 
 /**
  * The <code>AttributeUtil</code> class provides methods for
@@ -48,41 +44,51 @@ public class AttributeUtil
    private AttributeUtil() { }
 
    /**
-    * Returns the location of the attribute.
-    * @param tagContext A <code>TagContext</code>.
-    * @return The location of the attribute, or <code>""</code> if no
-    *    <code>TagContext</code> was provided.
-    * @since 0.7.0
-    */
-   private static String getLocation(TagContext tagContext)
-   {
-      if (tagContext == null)
-         return "";
-
-      Block block = tagContext.getBlock();
-      Sheet sheet = tagContext.getSheet();
-      int left = block.getLeftColNum();
-      int top = block.getTopRowNum();
-      // It should exist in this Cell; this Tag was found in it.
-      Row row = sheet.getRow(top);
-      Cell cell = row.getCell(left);
-
-      return SheetUtil.getCellLocation(cell);
-   }
-
-   /**
     * Helper method to throw an <code>AttributeExpressionException</code> with
     * a common message indicating that a null value resulted, or an expected
     * variable was missing when attempting to evaluate an expression inside an
     * attribute value.
-    * @param tagContext A <code>TagContext</code>.
+    * @param tag The <code>Tag</code>.
     * @param expression The original expression.
     * @return <code>AttributeExpressionException</code> with a standard message.
     */
-   private static AttributeExpressionException nullValueOrExpectedVariableMissing(TagContext tagContext, String expression)
+   private static AttributeExpressionException nullValueOrExpectedVariableMissing(Tag tag, String expression)
    {
-      return new AttributeExpressionException("Null value or expected variable missing in expression \"" +
-              expression + "\"." + getLocation(tagContext));
+      return attributeValidationFailure(tag, expression,
+              "Null value or expected variable missing in expression");
+   }
+
+   /**
+    * Helper method to throw an <code>AttributeExpressionException</code> with
+    * a custom validation message.
+    * @param tag The <code>Tag</code>.
+    * @param expression The original expression.
+    * @param message The custom message.
+    * @return <code>AttributeExpressionException</code> with a custom message.
+    * @since 0.9.0
+    */
+   private static AttributeExpressionException attributeValidationFailure(Tag tag,
+      String expression, String message)
+   {
+      return new AttributeExpressionException(message + " \"" +
+              expression + "\"." + SheetUtil.getTagLocationWithHierarchy(tag));
+   }
+
+   /**
+    * Helper method to throw an <code>AttributeExpressionException</code> with
+    * a custom validation message.
+    * @param tag The <code>Tag</code>.
+    * @param expression The original expression.
+    * @param message The custom message.
+    * @param cause The <code>Exception</code> that caused the validation failure.
+    * @return <code>AttributeExpressionException</code> with a custom message.
+    * @since 0.9.0
+    */
+   private static AttributeExpressionException attributeValidationFailure(Tag tag,
+      String expression, String message, Exception cause)
+   {
+      return new AttributeExpressionException(message + " \"" +
+              expression + "\"." + SheetUtil.getTagLocationWithHierarchy(tag), cause);
    }
 
    /**
@@ -91,20 +97,21 @@ public class AttributeUtil
     * the result, calling <code>Boolean.parseBoolean()</code> on the result if
     * necessary.  If the text is null, then the result defaults to the given
     * default boolean value.
-    * @param tagContext A <code>TagContext</code>.
+    * @param tag The <code>Tag</code>.
     * @param text Text which may have embedded <code>Expressions</code>.
     * @param beans A <code>Map</code> of bean names to bean values.
     * @param def The default value if the text is null.
     * @return The boolean result.
     */
-   public static boolean evaluateBoolean(TagContext tagContext, RichTextString text, Map<String, Object> beans, boolean def)
+   public static boolean evaluateBoolean(Tag tag,
+      RichTextString text, Map<String, Object> beans, boolean def)
    {
       boolean result;
       if (text == null)
          return def;
       Object obj = Expression.evaluateString(text.toString(), beans);
       if (obj == null)
-         throw nullValueOrExpectedVariableMissing(tagContext, text.toString());
+         throw nullValueOrExpectedVariableMissing(tag, text.toString());
       if (obj instanceof Boolean)
          result = (Boolean) obj;
       else
@@ -118,7 +125,7 @@ public class AttributeUtil
     * the result, calling <code>toString()</code> on the result and parsing it
     * if necessary.  If the text is null, then the result defaults to the given
     * default integer value.
-    * @param tagContext A <code>TagContext</code>.
+    * @param tag The <code>Tag</code>.
     * @param text Text which may have embedded <code>Expressions</code>.
     * @param beans A <code>Map</code> of bean names to bean values.
     * @param attrName The attribute name.  This is only used when constructing
@@ -128,15 +135,15 @@ public class AttributeUtil
     * @throws AttributeExpressionException If the result of the evaluation of the text is
     *    not a number.
     */
-   public static int evaluateInt(TagContext tagContext, RichTextString text, Map<String, Object> beans,
-      String attrName, int def)
+   public static int evaluateInt(Tag tag,
+      RichTextString text, Map<String, Object> beans, String attrName, int def)
    {
       int result;
       if (text == null)
          return def;
       Object obj = Expression.evaluateString(text.toString(), beans);
       if (obj == null)
-         throw nullValueOrExpectedVariableMissing(tagContext, text.toString());
+         throw nullValueOrExpectedVariableMissing(tag, text.toString());
       if (obj instanceof Number)
       {
          result = ((Number) obj).intValue();
@@ -149,7 +156,8 @@ public class AttributeUtil
          }
          catch (NumberFormatException e)
          {
-            throw new AttributeExpressionException("The \"" + attrName + "\" attribute must be an integer: " + text);
+            throw attributeValidationFailure(tag, text.toString(),
+                    "The \"" + attrName + "\" attribute must be an integer");
          }
       }
       return result;
@@ -160,7 +168,7 @@ public class AttributeUtil
     * <code>Expressions</code>, and attempts to extract an integer value from
     * the result, calling <code>toString()</code> on the result and parsing it
     * if necessary.  Enforce the result to be non-negative.
-    * @param tagContext A <code>TagContext</code>.
+    * @param tag The <code>Tag</code>.
     * @param text Text which may have embedded <code>Expressions</code>.
     * @param beans A <code>Map</code> of bean names to bean values.
     * @param attrName The attribute name.  This is only used when constructing
@@ -170,13 +178,14 @@ public class AttributeUtil
     * @throws AttributeExpressionException If the result of the evaluation of the text is
     *    not a number, or if the result is negative.
     */
-   public static int evaluateNonNegativeInt(TagContext tagContext, RichTextString text, Map<String, Object> beans,
-      String attrName, int def)
+   public static int evaluateNonNegativeInt(Tag tag,
+      RichTextString text, Map<String, Object> beans, String attrName, int def)
    {
-      int result = evaluateInt(tagContext, text, beans, attrName, def);
+      int result = evaluateInt(tag, text, beans, attrName, def);
       if (result < 0)
       {
-         throw new AttributeExpressionException("The \"" + attrName + "\" attribute must be non-negative: " + result);
+         throw attributeValidationFailure(tag, text.toString(),
+                 "The \"" + attrName + "\" attribute must be non-negative");
       }
       return result;
    }
@@ -186,7 +195,7 @@ public class AttributeUtil
     * <code>Expressions</code>, and attempts to extract an integer value from
     * the result, calling <code>toString()</code> on the result and parsing it
     * if necessary.  Enforce the result to be positive.
-    * @param tagContext A <code>TagContext</code>.
+    * @param tag The <code>Tag</code>.
     * @param text Text which may have embedded <code>Expressions</code>.
     * @param beans A <code>Map</code> of bean names to bean values.
     * @param attrName The attribute name.  This is only used when constructing
@@ -196,13 +205,14 @@ public class AttributeUtil
     * @throws AttributeExpressionException If the result of the evaluation of the text is
     *    not a number, or if the result is negative.
     */
-   public static int evaluatePositiveInt(TagContext tagContext, RichTextString text, Map<String, Object> beans,
-      String attrName, int def)
+   public static int evaluatePositiveInt(Tag tag,
+      RichTextString text, Map<String, Object> beans, String attrName, int def)
    {
-      int result = evaluateInt(tagContext, text, beans, attrName, def);
+      int result = evaluateInt(tag, text, beans, attrName, def);
       if (result <= 0)
       {
-         throw new AttributeExpressionException("The \"" + attrName + "\" attribute must be positive: " + result);
+         throw attributeValidationFailure(tag, text.toString(),
+                 "The \"" + attrName + "\" attribute must be positive");
       }
       return result;
    }
@@ -212,7 +222,7 @@ public class AttributeUtil
     * <code>Expressions</code>, and attempts to extract an integer value from
     * the result, calling <code>toString()</code> on the result and parsing it
     * if necessary.  Enforce the result to be not zero.
-    * @param tagContext A <code>TagContext</code>.
+    * @param tag The <code>Tag</code>.
     * @param text Text which may have embedded <code>Expressions</code>.
     * @param beans A <code>Map</code> of bean names to bean values.
     * @param attrName The attribute name.  This is only used when constructing
@@ -222,13 +232,14 @@ public class AttributeUtil
     * @throws AttributeExpressionException If the result of the evaluation of the text is
     *    not a number, or if the result is zero.
     */
-   public static int evaluateNonZeroInt(TagContext tagContext, RichTextString text, Map<String, Object> beans,
-      String attrName, int def)
+   public static int evaluateNonZeroInt(Tag tag,
+      RichTextString text, Map<String, Object> beans, String attrName, int def)
    {
-      int result = evaluateInt(tagContext, text, beans, attrName, def);
+      int result = evaluateInt(tag, text, beans, attrName, def);
       if (result == 0)
       {
-         throw new AttributeExpressionException("The \"" + attrName + "\" attribute must not be zero: " + result);
+         throw attributeValidationFailure(tag, text.toString(),
+                 "The \"" + attrName + "\" attribute must not be zero");
       }
       return result;
    }
@@ -238,7 +249,7 @@ public class AttributeUtil
     * <code>Expressions</code>, and attempts to extract a double value from
     * the result, calling <code>toString()</code> on the result and parsing it
     * if necessary.
-    * @param tagContext A <code>TagContext</code>.
+    * @param tag The <code>Tag</code>.
     * @param text Text which may have embedded <code>Expressions</code>.
     * @param beans A <code>Map</code> of bean names to bean values.
     * @param attrName The attribute name.  This is only used when constructing
@@ -248,15 +259,15 @@ public class AttributeUtil
     * @throws AttributeExpressionException If the result of the evaluation of the text is
     *    not a number.
     */
-   public static double evaluateDouble(TagContext tagContext, RichTextString text, Map<String, Object> beans,
-      String attrName, double def)
+   public static double evaluateDouble(Tag tag,
+      RichTextString text, Map<String, Object> beans, String attrName, double def)
    {
       double result;
       if (text == null)
          return def;
       Object obj = Expression.evaluateString(text.toString(), beans);
       if (obj == null)
-         throw nullValueOrExpectedVariableMissing(tagContext, text.toString());
+         throw nullValueOrExpectedVariableMissing(tag, text.toString());
       if (obj instanceof Number)
       {
          result = ((Number) obj).doubleValue();
@@ -269,7 +280,8 @@ public class AttributeUtil
          }
          catch (NumberFormatException e)
          {
-            throw new AttributeExpressionException("The \"" + attrName + "\" attribute must be a number: " + text);
+            throw attributeValidationFailure(tag, text.toString(),
+                    "The \"" + attrName + "\" attribute must be a number");
          }
       }
       return result;
@@ -279,13 +291,14 @@ public class AttributeUtil
     * Evaluates the given text, which may have embedded
     * <code>Expressions</code>, and attempts to extract a <code>String</code>
     * result, calling <code>toString()</code> on the result.
-    * @param tagContext A <code>TagContext</code>.
+    * @param tag The <code>Tag</code>.
     * @param text Text which may have embedded <code>Expressions</code>.
     * @param beans A <code>Map</code> of bean names to bean values.
     * @param def The default value if the text is null.
     * @return The <code>String</code> result.
     */
-   public static String evaluateString(TagContext tagContext, RichTextString text, Map<String, Object> beans, String def)
+   public static String evaluateString(Tag tag,
+      RichTextString text, Map<String, Object> beans, String def)
    {
       if (text == null)
          return def;
@@ -297,7 +310,7 @@ public class AttributeUtil
     * Evaluates the given text, which may have embedded
     * <code>Expressions</code>, and attempts to extract a <code>String</code>
     * result, calling <code>toString()</code> on the result.
-    * @param tagContext A <code>TagContext</code>.
+    * @param tag The <code>Tag</code>.
     * @param text Text which may have embedded <code>Expressions</code>.
     * @param beans A <code>Map</code> of bean names to bean values.
     * @param attrName The attribute name.  This is only used when constructing
@@ -305,12 +318,15 @@ public class AttributeUtil
     * @param def The default value if the text is null.
     * @return The <code>String</code> result.
     */
-   public static String evaluateStringNotNull(TagContext tagContext, RichTextString text, Map<String, Object> beans,
-      String attrName, String def)
+   public static String evaluateStringNotNull(Tag tag,
+      RichTextString text, Map<String, Object> beans, String attrName, String def)
    {
-      String result = evaluateString(tagContext, text, beans, def);
+      String result = evaluateString(tag, text, beans, def);
       if (result == null || result.length() == 0)
-         throw new AttributeExpressionException("Value for \"" + attrName + "\" must not be null or empty: " + text.toString());
+      {
+         throw attributeValidationFailure(tag, text.toString(),
+                 "Value for \"" + attrName + "\" must not be null or empty");
+      }
       return result;
    }
 
@@ -319,7 +335,7 @@ public class AttributeUtil
     * <code>Expressions</code>, and attempts to extract a <code>String</code>
     * result, calling <code>toString()</code> on the result.  Enforces that the
     * result is one of the given expected values, ignoring case.
-    * @param tagContext A <code>TagContext</code>.
+    * @param tag The <code>Tag</code>.
     * @param text Text which may have embedded <code>Expressions</code>.
     * @param beans A <code>Map</code> of bean names to bean values.
     * @param attrName The attribute name.  This is only used when constructing
@@ -330,16 +346,17 @@ public class AttributeUtil
     * @throws AttributeExpressionException If the result isn't one of the expected legal
     *    values.
     */
-   public static String evaluateStringSpecificValues(TagContext tagContext, RichTextString text, Map<String, Object> beans,
-      String attrName, List<String> legalValues, String def)
+   public static String evaluateStringSpecificValues(Tag tag,
+      RichTextString text, Map<String, Object> beans, String attrName, List<String> legalValues, String def)
    {
-      String result = evaluateString(tagContext, text, beans, def);
+      String result = evaluateString(tag, text, beans, def);
       for (String legalValue : legalValues)
       {
          if (legalValue.equalsIgnoreCase(result))
             return result;
       }
-      throw new AttributeExpressionException("Unknown value for \"" + attrName + "\": " + result +
+      throw attributeValidationFailure(tag, text.toString(),
+          "Unknown value for \"" + attrName + "\": " + result +
           " (expected one of " + legalValues.toString() + ").");
    }
 
@@ -347,7 +364,7 @@ public class AttributeUtil
     * Evaluates the given text, which may have embedded
     * <code>Expressions</code>, and attempts to extract a result, and cast it
     * to the same class as the given expected class.
-    * @param tagContext A <code>TagContext</code>.
+    * @param tag The <code>Tag</code>.
     * @param text Text which may have embedded <code>Expressions</code>.
     * @param beans A <code>Map</code> of bean names to bean values.
     * @param attrName The attribute name.  This is only used when constructing
@@ -360,20 +377,20 @@ public class AttributeUtil
     *    of a subclass.
     */
    @SuppressWarnings("unchecked")
-   public static <T> T evaluateObject(TagContext tagContext, RichTextString text, Map<String, Object> beans, String attrName,
-      Class<T> expectedClass, T def)
+   public static <T> T evaluateObject(Tag tag,
+      RichTextString text, Map<String, Object> beans, String attrName, Class<T> expectedClass, T def)
    {
       if (text == null)
          return def;
 
-      return evaluateObject(tagContext, text.toString(), beans, attrName, expectedClass, def);
+      return evaluateObject(tag, text.toString(), beans, attrName, expectedClass, def);
    }
 
    /**
     * Evaluates the given text, which may have embedded
     * <code>Expressions</code>, and attempts to extract a result, and cast it
     * to the same class as the given expected class.
-    * @param tagContext A <code>TagContext</code>.
+    * @param tag The <code>Tag</code>.
     * @param text Text which may have embedded <code>Expressions</code>.
     * @param beans A <code>Map</code> of bean names to bean values.
     * @param attrName The attribute name.  This is only used when constructing
@@ -386,15 +403,15 @@ public class AttributeUtil
     *    of a subclass.
     */
    @SuppressWarnings("unchecked")
-   public static <T> T evaluateObject(TagContext tagContext, String text, Map<String, Object> beans, String attrName,
-      Class<T> expectedClass, T def)
+   public static <T> T evaluateObject(Tag tag,
+      String text, Map<String, Object> beans, String attrName, Class<T> expectedClass, T def)
    {
       T result;
       if (text == null)
          return def;
       Object obj = Expression.evaluateString(text, beans);
       if (obj == null)
-         throw nullValueOrExpectedVariableMissing(tagContext, text);
+         throw nullValueOrExpectedVariableMissing(tag, text);
       Class objClass = obj.getClass();
       if (expectedClass.isAssignableFrom(objClass))
       {
@@ -411,35 +428,35 @@ public class AttributeUtil
             result = actualClass.newInstance();
             if (!expectedClass.isInstance(result))
             {
-               throw new AttributeExpressionException("Expected a \"" + expectedClass.getName() + "\" for \"" +
+               throw attributeValidationFailure(tag, text, "Expected a \"" + expectedClass.getName() + "\" for \"" +
                   attrName + "\", but instantiated a \"" + className + "\".");
             }
          }
          catch (ClassNotFoundException e)
          {
-            throw new AttributeExpressionException("Expected a \"" + expectedClass.getName() + "\" for \"" +
-               attrName + "\", could not find class \"" + className + "\": " + text, e);
+            throw attributeValidationFailure(tag, text, "Expected a \"" + expectedClass.getName() + "\" for \"" +
+               attrName + "\", could not find class \"" + className + "\"", e);
          }
          catch (InstantiationException e)
          {
-            throw new AttributeExpressionException("Expected a \"" + expectedClass.getName() + "\" for \"" +
-               attrName + "\", could not instantiate class \"" + className + "\": " + text, e);
+            throw attributeValidationFailure(tag, text, "Expected a \"" + expectedClass.getName() + "\" for \"" +
+               attrName + "\", could not instantiate class \"" + className + "\": ", e);
          }
          catch (IllegalAccessException e)
          {
-            throw new AttributeExpressionException("Expected a \"" + expectedClass.getName() + "\" for \"" +
-               attrName + "\", could not instantiate class \"" + className + "\": " + text, e);
+            throw attributeValidationFailure(tag, text, "Expected a \"" + expectedClass.getName() + "\" for \"" +
+               attrName + "\", could not instantiate class \"" + className + "\": ", e);
          }
          catch (ClassCastException e)
          {
-            throw new AttributeExpressionException("Expected a \"" + expectedClass.getName() + "\" for \"" +
-               attrName + "\", could not instantiate class \"" + className + "\": " + text, e);
+            throw attributeValidationFailure(tag, text, "Expected a \"" + expectedClass.getName() + "\" for \"" +
+               attrName + "\", could not instantiate class \"" + className + "\": ", e);
          }
       }
       else
       {
-         throw new AttributeExpressionException("Expected a \"" + expectedClass.getName() + "\" for \"" +
-               attrName + "\", got a \"" + obj.getClass().getName() + "\": " + text);
+         throw attributeValidationFailure(tag, text, "Expected a \"" + expectedClass.getName() + "\" for \"" +
+               attrName + "\", got a \"" + obj.getClass().getName() + "\": ");
       }
       return result;
    }
@@ -448,21 +465,21 @@ public class AttributeUtil
     * Evaluates the given text, which may have embedded
     * <code>Expressions</code>, and attempts to extract a <code>List</code> out
     * of the result, parsing a delimited list to create a list if necessary.
-    * @param tagContext A <code>TagContext</code>.
+    * @param tag The <code>Tag</code>.
     * @param text Text which may have embedded <code>Expressions</code>.
     * @param beans A <code>Map</code> of bean names to bean values.
     * @param def The default value if the text is null.
     * @return A <code>List</code>.
     */
-   public static List<String> evaluateList(TagContext tagContext, RichTextString text, Map<String, Object> beans,
-      List<String> def)
+   public static List<String> evaluateList(Tag tag,
+      RichTextString text, Map<String, Object> beans, List<String> def)
    {
       List<String> result;
       if (text == null)
          return def;
       Object obj = Expression.evaluateString(text.toString(), beans);
       if (obj == null)
-         throw nullValueOrExpectedVariableMissing(tagContext, text.toString());
+         throw nullValueOrExpectedVariableMissing(tag, text.toString());
       if (obj instanceof List)
       {
          List list = (List) obj;
@@ -489,21 +506,21 @@ public class AttributeUtil
     * <li>(ArrayList){0, 1, 2}
     * <li>"0; 1; 2"
     * </ul>
-    * @param tagContext A <code>TagContext</code>.
+    * @param tag The <code>Tag</code>.
     * @param text Text which may have embedded <code>Expressions</code>.
     * @param beans A <code>Map</code> of bean names to bean values.
     * @param def The default value if the text is null.
     * @return A <code>List</code> of <code>Integers</code>.
     */
-   public static List<Integer> evaluateIntegerArray(TagContext tagContext, RichTextString text, Map<String, Object> beans,
-      List<Integer> def)
+   public static List<Integer> evaluateIntegerArray(Tag tag,
+      RichTextString text, Map<String, Object> beans, List<Integer> def)
    {
       List<Integer> result = new ArrayList<Integer>();
       if (text == null)
          return def;
       Object obj = Expression.evaluateString(text.toString(), beans);
       if (obj == null)
-         throw nullValueOrExpectedVariableMissing(tagContext, text.toString());
+         throw nullValueOrExpectedVariableMissing(tag, text.toString());
       if (obj instanceof int[])
       {
          int[] intArray = (int[]) obj;
@@ -533,7 +550,8 @@ public class AttributeUtil
                }
                catch (NumberFormatException e)
                {
-                  throw new AttributeExpressionException("Expected an integer, got " + o.toString(), e);
+                  throw attributeValidationFailure(tag, text.toString(),
+                          "Expected an integer, got " + o.toString(), e);
                }
             }
          }
@@ -549,7 +567,8 @@ public class AttributeUtil
             }
             catch (NumberFormatException e)
             {
-               throw new AttributeExpressionException("Expected an integer, got " + item, e);
+               throw attributeValidationFailure(tag, text.toString(),
+                       "Expected an integer, got " + item, e);
             }
          }
       }
@@ -569,22 +588,22 @@ public class AttributeUtil
     * <li>(ArrayList){(ArrayList){0, 1}, (ArrayList){2}}
     * <li>"0, 1; 2"
     * </ul>
-    * @param tagContext A <code>TagContext</code>.
+    * @param tag The <code>Tag</code>.
     * @param text Text which may have embedded <code>Expressions</code>.
     * @param beans A <code>Map</code> of bean names to bean values.
     * @param def The default value if the text is null.
     * @return A <code>List</code> of <code>Lists</code> of
     *    <code>Integers</code>.
     */
-   public static List<List<Integer>> evaluateIntegerArrayArray(TagContext tagContext, RichTextString text,
-      Map<String, Object> beans, List<List<Integer>> def)
+   public static List<List<Integer>> evaluateIntegerArrayArray(Tag tag,
+      RichTextString text, Map<String, Object> beans, List<List<Integer>> def)
    {
       List<List<Integer>> result = new ArrayList<List<Integer>>();
       if (text == null)
          return def;
       Object obj = Expression.evaluateString(text.toString(), beans);
       if (obj == null)
-         throw nullValueOrExpectedVariableMissing(tagContext, text.toString());
+         throw nullValueOrExpectedVariableMissing(tag, text.toString());
       if (obj instanceof int[][])
       {
          int[][] intArray = (int[][]) obj;
@@ -630,7 +649,8 @@ public class AttributeUtil
                      }
                      catch (NumberFormatException e)
                      {
-                        throw new AttributeExpressionException("Expected an integer, got " + o.toString(), e);
+                        throw attributeValidationFailure(tag, text.toString(),
+                                "Expected an integer, got " + o.toString(), e);
                      }
                   }
                }
@@ -653,7 +673,8 @@ public class AttributeUtil
                }
                catch (NumberFormatException e)
                {
-                  throw new AttributeExpressionException("Expected an integer, got " + item, e);
+                  throw attributeValidationFailure(tag, text.toString(),
+                          "Expected an integer, got " + item, e);
                }
             }
             result.add(innerList);
@@ -665,12 +686,14 @@ public class AttributeUtil
 
    /**
     * Ensures that exactly one of the given attribute values exists.
+    * @param tag The <code>Tag</code>.
     * @param attrValues A <code>List</code> of attribute values.
     * @param attrNames A <code>List</code> of attribute names.
     * @throws AttributeExpressionException If none of the attribute values is not null, or
     *    if more than one attribute value is not null.
     */
-   public static void ensureExactlyOneExists(List<RichTextString> attrValues, List<String> attrNames)
+   public static void ensureExactlyOneExists(Tag tag,
+      List<RichTextString> attrValues, List<String> attrNames)
    {
       int exists = 0;
       for (RichTextString text : attrValues)
@@ -680,25 +703,29 @@ public class AttributeUtil
             exists++;
             if (exists > 1)
             {
-               throw new AttributeExpressionException("Exactly one attribute must be specified: " + attrNames.toString());
+               throw attributeValidationFailure(tag, attrNames.toString(),
+                       "Exactly one attribute must be specified");
             }
          }
       }
       if (exists != 1)
       {
-         throw new AttributeExpressionException("Exactly one attribute must be specified: " + attrNames.toString());
+         throw attributeValidationFailure(tag, attrNames.toString(),
+                 "Exactly one attribute must be specified");
       }
    }
 
    /**
     * Ensures that at most one of the given attribute values exists.
+    * @param tag The <code>Tag</code>.
     * @param attrValues A <code>List</code> of attribute values.
     * @param attrNames A <code>List</code> of attribute names.
     * @throws AttributeExpressionException If more than one of the attribute values is not
     *    null.
     * @since 0.4.0
     */
-   public static void ensureAtMostOneExists(List<RichTextString> attrValues, List<String> attrNames)
+   public static void ensureAtMostOneExists(Tag tag,
+      List<RichTextString> attrValues, List<String> attrNames)
    {
       int exists = 0;
       for (RichTextString text : attrValues)
@@ -708,30 +735,34 @@ public class AttributeUtil
             exists++;
             if (exists > 1)
             {
-               throw new AttributeExpressionException("At most one attribute must be specified: " + attrNames.toString());
+               throw attributeValidationFailure(tag, attrNames.toString(),
+                       "At most one attribute must be specified");
             }
          }
       }
       if (exists != 1 && exists != 0)
       {
-         throw new AttributeExpressionException("At most one attribute must be specified: " + attrNames.toString());
+         throw attributeValidationFailure(tag, attrNames.toString(),
+                 "At most one attribute must be specified");
       }
    }
 
    /**
     * Ensures that at least one of the given attribute values exists.
+    * @param tag The <code>Tag</code>.
     * @param attrValues A <code>List</code> of attribute values.
     * @param attrNames A <code>List</code> of attribute names.
     * @throws AttributeExpressionException If all of the attribute values are null.
     * @since 0.4.0
     */
-   public static void ensureAtLeastOneExists(List<RichTextString> attrValues, List<String> attrNames)
+   public static void ensureAtLeastOneExists(Tag tag,
+      List<RichTextString> attrValues, List<String> attrNames)
    {
       for (RichTextString text : attrValues)
       {
          if (text != null)
             return;
       }
-      throw new AttributeExpressionException("At least one attribute must be specified: " + attrNames.toString());
+      throw attributeValidationFailure(tag, attrNames.toString(), "At least one attribute must be specified");
    }
 }

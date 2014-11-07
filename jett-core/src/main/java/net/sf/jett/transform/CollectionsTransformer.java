@@ -220,6 +220,8 @@ public class CollectionsTransformer
       MultiForEachTag tag = new MultiForEachTag();
       tag.setContext(context);
       tag.setWorkbookContext(workbookContext);
+      tag.setParentTag(cellContext.getCurrentTag());
+      context.setCurrentTag(tag);
       // Set the Tag's attributes.
       Map<String, RichTextString> attributes = new HashMap<String, RichTextString>();
       StringBuilder buf = new StringBuilder();

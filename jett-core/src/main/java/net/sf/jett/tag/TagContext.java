@@ -24,6 +24,8 @@ public class TagContext
    private Map<String, Cell> myProcessedCells;
    private Drawing myDrawing;
    private List<CellRangeAddress> myMergedRegions;
+   private List<List<CellRangeAddress>> myConditionalFormattingRegions;
+   private Tag myCurrTag;
 
    /**
     * Construct a <code>TagContext</code>, initializing things to null.
@@ -35,6 +37,7 @@ public class TagContext
       myBeans = null;
       myDrawing = null;
       myMergedRegions = null;
+      myConditionalFormattingRegions = null;
    }
 
    /**
@@ -178,5 +181,57 @@ public class TagContext
    public List<CellRangeAddress> getMergedRegions()
    {
       return myMergedRegions;
+   }
+   
+   /**
+    * Sets the <code>List</code> of <code>Lists</code> of
+    * <code>CellRangeAddress</code> objects to be manipulated through this
+    * <code>TagContext</code>.  All conditional formatting range manipulation
+    * for a <code>Sheet</code> goes through this list.  Each individual list
+    * inside the outer list represents the updated cell range addresses for the
+    * <code>ConditionalFormatting</code> at the corresponding index.
+    * @param conditionalFormattingRegions A <code>List</code> of <code>Lists</code> of
+    *    <code>CellRangeAddress</code>es.
+    * @since 0.9.0
+    */
+   public void setConditionalFormattingRegions(List<List<CellRangeAddress>> conditionalFormattingRegions)
+   {
+      myConditionalFormattingRegions = conditionalFormattingRegions;
+   }
+
+   /**
+    * Returns the <code>List</code> of <code>Lists</code> of
+    * <code>CellRangeAddress</code> objects to be manipulated through this
+    * <code>TagContext</code>.  All conditional formatting range manipulation
+    * for a <code>Sheet</code> goes through this list.  Each individual list
+    * inside the outer list represents the updated cell range addresses for the
+    * <code>ConditionalFormatting</code> at the corresponding index.
+    * @return A <code>List</code> of <code>Lists</code> of
+    *    <code>CellRangeAddress</code>es.
+    * @since 0.9.0
+    */
+   public List<List<CellRangeAddress>> getConditionalFormattingRegions()
+   {
+      return myConditionalFormattingRegions;
+   }
+
+   /**
+    * Returns the current <code>Tag</code> for this context.
+    * @return The current <code>Tag</code> for this context.
+    * @since 0.9.0
+    */
+   public Tag getCurrentTag()
+   {
+      return myCurrTag;
+   }
+
+   /**
+    * Sets the current <code>Tag</code> for this context.
+    * @param tag The current <code>Tag</code> for this context.
+    * @since 0.9.0
+    */
+   public void setCurrentTag(Tag tag)
+   {
+      myCurrTag = tag;
    }
 }

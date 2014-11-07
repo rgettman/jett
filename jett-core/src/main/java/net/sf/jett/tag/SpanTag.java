@@ -130,11 +130,11 @@ public class SpanTag extends BaseTag
       myValue = attributes.get(ATTR_VALUE);
 
       List<RichTextString> atLeastOne = Arrays.asList(attributes.get(ATTR_FACTOR), attributes.get(ATTR_ADJUST));
-      AttributeUtil.ensureAtLeastOneExists(atLeastOne, Arrays.asList(ATTR_FACTOR, ATTR_ADJUST));
-      myFactor = AttributeUtil.evaluateNonNegativeInt(context, attributes.get(ATTR_FACTOR), beans, ATTR_FACTOR, 1);
-      myAdjust = AttributeUtil.evaluateInt(context, attributes.get(ATTR_ADJUST), beans, ATTR_ADJUST, 0);
+      AttributeUtil.ensureAtLeastOneExists(this, atLeastOne, Arrays.asList(ATTR_FACTOR, ATTR_ADJUST));
+      myFactor = AttributeUtil.evaluateNonNegativeInt(this, attributes.get(ATTR_FACTOR), beans, ATTR_FACTOR, 1);
+      myAdjust = AttributeUtil.evaluateInt(this, attributes.get(ATTR_ADJUST), beans, ATTR_ADJUST, 0);
 
-      boolean explicitlyExpandingRight = AttributeUtil.evaluateBoolean(context, attributes.get(ATTR_EXPAND_RIGHT), beans, false);
+      boolean explicitlyExpandingRight = AttributeUtil.evaluateBoolean(this, attributes.get(ATTR_EXPAND_RIGHT), beans, false);
       if (explicitlyExpandingRight)
          block.setDirection(Block.Direction.HORIZONTAL);
       else

@@ -225,7 +225,7 @@ public class MultiForEachTag extends BaseLoopTag
          if (!(items instanceof Collection))
             throw new TagParseException("One of the items in the \"collections\" attribute is not a Collection in MultiForEach tag found"
                + getLocation() + ": " + collExpression);
-         Collection<Object> collection = AttributeUtil.evaluateObject(context, collExpression.trim(), beans, ATTR_COLLECTIONS,
+         Collection<Object> collection = AttributeUtil.evaluateObject(this, collExpression.trim(), beans, ATTR_COLLECTIONS,
             Collection.class, null);
          myCollections.add(collection);
          // Collection names.
@@ -235,7 +235,7 @@ public class MultiForEachTag extends BaseLoopTag
 
       }
 
-      myVarNames = AttributeUtil.evaluateList(context, attributes.get(ATTR_VARS), beans, new ArrayList<String>(0));
+      myVarNames = AttributeUtil.evaluateList(this, attributes.get(ATTR_VARS), beans, new ArrayList<String>(0));
 
       if (myCollections.size() < 1)
          throw new TagParseException("Must specify at least one Collection in a MultiForEachTag.  None found" + getLocation());
@@ -243,12 +243,12 @@ public class MultiForEachTag extends BaseLoopTag
          throw new TagParseException("The number of collections and the number of variable names must be the same.  Mismatch found" +
             getLocation());
 
-      myIndexVarName = AttributeUtil.evaluateString(context, attributes.get(ATTR_INDEXVAR), beans, null);
+      myIndexVarName = AttributeUtil.evaluateString(this, attributes.get(ATTR_INDEXVAR), beans, null);
 
       // Determine the maximum size of all collections.
       setMaxSize();
 
-      myLimit = AttributeUtil.evaluateNonNegativeInt(context, attributes.get(ATTR_LIMIT), beans, ATTR_LIMIT, myMaxSize);
+      myLimit = AttributeUtil.evaluateNonNegativeInt(this, attributes.get(ATTR_LIMIT), beans, ATTR_LIMIT, myMaxSize);
 
       if (DEBUG)
          System.err.println("ForEachTag.vA: myLimit=" + myLimit);

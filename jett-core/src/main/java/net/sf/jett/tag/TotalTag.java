@@ -106,12 +106,12 @@ public class TotalTag extends BaseTag
       Map<String, Object> beans = context.getBeans();
       Map<String, RichTextString> attributes = getAttributes();
 
-      myList = AttributeUtil.evaluateObject(context, attributes.get(ATTR_ITEMS), beans, ATTR_ITEMS, List.class,
+      myList = AttributeUtil.evaluateObject(this, attributes.get(ATTR_ITEMS), beans, ATTR_ITEMS, List.class,
          new ArrayList<Object>(0));
 
-      myParallelism = AttributeUtil.evaluatePositiveInt(context, attributes.get(ATTR_PARALLEL), beans, ATTR_PARALLEL, 1);
+      myParallelism = AttributeUtil.evaluatePositiveInt(this, attributes.get(ATTR_PARALLEL), beans, ATTR_PARALLEL, 1);
 
-      String aggSpec = AttributeUtil.evaluateString(context, attributes.get(ATTR_VALUE), beans, null);
+      String aggSpec = AttributeUtil.evaluateString(this, attributes.get(ATTR_VALUE), beans, null);
       myAggregator = Aggregator.getAggregator(aggSpec);
    }
 

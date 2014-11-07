@@ -11,6 +11,7 @@ import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.util.CellReference;
 
 import net.sf.jett.event.CellEvent;
 import net.sf.jett.event.CellListener;
@@ -285,7 +286,23 @@ public class CellTransformer
 
       Tag tag = registry.createTag(parser, context, workbookContext);
       if (tag == null)
-         throw new TagParseException("Invalid tag: " + value + SheetUtil.getCellLocation(cell));
+      {
+         Map<String, String> tagLocationsMap = workbookContext.getTagLocationsMap();
+         String cellRef = SheetUtil.getCellKey(cell);
+         String location = " at " + cellRef;
+         String origCellRef = tagLocationsMap.get(cellRef);
+         if (origCellRef != null)
+         {
+            location += " (originally located at " + origCellRef + ")";
+         }
+         throw new TagParseException("Invalid tag: " + value + location + 
+                 SheetUtil.getTagLocationWithHierarchy(cellContext.getCurrentTag()));
+      }
+      else
+      {
+         context.setCurrentTag(tag);
+         tag.setParentTag(cellContext.getCurrentTag());
+      }
 
       // Process the Tag.
       return tag.processTag();

@@ -21,7 +21,9 @@ import net.sf.jett.util.SheetUtil;
 
 /**
  * <p>The abstract class <code>BaseTag</code> provides common functionality to
- * all <code>Tags</code>.</p>
+ * all <code>Tags</code>.  This includes storage for tag attributes, whether
+ * the tag is bodiless, the <code>TagContext</code>, the
+ * <code>WorkbookContext</code>, and the parent <code>Tag</code> (if any).</p>
  *
  * <br/>Attributes:
  * <ul>
@@ -46,6 +48,7 @@ public abstract class BaseTag implements Tag
    private Map<String, RichTextString> myAttributes;
    private TagContext myContext;
    private WorkbookContext myWorkbookContext;
+   private Tag myParent;
    private boolean amIBodiless;
    private TagListener myTagListener;
 
@@ -74,6 +77,16 @@ public abstract class BaseTag implements Tag
    public Map<String, RichTextString> getAttributes()
    {
       return myAttributes;
+   }
+   
+   /**
+    * Returns the <code>TagContext</code> to which the <code>Tag</code> is
+    * associated.
+    * @return The associated <code>TagContext</code>.
+    */
+   public TagContext getContext()
+   {
+      return myContext;
    }
 
    /**
@@ -107,13 +120,23 @@ public abstract class BaseTag implements Tag
    }
 
    /**
-    * Returns the <code>TagContext</code> to which the <code>Tag</code> is
-    * associated.
-    * @return The associated <code>TagContext</code>.
+    * Returns the parent <code>Tag</code>.
+    * @return The parent <code>Tag</code>, or <code>null</code> if none.
+    * @since 0.9.0
     */
-   public TagContext getContext()
+   public Tag getParentTag()
    {
-      return myContext;
+      return myParent;
+   }
+
+   /**
+    * Sets the parent <code>Tag</code>.
+    * @param parent The parent <code>Tag</code>, or <code>null</code> if none.
+    * @since 0.9.0
+    */
+   public void setParentTag(Tag parent)
+   {
+      myParent = parent;
    }
 
    /**
@@ -332,7 +355,7 @@ public abstract class BaseTag implements Tag
       Map<String, Object> beans = context.getBeans();
       Map<String, RichTextString> attributes = getAttributes();
 
-      myTagListener = AttributeUtil.evaluateObject(context, attributes.get(ATTR_ON_PROCESSED), beans, ATTR_ON_PROCESSED,
+      myTagListener = AttributeUtil.evaluateObject(this, attributes.get(ATTR_ON_PROCESSED), beans, ATTR_ON_PROCESSED,
          TagListener.class, null);
 
       if (DEBUG)

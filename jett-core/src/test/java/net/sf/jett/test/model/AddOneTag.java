@@ -85,7 +85,7 @@ public class AddOneTag extends BaseTag
       if (!isBodiless())
          throw new TagParseException("AddOne tags must not have a body.  AddOne tag with body found at" + getLocation());
 
-      myValue = AttributeUtil.evaluateDouble(context, attributes.get(ATTR_VALUE), beans, ATTR_VALUE, 0);
+      myValue = AttributeUtil.evaluateDouble(this, attributes.get(ATTR_VALUE), beans, ATTR_VALUE, 0);
    }
 
    /**
