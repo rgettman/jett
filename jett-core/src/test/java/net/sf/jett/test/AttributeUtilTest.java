@@ -6,6 +6,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.poi.ss.usermodel.ClientAnchor;
+import org.apache.poi.ss.usermodel.CreationHelper;
+import org.apache.poi.ss.usermodel.DataFormat;
+import org.apache.poi.ss.usermodel.FormulaEvaluator;
+import org.apache.poi.ss.usermodel.Hyperlink;
+import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 import static org.junit.Assert.*;
 import org.junit.Before;
@@ -25,6 +31,23 @@ import net.sf.jett.util.AttributeUtil;
 public class AttributeUtilTest
 {
    private Map<String, Object> myBeans;
+
+   /**
+    * We don't have a <code>Workbook</code> here, but we can create our own
+    * <code>RichTextString</code>.
+    */
+   private static class TestCreationHelper implements CreationHelper
+   {
+      public ClientAnchor createClientAnchor() { return null; }
+      public DataFormat createDataFormat() { return null; }
+      public FormulaEvaluator createFormulaEvaluator() { return null; }
+      public Hyperlink createHyperlink(int type) { return null; }
+      public RichTextString createRichTextString(String text)
+      {
+         return new XSSFRichTextString(text);
+      }
+   }
+
 
    /**
     * Set up by creating the beans map.
@@ -214,6 +237,30 @@ public class AttributeUtilTest
    public void testEvaluateDoubleDNE()
    {
       AttributeUtil.evaluateDouble(null, new XSSFRichTextString("${dne}"), myBeans, "attr_name", 0);
+   }
+
+   /**
+    * Tests RichTextStrings.
+    * @since 0.9.0
+    */
+   @Test
+   public void testEvaluateRichTextStringNotNull()
+   {
+      RichTextString result = (RichTextString) AttributeUtil.evaluateRichTextStringNotNull(null,
+         new XSSFRichTextString("Name: ${bugs.lastName}, ${bugs.firstName}"),
+         new TestCreationHelper(), myBeans, "attr_name", "");
+      assertEquals("Name: Bunny, Bugs", result.toString());
+   }
+
+   /**
+    * Ensures that if a <code>null</code> is passed, the exception is thrown.
+    * @since 0.9.0
+    */
+   @Test(expected = AttributeExpressionException.class)
+   public void testEvaluateRichTextStringNull()
+   {
+      AttributeUtil.evaluateRichTextStringNotNull(null, new XSSFRichTextString("${null}"),
+              new TestCreationHelper(), myBeans, "attr_name", "");
    }
 
    /**
