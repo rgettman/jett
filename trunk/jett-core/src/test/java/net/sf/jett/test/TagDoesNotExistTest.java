@@ -88,7 +88,7 @@ public class TagDoesNotExistTest extends TestCase
     */
    protected void check(Workbook workbook)
    {
-
+      // Error expected.  See the testExceptionMessage method.
    }
 
    /**

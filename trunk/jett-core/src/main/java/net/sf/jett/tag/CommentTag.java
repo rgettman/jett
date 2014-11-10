@@ -17,9 +17,9 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 
 import net.sf.jett.exception.TagParseException;
-import net.sf.jett.expression.Expression;
 import net.sf.jett.model.Block;
 import net.sf.jett.transform.BlockTransformer;
+import net.sf.jett.util.AttributeUtil;
 import net.sf.jett.util.SheetUtil;
 
 /**
@@ -75,7 +75,7 @@ public class CommentTag extends BaseTag
       new ArrayList<String>(Arrays.asList(ATTR_VISIBLE));
 
    private RichTextString myValue;
-   private String myAuthor;
+   private RichTextString myAuthor;
    private RichTextString myComment;
    private boolean amIVisible;
 
@@ -126,19 +126,11 @@ public class CommentTag extends BaseTag
       Map<String, RichTextString> attributes = getAttributes();
 
       myValue = attributes.get(ATTR_VALUE);
-      myAuthor = attributes.get(ATTR_AUTHOR).getString();
+      myAuthor = attributes.get(ATTR_AUTHOR);
       myComment = attributes.get(ATTR_COMMENT);
 
-      RichTextString rtsVisible = attributes.get(ATTR_VISIBLE);
-      String attrVisible = (rtsVisible != null) ? rtsVisible.getString() : null;
-      if (attrVisible != null)
-      {
-         Object test = Expression.evaluateString(attrVisible, beans);
-         if (test instanceof Boolean)
-            amIVisible = (Boolean) test;
-         else
-            amIVisible = Boolean.parseBoolean(test.toString());
-      }
+
+      amIVisible = AttributeUtil.evaluateBoolean(this, attributes.get(ATTR_VISIBLE), beans, false);
    }
 
    /**
@@ -164,8 +156,8 @@ public class CommentTag extends BaseTag
       CreationHelper helper = sheet.getWorkbook().getCreationHelper();
       ClientAnchor anchor = helper.createClientAnchor();
 
-      Object commentString = Expression.evaluateString(myComment, helper, beans);
-      Object author = Expression.evaluateString(myAuthor, beans);
+      Object commentString = AttributeUtil.evaluateRichTextStringNotNull(this, myComment, helper, beans, ATTR_COMMENT, "");
+      String author = AttributeUtil.evaluateStringNotNull(this, myAuthor, beans, ATTR_AUTHOR, "");
       int commentLength;
       if (commentString instanceof RichTextString)
       {
@@ -210,7 +202,7 @@ public class CommentTag extends BaseTag
       anchor.setRow2(top + rows);
       
       Comment comment = drawing.createCellComment(anchor);
-      comment.setAuthor(author.toString());
+      comment.setAuthor(author);
       if (commentString instanceof RichTextString)
       {
          comment.setString((RichTextString) commentString);

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.poi.ss.usermodel.RichTextString;
+import org.apache.poi.ss.usermodel.CreationHelper;
 
 import net.sf.jett.exception.AttributeExpressionException;
 import net.sf.jett.expression.Expression;
@@ -283,6 +284,35 @@ public class AttributeUtil
             throw attributeValidationFailure(tag, text.toString(),
                     "The \"" + attrName + "\" attribute must be a number");
          }
+      }
+      return result;
+   }
+
+   /**
+    * Evaluates the given rich text, which may have embedded
+    * <code>Expressions</code>, and attempts to extract the result, which may
+    * be either a <code>RichTextString</code> or a <code>String</code>.
+    * @param tag The <code>Tag</code>.
+    * @param text Rich text which may have embedded <code>Expressions</code>.
+    * @param helper A <code>CreationHelper</code> (for creating
+    *    <code>RichTextStrings</code>).
+    * @param beans A <code>Map</code> of bean names to bean values.
+    * @param attrName The attribute name.  This is only used when constructing
+    *    an exception message.
+    * @param def The default value if the text is null.
+    * @return The <code>String</code> or <code>RichTextString</code> result.
+    * @since 0.9.0
+    */
+   public static Object evaluateRichTextStringNotNull(Tag tag,
+      RichTextString text, CreationHelper helper, Map<String, Object> beans, String attrName, String def)
+   {
+      if (text == null)
+         return def;
+      Object result = Expression.evaluateString(text, helper, beans);
+      if (result == null || result.toString().length() == 0)
+      {
+         throw attributeValidationFailure(tag, text.toString(),
+                 "Value for \"" + attrName + "\" must not be null or empty");
       }
       return result;
    }
