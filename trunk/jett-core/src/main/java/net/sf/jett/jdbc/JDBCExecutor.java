@@ -182,69 +182,103 @@ public class JDBCExecutor
                case Types.VARCHAR:
                case Types.LONGVARCHAR:
                   row.set(colName, rs.getString(i + 1));
+                  if (rs.wasNull())
+                     row.set(colName, null);
                   break;
                case Types.BINARY:
                case Types.VARBINARY:
                case Types.LONGVARBINARY:
                   row.set(colName, rs.getBytes(i + 1));
+                  if (rs.wasNull())
+                     row.set(colName, null);
                   break;
                case Types.BIT:
                case Types.BOOLEAN:
                   row.set(colName, rs.getBoolean(i + 1));
+                  if (rs.wasNull())
+                     row.set(colName, null);
                   break;
                case Types.TINYINT:
                case Types.SMALLINT:
                   row.set(colName, rs.getShort(i + 1));
+                  if (rs.wasNull())
+                     row.set(colName, null);
                   break;
                case Types.INTEGER:
                   row.set(colName, rs.getInt(i + 1));
+                  if (rs.wasNull())
+                     row.set(colName, null);
                   break;
                case Types.REAL:
                   row.set(colName, rs.getFloat(i + 1));
+                  if (rs.wasNull())
+                     row.set(colName, null);
                   break;
                case Types.FLOAT:
                case Types.DOUBLE:
                   row.set(colName, rs.getDouble(i + 1));
+                  if (rs.wasNull())
+                     row.set(colName, null);
                   break;
                case Types.DECIMAL:
                case Types.NUMERIC:
                   row.set(colName, rs.getBigDecimal(i + 1));
+                  if (rs.wasNull())
+                     row.set(colName, null);
                   break;
                case Types.DATE:
                   row.set(colName, rs.getDate(i + 1));
+                  if (rs.wasNull())
+                     row.set(colName, null);
                   break;
                case Types.TIME:
                   row.set(colName, rs.getTime(i + 1));
+                  if (rs.wasNull())
+                     row.set(colName, null);
                   break;
                case Types.TIMESTAMP:
                   row.set(colName, rs.getTimestamp(i + 1));
+                  if (rs.wasNull())
+                     row.set(colName, null);
                   break;
                case Types.CLOB:
                {
-                  BufferedReader r = new BufferedReader(rs.getClob(i + 1).getCharacterStream());
-                  StringBuffer buf = new StringBuffer();
-                  String line;
-                  try
+                  Clob clob = rs.getClob(i + 1);
+                  if (rs.wasNull())
                   {
-                     while ((line = r.readLine()) != null)
-                     {
-                        buf.append(line);
-                     }
-                     row.set(colName, buf.toString());
+                     row.set(colName, null);
                   }
-                  catch (IOException e)
+                  else
                   {
-                     row.set(colName, e.getMessage());
+                     BufferedReader r = new BufferedReader(clob.getCharacterStream());
+                     StringBuffer buf = new StringBuffer();
+                     String line;
+                     try
+                     {
+                        while ((line = r.readLine()) != null)
+                        {
+                           buf.append(line);
+                        }
+                        row.set(colName, buf.toString());
+                     }
+                     catch (IOException e)
+                     {
+                        row.set(colName, e.getMessage());
+                     }
                   }
                   break;
                }
                case Types.ARRAY:
                   row.set(colName, rs.getArray(i + 1).getArray());
+                  if (rs.wasNull())
+                     row.set(colName, null);
                   break;
                case Types.BLOB:
                case Types.JAVA_OBJECT:
                default:
                   row.set(colName, rs.getObject(i + 1));
+                  if (rs.wasNull())
+                     row.set(colName, null);
             }
          }
          rows.add(row);

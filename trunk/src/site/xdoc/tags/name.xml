@@ -44,7 +44,7 @@
             <p>This template gets transformed into...</p>
             <img src="../images/result_name1.gif" alt="Names Result"/>
             <p>No complicated "offset" formulas are needed to fool Excel into taking the proper
-            ranges for the chart.  There is no need to hard-code the number of rows into the chart\
+            ranges for the chart.  There is no need to hard-code the number of rows into the chart
             series.  Here are the named ranges in the resultant spreadsheet:</p>
             <img src="../images/result_name2.gif" alt="Named Ranges"/>
         </section>

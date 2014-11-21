@@ -129,7 +129,6 @@ public class CommentTag extends BaseTag
       myAuthor = attributes.get(ATTR_AUTHOR);
       myComment = attributes.get(ATTR_COMMENT);
 
-
       amIVisible = AttributeUtil.evaluateBoolean(this, attributes.get(ATTR_VISIBLE), beans, false);
    }
 

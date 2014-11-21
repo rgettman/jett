@@ -19,6 +19,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 import net.sf.jett.jdbc.JDBCExecutor;
+import net.sf.jett.transform.ExcelTransformer;
 
 /**
  * This JUnit Test class tests the <code>JDBCExecutor</code> and
@@ -49,10 +50,10 @@ public class JDBCExecutorTest extends TestCase
       catch (SQLException ignored) {}
       update("CREATE TABLE employee (emp_id INTEGER, first_name VARCHAR(30), last_name VARCHAR(30), " +
           "salary INTEGER, title VARCHAR(30), manager VARCHAR(60), catch_phrase VARCHAR(100), is_a_manager VARCHAR(1))");
-      update("INSERT INTO employee VALUES (1, 'Robert', 'Stack', 1000, 'Data Structures Programmer', '(none)'       , 'Push, Pop!'                       , 'Y')");
+      update("INSERT INTO employee VALUES (1, 'Robert', 'Stack', 1000, 'Data Structures Programmer', null           , 'Push, Pop!'                       , 'Y')");
       update("INSERT INTO employee VALUES (2, 'Suzie',  'Queue',  900, 'Data Structures Programmer', 'Stack, Robert', 'Enqueue, Dequeue!'                , 'N')");
       update("INSERT INTO employee VALUES (3, 'Elmer',  'Fudd',   800, 'Cartoon Character'         , 'Bunny, Bugs'  , 'I''m hunting wabbits!  Huh-uh-uh!', 'N')");
-      update("INSERT INTO employee VALUES (4, 'Bugs',   'Bunny', 1500, 'Cartoon Character'         , '(none)'       , 'Ah, what''s up Doc?'              , 'Y')");
+      update("INSERT INTO employee VALUES (4, 'Bugs',   'Bunny', 1500, 'Cartoon Character'         , null           , 'Ah, what''s up Doc?'              , 'Y')");
    }
 
    /**
@@ -116,6 +117,18 @@ public class JDBCExecutorTest extends TestCase
    }
 
    /**
+    * Silence the transformer, which would complain when expressions evaluate to
+    * <code>null</code>.  This is added so that <code>null</code>s can be
+    * explicitly tested for in <code>JdbcExecutor</code>.
+    * @param transformer The <code>ExcelTransformer</code>.
+    * @since 0.9.0
+    */
+   protected void setupTransformer(ExcelTransformer transformer)
+   {
+      transformer.setSilent(true);
+   }
+
+   /**
     * Validate the newly created resultant <code>Workbook</code> with JUnit
     * assertions.
     * @param workbook A <code>Workbook</code>.
@@ -127,16 +140,19 @@ public class JDBCExecutorTest extends TestCase
       assertEquals("Queue", TestUtility.getStringCellValue(query, 2, 1));
       assertEquals(800, TestUtility.getNumericCellValue(query, 3, 2), Double.MIN_VALUE);
       assertEquals("Cartoon Character", TestUtility.getStringCellValue(query, 4, 3));
-      assertEquals("(none)", TestUtility.getStringCellValue(query, 1, 4));
+      assertTrue(TestUtility.isCellBlank(query, 1, 4));
       assertEquals("I'm hunting wabbits!  Huh-uh-uh!", TestUtility.getStringCellValue(query, 3, 5));
+      assertTrue(TestUtility.isCellBlank(query, 4, 4));
       assertEquals("Y", TestUtility.getStringCellValue(query, 4, 6));
 
       Sheet prepared = workbook.getSheetAt(1);
       assertEquals("Cartoon Character", TestUtility.getStringCellValue(prepared, 0, 0));
       assertEquals("Cartoon Character", TestUtility.getStringCellValue(prepared, 2, 3));
       assertEquals("Cartoon Character", TestUtility.getStringCellValue(prepared, 3, 3));
+      assertTrue(TestUtility.isCellBlank(prepared, 3, 4));
       assertEquals("Data Structures Programmer", TestUtility.getStringCellValue(prepared, 4, 0));
       assertEquals("Data Structures Programmer", TestUtility.getStringCellValue(prepared, 6, 3));
+      assertTrue(TestUtility.isCellBlank(prepared, 6, 4));
       assertEquals("Data Structures Programmer", TestUtility.getStringCellValue(prepared, 7, 3));
       assertEquals("Nonexistent Title", TestUtility.getStringCellValue(prepared, 8, 0));
       assertTrue(TestUtility.isCellBlank(prepared, 10, 3));
