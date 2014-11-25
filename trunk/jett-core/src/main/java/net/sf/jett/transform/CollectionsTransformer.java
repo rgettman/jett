@@ -54,6 +54,7 @@ public class CollectionsTransformer
       Map<String, Cell> processedCells = cellContext.getProcessedCellsMap();
       Sheet sheet = cellContext.getSheet();
       CreationHelper helper = sheet.getWorkbook().getCreationHelper();
+      ExpressionFactory factory = workbookContext.getExpressionFactory();
 
       MetadataParser parser = null;
       RichTextString richString = cell.getRichStringCellValue();
@@ -100,7 +101,7 @@ public class CollectionsTransformer
          String lexeme = parser.getExtraRows();
          if (lexeme != null)
          {
-            bottom += evaluateInt(lexeme, beans, "extraRows", cell);
+            bottom += evaluateInt(lexeme, factory, beans, "extraRows", cell);
          }
          
          copyRight = parser.getCopyingRight();
@@ -119,7 +120,7 @@ public class CollectionsTransformer
             lexeme = parser.getColsLeft();
             if (lexeme != null)
             {
-               left = cell.getColumnIndex() - evaluateInt(lexeme, beans, "left", cell);
+               left = cell.getColumnIndex() - evaluateInt(lexeme, factory, beans, "left", cell);
             }
             else
             {
@@ -128,7 +129,7 @@ public class CollectionsTransformer
             lexeme = parser.getColsRight();
             if (lexeme != null)
             {
-               right = cell.getColumnIndex() + evaluateInt(lexeme, beans, "right", cell);
+               right = cell.getColumnIndex() + evaluateInt(lexeme, factory, beans, "right", cell);
             }
             else
             {
@@ -147,7 +148,7 @@ public class CollectionsTransformer
 
       // Find all Collection names in the Block.
       List<String> collectionNames = findCollectionsInBlock(cell, containingBlock,
-         workbookContext.getNoImplicitProcessingCollectionNames(), beans);
+         workbookContext, beans);
       List<String> vars = new ArrayList<String>(collectionNames.size());
       List<String> fixedSizeCollNames = workbookContext.getFixedSizedCollectionNames();
       // Shallow copy.
@@ -283,14 +284,15 @@ public class CollectionsTransformer
     * Evaluates the given expression, given the <code>Map</code> of bean names
     * to bean values, expecting an integer value for the given key.
     * @param lexeme The expression.
+    * @param factory An <code>ExpressionFactory</code>.
     * @param beans A <code>Map</code> of bean names to bean values.
     * @param keyName The key name.
     * @param cell The <code>Cell</code> on which the metadata is found.
     * @return The integer value.
     */
-   private int evaluateInt(String lexeme, Map<String, Object> beans, String keyName, Cell cell)
+   private int evaluateInt(String lexeme, ExpressionFactory factory, Map<String, Object> beans, String keyName, Cell cell)
    {
-      Object obj = Expression.evaluateString(lexeme, beans);
+      Object obj = Expression.evaluateString(lexeme, factory, beans);
       int change;
       if (obj instanceof Number)
       {
@@ -325,14 +327,16 @@ public class CollectionsTransformer
     *    <code>Collection</code> was found.
     * @param block The <code>Block</code> that was determined by the parent
     *    <code>Block</code> and any metadata found on <code>startTag</code>.
-    * @param noImplProcCollNames A <code>List</code> of collection names to
-    *    ignore.
+    * @param context A <code>WorkbookContext</code>, which refers to an
+    *    <code>ExpressionFactory</code> and a <code>List</code> of collection
+    *    names to ignore.
     * @param beans The <code>Map</code> of beans.
     * @return A <code>List</code> of all <code>Collection</code> names found.
     */
    private List<String> findCollectionsInBlock(Cell startTag, Block block,
-      List<String> noImplProcCollNames, Map<String, Object> beans)
+      WorkbookContext context, Map<String, Object> beans)
    {
+      ExpressionFactory factory = context.getExpressionFactory();
       int startColumnIndex = startTag.getColumnIndex();
       int startRowIndex = startTag.getRowIndex();
       int left = block.getLeftColNum();
@@ -342,13 +346,11 @@ public class CollectionsTransformer
          System.err.println("fCIB: Finding Collections in Block: " +
             block + ", starting tag found at row " + startRowIndex + ", cell " + startColumnIndex);
       List<String> collectionNames = new ArrayList<String>();
-      List<String> collectionNamesToIgnore = new ArrayList<String>(noImplProcCollNames);
 
       // Don't report errors for some expressions whose identifiers haven't
       // been defined yet, e.g. a looping variable defined in a subsequent
       // forEach tag.  Store the current silent/lenient flags for restoration
       // later.
-      ExpressionFactory factory = ExpressionFactory.getExpressionFactory();
       boolean lenient = factory.isLenient();
       boolean silent = factory.isSilent();
       factory.setLenient(true);
@@ -367,7 +369,7 @@ public class CollectionsTransformer
          {
             RichTextString richString = cell.getRichStringCellValue();
             List<String> collExprs = Expression.getImplicitCollectionExpr(richString.toString(),
-               beans, collectionNamesToIgnore);
+               beans, context);
             if (!collExprs.isEmpty())
             {
                // Collection Expression(s) found.  Add them if they weren't
@@ -394,7 +396,7 @@ public class CollectionsTransformer
                {
                   RichTextString richString = cell.getRichStringCellValue();
                   List<String> collExprs = Expression.getImplicitCollectionExpr(richString.toString(),
-                     beans, collectionNamesToIgnore);
+                     beans, context);
                   if (!collExprs.isEmpty())
                   {
                      // Collection Expression(s) found.  Add them if they weren't

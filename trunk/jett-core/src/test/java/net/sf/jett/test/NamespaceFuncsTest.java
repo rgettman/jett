@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -24,21 +23,6 @@ import net.sf.jett.transform.ExcelTransformer;
 public class NamespaceFuncsTest extends TestCase
 {
    public static TestFuncs theTestFuncs;
-
-   /**
-    * Only register the "math" namespace once; avoid re-registering for both
-    * the .xls and .xlsx tests.  Setup <code>TestFuncs</code> as a custom
-    * function and declare a JEXL Engine cache.
-    */
-   @BeforeClass
-   public static void setup()
-   {
-      ExcelTransformer dummy = new ExcelTransformer();
-      dummy.registerFuncs("math", Math.class);
-      theTestFuncs = new TestFuncs();
-      dummy.registerFuncs("test", theTestFuncs);
-      dummy.setCache(10);
-   }
 
    /**
     * Ensure that one cannot re-register a namespace.
@@ -80,6 +64,19 @@ public class NamespaceFuncsTest extends TestCase
    protected String getExcelNameBase()
    {
       return "NamespaceFuncs";
+   }
+
+   /**
+    * Register "math" and "test".
+    * @param transformer The <code>ExcelTransformer</code>.
+    * @since 0.9.0
+    */
+   protected void setupTransformer(ExcelTransformer transformer)
+   {
+      transformer.registerFuncs("math", Math.class);
+      theTestFuncs = new TestFuncs();
+      transformer.registerFuncs("test", theTestFuncs);
+      transformer.setCache(10);
    }
 
    /**

@@ -110,6 +110,7 @@ public class ExcelTransformer
    private boolean amIEvaluatingFormulas;
    private boolean amIForcingRecalculationOnOpening;
    private boolean amIChangingForcingRecalculation;
+   private ExpressionFactory myExpressionFactory;
 
    /**
     * Construct an <code>ExcelTransformer</code>.
@@ -126,6 +127,7 @@ public class ExcelTransformer
       amIEvaluatingFormulas = false;
       amIForcingRecalculationOnOpening = false;
       amIChangingForcingRecalculation = false;
+      myExpressionFactory = new ExpressionFactory();
    }
 
    /**
@@ -196,8 +198,7 @@ public class ExcelTransformer
     */
    public void setLenient(boolean lenient)
    {
-      ExpressionFactory factory = ExpressionFactory.getExpressionFactory();
-      factory.setLenient(lenient);
+      myExpressionFactory.setLenient(lenient);
    }
 
    /**
@@ -207,8 +208,7 @@ public class ExcelTransformer
     */
    public void setSilent(boolean silent)
    {
-      ExpressionFactory factory = ExpressionFactory.getExpressionFactory();
-      factory.setSilent(silent);
+      myExpressionFactory.setSilent(silent);
    }
 
    /**
@@ -220,8 +220,7 @@ public class ExcelTransformer
     */
    public void setCache(int size)
    {
-      ExpressionFactory factory = ExpressionFactory.getExpressionFactory();
-      factory.setCache(size);
+      myExpressionFactory.setCache(size);
    }
 
    /**
@@ -239,8 +238,7 @@ public class ExcelTransformer
     */
    public void registerFuncs(String namespace, Object funcsObject)
    {
-      ExpressionFactory factory = ExpressionFactory.getExpressionFactory();
-      factory.registerFuncs(namespace, funcsObject);
+      myExpressionFactory.registerFuncs(namespace, funcsObject);
    }
 
    /**
@@ -846,6 +844,7 @@ public class ExcelTransformer
       context.setStyleMap(myStyleMap);
       context.setTemplateSheetNames(templateSheetNames);
       context.setSheetNames(sheetNames);
+      context.setExpressionFactory(myExpressionFactory);
       if (DEBUG)
       {
          System.err.println("Formula Map:");

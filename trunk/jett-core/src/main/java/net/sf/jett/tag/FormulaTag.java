@@ -12,6 +12,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 
 import net.sf.jett.exception.TagParseException;
 import net.sf.jett.expression.Expression;
+import net.sf.jett.expression.ExpressionFactory;
 import net.sf.jett.model.Block;
 import net.sf.jett.util.AttributeUtil;
 
@@ -118,7 +119,9 @@ public class FormulaTag extends BaseTag
       AttributeUtil.ensureExactlyOneExists(this, Arrays.asList(formulaBean, formulaText), Arrays.asList(ATTR_BEAN, ATTR_TEXT));
       if (formulaBean != null)
       {
-         myFormulaExpression = Expression.evaluateString("${" + formulaBean.toString() + "}", beans).toString();
+         myFormulaExpression = Expression.evaluateString(
+                 "${" + formulaBean.toString() + "}", getWorkbookContext().getExpressionFactory(), beans)
+                 .toString();
       }
       else if (formulaText != null)
       {
@@ -142,6 +145,7 @@ public class FormulaTag extends BaseTag
    public boolean process()
    {
       TagContext context = getContext();
+      ExpressionFactory factory = getWorkbookContext().getExpressionFactory();
       Sheet sheet = context.getSheet();
       Block block = context.getBlock();
       Map<String, Object> beans = context.getBeans();
@@ -153,12 +157,12 @@ public class FormulaTag extends BaseTag
 
       if (DEBUG)
          System.err.println("myFormulaExpression: " + myFormulaExpression);
-      String formulaText = Expression.evaluateString(myFormulaExpression, beans).toString();
+      String formulaText = Expression.evaluateString(myFormulaExpression, factory, beans).toString();
       if (DEBUG)
          System.err.println("formulaText: " + formulaText);
       if (myIfErrorExpression != null)
       {
-         Object errorResult = Expression.evaluateString(myIfErrorExpression, beans);
+         Object errorResult = Expression.evaluateString(myIfErrorExpression, factory, beans);
          if (DEBUG)
             System.err.println("errorResult: " + errorResult);
          String newFormulaText = "IF(ISERROR(" + formulaText + "), ";

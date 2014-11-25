@@ -110,7 +110,7 @@ public class AttributeUtil
       boolean result;
       if (text == null)
          return def;
-      Object obj = Expression.evaluateString(text.toString(), beans);
+      Object obj = Expression.evaluateString(text.toString(), tag.getWorkbookContext().getExpressionFactory(), beans);
       if (obj == null)
          throw nullValueOrExpectedVariableMissing(tag, text.toString());
       if (obj instanceof Boolean)
@@ -142,7 +142,7 @@ public class AttributeUtil
       int result;
       if (text == null)
          return def;
-      Object obj = Expression.evaluateString(text.toString(), beans);
+      Object obj = Expression.evaluateString(text.toString(), tag.getWorkbookContext().getExpressionFactory(), beans);
       if (obj == null)
          throw nullValueOrExpectedVariableMissing(tag, text.toString());
       if (obj instanceof Number)
@@ -266,7 +266,7 @@ public class AttributeUtil
       double result;
       if (text == null)
          return def;
-      Object obj = Expression.evaluateString(text.toString(), beans);
+      Object obj = Expression.evaluateString(text.toString(), tag.getWorkbookContext().getExpressionFactory(), beans);
       if (obj == null)
          throw nullValueOrExpectedVariableMissing(tag, text.toString());
       if (obj instanceof Number)
@@ -308,7 +308,7 @@ public class AttributeUtil
    {
       if (text == null)
          return def;
-      Object result = Expression.evaluateString(text, helper, beans);
+      Object result = Expression.evaluateString(text, helper, tag.getWorkbookContext().getExpressionFactory(), beans);
       if (result == null || result.toString().length() == 0)
       {
          throw attributeValidationFailure(tag, text.toString(),
@@ -332,7 +332,7 @@ public class AttributeUtil
    {
       if (text == null)
          return def;
-      Object obj = Expression.evaluateString(text.toString(), beans);
+      Object obj = Expression.evaluateString(text.toString(), tag.getWorkbookContext().getExpressionFactory(), beans);
       return (obj == null) ? null : obj.toString();
    }
 
@@ -439,7 +439,7 @@ public class AttributeUtil
       T result;
       if (text == null)
          return def;
-      Object obj = Expression.evaluateString(text, beans);
+      Object obj = Expression.evaluateString(text, tag.getWorkbookContext().getExpressionFactory(), beans);
       if (obj == null)
          throw nullValueOrExpectedVariableMissing(tag, text);
       Class objClass = obj.getClass();
@@ -507,7 +507,7 @@ public class AttributeUtil
       List<String> result;
       if (text == null)
          return def;
-      Object obj = Expression.evaluateString(text.toString(), beans);
+      Object obj = Expression.evaluateString(text.toString(), tag.getWorkbookContext().getExpressionFactory(), beans);
       if (obj == null)
          throw nullValueOrExpectedVariableMissing(tag, text.toString());
       if (obj instanceof List)
@@ -548,7 +548,7 @@ public class AttributeUtil
       List<Integer> result = new ArrayList<Integer>();
       if (text == null)
          return def;
-      Object obj = Expression.evaluateString(text.toString(), beans);
+      Object obj = Expression.evaluateString(text.toString(), tag.getWorkbookContext().getExpressionFactory(), beans);
       if (obj == null)
          throw nullValueOrExpectedVariableMissing(tag, text.toString());
       if (obj instanceof int[])
@@ -631,7 +631,7 @@ public class AttributeUtil
       List<List<Integer>> result = new ArrayList<List<Integer>>();
       if (text == null)
          return def;
-      Object obj = Expression.evaluateString(text.toString(), beans);
+      Object obj = Expression.evaluateString(text.toString(), tag.getWorkbookContext().getExpressionFactory(), beans);
       if (obj == null)
          throw nullValueOrExpectedVariableMissing(tag, text.toString());
       if (obj instanceof int[][])

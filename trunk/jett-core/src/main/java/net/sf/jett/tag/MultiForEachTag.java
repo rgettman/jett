@@ -216,7 +216,7 @@ public class MultiForEachTag extends BaseLoopTag
       myCollectionNames = new ArrayList<String>();
       for (String collExpression : collExpressions)
       {
-         Object items = Expression.evaluateString(collExpression.trim(), beans);
+         Object items = Expression.evaluateString(collExpression.trim(), getWorkbookContext().getExpressionFactory(), beans);
          if (items == null)
          {
             // Allow null to be interpreted as an empty collection.
