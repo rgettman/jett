@@ -20,6 +20,7 @@ import org.apache.poi.ss.util.CellReference;
 import net.sf.jett.event.SheetEvent;
 import net.sf.jett.event.SheetListener;
 import net.sf.jett.expression.Expression;
+import net.sf.jett.expression.ExpressionFactory;
 import net.sf.jett.formula.Formula;
 import net.sf.jett.model.Block;
 import net.sf.jett.model.WorkbookContext;
@@ -149,32 +150,33 @@ public class SheetTransformer
    {
       String text;
       Object result;
+      ExpressionFactory factory = context.getExpressionFactory();
       // Header/footer.
       Header header = sheet.getHeader();
       text = header.getLeft();
-      result = Expression.evaluateString(text, beans);
+      result = Expression.evaluateString(text, factory, beans);
       header.setLeft(result.toString());
       text = header.getCenter();
-      result = Expression.evaluateString(text, beans);
+      result = Expression.evaluateString(text, factory, beans);
       header.setCenter(result.toString());
       text = header.getRight();
-      result = Expression.evaluateString(text, beans);
+      result = Expression.evaluateString(text, factory, beans);
       header.setRight(result.toString());
 
       Footer footer = sheet.getFooter();
       text = footer.getLeft();
-      result = Expression.evaluateString(text, beans);
+      result = Expression.evaluateString(text, factory, beans);
       footer.setLeft(result.toString());
       text = footer.getCenter();
-      result = Expression.evaluateString(text, beans);
+      result = Expression.evaluateString(text, factory, beans);
       footer.setCenter(result.toString());
       text = footer.getRight();
-      result = Expression.evaluateString(text, beans);
+      result = Expression.evaluateString(text, factory, beans);
       footer.setRight(result.toString());
 
       // Sheet name
       text = sheet.getSheetName();
-      result = Expression.evaluateString(text, beans);
+      result = Expression.evaluateString(text, factory, beans);
       Workbook workbook = sheet.getWorkbook();
       if (result != null)
       {

@@ -6,7 +6,7 @@ import java.util.Map;
 import org.apache.commons.jexl2.JexlEngine;
 
 /**
- * <p>An <code>ExpressionFactory</code> is a singleton factory class that
+ * <p>An <code>ExpressionFactory</code> is a factory class that
  * creates and uses a <code>JexlEngine</code> to create JEXL
  * <code>Expressions</code>.</p>
  *
@@ -14,19 +14,22 @@ import org.apache.commons.jexl2.JexlEngine;
  * and "lenient" flags, the JEXL parse cache size, and JEXL namespace function
  * objects (including jAgg functionality).</p>
  *
+ * <p>As of 0.9.0, this class is no longer a singleton, to allow concurrent
+ * <code>ExcelTransformers</code> to avoid contention by having their own
+ * <code>ExpressionFactories</code>.
+ *
  * @author Randy Gettman
  */
 public class ExpressionFactory
 {
-   private static final ExpressionFactory theFactory = new ExpressionFactory();
-
    private JexlEngine myEngine;
    private Map<String, Object> myFuncs = new HashMap<String, Object>();
 
    /**
-    * Singleton constructor.
+    * Constructs a <code>ExpressionFactory</code>.  Initializes an internal
+    * <code>JexlEngine</code> and initializes the functions map.
     */
-   private ExpressionFactory()
+   public ExpressionFactory()
    {
       myEngine = new JexlEngine();
       myEngine.setLenient(true);
@@ -109,15 +112,6 @@ public class ExpressionFactory
             namespace + "\" has already been registered.");
       }
       myFuncs.put(namespace, funcsObject);
-   }
-
-   /**
-    * Returns the singleton <code>ExpressionFactory</code>.
-    * @return The singleton <code>ExpressionFactory</code>.
-    */
-   public static ExpressionFactory getExpressionFactory()
-   {
-      return theFactory;
    }
 
    /**

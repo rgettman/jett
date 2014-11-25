@@ -2570,7 +2570,7 @@ public class SheetUtil
          Block block = tagContext.getBlock();
          int row = block.getTopRowNum();
          int col = block.getLeftColNum();
-         String cellRef = new CellReference(sheet.getSheetName(), row, col, false, false).formatAsString();
+         String cellRef = new CellReference(sheet == null ? "DNE" : sheet.getSheetName(), row, col, false, false).formatAsString();
          String origCellRef = tagLocationsMap.get(cellRef);
          buf.append(System.getProperty("line.separator"));
          buf.append("  inside tag \"");

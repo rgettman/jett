@@ -6,6 +6,7 @@ import java.util.Map;
 
 import net.sf.jett.event.CellListener;
 import net.sf.jett.event.SheetListener;
+import net.sf.jett.expression.ExpressionFactory;
 import net.sf.jett.formula.CellRef;
 import net.sf.jett.formula.Formula;
 import net.sf.jett.tag.TagLibraryRegistry;
@@ -32,6 +33,7 @@ public class WorkbookContext
    private Map<String, Style> myStyleMap;
    private List<String> myTemplateSheetNames;
    private List<String> mySheetNames;
+   private ExpressionFactory myExpressionFactory;
 
    /**
     * Initializes things to null/0.
@@ -51,6 +53,7 @@ public class WorkbookContext
       myStyleMap = null;
       myTemplateSheetNames = null;
       mySheetNames = null;
+      myExpressionFactory = null;
    }
 
    /**
@@ -344,5 +347,25 @@ public class WorkbookContext
    public void setSheetNames(List<String> sheetNames)
    {
       mySheetNames = new ArrayList<String>(sheetNames);
+   }
+
+   /**
+    * Returns the <code>ExpressionFactory</code>.
+    * @return The <code>ExpressionFactory</code>.
+    * @since 0.9.0
+    */
+   public ExpressionFactory getExpressionFactory()
+   {
+      return myExpressionFactory;
+   }
+
+   /**
+    * Sets the <code>ExpressionFactory</code>.
+    * @param factory The <code>ExpressionFactory</code>.
+    * @since 0.9.0
+    */
+   public void setExpressionFactory(ExpressionFactory factory)
+   {
+      myExpressionFactory = factory;
    }
 }

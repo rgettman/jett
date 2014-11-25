@@ -21,6 +21,7 @@ import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.RichTextString;
 
 import net.sf.jett.exception.ParseException;
+import net.sf.jett.model.WorkbookContext;
 import net.sf.jett.util.RichTextStringUtil;
 
 /**
@@ -74,17 +75,17 @@ public class Expression
    /**
     * Evaluate this <code>Expression</code> using the given <code>Map</code> of
     * beans as a context.
+    * @param factory An <code>ExpressionFactory</code>.
     * @param beans A <code>Map</code> mapping strings to objects.
     * @return The result of the evaluation.
     */
    @SuppressWarnings("unchecked")
-   public Object evaluate(Map<String, Object> beans)
+   public Object evaluate(ExpressionFactory factory, Map<String, Object> beans)
    {
       if (beans != null && !beans.isEmpty())
       {
          JexlContext context = new ClassAwareMapContext(beans);
-         return ExpressionFactory.getExpressionFactory().
-            createExpression(myExpression).evaluate(context);
+         return factory.createExpression(myExpression).evaluate(context);
       }
       return myExpression;
    }
@@ -118,14 +119,18 @@ public class Expression
     * <code>null</code>.
     * @param node The <code>ASTReference</code>.
     * @param beans The <code>Map</code> of beans.
-    * @param noImplProcCollNames Don't return a collection expression whose
-    *    collection property name is found in this <code>List</code>.
+    * @param context A <code>WorkbookContext</code>, which refers to an
+    *    <code>ExpressionFactory</code> and a <code>List</code> of collection
+    *    names. Don't return a collection expression whose collection property
+    *    name is found in this <code>List</code>.
     * @return The full reference string to the collection name, or
     *    <code>null</code> if there is no collection.
     */
    private String findCollectionName(ASTReference node, Map<String, Object> beans,
-      List<String> noImplProcCollNames)
+      WorkbookContext context)
    {
+      ExpressionFactory factory = context.getExpressionFactory();
+      List<String> noImplProcCollNames = context.getNoImplicitProcessingCollectionNames();
       int count = node.jjtGetNumChildren();
       String collectionName = null;
       for (int i = 0; i < count; i++)
@@ -154,7 +159,7 @@ public class Expression
             }
 
             Expression expr = new Expression(collectionName);
-            Object result = expr.evaluate(beans);
+            Object result = expr.evaluate(factory, beans);
             if (result instanceof Collection)
             {
                // Continue past a Collection if the next method called is a
@@ -258,13 +263,14 @@ public class Expression
     * <p>This method uses JEXL internal parser logic.</p>
     *
     * @param beans A <code>Map</code> mapping strings to objects.
-    * @param noImplProcCollNames Don't return a collection expression whose
-    *    collection property name is found in this <code>List</code>.
+    * @param context A <code>WorkbookContext</code>.  Don't return a collection
+    *    expression whose collection property name is found in the <code>List</code>
+    *    of such names maintained by this <code>WorkbookContext</code>..
     * @return The string representing the <code>Collection</code>, or
     *    <code>null</code> if it doesn't represent implicit Collections access.
     */
    public String getValueIndicatingImplicitCollection(Map<String, Object> beans,
-      List<String> noImplProcCollNames)
+      WorkbookContext context)
    {
       String expression = myExpression;
       // Try cache first.
@@ -283,7 +289,7 @@ public class Expression
          {
             if (DEBUG)
                System.err.println("  Reference...");
-            String collectionName = findCollectionName(node, beans, noImplProcCollNames);
+            String collectionName = findCollectionName(node, beans, context);
             if (collectionName != null)
             {
                // Cache this result.
@@ -324,15 +330,19 @@ public class Expression
     * <code>null</code>.
     * @param value The string possibly representing an <code>Expression</code>.
     * @param beans A <code>Map</code> mapping strings to objects.
-    * @param noImplProcCollNames Don't return a collection expression whose
-    *    collection property name is found in this <code>List</code>.
+    * @param context A <code>WorkbookContext</code>, which supplies a
+    *    <code>List</code> of collection names to ignore and the
+    *    <code>ExpressionFactory</code>.  Don't return a collection expression
+    *    whose collection property name is found in this <code>List</code>.
     * @return A <code>List</code> of strings representing the
     *    <code>Collections</code> found, possibly empty if it doesn't represent
     *    implicit Collections access.
     */
    public static List<String> getImplicitCollectionExpr(String value, Map<String, Object> beans,
-      List<String> noImplProcCollNames)
+      WorkbookContext context)
    {
+      ExpressionFactory factory = context.getExpressionFactory();
+
       if (DEBUG)
          System.err.println("getImplicitCollectionExpr: \"" + value + "\".");
       List<Expression> expressions = getExpressions(value);
@@ -342,7 +352,6 @@ public class Expression
       // processing to be a legal expression, e.g. a property access on a List
       // meant to be a property access on an element of the List.  Store the
       // current silent/lenient flags for restoration later.
-      ExpressionFactory factory = ExpressionFactory.getExpressionFactory();
       boolean lenient = factory.isLenient();
       boolean silent = factory.isSilent();
       factory.setLenient(true);
@@ -351,7 +360,7 @@ public class Expression
       if (value.startsWith(Expression.BEGIN_EXPR) && value.endsWith(Expression.END_EXPR) && expressions.size() == 1)
       {
          Expression expression = new Expression(value.substring(2, value.length() - 1));
-         String implColl = expression.getValueIndicatingImplicitCollection(beans, noImplProcCollNames);
+         String implColl = expression.getValueIndicatingImplicitCollection(beans, context);
          if (implColl != null && !"".equals(implColl))
             implicitCollections.add(implColl);
       }
@@ -359,7 +368,7 @@ public class Expression
       {
          for (Expression expression : expressions)
          {
-            String implColl = expression.getValueIndicatingImplicitCollection(beans, noImplProcCollNames);
+            String implColl = expression.getValueIndicatingImplicitCollection(beans, context);
             if (implColl != null && !"".equals(implColl))
                implicitCollections.add(implColl);
          }
@@ -391,19 +400,20 @@ public class Expression
     * expressions.
     * @param helper A <code>CreationHelper</code> that can create the proper
     *    <code>RichTextString</code>.
+    * @param factory An <code>ExpressionFactory</code>.
     * @param beans A <code>Map</code> mapping strings to objects.
     * @return A new string, with any embedded expressions replaced with the
     *    expression string values.
     */
    public static Object evaluateString(RichTextString richTextString,
-      CreationHelper helper, Map<String, Object> beans)
+      CreationHelper helper, ExpressionFactory factory, Map<String, Object> beans)
    {
       String value = richTextString.getString();
       List<Expression> expressions = getExpressions(value);
       if (value.startsWith(Expression.BEGIN_EXPR) && value.endsWith(Expression.END_EXPR) && expressions.size() == 1)
       {
          Expression expression = new Expression(value.substring(2, value.length() - 1));
-         Object result = expression.evaluate(beans);
+         Object result = expression.evaluate(factory, beans);
          if (result instanceof String)
          {
             return RichTextStringUtil.replaceAll(richTextString, helper, value, (String) result, true);
@@ -415,7 +425,7 @@ public class Expression
       }
       else
       {
-         return replaceExpressions(richTextString, helper, expressions, beans);
+         return replaceExpressions(richTextString, helper, expressions, factory, beans);
       }
    }
 
@@ -426,21 +436,22 @@ public class Expression
     * value may be any <code>Object</code>.
     *
     * @param value The string, with possibly embedded expressions.
+    * @param factory An <code>ExpressionFactory</code>.
     * @param beans A <code>Map</code> mapping strings to objects.
     * @return A new string, with any embedded expressions replaced with the
     *    expression string values.
     */
-   public static Object evaluateString(String value, Map<String, Object> beans)
+   public static Object evaluateString(String value, ExpressionFactory factory, Map<String, Object> beans)
    {
       List<Expression> expressions = getExpressions(value);
       if (value.startsWith(Expression.BEGIN_EXPR) && value.endsWith(Expression.END_EXPR) && expressions.size() == 1)
       {
          Expression expression = new Expression(value.substring(2, value.length() - 1));
-         return expression.evaluate(beans);
+         return expression.evaluate(factory, beans);
       }
       else
       {
-         return replaceExpressions(value, expressions, beans);
+         return replaceExpressions(value, expressions, factory, beans);
       }
    }
 
@@ -482,13 +493,14 @@ public class Expression
     * preserve any formatting within the <code>RichTextString</code>.
     * @param value The entire string, with possibly many expressions.
     * @param expressions A <code>List</code> of <code>Expressions</code>.
+    * @param factory An <code>ExpressionFactory</code>.
     * @param beans A <code>Map</code> of beans to provide context for the
     *    <code>Expressions</code>.
     * @return A <code>String</code> with all expressions replaced with their
     *    evaluated results.
     */
    private static String replaceExpressions(String value,
-      List<Expression> expressions, Map<String, Object> beans)
+      List<Expression> expressions, ExpressionFactory factory, Map<String, Object> beans)
    {
       // Replace Expressions with values.
       for (Expression expr : expressions)
@@ -503,10 +515,10 @@ public class Expression
             String replaceMe = value.substring(beginIdx, endIdx + 1);
             if (DEBUG)
                System.err.print("  Replacing \"" + replaceMe + "\" with ");
-            Object result = expr.evaluate(beans);
+            Object result = expr.evaluate(factory, beans);
             String replaceWith = "";
             if (result != null)
-               replaceWith = expr.evaluate(beans).toString();
+               replaceWith = expr.evaluate(factory, beans).toString();
             if (DEBUG)
                System.err.println("  \"" + replaceWith + "\".");
 
@@ -534,13 +546,14 @@ public class Expression
     * @param helper A <code>CreationHelper</code> that can create the proper
     *    <code>RichTextString</code>.
     * @param expressions A <code>List</code> of <code>Expressions</code>.
+    * @param factory An <code>ExpressionFactory</code>.
     * @param beans A <code>Map</code> of beans to provide context for the
     *    <code>Expressions</code>.
     * @return A <code>RichTextString</code> with all expressions replaced with
     *    their evaluated results, and formatted preserved as best as possible.
     */
    private static RichTextString replaceExpressions(RichTextString richTextString,
-      CreationHelper helper, List<Expression> expressions, Map<String, Object> beans)
+      CreationHelper helper, List<Expression> expressions, ExpressionFactory factory, Map<String, Object> beans)
    {
       ArrayList<String> exprStrings = new ArrayList<String>(expressions.size());
       ArrayList<String> exprValues = new ArrayList<String>(expressions.size());
@@ -549,7 +562,7 @@ public class Expression
          if (DEBUG)
             System.err.println("replExprsRTS: Loop for " + expr.myExpression);
          exprStrings.add(BEGIN_EXPR + expr.myExpression + END_EXPR);
-         Object result = expr.evaluate(beans);
+         Object result = expr.evaluate(factory, beans);
          if (result != null)
             exprValues.add(result.toString());
          else

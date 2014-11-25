@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -341,8 +342,19 @@ public class MultipleNonConsecutiveTest extends TestCase
       symbols.put("symbols", Arrays.asList("!", "@", "#", "$", "%", "^", "&", "*", "(", ")"));
       Map<String, Object> numbers = new HashMap<String, Object>();
       numbers.put("numbers", Arrays.asList("0", "1", "2", "3", "4", "5", "6", "7", "8", "9"));
-      return Arrays.asList(
-              symbols, numbers, letters, symbols, symbols, numbers, numbers, symbols, numbers, letters, symbols, numbers
-              );
+      List<Map<String, Object>> beansMaps = new ArrayList<Map<String, Object>>();
+      beansMaps.add(symbols);
+      beansMaps.add(numbers);
+      beansMaps.add(letters);
+      beansMaps.add(symbols);
+      beansMaps.add(symbols);
+      beansMaps.add(numbers);
+      beansMaps.add(numbers);
+      beansMaps.add(symbols);
+      beansMaps.add(numbers);
+      beansMaps.add(letters);
+      beansMaps.add(symbols);
+      beansMaps.add(numbers);
+      return beansMaps;
    }
 }

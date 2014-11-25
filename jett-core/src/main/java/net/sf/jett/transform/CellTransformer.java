@@ -127,10 +127,8 @@ public class CellTransformer
          {
             // Not a tag.  Evaluate any Expressions embedded in the value.
             RichTextString richString = cell.getRichStringCellValue();
-            List<String> noImplProcCollNames =
-               workbookContext.getNoImplicitProcessingCollectionNames();
             List<String> collExprs = Expression.getImplicitCollectionExpr(richString.toString(),
-               beans, noImplProcCollNames);
+               beans, workbookContext);
             if (!collExprs.isEmpty())
             {
                if (DEBUG_GENERAL)
@@ -146,7 +144,7 @@ public class CellTransformer
                if (DEBUG_GENERAL)
                   System.err.println("  CT: Transforming string cell.");
                CreationHelper helper = sheet.getWorkbook().getCreationHelper();
-               Object result = Expression.evaluateString(richString, helper, beans);
+               Object result = Expression.evaluateString(richString, helper, workbookContext.getExpressionFactory(), beans);
                newValue = SheetUtil.setCellValue(cell, result, richString);
             }
          }
