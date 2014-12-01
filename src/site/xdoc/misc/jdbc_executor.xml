@@ -1,7 +1,7 @@
 <document>
     <properties>
         <author email="rgettman@users.sourceforge.net">Randy Gettman</author>
-        <title>Comparison to jXLS</title>
+        <title>JDBC Execution</title>
     </properties>
     <body>
         <section name="JDBC Executor">
@@ -96,6 +96,24 @@ beans.put("jdbc", jdbc);
                     <td style="width: 250px;">Bugs</td>
                     <td style="width: 150px;">Bunny</td>
                     <td style="width: 350px;">$1,500.00</td>
+                </tr>
+            </table>
+            <p>It is possible to use single-quote characters inside the SQL string.  But because
+                they are embedded in a JEXL string that is itself delimited by single-quotes, they
+                need to be escaped with a backslash.  But then JETT requires that the backslash
+                itself needs to be escaped.  This results in <em>two</em> backslashes for an escaped
+                single-quote character.  This example demostrates how to escape single-quote
+                characters in the SQL string embedded in the attribute.</p>
+            <table style="width: 750px;">
+                <tr>
+                    <td class="bold" style="width: 250px;">First</td>
+                    <td class="bold" style="width: 150px;">Last</td>
+                    <td class="bold" style="width: 350px;">Salary</td>
+                </tr>
+                <tr>
+                    <td style="width: 250px;">&lt;jt:forEach items="${jdbc.execQuery('SELECT first_name, last_name, salary FROM employee WHERE title = \\'Cartoon Character\\'')}" var="employee"&gt;${employee.first_name}</td>
+                    <td style="width: 150px;">${employee.last_name}</td>
+                    <td style="width: 350px;">${employee.salary}&lt;/jt:forEach&gt;</td>
                 </tr>
             </table>
         </section>

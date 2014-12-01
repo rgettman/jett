@@ -570,7 +570,7 @@ public class Expression
          if (DEBUG)
             System.err.println("  replacement of \"" + expr.myExpression + "\" with \"" + result + "\".");
       }
-      return RichTextStringUtil.replaceValues(richTextString, helper, exprStrings, exprValues);
+      return RichTextStringUtil.replaceValues(richTextString, helper, exprStrings, exprValues, false);
    }
 
    /**
