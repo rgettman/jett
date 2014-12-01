@@ -180,12 +180,14 @@ public class RichTextStringUtil
     * @param targets The <code>List</code> of strings to replace.
     * @param replacements The corresponding <code>List</code> of replacement
     *    strings.
+    * @param replaceAll If <code>true</code> replace all occurrences, else only
+    *    replace the first occurrence.
     * @return A new <code>RichTextString</code> with replaced values, or the
     *    same <code>RichTextString</code> if <code>replace</code> is
     *    <code>null</code> or empty.
     */
    public static RichTextString replaceValues(RichTextString richTextString,
-      CreationHelper helper, List<String> targets, List<String> replacements)
+      CreationHelper helper, List<String> targets, List<String> replacements, boolean replaceAll)
    {
        if (targets == null || targets.size() == 0)
          return richTextString;
@@ -209,8 +211,16 @@ public class RichTextStringUtil
             int change = replaceWith.length() - replaceMe.length();
             if (DEBUG)
                System.err.println("  Replacing \"" + replaceMe + "\" with \"" + replaceWith + "\".");
-            value = value.replaceFirst(Expression.NEGATIVE_LOOKBEHIND_BACKSLASH + Pattern.quote(replaceMe),
-               Matcher.quoteReplacement(replaceWith));
+            if (replaceAll)
+            {
+               value = value.replaceAll(Expression.NEGATIVE_LOOKBEHIND_BACKSLASH + Pattern.quote(replaceMe),
+                  Matcher.quoteReplacement(replaceWith));
+            }
+            else
+            {
+               value = value.replaceFirst(Expression.NEGATIVE_LOOKBEHIND_BACKSLASH + Pattern.quote(replaceMe),
+                  Matcher.quoteReplacement(replaceWith));
+            }
 
             updateFormattingRuns(formattingRuns, beginIdx, change);
          }

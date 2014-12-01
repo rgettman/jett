@@ -203,13 +203,12 @@ public class TagParser
                CreationHelper helper = myCell.getSheet().getWorkbook().getCreationHelper();
                RichTextString attrValue = RichTextStringUtil.substring(myCellRichTextString,
                   helper, pos - scanner.getCurrLexeme().length(), pos);
-               // Replace all tabs, carriage returns, linefeeds with spaces.
+               // Replace _all_ tabs, carriage returns, linefeeds with spaces.
                attrValue = RichTextStringUtil.replaceValues(attrValue, helper,
                   Arrays.asList("\n", "\r", "\t"),
-                  Arrays.asList(" " , " " , " " ));
+                  Arrays.asList(" " , " " , " " ),
+                  true);
                // Perform escape-sequence replacement.
-               //attrValue = RichTextStringUtil.replaceAll(attrValue, helper, "\\\"", "\"");
-               //attrValue = RichTextStringUtil.replaceAll(attrValue, helper, "\\\\", "\\");
                attrValue = RichTextStringUtil.performEscaping(attrValue, helper);
                myAttributes.put(attrName, attrValue);
                attrName = null;
