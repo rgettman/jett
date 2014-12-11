@@ -3,9 +3,10 @@ package net.sf.jett.expression;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.jagg.AggregateValue;
+import net.sf.jagg.AggregateFunction;
 import net.sf.jagg.Aggregations;
 import net.sf.jagg.Aggregator;
+import net.sf.jagg.model.AggregateValue;
 
 /**
  * A <code>JaggFuncs</code> object is an object that represents jAgg aggregate
@@ -24,8 +25,8 @@ public class JaggFuncs
     */
    public static Object eval(List<Object> values, String aggSpecString)
    {
-      List<Aggregator> aggs = new ArrayList<Aggregator>(1);
-      Aggregator agg = Aggregator.getAggregator(aggSpecString.trim());
+      List<AggregateFunction> aggs = new ArrayList<AggregateFunction>(1);
+      AggregateFunction agg = Aggregator.getAggregator(aggSpecString.trim());
       aggs.add(agg);
       List<String> props = new ArrayList<String>(0);
       List<AggregateValue<Object>> aggValues = Aggregations.groupBy(values, props, aggs);

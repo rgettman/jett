@@ -85,6 +85,25 @@ public class TestUtility
    }
 
    /**
+    * Gets a beans map with "counties" referring to a <code>List</code> of all
+    * counties in California and in Nevada.
+    * @return A <code>Map</code> of a list of <code>County</code> beans.
+    * @since 0.9.0
+    */
+   public static Map<String, Object> getCountyData()
+   {
+      Map<String, Object> beans = new HashMap<String, Object>();
+      State california = getCalifornia();
+      State nevada = getNevada();
+      List<County> counties = new ArrayList<County>();
+      counties.addAll(california.getCounties());
+      counties.addAll(nevada.getCounties());
+
+      beans.put("counties", counties);
+      return beans;
+   }
+
+   /**
     * Get California state data.
     * @return A <code>State</code>.
     * @since 0.8.0

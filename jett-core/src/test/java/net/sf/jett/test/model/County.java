@@ -13,6 +13,7 @@ public class County
    private int myEstablishedYear;
    private String myCountySeat;
    private String myFipsCode;
+   private String myStateName;
 
    /**
     * Initializes things to 0/null.
@@ -25,6 +26,7 @@ public class County
       myEstablishedYear = 0;
       myCountySeat = null;
       myFipsCode = null;
+      myStateName = null;
    }
 
    /**
@@ -171,5 +173,24 @@ public class County
    public double getPopulationDensity()
    {
       return (double) myPopulation / myArea;
+   }
+
+   /**
+    * Sets the state name.
+    * @param stateName The state name.
+    */
+   public void setStateName(String stateName)
+   {
+      myStateName = stateName;
+   }
+
+   /**
+    * Returns the state name.
+    * @return The state name.
+    * @since 0.9.0
+    */
+   public String getStateName()
+   {
+      return myStateName;
    }
 }
