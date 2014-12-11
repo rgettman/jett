@@ -72,7 +72,9 @@ public class TagLibraryRegistry
          return null;
       Class<? extends Tag> tagClass = library.getTagMap().get(tagName);
       if (tagClass == null)
+      {
          return null;
+      }
       try
       {
          Tag tag = tagClass.newInstance();

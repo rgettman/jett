@@ -8,10 +8,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import net.sf.jagg.AggregateValue;
+import net.sf.jagg.AggregateFunction;
 import net.sf.jagg.Aggregations;
 import net.sf.jagg.Aggregator;
 import net.sf.jagg.CollectAggregator;
+import net.sf.jagg.model.AggregateValue;
 import org.apache.poi.ss.usermodel.RichTextString;
 
 import net.sf.jett.exception.TagParseException;
@@ -347,7 +348,7 @@ public class ForEachTag extends BaseLoopTag
    private List<Group> groupTheCollection()
    {
       List<Object> items = new ArrayList<Object>(myCollection);
-      List<Aggregator> aggregators = Arrays.<Aggregator>asList(new CollectAggregator(Aggregator.PROP_SELF));
+      List<AggregateFunction> aggregators = Arrays.<AggregateFunction>asList(new CollectAggregator(Aggregator.PROP_SELF));
       List<AggregateValue<Object>> aggValues = Aggregations.groupBy(items, myGroupByProperties, aggregators);
       List<Group> groups = new ArrayList<Group>(aggValues.size());
       for (AggregateValue aggValue : aggValues)

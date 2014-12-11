@@ -5,9 +5,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import net.sf.jagg.AggregateValue;
+import net.sf.jagg.AggregateFunction;
 import net.sf.jagg.Aggregations;
 import net.sf.jagg.Aggregator;
+import net.sf.jagg.model.AggregateValue;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Row;
@@ -54,7 +55,7 @@ public class TotalTag extends BaseTag
       new ArrayList<String>(Arrays.asList(ATTR_PARALLEL));
 
    private List<Object> myList = null;
-   private Aggregator myAggregator = null;
+   private AggregateFunction myAggregateFunction = null;
    private int myParallelism = 1;
 
    /**
@@ -112,7 +113,7 @@ public class TotalTag extends BaseTag
       myParallelism = AttributeUtil.evaluatePositiveInt(this, attributes.get(ATTR_PARALLEL), beans, ATTR_PARALLEL, 1);
 
       String aggSpec = AttributeUtil.evaluateString(this, attributes.get(ATTR_VALUE), beans, null);
-      myAggregator = Aggregator.getAggregator(aggSpec);
+      myAggregateFunction = Aggregator.getAggregator(aggSpec);
    }
 
    /**
@@ -128,13 +129,13 @@ public class TotalTag extends BaseTag
       Block block = context.getBlock();
 
       List<String> propsList = new ArrayList<String>(0);
-      List<Aggregator> aggList = new ArrayList<Aggregator>(1);
-      aggList.add(myAggregator);
+      List<AggregateFunction> aggList = new ArrayList<AggregateFunction>(1);
+      aggList.add(myAggregateFunction);
       List<AggregateValue<Object>> aggValues =
          Aggregations.groupBy(myList, propsList, aggList, myParallelism);
       // There should be only one AggregateValue with no properties to group by.
       AggregateValue aggValue = aggValues.get(0);
-      Object value = aggValue.getAggregateValue(myAggregator);
+      Object value = aggValue.getAggregateValue(myAggregateFunction);
       // Replace the bodiless tag text with the proper result.
       Row row = sheet.getRow(block.getTopRowNum());
       Cell cell = row.getCell(block.getLeftColNum());

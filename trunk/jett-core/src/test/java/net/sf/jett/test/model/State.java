@@ -66,5 +66,6 @@ public class State
    public void addCounty(County county)
    {
       myCounties.add(county);
+      county.setStateName(myName);
    }
 }

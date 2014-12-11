@@ -1,11 +1,11 @@
 package net.sf.jett.util;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import net.sf.jagg.MethodCache;
+import net.sf.jagg.exception.JaggException;
+import net.sf.jagg.util.MethodCache;
 import net.sf.jett.exception.ParseException;
 
 /**
@@ -184,19 +184,9 @@ public class OrderByComparator<T> implements Comparator<T>
             value2 = (Comparable)
                cache.getValueFromProperty(o2, property);
          }
-         catch (NoSuchMethodException e)
+         catch (JaggException e)
          {
             throw new UnsupportedOperationException("No matching method found for \"" +
-               property + "\".", e);
-         }
-         catch (IllegalAccessException e)
-         {
-            throw new UnsupportedOperationException("Illegal method access detected for property \"" +
-               property + "\".", e);
-         }
-         catch (InvocationTargetException e)
-         {
-            throw new UnsupportedOperationException("Exception detected getting property \"" +
                property + "\".", e);
          }
          try

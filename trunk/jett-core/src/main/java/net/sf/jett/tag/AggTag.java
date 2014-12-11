@@ -7,9 +7,11 @@ import java.util.Map;
 
 import org.apache.poi.ss.usermodel.RichTextString;
 
-import net.sf.jagg.AggregateValue;
+import net.sf.jagg.AggregateFunction;
 import net.sf.jagg.Aggregation;
 import net.sf.jagg.Aggregator;
+import net.sf.jagg.exception.JaggException;
+import net.sf.jagg.model.AggregateValue;
 
 import net.sf.jett.exception.TagParseException;
 import net.sf.jett.transform.BlockTransformer;
@@ -19,7 +21,7 @@ import net.sf.jett.util.AttributeUtil;
  * <p>An <code>AggTag</code> represents possibly many aggregate values
  * calculated from a <code>List</code> of values already exposed to the
  * context.  It uses <code>jAgg</code> functionality and exposes the results
- * and <code>Aggregators</code> used for display later.</p>
+ * and <code>AggregateFunctions</code> used for display later.</p>
  *
  * <br/>Attributes:
  * <ul>
@@ -46,17 +48,17 @@ public class AggTag extends BaseTag
     */
    public static final String ATTR_ITEMS = "items";
    /**
-    * Attribute that specifies the <code>List</code> of Aggregators to use.
+    * Attribute that specifies the <code>List</code> of AggregateFunctions to use.
     */
    public static final String ATTR_AGGS = "aggs";
    /**
     * Attribute that specifies the name of the <code>List</code> of exposed
-    * aggregators.
+    * aggregate functions.
     */
    public static final String ATTR_AGGS_VAR = "aggsVar";
    /**
-    * Attribute that specifies the <code>List</code> of exposed aggregation
-    * values.
+    * Attribute that specifies name of the <code>List</code> of exposed
+    * aggregation values.
     */
    public static final String ATTR_VALUES_VAR = "valuesVar";
    /**
@@ -130,7 +132,7 @@ public class AggTag extends BaseTag
          ATTR_ROLLUPS, ATTR_CUBE, ATTR_GROUPING_SETS));
 
    private List<Object> myList = null;
-   private List<Aggregator> myAggs = null;
+   private List<AggregateFunction> myAggs = null;
    private String myAggsVar = null;
    private String myValuesVar = null;
    private Aggregation myAggregation;
@@ -177,7 +179,7 @@ public class AggTag extends BaseTag
     * name to which the aggregate values will be exposed in the
     * <code>Map</code> of beans.  The "aggsVar" attribute must be a string that
     * indicates the name of the <code>List</code> that contains all created
-    * <code>Aggregators</code> and to which that will be exposed in the
+    * <code>AggregateFunctions</code> and to which that will be exposed in the
     * <code>Map</code> of beans.  The "groupBy" attribute must be a semicolon-
     * separated list of properties with which to "group" aggregated
     * calculations (defaults to no "group by" properties).  The "agg" tag must
@@ -197,7 +199,7 @@ public class AggTag extends BaseTag
       myList = AttributeUtil.evaluateObject(this, attributes.get(ATTR_ITEMS), beans, ATTR_ITEMS, List.class, null);
 
       List<String> aggsList = AttributeUtil.evaluateList(this, attributes.get(ATTR_AGGS), beans, null);
-      myAggs = new ArrayList<Aggregator>(aggsList.size());
+      myAggs = new ArrayList<AggregateFunction>(aggsList.size());
       for (String aggSpec : aggsList)
          myAggs.add(Aggregator.getAggregator(aggSpec));
 
@@ -242,6 +244,11 @@ public class AggTag extends BaseTag
       {
          myAggregation = builder.build();
       }
+      catch (JaggException e)
+      {
+         throw new TagParseException("AggTag: Problem executing jAgg call: " + getLocation()
+            + ": " + e.getMessage(), e);
+      }
       catch (RuntimeException e)
       {
          throw new TagParseException("AggTag: RuntimeException caught during jAgg execution" + getLocation()
@@ -250,9 +257,9 @@ public class AggTag extends BaseTag
    }
 
    /**
-    * Run a "group by" operation on the specified <code>Aggregators</code>, get
+    * Run a "group by" operation on the specified <code>AggregateFunctions</code>, get
     * the results, and expose the aggregate values and the
-    * <code>Aggregators</code> used.
+    * <code>AggregateFunctions</code> used.
     * @return Whether the first <code>Cell</code> in the <code>Block</code>
     *    associated with this <code>Tag</code> was processed.
     */
