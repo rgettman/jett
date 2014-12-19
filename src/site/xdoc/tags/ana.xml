@@ -1,0 +1,108 @@
+<document>
+    <properties>
+        <author email="rgettman@users.sourceforge.net">Randy Gettman</author>
+        <title>Ana Tag</title>
+    </properties>
+    <body>
+        <section name="The Ana Tag">
+            <p>JETT's integration with the <a href="http://jagg.sourceforge.net">jAgg</a> project
+            allows the use of the "ana" tag, which performs analytic operations on a
+            <code>List</code> of items, yielding analytic results that can be populated in the
+            resultant spreadsheet.  The "ana" tag requires a body.</p>
+            <h1>Attributes</h1>
+            <ul>
+                <li>The "ana" tag supports all <a href="basics.html">base tag attributes</a>.</li>
+                <li><strong>items: List</strong> Required.  This is the <code>List</code> of items
+                to analyze.</li>
+                <li><strong>analytics: String</strong> Required.  This is a list of <em>analytic
+                specification strings</em>, delimited by semicolons, e.g.
+                "Lag(price) partitionBy(month);Sum(quantity) orderBy(year, month) rows(12, 0)".
+                These represent analytic operations to perform on the
+                list of values.  A property may be nested, e.g. "Avg(stock.price)".</li>
+                <li><strong>analyticsVar: String</strong> Optional.  If given, this is the name under
+                which the array of <code>AnalyticAggregator</code> objects will be published in the beans
+                map.  This new bean can only be referenced from within the Block defined by the
+                tag.</li>
+                <li><strong>valuesVar: String</strong> Required.  This is the name under which the
+                analytic results will be published in the beans map.  This new bean can only be
+                referenced from within the Block defined by the tag.</li>
+            </ul>
+            <p>The analytics specified in the "analytics" attribute may be an
+                <code>AnalyticFunction</code>, either built-in to the jAgg library, or custom built
+                by the developer.</p>
+            <p>Usually, a <a href="forEach.html">forEach tag</a> is used inside the body of the
+                "ana" tag to display the analytic results.</p>
+        </section>
+        <section name="Example">
+            <p>A <code>List</code> of <code>Employees</code> is available in the beans map.</p>
+            <ul>
+                <li>Robert Stack, salary $1000, title "Data Structures Programmer"</li>
+                <li>Suzie Queue, salary $900, title "Data Structures Programmer"</li>
+                <li>Elmer Fudd, salary $800, title "Cartoon Character"</li>
+                <li>Bugs Bunny, salary $1500, title "Cartoon Character"</li>
+            </ul>
+            <table style="width: 750px;">
+                <tr>
+                    <td class="bold" style="width: 150px;">Name</td>
+                    <td class="bold" style="width: 150px;">Title</td>
+                    <td class="bold" style="width: 150px;">Salary</td>
+                    <td class="bold" style="width: 150px;">Overall Salary Rank</td>
+                    <td class="bold" style="width: 150px;">Percent Salary of Title Total</td>
+                </tr>
+                <tr>
+                    <td style="width: 150px;">&lt;jt:ana items="${employees}" analytics="Rank() orderBy(salary DESC);RatioToReport(salary) partitionBy(title)"
+                        analyticsVar="analytics" valuesVar="results"&gt;&lt;jt:forEach items="${results}"
+                        var="result"&gt;${result.object.fullName}</td>
+                    <td style="width: 150px;">${result.object.title}</td>
+                    <td style="width: 150px;">${result.object.salary}</td>
+                    <td style="width: 150px;">${result.getAnalyzedValue(0)}</td>
+                    <td style="width: 150px;">${result.getAnalyzedValue(1)}&lt;/jt:forEach&gt;&lt;/jt:ana&gt;</td>
+                </tr>
+            </table>
+            <p>One can refer to analyzed values by passing in the indexed <code>AnalyticFunction</code>
+            or by passing the index itself into the "getAnalyzedValue" method.</p>
+            <p>Whether <code>getAnalyzedValue(0)</code> or <code>getAnalyzedValue(analytics[0])</code>
+            is used, it gets transformed into...</p>
+            <table style="width: 750px;">
+                <tr>
+                    <td class="bold" style="width: 150px;">Name</td>
+                    <td class="bold" style="width: 150px;">Title</td>
+                    <td class="bold" style="width: 150px;">Salary</td>
+                    <td class="bold" style="width: 150px;">Overall Salary Rank</td>
+                    <td class="bold" style="width: 150px;">Percent Salary of Title Total</td>
+                </tr>
+                <tr>
+                    <td style="width: 150px;">Robert Stack</td>
+                    <td style="width: 150px;">Data Structures Programmer</td>
+                    <td style="width: 150px;">$1000.00</td>
+                    <td style="width: 150px;">2</td>
+                    <td style="width: 150px;">52.63%</td>
+                </tr>
+                <tr>
+                    <td style="width: 150px;">Suzie Queue</td>
+                    <td style="width: 150px;">Data Structures Programmer</td>
+                    <td style="width: 150px;">$900.00</td>
+                    <td style="width: 150px;">3</td>
+                    <td style="width: 150px;">47.37%</td>
+                </tr>
+                <tr>
+                    <td style="width: 150px;">Elmer Fudd</td>
+                    <td style="width: 150px;">Cartoon Character</td>
+                    <td style="width: 150px;">$800.00</td>
+                    <td style="width: 150px;">4</td>
+                    <td style="width: 150px;">34.78%</td>
+                </tr>
+                <tr>
+                    <td style="width: 150px;">Bugs Bunny</td>
+                    <td style="width: 150px;">Cartoon Character</td>
+                    <td style="width: 150px;">$1500.00</td>
+                    <td style="width: 150px;">1</td>
+                    <td style="width: 150px;">65.22%</td>
+                </tr>
+            </table>
+            <p>Notice how Robert Stack's and Suzie Queue's percentages total 100%, as do Elmer
+            Fudd's and Bugs Bunny's, because of the partitioning.  However, the ranking has no
+            partitioning, so the entire list is used for the ranking.</p>
+        </section>
+    </body>
+</document>
