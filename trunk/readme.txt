@@ -68,7 +68,7 @@ Repository.
 <dependency>
     <groupId>net.sf.jett</groupId>
     <artifactId>jett-core</artifactId>
-    <version>0.8.0</version>
+    <version>0.9.0</version>
 </dependency>
 
 Dependencies
@@ -93,8 +93,8 @@ The following libraries are required, as they are used by JETT:
    - Apache Commons JEXL 2.1.1 in turn depends on Commons Logging 1.1.1.
 - Apache Commons Logging 1.1.1 (http://commons.apache.org/logging/download_logging.cgi)
    - commons-logging-1.1.1.jar
-- SourceForge's jAgg 0.8.1 (http://sourceforge.net/projects/jagg/files/) (or higher)
-   - jagg-core-0.8.1.jar
+- SourceForge's jAgg 0.9.0 (http://sourceforge.net/projects/jagg/files/) (or higher)
+   - jagg-core-0.9.0.jar
    - Full disclosure: I built jAgg also.
 - JUnit 4.8.2 (for testing only)
    - junit-4.8.2.jar
