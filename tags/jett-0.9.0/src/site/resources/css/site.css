@@ -1,0 +1,59 @@
+table
+{
+    border-collapse: collapse;
+}
+td
+{
+    border: 1px solid black;
+    background-color: white;
+}
+th
+{
+    border: 1px solid black;
+    background-color: lightGray;
+    font-weight: bold;
+}
+.yellow
+{
+    background-color: yellow;
+}
+.lightGray
+{
+    background-color: lightGray;
+}
+.boldText
+{
+    font-weight: bold;
+}
+.redText
+{
+    color: red;
+}
+.greenText
+{
+    color: green;
+}
+.bold
+{
+    font-weight: bold;
+}
+.boldItalic
+{
+    font-weight: bold;
+    font-style: italic;
+}
+.center
+{
+    text-align: center;
+}
+.right
+{
+    text-align: right;
+}
+.sup
+{
+    vertical-align: baseline;
+	font-size: 0.8em;
+	position: relative;
+	top: -0.4em;
+}

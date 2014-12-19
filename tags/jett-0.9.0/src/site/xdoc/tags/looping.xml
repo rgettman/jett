@@ -1,0 +1,76 @@
+<document>
+    <properties>
+        <author email="rgettman@users.sourceforge.net">Randy Gettman</author>
+        <title>Looping Tags</title>
+    </properties>
+    <body>
+        <section name="Looping Tags">
+            <p>JETT has several built-in looping tags.  These tags are used to display repeating
+            content, such as indexed content or <code>Collections</code>.  Normally, the block's
+            content is copied downward to display repeating content.  Other content that is below
+            the block is shifted downward to make room.</p>
+            <p>All looping tags are defined by classes that subclass the abstract class
+            <code>BaseLoopTag</code>, which itself subclasses the abstract class
+            <code>BaseTag</code>.  These are JETT's built-in looping tags:</p>
+            <ul>
+                <li><a href="for.html">"for" tag</a></li>
+                <li><a href="forEach.html">"forEach" tag</a></li>
+                <li><a href="multiForEach.html">"multiForEach" tag</a></li>
+            </ul>
+            <p>All looping tags support several common attributes:</p>
+            <h1>Attributes</h1>
+            <ul>
+                <li>All looping tags support all <a href="basics.html">base tag attributes</a>.</li>
+                <li><strong>copyRight: Boolean</strong> Optional.  Normally, content below the
+                block is shifted downward to make room for the copied blocks.  But if this
+                attribute is true, then this will shift content to the right of the block out of
+                the way, and the block will be copied to the right instead of downward.  Default:
+                false (downward).</li>
+                <li><strong>fixed: Boolean</strong> Optional.  If true, then the tag will
+                assume that the proper space is present into which the blocks will be copied, so it
+                will NOT shift other content out of the way to make room for the copied blocks.
+                Default: false (shifting content out of the way will occur).</li>
+                <li><strong>pastEndAction: String</strong> Optional.  If specified, then its value
+                controls what happens to blocks when it is beyond the end of iteration on a
+                <code>Collection</code>.  The circumstances that allow extra blocks beyond the end
+                of a <code>Collection</code> are explained in the page for each looping tag, when
+                they arise.  Here are the possible values:</li>
+                <ul>
+                    <li><em>clear</em> This works just like the "elseAction" attribute of the
+                    <a href="if.html">if tag</a>: remove the contents of the cells.
+                    This is the default.</li>
+                    <li><em>remove</em> This works just like the "elseAction" attribute of the
+                    <a href="if.html">if tag</a>: remove the cells, including cell contents,
+                    formatting, borders, and merged regions.</li>
+                    <li><em>replaceExpr</em> Don't delete the contents of the entire cell.  Replace
+                    any expressions that reference collections that have been exhausted with the
+                    result of evaluating the <strong>replaceValue</strong> attribute.</li>
+                </ul>
+                <li><strong>replaceExpr: String</strong> Optional.  If the <strong>pastEndAction</strong>
+                is <em>replaceExpr</em>, then all expressions that reference collections that have
+                been exhausted are replaced with this value.  This is ignored if
+                <strong>pastEndAction</strong> is not <em>replaceExpr</em>.  Default: an empty
+                string.</li>
+                <li><strong>groupDir: String</strong> Optional.  This works just like the
+                "groupDir" attribute of the <a href="group.html">group tag</a>: if specified, then
+                JETT will create an Excel Group (Outline) out of the resultant rows or columns.
+                Here are the possible values:</li>
+                <ul>
+                    <li><em>rows</em> Create an Excel Group (Outline) out of the resultant
+                    rows.</li>
+                    <li><em>cols</em> Create an Excel Group (Outline) out of the resultant
+                    columns.</li>
+                    <li><em>none</em> Do not create an Excel Group (Outline).  This is the default.</li>
+                </ul>
+                <li><strong>collapse: boolean</strong> Optional.  This works just like the
+                "collapse" attribute of the <a href="group.html">group tag</a>: This determines
+                whether the Excel Group (Outline) created is in a collapsed state.  The default is
+                <code>false</code> (not collapsed).</li>
+                <li><strong>onLoopProcessed: TagLoopListener</strong> Optional.  Specify a
+                <code>TagLoopListener</code> that will be called every time a loop's processing has
+                finished.  Alternatively, a fully-qualified Java class name may be specified here,
+                and JETT will instantiate one, provided it has a no-argument public constructor.</li>
+            </ul>
+        </section>
+    </body>
+</document>
