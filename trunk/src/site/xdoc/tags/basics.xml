@@ -20,6 +20,7 @@
             <p>Here are all the tags in the JETT Tag Library:</p>
             <ul>
                 <li><a href="agg.html">&lt;jt:agg&gt;</a></li>
+                <li><a href="ana.html">&lt;jt:ana&gt;</a></li>
                 <li><a href="comment.html">&lt;jt:comment&gt;</a></li>
                 <li><a href="for.html">&lt;jt:for&gt;</a></li>
                 <li><a href="formula.html">&lt;jt:formula&gt;</a></li>

@@ -4,6 +4,40 @@
         <title>Change Log for JETT</title>
     </properties>
     <body>
+        <section name="JETT 0.9.0 (Beta) Released - 19 Dec 2014">
+            <p>New In JETT 0.9.0:</p>
+            <ul>
+                <li>Ticket #35: Include more detail on original cell locations on
+                    <code>TagParseExceptions</code>.  Now, <code>TagParseException</code> messages
+                    include not just the location of the cell where the tag was encountered, but
+                    also the original template location as well.  Also included are the locations
+                    of all tags the error tag was nested inside of, to promote the ease of locating
+                    a tag error on a template spreadsheet.</li>
+                <li>Ticket #36: The <code>CommentTag</code> threw a <code>NullPointerException</code>
+                    when a <code>null</code> author was supplied.  This tag class now uses
+                    <code>Attributetil</code> to parse and evaluate its attribute values, which
+                    throws the proper exception if a <code>null</code> is passed for the
+                    "author" or the "comment" attributes.</li>
+                <li>Ticket #38: NULLs from the database aren't respected when retrieved with JDBC
+                    Execution.  Now, JETT checks the database value for <code>null</code> using
+                    <code>wasNull()</code>, so the proper <code>null</code> is stored in
+                    <code>ResultSetRow</code>, JETT's class to store DB results for processing.</li>
+                <li>Ticket #40: The <code>ExpressionFactory</code> internal class was a singleton,
+                    but because it represents the interface to Apache Commons JEXL, it becomes a
+                    bottleneck when reports are being generated concurrently.  Now, the
+                    <code>ExpressionFactory</code> is no longer a singleton; a new factory is now
+                    owned by each new <code>ExcelTransformer</code> created, eliminating the
+                    bottleneck.</li>
+                <li>Ticket #41: A second newline character in a query string to be executed by the
+                    <code>JDBCExecutor</code> causes an error.  A previous bug fix had exposed this
+                    bug, which had only replaced the first newline character it encountered.  Now,
+                    JETT will replace all newline characters it encounters with spaces.</li>
+                <li>Ticket #42: Create an "ana" tag to utilize new jAgg 0.9.0 Analytics
+                    functionality.  The new <a href="tags/ana.html">Ana tag</a> now provides
+                    analytic function capability.  JETT's dependency on jAgg has been updated to
+                    require jAgg 0.9.0.</li>
+            </ul>
+        </section>
         <section name="JETT 0.8.0 (Beta) Released - 31 Jul 2014">
             <p>New in JETT 0.8.0:</p>
             <ul>

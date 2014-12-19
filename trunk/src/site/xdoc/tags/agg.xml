@@ -19,7 +19,7 @@
                 "Avg(price);Sum(quantity)".  These represent aggregate operations to perform on the
                 list of values.  A property may be nested, e.g. "Avg(stock.price)".</li>
                 <li><strong>aggsVar: String</strong> Optional.  If given, this is the name under
-                which the array of <code>Aggregator</code> objects will be published in the beans
+                which the array of <code>AggregateFunction</code> objects will be published in the beans
                 map.  This new bean can only be referenced from within the Block defined by the
                 tag.</li>
                 <li><strong>valuesVar: String</strong> Required.  This is the name under which the
@@ -74,7 +74,7 @@
                         <code>groupingSets="0,1;2;"</code></li>
                 </ul>
             </ul>
-            <p>The Aggregators specified in the "aggs" attribute may be an <code>Aggregator</code>,
+            <p>The AggregateFunctions specified in the "aggs" attribute may be an <code>AggregateFunction</code>,
             either built-in to the jAgg library, or custom built by the developer.</p>
             <p>Usually, a <a href="forEach.html">forEach tag</a> is used inside the body of the
             "agg" tag to display the aggregate results.</p>
@@ -105,7 +105,7 @@
                     <td style="width: 150px;">${result.getAggregateValue(aggs[2])}&lt;/jt:forEach&gt;&lt;/jt:agg&gt;</td>
                 </tr>
             </table>
-            <p>One can refer to aggregate values by passing in the indexed <code>Aggregator</code>
+            <p>One can refer to aggregate values by passing in the indexed <code>AggregateFunction</code>
             or by passing the index itself into the "getAggregateValue" method.  Alternatively, the
             template above could pass the index itself:</p>
             <table style="width: 750px;">
