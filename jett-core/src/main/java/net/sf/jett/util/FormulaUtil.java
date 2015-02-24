@@ -143,7 +143,8 @@ public class FormulaUtil
       List<CellRef> origCellRefs = formula.getCellRefs();
       StringBuffer buf = new StringBuffer();
       String excelFormula, suffix;
-      int idx = formulaText.indexOf("[", Formula.BEGIN_FORMULA.length());  // Get pos of any suffixes (e.g. "[0,0]").
+      int endFormulaIdx = getEndOfJettFormula(formulaText, 0);
+      int idx = formulaText.indexOf("[", endFormulaIdx);  // Get pos of any suffixes (e.g. "[0,0]").
       if (idx > -1)
       {
          excelFormula = formulaText.substring(0, idx);
@@ -163,6 +164,7 @@ public class FormulaUtil
       if (DEBUG)
       {
          System.err.println("FU.cEFS: Formula text:\"" + formulaText + "\" on sheet " + sheetName);
+         System.err.println("  excelFormula: \"" + excelFormula + "\"");
       }
 
       for (CellRef origCellRef : origCellRefs)
@@ -840,5 +842,55 @@ public class FormulaUtil
          }
       }
       cellRefMap.putAll(newCellRefEntries);
+   }
+
+   /**
+    * Finds the end of the Jett formula substring.  This accounts for bracket
+    * characters (<code>[]</code>) that may be nested inside the JETT formula;
+    * they are legal characters in Excel formulas.  It also accounts for Excel
+    * string literals, by ignoring bracket characters inside Excel string
+    * literals, which are enclosed in double-quotes.  Note that escaped
+    * double-quote characters (<code>""</code>) don't change the "inside double
+    * quotes" variable, once both double-quotes have been processed.
+    * @param cellText The cell text.
+    * @param formulaStartIdx The start of the formula.
+    * @return The index of the ']' character that ends the JETT formula, or
+    *    <code>-1</code> if not found.
+    * @since 0.9.1
+    */
+   public static int getEndOfJettFormula(String cellText, int formulaStartIdx)
+   {
+      int numUnMatchedBrackets = 0;
+      boolean insideDoubleQuotes = false;
+
+      for (int i = formulaStartIdx + Formula.BEGIN_FORMULA.length(); i < cellText.length(); i++)
+      {
+         char c = cellText.charAt(i);
+         switch (c)
+         {
+            case '[':
+               if (!insideDoubleQuotes)
+               {
+                  numUnMatchedBrackets++;
+               }
+               break;
+            case ']':
+               if (!insideDoubleQuotes)
+               {
+                  if (numUnMatchedBrackets == 0)
+                     return i;
+
+                  numUnMatchedBrackets--;
+               }
+               break;
+            case '"':
+               insideDoubleQuotes = !insideDoubleQuotes;
+               break;
+            default:
+               break;
+         }
+      }
+      // End of cell text without matching end-bracket.  Not found.
+      return -1;
    }
 }

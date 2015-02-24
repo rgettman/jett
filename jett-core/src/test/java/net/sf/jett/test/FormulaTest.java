@@ -3,9 +3,9 @@ package net.sf.jett.test;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -81,6 +81,7 @@ public class FormulaTest extends TestCase
       assertEquals("SUM(I3:I60)", TestUtility.getFormulaCellValue(formulaTest, 60, 8));
       assertEquals("\"Counties:\"&COUNTA(K3:K60)", TestUtility.getFormulaCellValue(formulaTest, 60, 10));
       assertEquals("B61<>H61", TestUtility.getFormulaCellValue(formulaTest, 62, 2));
+      assertEquals("TEXT(39300.625,\"[h]\")", TestUtility.getFormulaCellValue(formulaTest, 63, 2));
 
       // Test turning on formula evaluation.
       assertTrue(TestUtility.getBooleanCellValue(formulaTest, 62, 2));

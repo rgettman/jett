@@ -240,7 +240,7 @@ public class SheetTransformer
                      int formulaStartIdx = cellText.indexOf(Formula.BEGIN_FORMULA);
                      if (formulaStartIdx != -1)
                      {
-                        int formulaEndIdx = cellText.indexOf(Formula.END_FORMULA, formulaStartIdx);
+                        int formulaEndIdx = FormulaUtil.getEndOfJettFormula(cellText, formulaStartIdx);
                         if (formulaEndIdx != -1)  // End token after Begin token
                         {
                            // Grab the formula, begin and end tokens and all, e.g. $[SUM(C3)]
@@ -277,11 +277,11 @@ public class SheetTransformer
                            tagLocationsMap.put(cellRef, cellRef);
                         }
                      }
-                  }
+                  }  // End if cell text isn't null
                }
-            }
+            }  // End loop on cells
          }
-      }
+      }  // End loop on rows
    }
 
    /**
@@ -319,7 +319,7 @@ public class SheetTransformer
                   {
                      // Don't consider any suffixes (e.g. "[0,0]") when looking
                      // up the Formula.
-                     int idx = cellText.indexOf("]");
+                     int idx = FormulaUtil.getEndOfJettFormula(cellText, 0);
                      String cellTextNoSfx = cellText.substring(0, idx + 1);
                      String key = sheetName + "!" + cellTextNoSfx;
                      Formula formula = formulaMap.get(key);
