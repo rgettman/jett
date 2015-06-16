@@ -1,10 +1,13 @@
 package net.sf.jett.test;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.RichTextString;
@@ -343,6 +346,21 @@ public class SpanTagTest extends TestCase
          }
       }
       assertEquals(2, horizBorder.getNumMergedRegions());
+
+      Sheet colorNormal = workbook.getSheetAt(6);
+      assertEquals(2, colorNormal.getNumMergedRegions());
+      assertTrue(TestUtility.isMergedRegionPresent(colorNormal, new CellRangeAddress(1, 2, 0, 0)));
+      assertTrue(TestUtility.isMergedRegionPresent(colorNormal, new CellRangeAddress(3, 5, 0, 0)));
+      for (int r = 0; r < 6; r++)
+      {
+         CellStyle cs = TestUtility.getCellStyle(colorNormal, r, 0);
+         Font f = workbook.getFontAt(cs.getFontIndex());
+         // XSSFWorkbook apparently won't store a Font if AUTOMATIC is chosen on the template.
+         // But JETT translates this to black.
+         assertTrue("Row " + r, "000000".equals(TestUtility.getFontColorString(workbook, f)) ||
+                                  "null".equals(TestUtility.getFontColorString(workbook, f)));
+      }
+
    }
 
    /**
@@ -370,6 +388,8 @@ public class SpanTagTest extends TestCase
       beans.put("shrink", -1);
       beans.put("same", 0);
       beans.put("grow", 1);
+      // Used in "color normal".
+      beans.put("heights", Arrays.asList(1, 2, 3));
       return beans;
    }
 }

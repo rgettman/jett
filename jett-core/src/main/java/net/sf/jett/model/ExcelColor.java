@@ -1,6 +1,7 @@
 package net.sf.jett.model;
 
 import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 
@@ -74,6 +75,12 @@ public enum ExcelColor
    VIOLET             (new HSSFColor.VIOLET()               , IndexedColors.VIOLET               , 128, 0, 128),
    WHITE              (new HSSFColor.WHITE()                , IndexedColors.WHITE                , 255, 255, 255),
    YELLOW             (new HSSFColor.YELLOW()               , IndexedColors.YELLOW               , 255, 255, 0);
+
+   /**
+    * The "automatic" color in HSSF (.xls).
+    * @since 0.9.1
+    */
+   public static final HSSFColor HSSF_COLOR_AUTOMATIC = new HSSFColor.AUTOMATIC();
 
    private HSSFColor myHssfColor;
    private XSSFColor myXssfColor;
@@ -234,6 +241,10 @@ public enum ExcelColor
     */
    public static HSSFColor getHssfColorByIndex(short index)
    {
+      if (index == Font.COLOR_NORMAL)
+      {
+         return HSSF_COLOR_AUTOMATIC;
+      }
       return hssfColors[index];
    }
 }
