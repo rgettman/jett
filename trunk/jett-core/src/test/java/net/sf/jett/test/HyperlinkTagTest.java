@@ -100,6 +100,16 @@ public class HyperlinkTagTest extends TestCase
       assertNotNull(h);
       assertEquals(Hyperlink.LINK_DOCUMENT, h.getType());
       assertEquals("'Target Sheet'!B3", h.getAddress());
+
+      assertEquals("Additional Help", TestUtility.getStringCellValue(sheet, 5, 0));
+      rts = TestUtility.getRichTextStringCellValue(sheet, 5, 0);
+      font = TestUtility.convertToFont(RichTextStringUtil.getFontAtIndex(rts, 0), workbook);
+      assertEquals("0000ff", TestUtility.getFontColorString(workbook, font));
+      assertEquals(Font.U_SINGLE, font.getUnderline());
+      h = TestUtility.getHyperlink(sheet, 5, 0);
+      assertNotNull(h);
+      assertEquals(Hyperlink.LINK_URL, h.getType());
+      assertEquals("http://www.youtube.com/watch?v=dQw4w9WgXcQ", h.getAddress());
    }
 
    /**

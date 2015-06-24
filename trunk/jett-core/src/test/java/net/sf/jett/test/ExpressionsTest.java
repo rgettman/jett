@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -156,6 +157,18 @@ public class ExpressionsTest extends TestCase
       assertEquals(8.6, TestUtility.getNumericCellValue(sheet, 28, 1), Math.ulp(0));
 
       assertEquals("${testBean1}Hello World!${testBean2}JETT", TestUtility.getStringCellValue(sheet, 29, 1));
+
+      assertEquals(42, TestUtility.getNumericCellValue(sheet, 30, 1), Math.ulp(0));
+      String card = TestUtility.getStringCellValue(sheet, 31, 1);
+      assertNotNull(card);
+      String[] fields = card.split("\\s+");
+      assertEquals(3, fields.length);
+      List<String> possibleRanks = Arrays.asList("Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten",
+              "Jack", "Queen", "King", "Ace");
+      List<String> possibleSuits = Arrays.asList("Clubs", "Diamonds", "Spades", "Hearts");
+      assertTrue(possibleRanks.contains(fields[0]));
+      assertEquals("of", fields[1]);
+      assertTrue(possibleSuits.contains(fields[2]));
 
       Header header = sheet.getHeader();
       assertEquals("Header Left: 1", header.getLeft());

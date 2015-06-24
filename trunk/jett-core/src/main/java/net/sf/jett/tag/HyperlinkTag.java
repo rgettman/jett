@@ -128,7 +128,7 @@ public class HyperlinkTag extends BaseTag
    {
       super.validateAttributes();
       if (!isBodiless())
-         throw new TagParseException("Hyperlink tags must not have a body.  Hyperlink tag with body found" + getLocation());
+         throw new TagParseException(getName() + " tags must not have a body.  Body found" + getLocation());
 
       TagContext context = getContext();
       Map<String, Object> beans = context.getBeans();
@@ -137,13 +137,13 @@ public class HyperlinkTag extends BaseTag
       String type = AttributeUtil.evaluateStringSpecificValues(this, attributes.get(ATTR_TYPE), beans, ATTR_TYPE,
          Arrays.asList(TYPE_URL, TYPE_EMAIL, TYPE_FILE, TYPE_DOC), TYPE_URL);
       if (TYPE_URL.equals(type))
-            myLinkType = Hyperlink.LINK_URL;
-         else if (TYPE_EMAIL.equals(type))
-            myLinkType = Hyperlink.LINK_EMAIL;
-         else if (TYPE_FILE.equals(type))
-            myLinkType = Hyperlink.LINK_FILE;
-         else if (TYPE_DOC.equals(type))
-            myLinkType = Hyperlink.LINK_DOCUMENT;
+         myLinkType = Hyperlink.LINK_URL;
+      else if (TYPE_EMAIL.equals(type))
+         myLinkType = Hyperlink.LINK_EMAIL;
+      else if (TYPE_FILE.equals(type))
+         myLinkType = Hyperlink.LINK_FILE;
+      else if (TYPE_DOC.equals(type))
+         myLinkType = Hyperlink.LINK_DOCUMENT;
 
       myAddress = AttributeUtil.evaluateStringNotNull(this, attributes.get(ATTR_ADDRESS), beans, ATTR_ADDRESS, null);
 

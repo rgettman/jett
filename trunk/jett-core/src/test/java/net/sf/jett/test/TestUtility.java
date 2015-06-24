@@ -28,6 +28,7 @@ import net.sf.jett.model.ExcelColor;
 import net.sf.jett.tag.HyperlinkTag;
 import net.sf.jett.test.model.County;
 import net.sf.jett.test.model.Division;
+import net.sf.jett.test.model.Element;
 import net.sf.jett.test.model.Employee;
 import net.sf.jett.test.model.HyperlinkData;
 import net.sf.jett.test.model.State;
@@ -572,13 +573,13 @@ public class TestUtility
       Map<String, Object> beans = new HashMap<String, Object>();
       List<HyperlinkData> hyperlinks = new ArrayList<HyperlinkData>();
       hyperlinks.add(new HyperlinkData(
-         HyperlinkTag.TYPE_URL, "http://jett.sourceforge.net", "JETT on SourceForge"));
+              HyperlinkTag.TYPE_URL, "http://jett.sourceforge.net", "JETT on SourceForge"));
       hyperlinks.add(new HyperlinkData(
-         HyperlinkTag.TYPE_EMAIL, "mailto:jett-users@lists.sourceforge.net", "Email jett-users"));
+              HyperlinkTag.TYPE_EMAIL, "mailto:jett-users@lists.sourceforge.net", "Email jett-users"));
       hyperlinks.add(new HyperlinkData(
-         HyperlinkTag.TYPE_FILE, "../templates/HyperlinkTagTemplate.xlsx", "Template For This Test (.xlsx)"));
+              HyperlinkTag.TYPE_FILE, "../templates/HyperlinkTagTemplate.xlsx", "Template For This Test (.xlsx)"));
       hyperlinks.add(new HyperlinkData(
-         HyperlinkTag.TYPE_DOC, "'Target Sheet'!B3", "Intra-spreadsheet Link"));
+              HyperlinkTag.TYPE_DOC, "'Target Sheet'!B3", "Intra-spreadsheet Link"));
       beans.put("hyperlinks", hyperlinks);
       return beans;
    }
@@ -629,6 +630,37 @@ public class TestUtility
       elmer.setCatchPhrase("I'm hunting wabbits!  Huh-uh-uh!");
       elmer.setTitle("Cartoon Character");
       return Arrays.asList(robert, suzie, elmer, bugs);
+   }
+
+   /**
+    * Gets a beans map with <code>Element</code> data, exposed as "elements".
+    * @return A <code>Map</code> of <code>Element</code> beans.
+    * @since 0.9.1
+    */
+   public static Map<String, Object> getElementData()
+   {
+      Map<String, Object> beans = new HashMap<String, Object>();
+      beans.put("elements", getElements());
+      return beans;
+   }
+
+   /**
+    * Returns a <code>List</code> of <code>Elements</code>.
+    * @return A <code>List</code> of <code>Elements</code>.
+    * @since 0.9.1
+    */
+   public static List<Element> getElements()
+   {
+      List<Element> elements = new ArrayList<Element>();
+      List<Element> subElements1 = new ArrayList<Element>();
+      List<Element> subElements2 = new ArrayList<Element>();
+      subElements1.add(new Element("subTitle1", null));
+      subElements1.add(new Element("subTitle2", null));
+      subElements1.add(new Element("subTitle3", null));
+      subElements2.add(new Element("subTitle4", null));
+      elements.add(new Element("TITLE1", subElements1));
+      elements.add(new Element("TITLE2", subElements2));
+      return elements;
    }
 
    /**
