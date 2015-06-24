@@ -361,6 +361,16 @@ public class SpanTagTest extends TestCase
                                   "null".equals(TestUtility.getFontColorString(workbook, f)));
       }
 
+      Sheet fixed = workbook.getSheetAt(7);
+      assertEquals(1, fixed.getNumMergedRegions());
+      assertTrue(TestUtility.isMergedRegionPresent(fixed, new CellRangeAddress(0, 2, 1, 1)));
+      assertEquals("subTitle1", TestUtility.getStringCellValue(fixed, 0, 0));
+      assertEquals("TITLE1", TestUtility.getStringCellValue(fixed, 0, 1));
+      assertEquals("subTitle2", TestUtility.getStringCellValue(fixed, 1, 0));
+      assertEquals("subTitle3", TestUtility.getStringCellValue(fixed, 2, 0));
+      assertEquals("subTitle4", TestUtility.getStringCellValue(fixed, 3, 0));
+      assertEquals("TITLE2", TestUtility.getStringCellValue(fixed, 3, 1));
+      assertEquals("After", TestUtility.getStringCellValue(fixed, 4, 0));
    }
 
    /**
@@ -379,7 +389,7 @@ public class SpanTagTest extends TestCase
     */
    protected Map<String, Object> getBeansMap()
    {
-      Map<String, Object> beans = new HashMap<String, Object>();
+      Map<String, Object> beans = TestUtility.getElementData();
       // Used in "factor".
       beans.put("expand", 3);
       beans.put("nothing", 1);

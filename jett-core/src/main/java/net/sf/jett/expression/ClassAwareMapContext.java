@@ -1,5 +1,7 @@
 package net.sf.jett.expression;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.jexl2.MapContext;
@@ -15,6 +17,19 @@ import org.apache.commons.jexl2.MapContext;
  */
 public class ClassAwareMapContext extends MapContext
 {
+   private static final Map<String, Object> additionalValues;
+
+   static
+   {
+      additionalValues = new HashMap<String, Object>();
+      additionalValues.put("answerToLifeTheUniverseAndEverything", 42);
+      additionalValues.put("JETT",
+              Arrays.asList("Java Excel Template Translator", "Joan Jett", "Jett Travolta", "Bennie and the Jetts",
+                      "Jett Blue", "New York Jetts", "Winnipeg Jetts", "The Jettsons", "Jett Engine", "Jettpack",
+                      "Jett Li", "Lady Suffrajett", "Jett Propulsion Laboratory", "Jett Stream", "Jett Ski",
+                      "Jett Lag", "Jett Fuel", "Jett Airliner"));
+   }
+
    /**
     * Constructs a <code>ClassAwareMapContext</code> that uses an automatically
     * allocated, empty <code>Map</code>.
@@ -46,7 +61,7 @@ public class ClassAwareMapContext extends MapContext
    {
       try
       {
-         return super.has(name) || Class.forName(name) != null;
+         return super.has(name) || additionalValues.containsKey(name) || Class.forName(name) != null;
       }
       catch (ClassNotFoundException e)
       {
@@ -68,7 +83,7 @@ public class ClassAwareMapContext extends MapContext
          Object value = super.get(name);
          // Check for a legitimate null value for a variable name before
          // attempting to resolve a class name.
-         if (value == null && !super.has(name))
+         if (value == null && !super.has(name) && (value = additionalValues.get(name)) == null)
          {
             value = Class.forName(name);
          }

@@ -40,6 +40,7 @@ import net.sf.jett.util.SheetUtil;
  * <li>adjust (optional): <code>int</code></li>
  * <li>value (required): <code>RichTextString</code></li>
  * <li>expandRight (optional): <code>boolean</code></li>
+ * <li>fixed (optional): <code>boolean</code></li>
  * </ul>
  *
  * <p>Either one or both of the <code>factor</code> and the <code>adjust</code>
@@ -68,15 +69,21 @@ public class SpanTag extends BaseTag
     * Attribute that specifies the value of the cell/merged region.
     */
    public static final String ATTR_VALUE = "value";
+   /**
+    * Attribute that specifies the value of the cell/merged region.
+    * @since 0.9.1
+    */
+   public static final String ATTR_FIXED = "fixed";
 
    private static final List<String> REQ_ATTRS =
       new ArrayList<String>(Arrays.asList(ATTR_VALUE));
    private static final List<String> OPT_ATTRS =
-      new ArrayList<String>(Arrays.asList(ATTR_EXPAND_RIGHT, ATTR_FACTOR, ATTR_ADJUST));
+      new ArrayList<String>(Arrays.asList(ATTR_EXPAND_RIGHT, ATTR_FACTOR, ATTR_ADJUST, ATTR_FIXED));
 
    private int myFactor = 1;
    private int myAdjust = 0;
    private RichTextString myValue;
+   private boolean amIFixed;
 
    /**
     * Returns this <code>Tag's</code> name.
@@ -139,6 +146,8 @@ public class SpanTag extends BaseTag
          block.setDirection(Block.Direction.HORIZONTAL);
       else
          block.setDirection(Block.Direction.VERTICAL);
+
+      amIFixed = AttributeUtil.evaluateBoolean(this, attributes.get(ATTR_FIXED), beans, false);
    }
 
    /**
@@ -283,10 +292,17 @@ public class SpanTag extends BaseTag
          remove.setDirection(block.getDirection());
          if (DEBUG)
             System.err.println("  Calling removeBlock on fabricated block: " + remove + " (change " + change + ")");
-         SheetUtil.removeBlock(sheet, context, remove, getWorkbookContext());
+         if (amIFixed)
+         {
+            SheetUtil.clearBlock(sheet, remove, getWorkbookContext());
+         }
+         else
+         {
+            SheetUtil.removeBlock(sheet, context, remove, getWorkbookContext());
+         }
       }
       // Expand.
-      if (change > 0)
+      if (change > 0 && !amIFixed)
       {
          Block expand;
          if (block.getDirection() == Block.Direction.VERTICAL)
