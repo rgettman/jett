@@ -681,6 +681,32 @@ public class SheetUtil
 
    /**
     * Determines whether the <code>Cell</code> on the given <code>Sheet</code>
+    * at the given row and column indexes is immaterial: either it doesn't
+    * exist, or it exists and the cell type is blank.  That is, whether the
+    * cell doesn't exist, is blank, or is empty, and its cell style is the
+    * default.
+    * @param sheet The <code>Sheet</code>.
+    * @param rowNum The 0-based row index.
+    * @param colNum The 0-based column index.
+    * @return Whether the <code>Cell</code> is blank.
+    * @since 0.9.1
+    */
+   public static boolean isCellImmaterial(Sheet sheet, int rowNum, int colNum)
+   {
+      Row r = sheet.getRow(rowNum);
+      if (r == null)
+         return true;
+      Cell c = r.getCell(colNum);
+      return (c == null ||
+              ((c.getCellType() == Cell.CELL_TYPE_BLANK ||
+               (c.getCellType() == Cell.CELL_TYPE_STRING && "".equals(c.getStringCellValue()))) &&
+               c.getCellStyle().getIndex() == 0
+              )
+             );
+   }
+
+   /**
+    * Determines whether the <code>Cell</code> on the given <code>Sheet</code>
     * at the given row and column indexes is blank: either it doesn't exist, or
     * it exists and the cell type is blank.  That is, whether the cell doesn't
     * exist, is blank, or is empty.
@@ -694,23 +720,6 @@ public class SheetUtil
       Row r = sheet.getRow(rowNum);
       if (r == null)
          return true;
-      Cell c = r.getCell(colNum);
-      return (c == null ||
-              c.getCellType() == Cell.CELL_TYPE_BLANK ||
-              (c.getCellType() == Cell.CELL_TYPE_STRING && "".equals(c.getStringCellValue())));
-   }
-
-   /**
-    * Determines whether the <code>Cell</code> in the given <code>Row</code>
-    * at the given index is blank: either it doesn't exist, or
-    * it exists and the cell type is blank.  That is, whether the cell doesn't
-    * exist, is blank, or is empty.
-    * @param r The <code>Row</code> in which to look for the <code>Cell</code>.
-    * @param colNum The 0-based column index.
-    * @return Whether the <code>Cell</code> is blank.
-    */
-   public static boolean isCellBlank(Row r, int colNum)
-   {
       Cell c = r.getCell(colNum);
       return (c == null ||
               c.getCellType() == Cell.CELL_TYPE_BLANK ||
@@ -1744,20 +1753,16 @@ public class SheetUtil
       for (int r = bottom; r >= top; r--)
       {
          boolean rowEmpty = true;
-//         Row row = sheet.getRow(r);
-//         if (row != null)
-//         {
-            for (int c = left; c <= right; c++)
+         for (int c = left; c <= right; c++)
+         {
+            if (!isCellImmaterial(sheet, r, c))
             {
-               if (!isCellBlank(sheet, r, c))
-               {
-                  if (DEBUG)
-                     System.err.println("      gERAB: Row " + r + " is not empty because of cell " + c);
-                  rowEmpty = false;
-                  break;
-               }
+               if (DEBUG)
+                  System.err.println("      gERAB: Row " + r + " is not empty because of cell " + c);
+               rowEmpty = false;
+               break;
             }
-         //}
+         }
          if (rowEmpty)
             emptyRows++;
          else
@@ -1788,7 +1793,7 @@ public class SheetUtil
             Row row = sheet.getRow(r);
             if (row != null)
             {
-               if (!isCellBlank(sheet, r, c))
+               if (!isCellImmaterial(sheet, r, c))
                {
                   if (DEBUG)
                      System.err.println("      gECAR: Column " + c + " is not empty because of row " + r);

@@ -102,6 +102,18 @@ public class ForTagTest extends TestCase
             assertFalse(TestUtility.getBooleanCellValue(end, 4, c));
       }
       assertTrue(TestUtility.isCellBlank(end, 3, 21));
+
+      Sheet immaterial = workbook.getSheetAt(3);
+      for (int r = 1; r < 7; r++)
+      {
+         int x = 12 - 2 * r;
+         assertEquals(x, TestUtility.getNumericCellValue(immaterial, r, 0), DELTA);
+         assertEquals(x * x, TestUtility.getNumericCellValue(immaterial, r, 1), DELTA);
+      }
+      assertTrue(TestUtility.isCellBlank(immaterial, 7, 0));
+      assertTrue(TestUtility.isCellBlank(immaterial, 7, 1));
+      assertEquals("ff0000", TestUtility.getCellForegroundColorString(immaterial, 7, 0));
+      assertEquals("ff0000", TestUtility.getCellForegroundColorString(immaterial, 7, 1));
    }
 
    /**
