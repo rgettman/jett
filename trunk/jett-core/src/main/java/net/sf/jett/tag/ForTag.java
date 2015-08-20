@@ -10,6 +10,7 @@ import org.apache.poi.ss.usermodel.RichTextString;
 
 import net.sf.jett.exception.TagParseException;
 import net.sf.jett.model.Block;
+import net.sf.jett.model.ForLoopTagStatus;
 import net.sf.jett.util.AttributeUtil;
 
 /**
@@ -159,6 +160,18 @@ public class ForTag extends BaseLoopTag
    protected int getCollectionSize()
    {
       return getNumIterations();
+   }
+
+   /**
+    * Returns a <code>ForLoopTagStatus</code> that will be exposed in the
+    * beans map if the appropriate attribute is given.
+    * @return A <code>ForLoopTagStatus</code>.
+    * @since 0.9.1
+    */
+   @Override
+   protected ForLoopTagStatus getLoopTagStatus()
+   {
+      return new ForLoopTagStatus(this, getNumIterations(), myStart, myEnd, myStep);
    }
 
    /**

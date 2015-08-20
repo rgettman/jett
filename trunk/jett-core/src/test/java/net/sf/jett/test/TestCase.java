@@ -86,7 +86,7 @@ public abstract class TestCase
    /**
     * Tests the .xls template spreadsheet.  This is meant to have the
     * <code>@Test</code> annotation in all concrete subclasses.  Also, each
-    * concrete subclass should simply call <code>super.testXls</code>.
+    * concrete subclass should simply call <code>super.testXlsFiles</code>.
     * @throws IOException If an I/O error occurs.
     * @throws InvalidFormatException If the input spreadsheet is invalid.
     * @since 0.2.0
@@ -106,7 +106,7 @@ public abstract class TestCase
    /**
     * Tests the .xlsx template spreadsheet.  This is meant to have the
     * <code>@Test</code> annotation in all concrete subclasses.  Also, each
-    * concrete subclass should simply call <code>super.testXlsx</code>.
+    * concrete subclass should simply call <code>super.testXlsFiles</code>.
     * @throws IOException If an I/O error occurs.
     * @throws InvalidFormatException If the input spreadsheet is invalid.
     * @since 0.2.0

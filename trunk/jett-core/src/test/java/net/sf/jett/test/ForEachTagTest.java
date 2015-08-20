@@ -1,7 +1,9 @@
 package net.sf.jett.test;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -377,6 +379,29 @@ public class ForEachTagTest extends TestCase
       assertEquals(20.0 / (20 + 53), TestUtility.getNumericCellValue(orderBy, 40, 12), DELTA);
       assertEquals("Celtics", TestUtility.getStringCellValue(orderBy, 44, 9));
       assertEquals(51.0 / (51 + 21), TestUtility.getNumericCellValue(orderBy, 44, 12), DELTA);
+
+      Sheet varStatus = workbook.getSheetAt(11);
+      Map<Integer, String> expInds = new HashMap<Integer, String>();
+      expInds.put(1, "0 of 8");  expInds.put(2, "0 of 5");  expInds.put(3, "1 of 5");  expInds.put(4, "2 of 5");  expInds.put(5, "3 of 5");  expInds.put(6, "4 of 5");
+      expInds.put(8, "1 of 8");  expInds.put(9, "0 of 5");  expInds.put(10, "1 of 5"); expInds.put(11, "2 of 5"); expInds.put(12, "3 of 5"); expInds.put(13, "4 of 5");
+      expInds.put(15, "2 of 8"); expInds.put(16, "0 of 5"); expInds.put(17, "1 of 5"); expInds.put(18, "2 of 5"); expInds.put(19, "3 of 5"); expInds.put(20, "4 of 5");
+      expInds.put(22, "3 of 8"); expInds.put(23, "0 of 5"); expInds.put(24, "1 of 5"); expInds.put(25, "2 of 5"); expInds.put(26, "3 of 5"); expInds.put(27, "4 of 5");
+      expInds.put(29, "4 of 8"); expInds.put(30, "0 of 5"); expInds.put(31, "1 of 5"); expInds.put(32, "2 of 5"); expInds.put(33, "3 of 5"); expInds.put(34, "4 of 5");
+      expInds.put(36, "5 of 8"); expInds.put(37, "0 of 5"); expInds.put(38, "1 of 5"); expInds.put(39, "2 of 5"); expInds.put(40, "3 of 5"); expInds.put(41, "4 of 5");
+      expInds.put(43, "6 of 8");
+      expInds.put(45, "7 of 8"); expInds.put(46, "0 of 1");
+      List<Integer> firstTrues = Arrays.asList(1, 2, 9, 16, 23, 30, 37, 46);
+      List<Integer> lastTrues = Arrays.asList(6, 13, 20, 27, 34, 41, 45, 46);
+
+      for (int r = 0; r < 47; r++)
+      {
+         if (expInds.containsKey(r))
+         {
+            assertEquals("Row " + r, expInds.get(r), TestUtility.getStringCellValue(varStatus, r, 5));
+            assertEquals("Row " + r, firstTrues.contains(r), TestUtility.getBooleanCellValue(varStatus, r, 6));
+            assertEquals("Row " + r, lastTrues.contains(r), TestUtility.getBooleanCellValue(varStatus, r, 7));
+         }
+      }
    }
 
    /**

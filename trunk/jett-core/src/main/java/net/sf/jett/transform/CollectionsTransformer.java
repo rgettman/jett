@@ -36,6 +36,11 @@ public class CollectionsTransformer
 {
    private static boolean DEBUG = false;
 
+   /**
+    * Determines the beginning of metadata text.
+    */
+   public static final String BEGIN_METADATA = "?@";
+
    private static final String IMPL_ITEM_NAME_SUFFIX = "__JettItem__";
 
    /**
@@ -59,11 +64,11 @@ public class CollectionsTransformer
       MetadataParser parser = null;
       RichTextString richString = cell.getRichStringCellValue();
       String value = richString.getString();
-      int metadataIndIdx = value.indexOf(MetadataParser.BEGIN_METADATA);
+      int metadataIndIdx = value.indexOf(BEGIN_METADATA);
       if (metadataIndIdx != -1)
       {
          // Evaluate any Expressions in the metadata.
-         String metadata = value.substring(metadataIndIdx + MetadataParser.BEGIN_METADATA.length());
+         String metadata = value.substring(metadataIndIdx + BEGIN_METADATA.length());
          if (DEBUG)
          {
             System.err.println("  CT: Metadata found: " + metadata + " on sheet " + sheet.getSheetName() +
@@ -75,7 +80,7 @@ public class CollectionsTransformer
          parser.parse();
          // Remove the metadata text from the Cell.
          RichTextString metadataRemoved = RichTextStringUtil.replaceAll(richString,
-            helper, MetadataParser.BEGIN_METADATA + metadata, "");
+            helper, BEGIN_METADATA + metadata, "");
          SheetUtil.setCellValue(cell, metadataRemoved);
       }
 
@@ -95,6 +100,7 @@ public class CollectionsTransformer
       String tagListener = null;
       String indexVarName = null;
       String limit = null;
+      String varStatusName = null;
       if (parser != null)
       {
          // Gather parser properties.
@@ -114,6 +120,7 @@ public class CollectionsTransformer
          tagListener = parser.getTagListener();
          indexVarName = parser.getIndexVarName();
          limit = parser.getLimit();
+         varStatusName = parser.getVarStatusName();
 
          if (parser.isDefiningCols())
          {
@@ -149,24 +156,22 @@ public class CollectionsTransformer
       // Find all Collection names in the Block.
       List<String> collectionNames = findCollectionsInBlock(cell, containingBlock,
          workbookContext, beans);
-      List<String> vars = new ArrayList<String>(collectionNames.size());
       List<String> fixedSizeCollNames = workbookContext.getFixedSizedCollectionNames();
       // Shallow copy.
       List<String> fixedSizeCollNamesCopy = new ArrayList<String>(fixedSizeCollNames);
-      for (String collectionName : collectionNames)
-      {
-         if (DEBUG)
-            System.err.println("  CollT: collection name found: " + collectionName);
-         // Create name under which the items for this Collection will be known.
-         String varName = collectionName.replaceAll("\\.", "_");
-         varName += IMPL_ITEM_NAME_SUFFIX;
-         vars.add(varName);
-         // Setup the Block for the implicit for each loop by replacing
-         // all occurrences of the Collection expression with the
-         // implicit item name.
-         SheetUtil.setUpBlockForImplicitCollectionAccess(sheet,
-            containingBlock, collectionName, varName);
 
+      List<String> vars = getImplicitVarNames(collectionNames);
+
+      // Setup the Block for the implicit for each loop by replacing
+      // all occurrences of the Collection expression with the
+      // implicit item name.
+      SheetUtil.setUpBlockForImplicitCollectionAccess(sheet,
+              containingBlock, collectionNames, vars);
+
+      for (int i = 0; i < collectionNames.size(); i++)
+      {
+         String collectionName = collectionNames.get(i);
+         String varName = vars.get(i);
          // All fixed size collection names that start with this collection
          // name also must have the "JETTized" collection name also placed in
          // the fixed size collection name list, so that any nested implicit
@@ -265,6 +270,8 @@ public class CollectionsTransformer
          attributes.put(MultiForEachTag.ATTR_INDEXVAR, helper.createRichTextString(indexVarName));
       if (limit != null)
          attributes.put(MultiForEachTag.ATTR_LIMIT, helper.createRichTextString(limit));
+      if (varStatusName != null)
+         attributes.put(BaseLoopTag.ATTR_VAR_STATUS, helper.createRichTextString(varStatusName));
       if (DEBUG)
       {
          for (String attribute : attributes.keySet())
@@ -278,6 +285,29 @@ public class CollectionsTransformer
       // Process the implicit MultiForEach tag.
       // No need to remove the non-existent tag text.
       tag.processTag();
+   }
+
+   /**
+    * Creates a <code>List</code> of substitute variable names, one for each of
+    * the given collection names.
+    * @param collectionNames A <code>List</code> of collection names.
+    * @return A <code>List</code> of substitute variable names, each related to
+    *    the corresponding collection name.
+    * @since 0.9.1
+    */
+   public static List<String> getImplicitVarNames(List<String> collectionNames)
+   {
+      List<String> varNames = new ArrayList<String>(collectionNames.size());
+      for (String collectionName : collectionNames)
+      {
+         if (DEBUG)
+            System.err.println("  CollT: collection name found: " + collectionName);
+         // Create name under which the items for this Collection will be known.
+         String varName = collectionName.replaceAll("\\.", "_");
+         varName += IMPL_ITEM_NAME_SUFFIX;
+         varNames.add(varName);
+      }
+      return varNames;
    }
 
    /**

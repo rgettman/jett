@@ -12,6 +12,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import net.sf.jett.event.TagLoopListener;
 import net.sf.jett.event.TagLoopEvent;
 import net.sf.jett.exception.TagParseException;
+import net.sf.jett.model.BaseLoopTagStatus;
 import net.sf.jett.model.Block;
 import net.sf.jett.model.PastEndAction;
 import net.sf.jett.model.WorkbookContext;
@@ -34,6 +35,7 @@ import net.sf.jett.util.SheetUtil;
  * <li>groupDir (optional): <code>String</code></li>
  * <li>collapse (optional): <code>boolean</code></li>
  * <li>onLoopProcessed (optional): <code>TagLoopListener</code></li>
+ * <li>varStatus (optional): <code>String</code></li>
  * </ul>
  *
  * @author Randy Gettman
@@ -91,6 +93,14 @@ public abstract class BaseLoopTag extends BaseTag
     * @since 0.7.0
     */
    public static final String ATTR_REPLACE_VALUE = "replaceValue";
+   /**
+    * Attribute for specifying the name of the {@link <code>LoopTagStatus</code>}
+    * object that will be exposed in the beans map.  If this attribute is not
+    * present, or the value is <code>null</code>, then no such object will be
+    * exposed.
+    * @since 0.9.1
+    */
+   public static final String ATTR_VAR_STATUS = "varStatus";
 
    /**
     * The "past end action" value to clear the content of cells.
@@ -127,7 +137,7 @@ public abstract class BaseLoopTag extends BaseTag
 
    private static final List<String> OPT_ATTRS =
       new ArrayList<String>(Arrays.asList(ATTR_COPY_RIGHT, ATTR_FIXED, ATTR_PAST_END_ACTION,
-         ATTR_REPLACE_VALUE, ATTR_GROUP_DIR, ATTR_COLLAPSE, ATTR_ON_LOOP_PROCESSED));
+         ATTR_REPLACE_VALUE, ATTR_GROUP_DIR, ATTR_COLLAPSE, ATTR_ON_LOOP_PROCESSED, ATTR_VAR_STATUS));
 
    private boolean amIExplicitlyCopyingRight = false;
    private boolean amIFixed = false;
@@ -136,6 +146,7 @@ public abstract class BaseLoopTag extends BaseTag
    private Block.Direction myGroupDir;
    private boolean amICollapsed;
    private TagLoopListener myTagLoopListener;
+   private String myVarStatusName;
 
    /**
     * Sets whether the repeated blocks are to be copied to the right (true) or
@@ -281,6 +292,8 @@ public abstract class BaseLoopTag extends BaseTag
 
       myTagLoopListener = AttributeUtil.evaluateObject(this, attributes.get(ATTR_ON_LOOP_PROCESSED), beans,
          ATTR_ON_LOOP_PROCESSED, TagLoopListener.class, null);
+
+      myVarStatusName = AttributeUtil.evaluateString(this, attributes.get(ATTR_VAR_STATUS), beans, null);
    }
 
    /**
@@ -438,6 +451,12 @@ public abstract class BaseLoopTag extends BaseTag
 
          int index = 0;
          Iterator<?> iterator = getLoopIterator();
+         BaseLoopTagStatus status = null;
+         if (myVarStatusName != null && !myVarStatusName.isEmpty())
+         {
+            status = getLoopTagStatus();
+            beans.put(myVarStatusName, status);
+         }
          int right, bottom, colGrowth, rowGrowth;
          int maxRight = 0;
          int maxBottom = 0;
@@ -520,7 +539,16 @@ public abstract class BaseLoopTag extends BaseTag
             afterBlockProcessed(context, currBlock, item, index);
 
             // End of loop processing.
+            if (status != null)
+            {
+               status.incrementIndex(this);
+            }
             index++;
+         }  // End while loop over collection items
+
+         if (status != null)
+         {
+            beans.remove(myVarStatusName);
          }
 
          // Expand the tag block.
@@ -658,6 +686,18 @@ public abstract class BaseLoopTag extends BaseTag
     * @return The size of the collection being iterated.
     */
    protected abstract int getCollectionSize();
+
+   /**
+    * Returns a <code>BaseLoopTagStatus</code> that will be exposed in the
+    * beans map if the appropriate attribute is given.  Subclasses may want to
+    * override this method to return an object that provides more information.
+    * @return A <code>BaseLoopTagStatus</code>.
+    * @since 0.9.1
+    */
+   protected BaseLoopTagStatus getLoopTagStatus()
+   {
+      return new BaseLoopTagStatus(this, getNumIterations());
+   }
 
    /**
     * Returns an <code>Iterator</code> that iterates over some

@@ -1,5 +1,7 @@
 package net.sf.jett.parser;
 
+import java.util.Map;
+
 import org.apache.poi.ss.usermodel.Cell;
 
 import net.sf.jett.exception.MetadataParseException;
@@ -86,11 +88,12 @@ public class MetadataParser
     * @since 0.3.0
     */
    public static final String VAR_NAME_LIMIT = "limit";
-
    /**
-    * Determines the beginning of metadata text.
+    * Metadata variable name specifying the name of the
+    * {@link net.sf.jett.model.LoopTagStatus} variable.
+    * @since 0.9.1
     */
-   public static final String BEGIN_METADATA = "?@";
+   public static final String VAR_NAME_VAR_STATUS = "varStatus";
 
    private Cell myCell;
    private boolean amIExpectingAValue;
@@ -109,6 +112,7 @@ public class MetadataParser
    private String myTagListener;
    private String myIndexVarName;
    private String myLimit;
+   private String myVarStatusName;
 
    /**
     * Create a <code>MetadataParser</code>.
@@ -177,6 +181,7 @@ public class MetadataParser
    public void parse()
    {
       MetadataScanner scanner = new MetadataScanner(myMetadataText);
+      Map<String, String> abbr = getAbbreviations();
 
       MetadataScanner.Token token = scanner.getNextToken();
       if (token == MetadataScanner.Token.TOKEN_WHITESPACE)
@@ -195,6 +200,10 @@ public class MetadataParser
             if (amIExpectingAValue)
             {
                String lexeme = scanner.getCurrLexeme();
+               if (abbr != null && abbr.containsKey(varName))
+               {
+                  varName = abbr.get(varName);
+               }
 
                // Add newly complete variable name/value pair.
                if (VAR_NAME_EXTRA_ROWS.equals(varName))
@@ -251,10 +260,19 @@ public class MetadataParser
                {
                   myLimit = lexeme;
                }
+               else if (VAR_NAME_VAR_STATUS.equals(varName))
+               {
+                  myVarStatusName = lexeme;
+               }
                else
                {
                   throw new MetadataParseException("Unrecognized variable name: \"" +
                      varName + "\"." + SheetUtil.getCellLocation(myCell));
+               }
+               if (isRestricted(varName))
+               {
+                  throw new MetadataParseException("Variable name \"" + varName +
+                          "\" is restricted in this context.");
                }
                varName = null;
                amIExpectingAValue = false;
@@ -290,6 +308,32 @@ public class MetadataParser
       if (token.getCode() < 0)
          throw new MetadataParseException("Found end of input while scanning metadata value: " + myMetadataText +
                 SheetUtil.getCellLocation(myCell));
+   }
+
+   /**
+    * Determines whether the given metadata key is <em>restricted</em> -- not
+    * allowed in this context.  Subclasses can override this method to
+    * implement their own restricted lists.  This implementation doesn't
+    * restrict anything - it always returns <code>false</code>.
+    * @param metadataKey The metadata key.
+    * @return <code>true</code> if it's restricted, else <code>false</code>.
+    * @since 0.9.1
+    */
+   protected boolean isRestricted(String metadataKey)
+   {
+      return false;
+   }
+
+   /**
+    * Returns a <code>Map</code> of abbreviations.  The map's keys are the
+    * abbreviations, and the values are the metadata keys.
+    * @return A <code>Map</code> of abbreviations, <code>null</code> means no
+    *    abbreviations are permitted.
+    * @since 0.9.1
+    */
+   protected Map<String, String> getAbbreviations()
+   {
+      return null;
    }
 
    /**
@@ -427,5 +471,15 @@ public class MetadataParser
    public String getLimit()
    {
       return myLimit;
+   }
+
+   /**
+    * Returns the "varStatus" lexeme.
+    * @return The "varStatus" lexeme.
+    * @since 0.9.1
+    */
+   public String getVarStatusName()
+   {
+      return myVarStatusName;
    }
 }

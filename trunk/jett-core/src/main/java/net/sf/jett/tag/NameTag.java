@@ -221,7 +221,16 @@ public class NameTag extends BaseTag
       Map<String, List<CellRef>> cellRefMap = workbookContext.getCellRefMap();
       for (CellRef formulaCellRef : existingFormulaCellRefs)
       {
+         boolean isExplicit = formulaCellRef.getSheetName() != null;
          String cellKey = FormulaUtil.getCellKey(formulaCellRef, sheetName);
+         if (isExplicit)
+         {
+            cellKey = FormulaUtil.EXPLICIT_REF_PREFIX + cellKey;
+         }
+         else
+         {
+            cellKey = FormulaUtil.IMPLICIT_REF_PREFIX + cellKey;
+         }
          List<CellRef> cellRefs = cellRefMap.get(cellKey);
          for (int i = 0; i < cellRefs.size(); i++)
          {

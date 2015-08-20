@@ -34,6 +34,7 @@ public class WorkbookContext
    private List<String> myTemplateSheetNames;
    private List<String> mySheetNames;
    private ExpressionFactory myExpressionFactory;
+   private List<Map<String, Object>> myBeansMaps;
 
    /**
     * Initializes things to null/0.
@@ -54,6 +55,7 @@ public class WorkbookContext
       myTemplateSheetNames = null;
       mySheetNames = null;
       myExpressionFactory = null;
+      myBeansMaps = null;
    }
 
    /**
@@ -367,5 +369,25 @@ public class WorkbookContext
    public void setExpressionFactory(ExpressionFactory factory)
    {
       myExpressionFactory = factory;
+   }
+
+   /**
+    * Returns a <code>List</code> of beans maps.
+    * @return A <code>List</code> of beans maps.
+    * @since 0.9.1
+    */
+   public List<Map<String, Object>> getBeansMaps()
+   {
+      return myBeansMaps;
+   }
+
+   /**
+    * Stores a copy of the given <code>List</code> of beans maps.
+    * @param beansMaps A <code>List</code> of beans maps.
+    * @since 0.9.1
+    */
+   public void setBeansMaps(List<Map<String, Object>> beansMaps)
+   {
+      myBeansMaps = new ArrayList<Map<String, Object>>(beansMaps);
    }
 }

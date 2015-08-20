@@ -104,7 +104,9 @@ public class FormulaParser
          switch(token)
          {
          case TOKEN_WHITESPACE:
-            // Ignore.
+            addCellReferenceIfFound();
+            mySheetName = null;
+            myCellReference = null;
             break;
          case TOKEN_STRING:
             if (amIExpectingADefaultValue)
@@ -120,14 +122,14 @@ public class FormulaParser
             {
                // For now, store it in the cell reference field.  Upon finding an
                // exclamation, the value will be stored in the sheet name field.
-               myCellReference = scanner.getCurrLexeme();
+               myCellReference = myCellReference == null ? scanner.getCurrLexeme() : myCellReference + scanner.getCurrLexeme();
             }
             if (DEBUG)
                System.err.println("  FP: Token String: \"" + scanner.getCurrLexeme() + "\".");
             break;
          case TOKEN_EXCLAMATION:
             // If we had text from before the "!", then the text that's
-            // currently in "myCellReference" it really the sheet reference.
+            // currently in "myCellReference" is really the sheet reference.
             // Move it to the sheet name field.
             if (myCellReference == null)
                throw new FormulaParseException("Sheet name delimiter (\"!\") found with no sheet name: " + myFormulaText
@@ -136,6 +138,7 @@ public class FormulaParser
                throw new FormulaParseException("Sheet name delimiter (\"!\") found while expecting a default value: "
                   + myFormulaText + SheetUtil.getCellLocation(myCell));
             mySheetName = myCellReference;
+            myCellReference = null;
             break;
          case TOKEN_LEFT_PAREN:
             // This can turn a potential cell reference into a function call!
@@ -149,7 +152,12 @@ public class FormulaParser
                myDefaultValue = "-";
                break;
             }
-            // FALLTHROUGH
+            // Allow operators to "continue" a sheet name (currently stored in myCellReference).
+            if (addCellReferenceIfFound())
+            {
+               myCellReference = myCellReference + scanner.getCurrLexeme();
+            }
+            break;
          case TOKEN_RIGHT_PAREN:
          case TOKEN_COMMA:
          case TOKEN_DOUBLE_QUOTE:
@@ -188,44 +196,62 @@ public class FormulaParser
     * If there is a valid cell reference, and it's not a duplicate, then add it
     * to the list.  Always null-out the cell reference, sheet name, and default
     * value.
+    * @return Returns <code>true</code> if the sheet name is currently
+    *    <code>null</code> and no cell reference is found.  This means that the
+    *    string representing the current reference should be continued instead
+    *    of discarded.  Else, <code>false</code>.
     * @since 0.2.0
     */
-   private void addCellReferenceIfFound()
+   private boolean addCellReferenceIfFound()
    {
       if (DEBUG)
          System.err.println("  FP: Trying to match \"" + myCellReference + "\".");
-      if (myCellReference != null && CELL_REF_PATTERN.matcher(myCellReference).matches())
+      if (myCellReference != null)
       {
-         CellRef ref;
-
-         if (DEBUG)
-            System.err.println("    FP: Cell Reference is \"" + myCellReference + "\".");
-         if (mySheetName != null)
-            ref = new CellRef(mySheetName + "!" + myCellReference);
-         else
-            ref = new CellRef(myCellReference);
-         if (myDefaultValue != null)
+         if (CELL_REF_PATTERN.matcher(myCellReference).matches())
          {
+            CellRef ref;
+
             if (DEBUG)
-               System.err.println("    FP: Default value found is \"" + myDefaultValue + "\".");
-            ref.setDefaultValue(myDefaultValue);
+               System.err.println("    FP: Cell Reference is \"" + myCellReference + "\".");
+            if (mySheetName != null)
+               ref = new CellRef(mySheetName + "!" + myCellReference);
+            else
+               ref = new CellRef(myCellReference);
+            if (myDefaultValue != null)
+            {
+               if (DEBUG)
+                  System.err.println("    FP: Default value found is \"" + myDefaultValue + "\".");
+               ref.setDefaultValue(myDefaultValue);
+            }
+
+            if (DEBUG)
+               System.err.println("    FP: Cell Reference detected: " + ref.formatAsString());
+            // Don't add duplicates.
+            if (!myCellReferences.contains(ref))
+            {
+               if (DEBUG)
+                  System.err.println("      FP: Not in list, adding ref: row=" + ref.getRow() +
+                          ", col=" + ref.getCol() + ", rowAbs=" + ref.isRowAbsolute() + ", colAbs=" +
+                          ref.isColAbsolute() + ".");
+               myCellReferences.add(ref);
+            }
          }
-
-         if (DEBUG)
-            System.err.println("    FP: Cell Reference detected: " + ref.formatAsString());
-         // Don't add duplicates.
-         if (!myCellReferences.contains(ref))
+         else if (mySheetName == null)
          {
-            if (DEBUG)
-               System.err.println("      FP: Not in list, adding ref: row=" + ref.getRow() +
-                  ", col=" + ref.getCol() + ", rowAbs=" + ref.isRowAbsolute() + ", colAbs=" +
-                  ref.isColAbsolute() + ".");
-            myCellReferences.add(ref);
+            // Allow non-String tokens to be a part of the sheet name.
+            // This allows sheet names constructed for implicit cloning
+            // purposes to be recognized in JETT formulas, e.g.
+            // $[SUM(${dvs.name}$@i=n;l=10;v=s;r=DNE!B3)]
+            // Else the Excel Operator "=" will make this reference the
+            // shortened "DNE!B3" erroneously.
+            return true;
          }
       }
       mySheetName = null;
       myCellReference = null;
       myDefaultValue = null;
+      return false;
    }
 
    /**
