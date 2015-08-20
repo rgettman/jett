@@ -172,7 +172,7 @@ public class StyleTag extends BaseTag
             property = parts[0].trim();
             value = parts[1].trim();
 
-            if (value != null && value.length() >= 1)
+            if (value.length() >= 1)
             {
                StyleParser.addStyle(myStyle, property, value);
             }
