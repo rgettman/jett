@@ -186,7 +186,7 @@ public class CellStyleCache
       return getRepresentation(f.getBoldweight(), f.getItalic(), fontColor, f.getFontName(),
          f.getFontHeightInPoints(), cs.getAlignment(), cs.getBorderBottom(), cs.getBorderLeft(), cs.getBorderRight(),
          cs.getBorderTop(), cs.getDataFormatString(), f.getUnderline(), f.getStrikeout(), cs.getWrapText(),
-         cs.getFillBackgroundColorColor(), cs.getFillBackgroundColorColor(), cs.getFillPattern(), cs.getVerticalAlignment(),
+         cs.getFillBackgroundColorColor(), cs.getFillForegroundColorColor(), cs.getFillPattern(), cs.getVerticalAlignment(),
          cs.getIndention(), cs.getRotation(), bottomColor, leftColor, rightColor,
          topColor, f.getCharSet(), f.getTypeOffset(), cs.getLocked(), cs.getHidden());
    }
