@@ -80,20 +80,26 @@ public class SheetTransformer
     * @param sheet The <code>Sheet</code> to transform.
     * @param context The <code>WorkbookContext</code>.
     * @param beans The beans map.
-    * @param callback An optional <code>AfterOffSheetProperties</code>.  This
+    * @param cloner An optional <code>SheetCloner</code>.  This
     *    is only present so the <code>ExcelTransformer</code>, as the caller of
     *    this method, can safely apply certain off-sheet properties that XSSF
     *    doesn't retain after the sheet name is changed.
     * @since 0.7.0
     */
-   public void transform(Sheet sheet, WorkbookContext context, Map<String, Object> beans, AfterOffSheetProperties callback)
+   public void transform(Sheet sheet, WorkbookContext context, Map<String, Object> beans, SheetCloner cloner)
    {
+      AfterOffSheetProperties callback = null;
+      if (cloner != null)
+      {
+         callback = cloner.getMissingPropertiesSetter();
+      }
+
       exposeSheet(beans, sheet);
 
       boolean shouldProceed = fireBeforeSheetProcessedEvent(context, sheet, beans);
 
       if (shouldProceed)
-         transformOffSheetProperties(sheet, beans, context);
+         beans = transformOffSheetProperties(sheet, beans, context, cloner);
 
       // This will happen regardless.
       if (callback != null)
@@ -116,7 +122,14 @@ public class SheetTransformer
          for (String key : keys)
          {
             System.err.println("  Key: " + key);
-            System.err.println("    Value: " + beans.get(key).toString());
+            try
+            {
+               System.err.println("    Value: " + beans.get(key));
+            }
+            catch (RuntimeException e)
+            {
+               System.err.println("    Value: " + e.getClass().getName() + ": " + e.getMessage());
+            }
          }
       }
 
@@ -144,13 +157,61 @@ public class SheetTransformer
     * @param sheet The <code>Sheet</code> to transform.
     * @param beans The beans map.
     * @param context The <code>WorkbookContext</code>.
+    * @param cloner The <code>SheetCloner</code>.
+    * @return A beans <code>Map</code> to use for transformation.  It will
+    *    usually be <code>beans</code>, but it may be a different map in case
+    *    of implicit sheet cloning and sheet specific beans.
     * @since 0.7.0
     */
-   private void transformOffSheetProperties(Sheet sheet, Map<String, Object> beans, WorkbookContext context)
+   private Map<String, Object> transformOffSheetProperties(Sheet sheet, Map<String, Object> beans,
+      WorkbookContext context, SheetCloner cloner)
    {
       String text;
       Object result;
       ExpressionFactory factory = context.getExpressionFactory();
+      if (cloner == null)
+      {
+         cloner = new SheetCloner(sheet.getWorkbook());
+      }
+
+      // Implicit cloning is handled first; it may influence any expressions in
+      // off sheet properties.
+      text = sheet.getSheetName();
+      List<String> collExprs = Expression.getImplicitCollectionExpr(text, beans, context);
+      if (!collExprs.isEmpty())
+      {
+         if (DEBUG)
+         {
+            System.err.println("ST: Implicit collection processing in sheet name \"" + text + "\"");
+         }
+         beans = cloner.setupForImplicitCloning(sheet, beans, context);
+
+         // Sheet name is expected to be changed due to implicit cloning;
+         // pick it up again.
+         text = sheet.getSheetName();
+      }
+
+      // Sheet name.
+      result = Expression.evaluateString(text, factory, beans);
+      Workbook workbook = sheet.getWorkbook();
+      if (result != null)
+      {
+         String newSheetName = result.toString();
+         if (!sheet.getSheetName().equals(newSheetName))
+         {
+            String oldSheetName = sheet.getSheetName();
+            newSheetName = SheetUtil.safeSetSheetName(workbook, workbook.getSheetIndex(sheet), newSheetName);
+            // Apache POI seems to update all Excel formulas on a sheet name change.
+            // The only exception is on named ranges that are scoped to a different
+            // sheet than the sheet being renamed, and only on XSSFSheets (looks like
+            // an Apache POI bug; it works on HSSFSheets).  JETT won't be messing
+            // around with actual Excel formulas here.
+
+            // We still need to update all JETT formula references in the cell ref map.
+            FormulaUtil.replaceSheetNameRefs(context, oldSheetName, newSheetName);
+         }
+      }
+
       // Header/footer.
       Header header = sheet.getHeader();
       text = header.getLeft();
@@ -174,28 +235,7 @@ public class SheetTransformer
       result = Expression.evaluateString(text, factory, beans);
       footer.setRight(result.toString());
 
-      // Sheet name
-      text = sheet.getSheetName();
-      result = Expression.evaluateString(text, factory, beans);
-      Workbook workbook = sheet.getWorkbook();
-      if (result != null)
-      {
-         String newSheetName = result.toString();
-         if (!sheet.getSheetName().equals(newSheetName))
-         {
-            String oldSheetName = sheet.getSheetName();
-            workbook.setSheetName(workbook.getSheetIndex(sheet), newSheetName);
-            // Apache POI seems to update all Excel formulas on a sheet name change.
-            // The only exception is on named ranges that are scoped to a different
-            // sheet than the sheet being renamed, and only on XSSFSheets (looks like
-            // an Apache POI bug; it works on HSSFSheets).  JETT won't be messing
-            // around with actual Excel formulas here.
-
-            // We still need to update all JETT formula references in the cell ref map.
-            FormulaUtil.replaceSheetNameRefs(context, oldSheetName, newSheetName);
-         }
-      }
-
+      return beans;
    }
 
    /**
@@ -330,8 +370,8 @@ public class SheetTransformer
                         if (DEBUG)
                         {
                            System.err.println("  At " + sheetName + ", row " + rowNum + ", cell " +
-                              cellNum + ", replacing formula text \"" + cellText + "\" with excel formula \"" +
-                              excelFormula + "\".");
+                                   cellNum + ", replacing formula text \"" + cellText + "\" with excel formula \"" +
+                                   excelFormula + "\".");
                         }
                         cell.setCellFormula(excelFormula);
                      }

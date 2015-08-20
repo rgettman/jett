@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.jexl2.JexlContext;
 import org.apache.commons.jexl2.parser.ASTIdentifier;
 import org.apache.commons.jexl2.parser.ASTMethodNode;
+import org.apache.commons.jexl2.parser.ASTNumberLiteral;
 import org.apache.commons.jexl2.parser.ASTReference;
 import org.apache.commons.jexl2.parser.ASTSizeMethod;
 import org.apache.commons.jexl2.parser.Node;
@@ -21,7 +22,9 @@ import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.RichTextString;
 
 import net.sf.jett.exception.ParseException;
+import net.sf.jett.formula.Formula;
 import net.sf.jett.model.WorkbookContext;
+import net.sf.jett.util.FormulaUtil;
 import net.sf.jett.util.RichTextStringUtil;
 
 /**
@@ -229,6 +232,16 @@ public class Expression
                      {
                         ASTSizeMethod sizeMethod = (ASTSizeMethod) nextChild;
                         System.err.println("      fCN: sizeMethod.image = " + sizeMethod.image);
+                     }
+                     continue;
+                  }
+                  else if (nextChild instanceof ASTNumberLiteral)
+                  {
+                     // JEXL allows ".n" to access an element of a List.
+                     if (DEBUG)
+                     {
+                        ASTNumberLiteral numberLiteral = (ASTNumberLiteral) nextChild;
+                        System.err.println("      fCN: numberLiteral.image = " + numberLiteral.image);
                      }
                      continue;
                   }
@@ -470,8 +483,25 @@ public class Expression
 
       while (beginIdx != -1 && endIdx != -1 && endIdx > beginIdx)
       {
+         int formulaBeginIdx = value.indexOf(Formula.BEGIN_FORMULA);
+         int formulaEndIdx = formulaBeginIdx != -1 ?
+                 FormulaUtil.getEndOfJettFormula(value, formulaBeginIdx) :
+                 value.indexOf(Formula.END_FORMULA);
+         boolean exprFound = true;
          // Skip escaped expressions, e.g. "\${...}".
-         if (beginIdx == 0 || value.charAt(beginIdx - 1) != '\\')
+         if (beginIdx > 0 && value.charAt(beginIdx - 1) == '\\')
+         {
+            exprFound = false;
+         }
+         // Also, ignore expressions found inside JETT Formulas, which should
+         // refer to the template sheet name.  JETT Formulas should not trigger
+         // implicit collections processing.
+         if (formulaBeginIdx != -1 && formulaEndIdx != -1 &&
+             formulaBeginIdx < beginIdx && formulaEndIdx > endIdx)
+         {
+            exprFound = false;
+         }
+         if (exprFound)
          {
             String strExpr = value.substring(beginIdx + 2, endIdx);
             if (DEBUG)

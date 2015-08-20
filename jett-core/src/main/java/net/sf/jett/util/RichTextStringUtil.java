@@ -106,6 +106,7 @@ public class RichTextStringUtil
     *    NOT replaced if the target string is part of a larger identifier.
     *    E.g. if <code>target</code> is <code>"activity"</code>, don't replace
     *    the <code>"activity"</code> substring within <code>"activityDay"</code>.
+    *    Only replace the target if found within expressions.
     * @return A new <code>RichTextString</code> with replaced values, or the
     *    same <code>RichTextString</code> if <code>replace</code> is
     *    <code>null</code> or empty.
@@ -142,9 +143,15 @@ public class RichTextStringUtil
          // Identifier Mode: If there is a "Java Identifier Part" just before
          // or just after the target, then don't replace it, because we've
          // found part of a larger identifier that is not equal to the target.
+         // If the identifier is not found in expression delimiters, then don't
+         // replace it, because it's literal text not to be modified.
+         int exprBeginIdx = value.substring(0, beginIdx).lastIndexOf(Expression.BEGIN_EXPR);
+         int exprEndIdx = value.indexOf(Expression.END_EXPR, exprBeginIdx + 1);
          if (identifierMode &&
-             ((beginIdx > 0 && Character.isJavaIdentifierPart(value.charAt(beginIdx - 1))) ||
-              (beginIdx + target.length() < value.length() && Character.isJavaIdentifierPart(value.charAt(beginIdx + target.length()))))
+             ((exprBeginIdx == -1 || exprBeginIdx > beginIdx || exprEndIdx == -1 || exprEndIdx < beginIdx + target.length()) ||
+              (beginIdx > 0 && Character.isJavaIdentifierPart(value.charAt(beginIdx - 1))) ||
+              (beginIdx + target.length() < value.length() && Character.isJavaIdentifierPart(value.charAt(beginIdx + target.length())))
+             )
             )
          {
             // Still setup for next loop.

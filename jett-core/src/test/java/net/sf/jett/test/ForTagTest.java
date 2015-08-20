@@ -1,14 +1,17 @@
 package net.sf.jett.test;
 
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.junit.Test;
 import static org.junit.Assert.*;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * This JUnit Test class tests the evaluation of the "for" tag in various
@@ -114,6 +117,28 @@ public class ForTagTest extends TestCase
       assertTrue(TestUtility.isCellBlank(immaterial, 7, 1));
       assertEquals("ff0000", TestUtility.getCellForegroundColorString(immaterial, 7, 0));
       assertEquals("ff0000", TestUtility.getCellForegroundColorString(immaterial, 7, 1));
+
+      Sheet varStatus = workbook.getSheetAt(4);
+      List<Integer> expXVals  = Arrays.asList(1, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 4, 4, 5);
+      List<Integer> expYVals  = Arrays.asList(5, 4, 3, 2, 1, 5, 4, 3, 2, 5, 4, 3, 5, 4, 5);
+      List<Integer> expStartX = Collections.nCopies(15, 1);
+      List<Integer> expEndX   = Collections.nCopies(15, 5);
+      List<Integer> expStepX  = Collections.nCopies(15, 1);
+      List<Integer> expStartY = Collections.nCopies(15, 5);
+      List<Integer> expStepY  = Collections.nCopies(15, -1);
+
+      for (int r = 1; r < 16; r++)
+      {
+         assertEquals("Row " + r, expXVals.get(r - 1), TestUtility.getNumericCellValue(varStatus, r, 0), DELTA);
+         assertEquals("Row " + r, expYVals.get(r - 1), TestUtility.getNumericCellValue(varStatus, r, 1), DELTA);
+         assertEquals("Row " + r, expStartX.get(r - 1), TestUtility.getNumericCellValue(varStatus, r, 2), DELTA);
+         assertEquals("Row " + r, expEndX.get(r - 1), TestUtility.getNumericCellValue(varStatus, r, 3), DELTA);
+         assertEquals("Row " + r, expStepX.get(r - 1), TestUtility.getNumericCellValue(varStatus, r, 4), DELTA);
+         assertEquals("Row " + r, expStartY.get(r - 1), TestUtility.getNumericCellValue(varStatus, r, 5), DELTA);
+         // End y values are set to x.
+         assertEquals("Row " + r, expXVals.get(r - 1), TestUtility.getNumericCellValue(varStatus, r, 6), DELTA);
+         assertEquals("Row " + r, expStepY.get(r - 1), TestUtility.getNumericCellValue(varStatus, r, 7), DELTA);
+      }
    }
 
    /**

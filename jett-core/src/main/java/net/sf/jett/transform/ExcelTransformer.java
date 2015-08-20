@@ -15,11 +15,9 @@ import java.util.Map;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Name;
-import org.apache.poi.ss.usermodel.PrintSetup;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
 
 import net.sf.jett.event.CellListener;
 import net.sf.jett.event.SheetListener;
@@ -30,12 +28,10 @@ import net.sf.jett.formula.Formula;
 //import net.sf.jett.lwxssf.LWXSSFWorkbook;
 import net.sf.jett.model.CellStyleCache;
 import net.sf.jett.model.FontCache;
-import net.sf.jett.model.MissingCloneSheetProperties;
 import net.sf.jett.model.Style;
 import net.sf.jett.model.WorkbookContext;
 import net.sf.jett.parser.StyleParser;
 import net.sf.jett.tag.JtTagLibrary;
-import net.sf.jett.tag.NameTag;
 import net.sf.jett.tag.TagLibrary;
 import net.sf.jett.tag.TagLibraryRegistry;
 import net.sf.jett.util.FormulaUtil;
@@ -512,110 +508,25 @@ public class ExcelTransformer
    public void transform(Workbook workbook, List<String> templateSheetNamesList,
       List<String> newSheetNamesList, List<Map<String, Object>> beansList)
    {
-      Map<String, Integer> firstReferencedSheets = new HashMap<String, Integer>();
-      final List<MissingCloneSheetProperties> missingPropertiesList = new ArrayList<MissingCloneSheetProperties>();
       if (DEBUG)
       {
          System.err.println("templateSheetNamesList.size()=" + templateSheetNamesList.size());
          System.err.println("newSheetNamesList.size()=" + newSheetNamesList.size());
          System.err.println("beansList.size()=" + beansList.size());
       }
-      // Note down any sheet properties that are known to be "messed up" when a
-      // Sheet is cloned and/or moved.
-      for (int i = 0; i < workbook.getNumberOfSheets(); i++)
-      {
-         missingPropertiesList.add(getMissingCloneSheetProperties(workbook.getSheetAt(i)));
-      }
-
-      // Clone and/or move sheets.
-      for (int i = 0; i < templateSheetNamesList.size(); i++)
-      {
-         if (DEBUG)
-         {
-            for (int j = 0; j < workbook.getNumberOfSheets(); j++)
-               System.err.println("  Before: Sheet(" + j + "): \"" + workbook.getSheetAt(j).getSheetName() + "\".");
-         }
-         String templateSheetName = templateSheetNamesList.get(i);
-         String newSheetName = newSheetNamesList.get(i);
-         if (firstReferencedSheets.containsKey(templateSheetName))
-         {
-            int prevIndex = firstReferencedSheets.get(templateSheetName);
-            // Clone the previously referenced sheet, name it, and reposition it.
-            if (DEBUG)
-               System.err.println("Cloning sheet at position " + prevIndex + ".");
-
-            MissingCloneSheetProperties cloned = new MissingCloneSheetProperties(missingPropertiesList.get(prevIndex));
-
-            workbook.cloneSheet(prevIndex);
-
-            if (DEBUG)
-               System.err.println("Setting sheet name at position " +
-                  (workbook.getNumberOfSheets() - 1) + " to \"" + newSheetName + "\".");
-
-            int clonePos = workbook.getNumberOfSheets() - 1;
-            workbook.setSheetName(clonePos, newSheetName);
-            cloneNamedRanges(workbook, prevIndex);
-
-            if (DEBUG)
-               System.err.println("Moving sheet \"" + newSheetName + "\" to position " + i + ".");
-
-            workbook.setSheetOrder(newSheetName, i);
-            updateNamedRangesScope(workbook, clonePos, i);
-
-            missingPropertiesList.add(i, cloned);
-         }
-         else
-         {
-            // Find the sheet.
-            int index = workbook.getSheetIndex(templateSheetName);
-            if (index == -1)
-               throw new RuntimeException("Template Sheet \"" + templateSheetName + "\" not found!");
-
-            // Rename the sheet and move it to the current position.
-            if (DEBUG)
-               System.err.println("Renaming sheet at position " + index + " to \"" + newSheetName + "\".");
-
-            workbook.setSheetName(index, newSheetName);
-
-            if (index != i)
-            {
-               if (DEBUG)
-                  System.err.println("Moving sheet at position " + index + " to " + i + ".");
-
-               MissingCloneSheetProperties move = missingPropertiesList.remove(index);
-
-               workbook.setSheetOrder(newSheetName, i);
-               updateNamedRangesScope(workbook, index, i);
-
-               missingPropertiesList.add(i, move);
-            }
-            firstReferencedSheets.put(templateSheetName, i);
-         }
-         if (DEBUG)
-         {
-            for (int j = 0; j < workbook.getNumberOfSheets(); j++)
-               System.err.println("  After: Sheet(" + j + "): \"" + workbook.getSheetAt(j).getSheetName() + "\".");
-         }
-      }
+      SheetCloner cloner = new SheetCloner(workbook);
+      cloner.cloneForSheetSpecificBeans(templateSheetNamesList, newSheetNamesList);
 
       SheetTransformer sheetTransformer = new SheetTransformer();
-      WorkbookContext context = createContext(workbook, sheetTransformer, templateSheetNamesList, newSheetNamesList);
+      WorkbookContext context = createContext(workbook, sheetTransformer, templateSheetNamesList, newSheetNamesList, beansList);
       FormulaUtil.updateSheetNameRefsAfterClone(context);
       if (DEBUG)
          System.err.println("number of Sheets=" + workbook.getNumberOfSheets());
 
       int numItemsProcessed = 0;
-      SheetTransformer.AfterOffSheetProperties missingPropertiesSetter = new SheetTransformer.AfterOffSheetProperties() {
-         /**
-          * Apply the missing clone sheet properties.
-          * @param sheet The given <code>Sheet</code>.
-          * @since 0.7.0
-          */
-         public void applySettings(Sheet sheet)
-         {
-            replaceMissingCloneSheetProperties(sheet, missingPropertiesList.get(sheet.getWorkbook().getSheetIndex(sheet)));
-         }
-      };
+      // Pick up beans list again from the WorkbookContext; implicit cloning
+      // may change it.
+      beansList = context.getBeansMaps();
 
       for (int i = 0; i < workbook.getNumberOfSheets(); i++)
       {
@@ -629,77 +540,11 @@ public class ExcelTransformer
             // collection names in expression text, which may vary from beans
             // map to beans map.
             Expression.clearExpressionToCollNamesMap();
-            sheetTransformer.transform(sheet, context, beans, missingPropertiesSetter);
+            sheetTransformer.transform(sheet, context, beans, cloner);
          }
          numItemsProcessed++;
       }
       postTransformation(workbook, context, sheetTransformer);
-   }
-
-   /**
-    * Clones all named ranges that are scoped to the <code>Sheet</code> at the
-    * given index, and scopes the newly cloned named ranges to the last sheet
-    * in the workbook, where it is assumed that the cloned sheet still exists.
-    * @param workbook A <code>Workbook</code>.
-    * @param prevIndex The 0-based sheet index from which to clone named
-    *    ranges.
-    * @since 0.8.0
-    */
-   private void cloneNamedRanges(Workbook workbook, int prevIndex)
-   {
-      int numNamedRanges = workbook.getNumberOfNames();
-      int clonedSheetIndex = workbook.getNumberOfSheets() - 1;
-      for (int i = 0; i < numNamedRanges; i++)
-      {
-         Name name = workbook.getNameAt(i);
-         // Avoid copying Excel's "built-in" (and hidden) named ranges.
-         if (name.getSheetIndex() == prevIndex && !NameTag.EXCEL_BUILT_IN_NAMES.contains(name.getNameName()))
-         {
-            Name clone = workbook.createName();
-            // This will be a sheet-scoped clone of a name that could be workbook-scoped.
-            clone.setSheetIndex(clonedSheetIndex);
-            clone.setNameName(name.getNameName());
-            clone.setComment(name.getComment());
-            clone.setFunction(name.isFunctionName());
-            clone.setRefersToFormula(name.getRefersToFormula());
-         }
-      }
-   }
-
-   /**
-    * The sheet order has changed; a <code>Sheet</code> has been moved from one
-    * position to another.  Apache POI doesn't change the scopes of named
-    * ranges to match this change.  This accomplishes the task here.
-    * @param workbook The <code>Workbook</code> on which a sheet was moved.
-    * @param fromIndex The 0-based previous index of the <code>Sheet</code>
-    *    that was moved.
-    * @param toIndex The 0-based current index of the <code>Sheet</code> that
-    *    was moved.
-    * @since 0.8.0
-    */
-   private void updateNamedRangesScope(Workbook workbook, int fromIndex, int toIndex)
-   {
-      if (fromIndex != toIndex)
-      {
-         int numNamedRanges = workbook.getNumberOfNames();
-         for (int i = 0; i < numNamedRanges; i++)
-         {
-            Name name = workbook.getNameAt(i);
-            int scopeIndex = name.getSheetIndex();
-            if (scopeIndex == fromIndex)
-            {
-               name.setSheetIndex(toIndex);
-            }
-            else if (fromIndex < scopeIndex && scopeIndex < toIndex)
-            {
-               name.setSheetIndex(scopeIndex - 1);
-            }
-            else if (toIndex < scopeIndex && scopeIndex < fromIndex)
-            {
-               name.setSheetIndex(scopeIndex + 1);
-            }
-         }
-      }
    }
 
    /**
@@ -730,76 +575,6 @@ public class ExcelTransformer
    }
 
    /**
-    * Copies the properties that won't be properly copied upon cloning and/or
-    * moving the given <code>Sheet</code>.
-    * @param sheet The <code>Sheet</code> on which to copy properties.
-    * @return A <code>MissingCloneSheetProperties</code>.
-    * @since 0.7.0
-    */
-   private MissingCloneSheetProperties getMissingCloneSheetProperties(Sheet sheet)
-   {
-      MissingCloneSheetProperties mcsp = new MissingCloneSheetProperties();
-      PrintSetup ps = sheet.getPrintSetup();
-
-      mcsp.setRepeatingColumns(sheet.getRepeatingColumns());
-      mcsp.setRepeatingRows(sheet.getRepeatingRows());
-
-      mcsp.setCopies(ps.getCopies());
-      mcsp.setDraft(ps.getDraft());
-      mcsp.setFitHeight(ps.getFitHeight());
-      mcsp.setFitWidth(ps.getFitWidth());
-      mcsp.setHResolution(ps.getHResolution());
-      mcsp.setLandscape(ps.getLandscape());
-      mcsp.setNoColor(ps.getNoColor());
-      mcsp.setLeftToRight(ps.getLeftToRight());
-      mcsp.setNotes(ps.getNotes());
-      mcsp.setPageStart(ps.getPageStart());
-      mcsp.setPaperSize(ps.getPaperSize());
-      mcsp.setScale(ps.getScale());
-      mcsp.setUsePage(ps.getUsePage());
-      mcsp.setValidSettings(ps.getValidSettings());
-      mcsp.setVResolution(ps.getVResolution());
-
-      return mcsp;
-   }
-
-   /**
-    * Copies the properties that weren't properly copied upon cloning and/or
-    * moving the given <code>Sheet</code> back into the sheet.
-    * @param sheet The <code>Sheet</code> on which to restore properties.
-    * @param mcsp The properties to copy back to the sheet.
-    * @since 0.7.0
-    */
-   private void replaceMissingCloneSheetProperties(Sheet sheet, MissingCloneSheetProperties mcsp)
-   {
-      PrintSetup ps = sheet.getPrintSetup();
-
-      // Missing properties for any case.
-      sheet.setRepeatingColumns(mcsp.getRepeatingColumns());
-      sheet.setRepeatingRows(mcsp.getRepeatingRows());
-
-      // Missing properties for XSSF only.
-      if (sheet instanceof XSSFSheet)
-      {
-         ps.setCopies(mcsp.getCopies());
-         ps.setDraft(mcsp.isDraft());
-         ps.setFitHeight(mcsp.getFitHeight());
-         ps.setFitWidth(mcsp.getFitWidth());
-         ps.setHResolution(mcsp.getHResolution());
-         ps.setLandscape(mcsp.isLandscape());
-         ps.setLeftToRight(mcsp.isLeftToRight());
-         ps.setNoColor(mcsp.isNoColor());
-         ps.setNotes(mcsp.isNotes());
-         ps.setPageStart(mcsp.getPageStart());
-         ps.setPaperSize(mcsp.getPaperSize());
-         ps.setScale(mcsp.getScale());
-         ps.setUsePage(mcsp.isUsePage());
-         ps.setValidSettings(mcsp.isValidSettings());
-         ps.setVResolution(mcsp.getVResolution());
-      }
-   }
-
-   /**
     * Creates a <code>WorkbookContext</code> for a <code>Workbook</code>.
     * @param workbook The <code>Workbook</code>.
     * @param transformer A <code>SheetTransformer</code>.
@@ -807,7 +582,7 @@ public class ExcelTransformer
     */
    public WorkbookContext createContext(Workbook workbook, SheetTransformer transformer)
    {
-      return createContext(workbook, transformer, new ArrayList<String>(), new ArrayList<String>());
+      return createContext(workbook, transformer, new ArrayList<String>(), new ArrayList<String>(), new ArrayList<Map<String, Object>>());
    }
 
    /**
@@ -818,11 +593,13 @@ public class ExcelTransformer
     *    from the <code>transform</code> method.
     * @param sheetNames A <code>List</code> of sheet names, from the
     *    <code>transform</code> method.
+    * @param beansMaps A <code>List</code> of beans maps, from the
+    *    <code>transform</code> method.
     * @return A <code>WorkbookContext</code>.
     * @since 0.8.0
     */
    public WorkbookContext createContext(Workbook workbook, SheetTransformer transformer,
-      List<String> templateSheetNames, List<String> sheetNames)
+      List<String> templateSheetNames, List<String> sheetNames, List<Map<String, Object>> beansMaps)
    {
       WorkbookContext context = new WorkbookContext();
       context.setCellListeners(myCellListeners);
@@ -845,6 +622,7 @@ public class ExcelTransformer
       context.setTemplateSheetNames(templateSheetNames);
       context.setSheetNames(sheetNames);
       context.setExpressionFactory(myExpressionFactory);
+      context.setBeansMaps(beansMaps);
       if (DEBUG)
       {
          System.err.println("Formula Map:");
@@ -975,7 +753,7 @@ public class ExcelTransformer
             if (formula != null)
             {
                // Replace all original cell references with translated cell references.
-               String excelFormula = FormulaUtil.createExcelFormulaString(formula.getFormulaText(), formula, sheetName, context);
+               String excelFormula = FormulaUtil.createExcelFormulaString(formula, sheetName, context);
                if (DEBUG)
                {
                   System.err.println("  For named range " + namedRangeName +

@@ -21,6 +21,8 @@ import org.apache.poi.ss.usermodel.Color;
 //import org.apache.poi.ss.usermodel.ConditionalFormattingRule;
 import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.Footer;
+import org.apache.poi.ss.usermodel.Header;
 import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -28,6 +30,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellReference;
+import org.apache.poi.ss.util.WorkbookUtil;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFFont;
@@ -60,6 +63,8 @@ public class SheetUtil
 
    // Won't catch when begins with a number; test for it when used.
    private static final Pattern POSSIBLE_VARIABLES = Pattern.compile("[A-Za-z0-9_]+");
+   // Allow for "variable.n".
+   private static final Pattern POSSIBLE_VARIABLES2 = Pattern.compile("[A-Za-z0-9_]+\\.[0-9]+");
 
    /**
     * Copy only the column widths in the given range of column indexes left by
@@ -1186,12 +1191,110 @@ public class SheetUtil
    }
 
    /**
+    * Takes the "replace value" <code>PastEndAction</code> on the entire
+    * <code>Sheet</code> - sheet name, header/footer, and all <code>Cells</code>
+    * on it.
+    * @param sheet The <code>Sheet</code> on which to replace expressions.
+    * @param pastEndRefs A <code>List</code> of strings identifying which
+    *    expressions represent collection access beyond the end of the
+    *    collection.
+    * @param replacementValue The value with which to replace those expressions.
+    * @return The sheet name after replacement.  It may change because the
+    *    sheet name can be changed by this method.
+    * @since 0.9.1
+    */
+   public static String takePastEndAction(Sheet sheet, List<String> pastEndRefs, String replacementValue)
+   {
+      Workbook workbook = sheet.getWorkbook();
+      String sheetName = sheet.getSheetName();
+      String newSheetName = replaceValue(sheetName, pastEndRefs, replacementValue);
+      if (!sheetName.equals(newSheetName))
+      {
+         newSheetName = SheetUtil.safeSetSheetName(workbook, workbook.getSheetIndex(sheet), newSheetName);
+      }
+
+      Header header = sheet.getHeader();
+      String text = header.getLeft();
+      String result = replaceValue(text, pastEndRefs, replacementValue);
+      header.setLeft(result);
+      text = header.getCenter();
+      result = replaceValue(text, pastEndRefs, replacementValue);
+      header.setCenter(result);
+      text = header.getRight();
+      result = replaceValue(text, pastEndRefs, replacementValue);
+      header.setRight(result);
+
+      Footer footer = sheet.getFooter();
+      text = footer.getLeft();
+      result = replaceValue(text, pastEndRefs, replacementValue);
+      footer.setLeft(result);
+      text = footer.getCenter();
+      result = replaceValue(text, pastEndRefs, replacementValue);
+      footer.setCenter(result);
+      text = footer.getRight();
+      result = replaceValue(text, pastEndRefs, replacementValue);
+      footer.setRight(result);
+
+      Block block = new Block(null, 0, SheetUtil.getLastPopulatedColIndex(sheet), 0, sheet.getLastRowNum());
+      block.setDirection(Block.Direction.NONE);
+
+      SheetUtil.takePastEndAction(sheet, block, pastEndRefs, PastEndAction.REPLACE_EXPR, replacementValue);
+
+      return newSheetName;
+   }
+
+   /**
+    * Helper method to perform the "replace value" past end action on a string.
+    * @param text The text to change.
+    * @param pastEndRefs A <code>List</code> of strings identifying which
+    *    expressions represent collection access beyond the end of the
+    *    collection.
+    * @param replacementValue The value with which to replace those expressions.
+    * @return The modified string.
+    * @since 0.9.1
+    */
+   private static String replaceValue(String text, List<String> pastEndRefs, String replacementValue)
+   {
+      int exprBegin = text.indexOf(Expression.BEGIN_EXPR);
+      int exprEnd = text.indexOf(Expression.END_EXPR);
+      if (DEBUG)
+         System.err.println("  SU.rV: exprBegin = " + exprBegin + ", exprEnd = " + exprEnd);
+
+      while (exprBegin != -1 && exprEnd != -1 && exprEnd > exprBegin)
+      {
+         String expression = text.substring(exprBegin + Expression.BEGIN_EXPR.length(), exprEnd - 1 + Expression.END_EXPR.length());
+         boolean replaceExpr = containsPastEndRef(expression, pastEndRefs);
+
+         if (replaceExpr)
+         {
+            String remove = text.substring(exprBegin, exprEnd + Expression.END_EXPR.length());
+
+            if (DEBUG)
+               System.err.println("    removing \"" + remove + "\".");
+            text = text.replaceAll(Pattern.quote(remove), replacementValue);
+            if (DEBUG)
+               System.err.println("    text is now \"" + text + "\".");
+            exprBegin = text.indexOf(Expression.BEGIN_EXPR, exprBegin);
+         }
+         else
+         {
+            exprBegin = text.indexOf(Expression.BEGIN_EXPR, exprEnd + 1);
+         }
+         exprEnd = text.indexOf(Expression.END_EXPR, exprBegin);
+
+         if (DEBUG)
+            System.err.println("  SU.tPEAOC: exprBegin = " + exprBegin + ", exprEnd = " + exprEnd);
+      }
+      return text;
+   }
+
+   /**
     * Takes the given <code>PastEndAction</code> on all <code>Cells</code>
     * found inside the given <code>Block</code> on the given <code>Sheet</code>
     * that contain any of the given expressions.
-    * @param sheet The <code>Sheet</code> on which to delete a
-    *    <code>Block</code>
-    * @param block The <code>Block</code> of <code>Cells</code> to delete.
+    * @param sheet The <code>Sheet</code> on which to take a
+    *    <code>PastEndAction</code> on a <code>Block</code>.
+    * @param block The <code>Block</code> of <code>Cells</code>.
     * @param pastEndRefs A <code>List</code> of strings identifying which
     *    expressions represent collection access beyond the end of the
     *    collection.
@@ -1291,30 +1394,28 @@ public class SheetUtil
                while (exprBegin != -1 && exprEnd != -1 && exprEnd > exprBegin)
                {
                   String expression = cellText.substring(exprBegin + Expression.BEGIN_EXPR.length(), exprEnd - 1 + Expression.END_EXPR.length());
-                  boolean nullExpr = false;
-                  Matcher m = POSSIBLE_VARIABLES.matcher(expression);
-                  while (m.find())
-                  {
-                     String possibleVariable = m.group();
-                     if (DEBUG)
-                        System.err.println("    Found " + possibleVariable);
-                     // Pattern doesn't eliminate possible variables that start
-                     // with a digit.  Check here.
-                     if (!Character.isDigit(possibleVariable.charAt(0)) && pastEndRefs.contains(possibleVariable))
-                     {
-                        if (DEBUG)
-                           System.err.println("    It's a past end ref!");
-                        nullExpr = true;
-                        break;
-                     }
-                  }
+                  boolean replaceExpr = SheetUtil.containsPastEndRef(expression, pastEndRefs);
 
-                  if (nullExpr)
+                  if (replaceExpr)
                   {
-                     String remove = cellText.substring(exprBegin, exprEnd + Expression.END_EXPR.length());
+                     int afterExprEnd = exprEnd + Expression.END_EXPR.length();
+                     String remove = cellText.substring(exprBegin, afterExprEnd);
+                     String value = replacementValue;
+                     // It doesn't make sense to use the replacement value when the
+                     // expression is in the "items" attribute and a Collection is
+                     // expected.  Use an empty list instead.
+                     // 7 for items=" before the expression
+                     // 1 for " after the expression
+                     // e.g. items="${remove}"
+                     if (exprBegin >= 7 && "items=\"".equals(cellText.substring(exprBegin - 7, exprBegin)) &&
+                             afterExprEnd < cellText.length() - 1 && "\"".equals(cellText.substring(afterExprEnd, afterExprEnd + 1)))
+                     {
+                        // JEXL for a new, empty ArrayList.
+                        value = Expression.BEGIN_EXPR + "new('java.util.ArrayList')" + Expression.END_EXPR;
+                     }
                      if (DEBUG)
                         System.err.println("    removing \"" + remove + "\".");
-                     rts = RichTextStringUtil.replaceAll(rts, helper, remove, replacementValue);
+                     rts = RichTextStringUtil.replaceAll(rts, helper, remove, value);
                      cell.setCellValue(rts);
                      cellText = rts.getString();
                      if (DEBUG)
@@ -1336,6 +1437,51 @@ public class SheetUtil
             throw new IllegalStateException("Unknown PastEndAction: " + pastEndAction);
          }
       }
+   }
+
+   /**
+    * Helper method to determine if a "past end reference" is present in the
+    * given expression.
+    * @param expression An expression.
+    * @param pastEndRefs A <code>List</code> of "past end references".
+    * @return Whether a past end reference is present in the expression.
+    * @since 0.9.1
+    */
+   private static boolean containsPastEndRef(String expression, List<String> pastEndRefs)
+   {
+      Matcher m = POSSIBLE_VARIABLES.matcher(expression);
+      while (m.find())
+      {
+         String possibleVariable = m.group();
+         if (DEBUG)
+            System.err.println("    Found " + possibleVariable);
+         // Pattern doesn't eliminate possible variables that start
+         // with a digit.  Check here.
+         if (!Character.isDigit(possibleVariable.charAt(0)) && pastEndRefs.contains(possibleVariable))
+         {
+            if (DEBUG)
+               System.err.println("    It's a past end ref!");
+            return true;
+         }
+      }
+
+      // Allow to match "variable.n".
+      m = POSSIBLE_VARIABLES2.matcher(expression);
+      while (m.find())
+      {
+         String possibleVariable = m.group();
+         if (DEBUG)
+            System.err.println("    Found " + possibleVariable);
+         // Pattern doesn't eliminate possible variables that start
+         // with a digit.  Check here.
+         if (!Character.isDigit(possibleVariable.charAt(0)) && pastEndRefs.contains(possibleVariable))
+         {
+            if (DEBUG)
+               System.err.println("    It's a past end ref!");
+            return true;
+         }
+      }
+      return false;
    }
 
    /**
@@ -2042,11 +2188,11 @@ public class SheetUtil
     * loops.
     * @param sheet The <code>Sheet</code> on which the <code>Block</code> lies.
     * @param block The <code>Block</code> in which to perform the replacement.
-    * @param collExpr The collection expression string to replace.
-    * @param itemName The item name that replaces the collection expression.
+    * @param collExprs The collection expression strings to replace.
+    * @param itemNames The item names that replace the collection expressions.
     */
    public static void setUpBlockForImplicitCollectionAccess(Sheet sheet, Block block,
-      String collExpr, String itemName)
+      List<String> collExprs, List<String> itemNames)
    {
       int left = block.getLeftColNum();
       int right = block.getRightColNum();
@@ -2065,12 +2211,97 @@ public class SheetUtil
                if (cell != null && cell.getCellType() == Cell.CELL_TYPE_STRING)
                {
                   RichTextString value = cell.getRichStringCellValue();
-                  cell.setCellValue(RichTextStringUtil.replaceAll(
-                     value, helper, collExpr, itemName, false, 0, true));
+                  for (int i = 0; i < collExprs.size(); i++)
+                  {
+                     value = RichTextStringUtil.replaceAll(
+                         value, helper, collExprs.get(i), itemNames.get(i), false, 0, true);
+                  }
+                  cell.setCellValue(value);
                }
             }
          }
       }
+   }
+
+   /**
+    * Replace all occurrences of the given collection expression name with the
+    * given item name, in the entire <code>Sheet</code>, in preparation for
+    * implicit cloning processing loops.  This doesn't replace any collection
+    * expressions in the sheet name; this is assumed to have taken place
+    * already, due to unique sheet naming requirements.
+    * @param sheet The <code>Sheet</code>.
+    * @param collExprs The <code>List</code> of collection expression strings
+    *     to replace.
+    * @param itemNames The <code>List</code> of item names that replace the
+    *     collection expressions.
+    * @since 0.9.1
+    */
+   public static void setUpSheetForImplicitCloningAccess(Sheet sheet, List<String> collExprs, List<String> itemNames)
+   {
+      CreationHelper helper = sheet.getWorkbook().getCreationHelper();
+
+      Header header = sheet.getHeader();
+      header.setLeft(replacementHelper(helper, header.getLeft(), collExprs, itemNames));
+      header.setCenter(replacementHelper(helper, header.getCenter(), collExprs, itemNames));
+      header.setRight(replacementHelper(helper, header.getRight(), collExprs, itemNames));
+
+      Footer footer = sheet.getFooter();
+      footer.setLeft(replacementHelper(helper, footer.getLeft(), collExprs, itemNames));
+      footer.setCenter(replacementHelper(helper, footer.getCenter(), collExprs, itemNames));
+      footer.setRight(replacementHelper(helper, footer.getRight(), collExprs, itemNames));
+
+      for (Row row : sheet)
+      {
+         for (Cell cell : row)
+         {
+            if (cell.getCellType() == Cell.CELL_TYPE_STRING)
+            {
+               RichTextString value = cell.getRichStringCellValue();
+               value = replacementHelper(helper, value, collExprs, itemNames);
+               cell.setCellValue(value);
+            }
+         }
+      }
+   }
+
+   /**
+    * Helper method to replace all collection expressions with their
+    * replacements for one value.
+    * @param helper The <code>CreationHelper</code>.
+    * @param text The rich text string containing expressions to replace.
+    * @param collExprs The <code>List</code> of collection expression strings
+    *     to replace.
+    * @param itemNames The <code>List</code> of item names that replace the
+    *     collection expressions.
+    * @return The rich text string with expressions replaced.
+    * @since 0.9.1
+    */
+   private static RichTextString replacementHelper(CreationHelper helper, RichTextString text, List<String> collExprs, List<String> itemNames)
+   {
+      for (int i = 0; i < collExprs.size(); i++)
+      {
+         text = RichTextStringUtil.replaceAll(text, helper, collExprs.get(i), itemNames.get(i), false, 0, true);
+      }
+      return text;
+   }
+
+   /**
+    * Helper method to replace all collection expressions with their
+    * replacements for one value.
+    * @param helper The <code>CreationHelper</code>.
+    * @param text The text containing expressions to replace.
+    * @param collExprs The <code>List</code> of collection expression strings
+    *     to replace.
+    * @param itemNames The <code>List</code> of item names that replace the
+    *     collection expressions.
+    * @return The text with expressions replaced.
+    * @since 0.9.1
+    */
+   private static String replacementHelper(CreationHelper helper, String text, List<String> collExprs, List<String> itemNames)
+   {
+      RichTextString temp = helper.createRichTextString(text);
+      temp = replacementHelper(helper, temp, collExprs, itemNames);
+      return temp.toString();
    }
 
    /**
@@ -2595,6 +2826,70 @@ public class SheetUtil
       }
       while (tag != null);
       return buf.toString();
+   }
+
+   /**
+    * Sets the name of the indicated <code>Sheet</code> in the workbook to a
+    * safe, legal sheet name.  Invalid characters are replaced with spaces.  If
+    * a sheet name is already taken, numbers are added as suffixes until a name
+    * that isn't taken is found, e.g. "example" -> "example-1" -> "example-2".
+    * @param workbook The <code>Workbook</code> in which to set a sheet's name.
+    * @param index The 0-based index of the <code>Sheet</code>.
+    * @param newName The proposed new name.
+    * @return The actual safe name used to rename the sheet.
+    * @since 0.9.1
+    */
+   public static String safeSetSheetName(Workbook workbook, int index, String newName)
+   {
+      if (DEBUG)
+      {
+         System.err.println("SU.sSSN(" + index + ", \"" + newName + "\")");
+      }
+      // For the uniqueness of sheet names, they are case insensitive.
+      // No change.
+      if (workbook.getSheetName(index).equalsIgnoreCase(newName))
+      {
+         return newName;
+      }
+      // Ensure it's a valid name.
+      try
+      {
+         WorkbookUtil.validateSheetName(newName);
+      }
+      catch (IllegalArgumentException e)
+      {
+         newName = WorkbookUtil.createSafeSheetName(newName);
+      }
+      // Ensure the name isn't already in the workbook.
+      boolean alreadyExists = true;
+      int suffix = 0;
+      String finalName = newName;
+      while (alreadyExists)
+      {
+         if (suffix > 0)
+         {
+            int addedLength = String.valueOf(suffix).length() + 1;
+            if (newName.length() + addedLength > 31)
+            {
+               newName = newName.substring(0, 31 - addedLength);
+            }
+            finalName = newName + "-" + suffix;
+         }
+         alreadyExists = false;
+         for (int s = 0; s < workbook.getNumberOfSheets(); s++)
+         {
+            // For the uniqueness of sheet names, they are case insensitive.
+            if (finalName.equalsIgnoreCase(workbook.getSheetName(s)))
+            {
+               alreadyExists = true;
+               suffix++;
+               break;
+            }
+         }
+      }
+      // Validated and doesn't already exist.
+      workbook.setSheetName(index, finalName);
+      return finalName;
    }
 }
 
