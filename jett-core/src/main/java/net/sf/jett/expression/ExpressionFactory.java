@@ -34,6 +34,7 @@ public class ExpressionFactory
       myEngine = new JexlEngine();
       myEngine.setLenient(true);
       myEngine.setSilent(false);
+      myEngine.setDebug(false);
       myFuncs = new HashMap<String, Object>();
       myEngine.setFunctions(myFuncs);
       myFuncs.put("jagg", JaggFuncs.class);
@@ -90,6 +91,18 @@ public class ExpressionFactory
    public void setCache(int size)
    {
       myEngine.setCache(size);
+   }
+
+   /**
+    * Passes the given "debug" flag on to the internal
+    * <code>JexlEngine</code>.
+    * @param debug Whether the internal <code>JexlEngine</code> should be
+    *    in "debug" mode.
+    * @since 0.9.1
+    */
+   public void setDebug(boolean debug)
+   {
+      myEngine.setDebug(debug);
    }
 
    /**
