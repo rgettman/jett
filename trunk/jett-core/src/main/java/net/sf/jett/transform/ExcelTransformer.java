@@ -220,6 +220,17 @@ public class ExcelTransformer
    }
 
    /**
+    * Sets whether the JEXL "debug" flag is set.  Default is
+    * <code>false</code>.
+    * @param debug Whether the JEXL "debug" flag is set.
+    * @since 0.9.1
+    */
+   public void setDebug(boolean debug)
+   {
+      myExpressionFactory.setDebug(debug);
+   }
+
+   /**
     * Registers an object under the given namespace in the internal JEXL
     * Engine.  Each public method in the object's class is exposed as a
     * "function" available in the JEXL Engine.  To use instance methods, pass
