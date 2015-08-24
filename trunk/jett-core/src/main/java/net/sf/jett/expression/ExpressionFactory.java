@@ -23,7 +23,8 @@ import org.apache.commons.jexl2.JexlEngine;
 public class ExpressionFactory
 {
    private JexlEngine myEngine;
-   private Map<String, Object> myFuncs = new HashMap<String, Object>();
+   private Map<String, Object> myFuncs;
+   private Map<String, org.apache.commons.jexl2.Expression> myExpressionCache;
 
    /**
     * Constructs a <code>ExpressionFactory</code>.  Initializes an internal
@@ -39,6 +40,7 @@ public class ExpressionFactory
       myEngine.setFunctions(myFuncs);
       myFuncs.put("jagg", JaggFuncs.class);
       myFuncs.put("jett", JettFuncs.class);
+      myExpressionCache = new HashMap<String, org.apache.commons.jexl2.Expression>();
    }
 
    /**
@@ -134,7 +136,13 @@ public class ExpressionFactory
     */
    public org.apache.commons.jexl2.Expression createExpression(String expression)
    {
-      return myEngine.createExpression(expression);
+      org.apache.commons.jexl2.Expression jexlExpr = myExpressionCache.get(expression);
+      if (jexlExpr == null)
+      {
+         jexlExpr = myEngine.createExpression(expression);
+         myExpressionCache.put(expression, jexlExpr);
+      }
+      return jexlExpr;
    }
 }
 
