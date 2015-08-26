@@ -40,12 +40,12 @@
         <dependency>
             <artifactId>poi</artifactId>
             <groupId>org.apache.poi</groupId>
-            <version>3.10-FINAL</version>
+            <version>3.12</version>
         </dependency>
         <dependency>
             <artifactId>poi-ooxml</artifactId>
             <groupId>org.apache.poi</groupId>
-            <version>3.10-FINAL</version>
+            <version>3.12</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
