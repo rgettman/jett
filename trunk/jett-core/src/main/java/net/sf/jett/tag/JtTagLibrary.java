@@ -27,6 +27,9 @@ public class JtTagLibrary implements TagLibrary
       myTagMap.put("forEach"     , ForEachTag.class);
       myTagMap.put("formula"     , FormulaTag.class);
       myTagMap.put("group"       , GroupTag.class);
+      myTagMap.put("hideCols"    , HideColsTag.class);
+      myTagMap.put("hideRows"    , HideRowsTag.class);
+      myTagMap.put("hideSheet"   , HideSheetTag.class);
       myTagMap.put("hyperlink"   , HyperlinkTag.class);
       myTagMap.put("if"          , IfTag.class);
       myTagMap.put("multiForEach", MultiForEachTag.class);

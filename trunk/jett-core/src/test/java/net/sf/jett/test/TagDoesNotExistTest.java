@@ -49,6 +49,7 @@ public class TagDoesNotExistTest extends TestCase
       try
       {
          super.testXlsx();
+         fail();
       }
       catch(TagParseException e)
       {
