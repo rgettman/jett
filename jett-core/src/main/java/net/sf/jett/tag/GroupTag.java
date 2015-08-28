@@ -19,7 +19,7 @@ import net.sf.jett.util.SheetUtil;
  * needs an Excel "group" associated with it.  Optionally, it may be displayed
  * expanded (default) or collapsed.</p>
  *
- * <br/>Attributes:
+ * <br>Attributes:
  * <ul>
  * <li><em>Inherits all attributes from {@link BaseTag}.</em></li>
  * <li>groupDir (optional): <code>String</code></li>

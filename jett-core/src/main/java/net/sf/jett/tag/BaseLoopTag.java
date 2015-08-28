@@ -25,7 +25,7 @@ import net.sf.jett.util.SheetUtil;
  * that represent loops.
  * </p>
  *
- * <br/>Attributes:
+ * <br>Attributes:
  * <ul>
  * <li><em>Inherits all attributes from {@link BaseTag}.</em></li>
  * <li>copyRight (optional): <code>boolean</code></li>
@@ -94,7 +94,7 @@ public abstract class BaseLoopTag extends BaseTag
     */
    public static final String ATTR_REPLACE_VALUE = "replaceValue";
    /**
-    * Attribute for specifying the name of the {@link <code>LoopTagStatus</code>}
+    * Attribute for specifying the name of the {@link net.sf.jett.model.LoopTagStatus}
     * object that will be exposed in the beans map.  If this attribute is not
     * present, or the value is <code>null</code>, then no such object will be
     * exposed.
@@ -339,12 +339,12 @@ public abstract class BaseLoopTag extends BaseTag
     * <li>Over each loop of the iterator...</li>
     * <ol>
     * <li>Create a <code>Block</code> for the iteration.</li>
-    * <li>If the collection values are exhaused, apply any "past end actions".
+    * <li>If the collection values are exhausted, apply any "past end actions".
     * </li>
-    * <li>Call <code>beforeBlockProcessed()</li>.
+    * <li>Call <code>beforeBlockProcessed()</code></li>.
     * <li>Process the current <code>Block</code> with a
     * <code>BlockTransformer</code>.</li>
-    * <li>Call <code>afterBlockProcessed()</li>.
+    * <li>Call <code>afterBlockProcessed()</code></li>.
     * </ol>
     * </ol>
     * @return Whether the first <code>Cell</code> in the <code>Block</code>

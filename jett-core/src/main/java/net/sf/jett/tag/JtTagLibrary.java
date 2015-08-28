@@ -52,7 +52,7 @@ public class JtTagLibrary implements TagLibrary
 
    /**
     * Returns the <code>Map</code> of tag names to tag <code>Class</code>
-    * objects, e.g. <code>"if" => IfTag.class</code>.
+    * objects, e.g. <code>"if" =&gt; IfTag.class</code>.
     * @return A <code>Map</code> of tag names to tag <code>Class</code>
     *    objects.
     */

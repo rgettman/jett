@@ -52,7 +52,7 @@ public class FormulaUtil
     * @return A cell reference map, a <code>Map</code> of cell key strings to
     *    <code>Lists</code> of <code>CellRefs</code>.  Each <code>List</code>
     *    is initialized to contain only one <code>CellRef</code>, the original
-    *    from the cell key string, e.g. "Sheet1!C2" => [Sheet1!C2]
+    *    from the cell key string, e.g. "Sheet1!C2" =&gt; [Sheet1!C2]
     */
    public static Map<String, List<CellRef>> createCellRefMap(Map<String, Formula> formulaMap)
    {
@@ -151,7 +151,7 @@ public class FormulaUtil
    /**
     * Replaces cell references in the given formula text with the translated
     * cell references, and returns the formula string.
-    * @param formula The <code>Formula</code, for its access to its original
+    * @param formula The <code>Formula</code>, for its access to its original
     *    <code>CellRefs</code>.
     * @param sheetName The name of the <code>Sheet</code> on which the formula
     *    exists.
@@ -171,7 +171,7 @@ public class FormulaUtil
     * Replaces cell references in the given formula text with the translated
     * cell references, and returns the formula string.
     * @param formulaText The <code>Formula</code> text, e.g. "SUM(C2)".
-    * @param formula The <code>Formula</code, for its access to its original
+    * @param formula The <code>Formula</code>, for its access to its original
     *    <code>CellRefs</code>.
     * @param sheetName The name of the <code>Sheet</code> on which the formula
     *    exists.
@@ -1071,7 +1071,7 @@ public class FormulaUtil
     * It's possible that a JETT formula was entered that wouldn't be accepted
     * by Excel because the sheet name needs to be formatted -- enclosed in
     * single quotes, e.g. <code>$[SUM(${dvs.name}$@i=n;l=10;v=s;r=DNE!B3)]</code>
-    * -> <code>$[SUM('${dvs.name}$@i=n;l=10;v=s;r=DNE'!B3)]</code>
+    * -&gt; <code>$[SUM('${dvs.name}$@i=n;l=10;v=s;r=DNE'!B3)]</code>
     * @param formula The original JETT formula text, as entered in the template.
     * @param cellReferences The <code>List</code> of <code>CellRefs</code>
     *    already found by the <code>FormulaParser</code>.

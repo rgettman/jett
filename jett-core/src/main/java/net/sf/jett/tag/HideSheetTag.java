@@ -7,7 +7,7 @@ import org.apache.poi.ss.usermodel.Workbook;
  * <p>A <code>HideSheetTag</code> is a <code>BaseHideTag</code> that hides an
  * entire sheet.</p>
  *
- * <br/>Attributes:
+ * <br>Attributes:
  * <ul>
  * <li><em>Inherits all attributes from {@link BaseTag}.</em></li>
  * <li>test (optional): <code>boolean</code></li>

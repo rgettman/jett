@@ -10,7 +10,7 @@ import java.util.Map;
  * type to be "url" and the address to be a URL that shows Rick Astley's "Never
  * Gonna Give You Up" video.</p>
  *
- * <br/>Attributes:
+ * <br>Attributes:
  * <ul>
  * <li><em>Inherits all attributes from {@link BaseTag}.</em></li>
  * <li>value (required): <code>RichTextString</code></li>

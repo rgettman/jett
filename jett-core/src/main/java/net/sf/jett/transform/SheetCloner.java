@@ -323,6 +323,8 @@ public class SheetCloner
      * <code>SheetTransformer</code> can transform the resultant sheets as if
      * they were already there.
      * @param sheet The <code>Sheet</code> on which to perform implicit cloning.
+     * @param beans The beans map.
+     * @param context The <code>WorkbookContext</code>.
      * @return A beans <code>Map</code> to use for transformation, which may
      *    be <code>beans</code>.
      */

@@ -211,7 +211,7 @@ public class WorkbookContext
     * Returns the cell reference map, a <code>Map</code> of cell key strings to
     * <code>Lists</code> of <code>CellRefs</code>.  The cell key strings are
     * original cell references, and the <code>Lists</code> contain translated
-    * <code>CellRefs</code>, e.g. "Sheet1!C2" => [C2, C3, C4]
+    * <code>CellRefs</code>, e.g. "Sheet1!C2" =&gt; [C2, C3, C4]
     * @return A <code>Map</code> of cell key strings to <code>Lists</code> of
     *    <code>CellRefs</code>.
     */
@@ -224,7 +224,7 @@ public class WorkbookContext
     * Sets the cell reference map, a <code>Map</code> of cell key strings to
     * <code>Lists</code> of <code>CellRefs</code>.  The cell key strings are
     * original cell references, and the <code>Lists</code> contain translated
-    * <code>CellRefs</code>, e.g. "Sheet1!C2" => [C2, C3, C4]
+    * <code>CellRefs</code>, e.g. "Sheet1!C2" =&gt; [C2, C3, C4]
     * @param cellRefMap A <code>Map</code> of cell key strings to
     * <code>Lists</code> of <code>CellRefs</code>.
     */

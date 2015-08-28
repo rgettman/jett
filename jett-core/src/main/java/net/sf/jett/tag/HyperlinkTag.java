@@ -25,7 +25,7 @@ import net.sf.jett.util.SheetUtil;
  * besides the Hyperlink in the Cell, any text in the Cell but outside of the
  * Hyperlink tag will be removed when the Hyperlink is created.</p>
  *
- * <br/>Attributes:
+ * <br>Attributes:
  * <ul>
  * <li><em>Inherits all attributes from {@link BaseTag}.</em></li>
  * <li>type (optional): <code>String</code></li>

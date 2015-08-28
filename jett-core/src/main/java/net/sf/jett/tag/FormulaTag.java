@@ -23,7 +23,7 @@ import net.sf.jett.util.AttributeUtil;
  * that the dynamically generated expression is a valid Excel Formula.  A
  * <code>FormulaTag</code> must be bodiless.</p>
  *
- * <br/>Attributes:
+ * <br>Attributes:
  * <ul>
  * <li><em>Inherits all attributes from {@link BaseTag}.</em></li>
  * <li>text or bean (required): <code>String</code></li>
@@ -42,16 +42,16 @@ public class FormulaTag extends BaseTag
    /**
     * Attribute that specifies the bean name that contains the Expression
     * string to be evaluated by JETT that results in formula creation in the
-    * cell.  I.e. <code>bean="beanName" => "${beanName}" => "formula"</code>.
-    * Then the value is used as the formula expression, i.e. <code>formula =>
-    * "${wins} + ${losses}" => "A2 + B2"</code>, which is used as the formula
+    * cell.  I.e. <code>bean="beanName" =&gt; "${beanName}" =&gt; "formula"</code>.
+    * Then the value is used as the formula expression, i.e. <code>formula =&gt;
+    * "${wins} + ${losses}" =&gt; "A2 + B2"</code>, which is used as the formula
     * text.  Either "bean" or "text" must be specified, but not both.
     */
    public static final String ATTR_BEAN = "bean";
    /**
     * Attribute that specifies the Expression string to be evaluated by JETT
     * that results in formula creation in the cell.  I.e.
-    * <code>text="${wins} + ${losses}" => "A2 + B2"</code>, which is used as
+    * <code>text="${wins} + ${losses}" =&gt; "A2 + B2"</code>, which is used as
     * the formula text.  Either "bean" or "text" must be specified, but not
     * both.
     */

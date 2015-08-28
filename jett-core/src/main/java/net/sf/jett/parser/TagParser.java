@@ -331,7 +331,7 @@ public class TagParser
     * Returns a <code>Map</code> of attribute names mapped to attribute values,
     * possibly empty.
     * E.g.<code>&lt;namespace:tagname attr1="value1" attr2="value2"&gt;</code>
-    * is returned as <code>["attr1"=>"value1", "attr2"=>"value2"]</code>.
+    * is returned as <code>["attr1"=&gt;"value1", "attr2"=&gt;"value2"]</code>.
     * @return A <code>Map</code> of attribute names and attribute values.
     */
    public Map<String, RichTextString> getAttributes()

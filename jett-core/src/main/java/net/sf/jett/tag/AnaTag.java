@@ -21,7 +21,7 @@ import net.sf.jett.util.AttributeUtil;
  * <code>jAgg</code> functionality and exposes the results and
  * <code>AnalyticAggregators</code> used for display later.</p>
  *
- * <br/>Attributes:
+ * <br>Attributes:
  * <ul>
  * <li><em>Inherits all attributes from {@link BaseTag}.</em></li>
  * <li>items (required): <code>List</code></li>

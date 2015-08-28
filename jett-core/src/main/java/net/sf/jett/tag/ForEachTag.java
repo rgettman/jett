@@ -36,7 +36,7 @@ import net.sf.jett.util.OrderByComparator;
  * collection, then blank blocks will result, with the exact result dependent
  * on "past end action" rules.</p>
  *
- * <br/>Attributes:
+ * <br>Attributes:
  * <ul>
  * <li><em>Inherits all attributes from {@link BaseTag}.</em></li>
  * <li><em>Inherits all attributes from {@link BaseLoopTag}.</em></li>
