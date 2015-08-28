@@ -35,7 +35,7 @@ import net.sf.jett.util.SheetUtil;
  * appears that drawings and charts do get corrupted in .xls spreadsheets, but
  * they do NOT get corrupted in .xlsx spreadsheets.</p>
  *
- * <br/>Attributes:
+ * <br>Attributes:
  * <ul>
  * <li><em>Inherits all attributes from {@link BaseTag}.</em></li>
  * <li>value (required): <code>RichTextString</code></li>

@@ -25,7 +25,7 @@ import net.sf.jett.util.SheetUtil;
  * the tag is bodiless, the <code>TagContext</code>, the
  * <code>WorkbookContext</code>, and the parent <code>Tag</code> (if any).</p>
  *
- * <br/>Attributes:
+ * <br>Attributes:
  * <ul>
  * <li>onProcessed (optional): <code>TagListener</code></li>
  * </ul>

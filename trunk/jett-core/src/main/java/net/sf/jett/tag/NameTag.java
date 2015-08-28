@@ -27,7 +27,7 @@ import net.sf.jett.util.FormulaUtil;
  * dynamically generated expression is a valid Excel Formula.  A
  * <code>NameTag</code> must be bodiless.</p>
  *
- * <br/>Attributes:
+ * <br>Attributes:
  * <ul>
  * <li><em>Inherits all attributes from {@link BaseTag}.</em></li>
  * <li>name (required): <code>String</code></li>

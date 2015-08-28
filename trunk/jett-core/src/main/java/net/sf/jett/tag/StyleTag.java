@@ -52,7 +52,7 @@ import net.sf.jett.util.SheetUtil;
  * names override previous class names, and the <code>style</code> attribute
  * overrides the <code>class</code> attribute.</p>
  *
- * <br/>Attributes:
+ * <br>Attributes:
  * <ul>
  * <li><em>Inherits all attributes from {@link BaseTag}.</em></li>
  * <li>style (optional): <code>String</code></li>

@@ -25,7 +25,7 @@ import net.sf.jett.util.SheetUtil;
  * <code>List</code> of values already exposed to the context.  This uses
  * <code>jAgg</code> functionality.</p>
  *
- * <br/>Attributes:
+ * <br>Attributes:
  * <ul>
  * <li><em>Inherits all attributes from {@link BaseTag}.</em></li>
  * <li>items (required): <code>List</code></li>

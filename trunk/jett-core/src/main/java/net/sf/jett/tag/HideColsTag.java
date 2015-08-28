@@ -1,13 +1,14 @@
 package net.sf.jett.tag;
 
-import net.sf.jett.model.Block;
 import org.apache.poi.ss.usermodel.Sheet;
+
+import net.sf.jett.model.Block;
 
 /**
  * <p>A <code>HideColsTag</code> is a <code>BaseHideTag</code> that hides a
  * range of columns.</p>
  *
- * <br/>Attributes:
+ * <br>Attributes:
  * <ul>
  * <li><em>Inherits all attributes from {@link BaseTag}.</em></li>
  * <li>test (optional): <code>boolean</code></li>

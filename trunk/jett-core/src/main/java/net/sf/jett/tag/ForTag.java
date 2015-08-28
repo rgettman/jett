@@ -18,7 +18,7 @@ import net.sf.jett.util.AttributeUtil;
  * of <code>Cells</code>, with each repetition corresponding to an increment of
  * an index.</p>
  *
- * <br/>Attributes:
+ * <br>Attributes:
  * <ul>
  * <li><em>Inherits all attributes from {@link BaseTag}.</em></li>
  * <li><em>Inherits all attributes from {@link BaseLoopTag}.</em></li>

@@ -16,7 +16,7 @@ import net.sf.jett.model.Block;
  * <p>A <code>NullTag</code> does nothing to its <code>Block</code> except mark
  * its Cells as processed.  It can't have any attributes in body mode.</p>
  *
- * <br/>Attributes:
+ * <br>Attributes:
  * <ul>
  * <li><em>Inherits all attributes from {@link BaseTag}.</em></li>
  * <li>text (required, bodiless only): <code>RichTextString</code></li>

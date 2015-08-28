@@ -402,6 +402,7 @@ public class AttributeUtil
     * @param expectedClass The result is expected to be of the given class or
     *    of a subclass.
     * @param def The default value if the text is null.
+    * @param <T> The <code>Class</code> of the expected return type.
     * @return The result.
     * @throws AttributeExpressionException If the result is not of the expected class or
     *    of a subclass.
@@ -428,6 +429,7 @@ public class AttributeUtil
     * @param expectedClass The result is expected to be of the given class or
     *    of a subclass.
     * @param def The default value if the text is null.
+    * @param <T> The <code>Class</code> of the expected return type.
     * @return The result.
     * @throws AttributeExpressionException If the result is not of the expected class or
     *    of a subclass.

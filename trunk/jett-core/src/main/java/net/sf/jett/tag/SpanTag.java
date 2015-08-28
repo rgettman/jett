@@ -33,7 +33,7 @@ import net.sf.jett.util.SheetUtil;
  * is applied to a cell that is part of a merged region, then it may result in
  * the removal of the merged region.</p>
  *
- * <br/>Attributes:
+ * <br>Attributes:
  * <ul>
  * <li><em>Inherits all attributes from {@link BaseTag}.</em></li>
  * <li>factor (optional): <code>int</code></li>

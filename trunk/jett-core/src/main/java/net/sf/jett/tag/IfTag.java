@@ -19,7 +19,7 @@ import net.sf.jett.util.SheetUtil;
  * <p>An <code>IfTag</code> represents a conditionally placed
  * <code>Block</code> of <code>Cells</code>.</p>
  *
- * <br/>Attributes:
+ * <br>Attributes:
  * <ul>
  * <li><em>Inherits all attributes from {@link BaseTag}.</em></li>
  * <li>test (required): <code>boolean</code></li>

@@ -2832,7 +2832,7 @@ public class SheetUtil
     * Sets the name of the indicated <code>Sheet</code> in the workbook to a
     * safe, legal sheet name.  Invalid characters are replaced with spaces.  If
     * a sheet name is already taken, numbers are added as suffixes until a name
-    * that isn't taken is found, e.g. "example" -> "example-1" -> "example-2".
+    * that isn't taken is found, e.g. "example" -&gt; "example-1" -&gt; "example-2".
     * @param workbook The <code>Workbook</code> in which to set a sheet's name.
     * @param index The 0-based index of the <code>Sheet</code>.
     * @param newName The proposed new name.

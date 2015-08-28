@@ -752,14 +752,14 @@ public class RichTextStringUtil
     * <p>Performs escaping.  Preserves rich text formatting as much as
     * possible.  The following escape sequences are recognized:</p>
     * <ul>
-    *   <li><code>\"</code> => <code>"</code></li>
-    *   <li><code>\'</code> => <code>'</code></li>
-    *   <li><code>\\</code> => <code>\</code></li>
-    *   <li><code>\b</code> => <code>(backspace)</code></li>
-    *   <li><code>\f</code> => <code>(form feed)</code></li>
-    *   <li><code>\n</code> => <code>(newline)</code></li>
-    *   <li><code>\r</code> => <code>(carriage return)</code></li>
-    *   <li><code>\t</code> => <code>(tab)</code></li>
+    *   <li><code>\"</code> =&gt; <code>"</code></li>
+    *   <li><code>\'</code> =&gt; <code>'</code></li>
+    *   <li><code>\\</code> =&gt; <code>\</code></li>
+    *   <li><code>\b</code> =&gt; <code>(backspace)</code></li>
+    *   <li><code>\f</code> =&gt; <code>(form feed)</code></li>
+    *   <li><code>\n</code> =&gt; <code>(newline)</code></li>
+    *   <li><code>\r</code> =&gt; <code>(carriage return)</code></li>
+    *   <li><code>\t</code> =&gt; <code>(tab)</code></li>
     * </ul>
     * @param richTextString The <code>RichTextString</code> to manipulate.
     * @param helper A <code>CreationHelper</code> that can create the proper

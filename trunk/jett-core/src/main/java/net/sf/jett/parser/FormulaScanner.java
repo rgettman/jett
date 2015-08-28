@@ -79,7 +79,7 @@ public class FormulaScanner
 
    /**
     * Returns the <code>Token</code>.  After this call completes, the current
-    * lexeme is available via a call to <code>getCurrLexeme<code>.
+    * lexeme is available via a call to <code>getCurrLexeme</code>.
     * Starts looking at the current offset, and once the token is found, then
     * the offset is advanced to the start of the next token.
     * @return A <code>Token</code>.

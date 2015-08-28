@@ -14,7 +14,7 @@ import net.sf.jett.util.AttributeUtil;
 /**
  * A <code>BaseHideTag</code> represents something that can be hidden conditionally.</p>
  *
- * <br/>Attributes:
+ * <br>Attributes:
  * <ul>
  * <li><em>Inherits all attributes from {@link BaseTag}.</em></li>
  * <li>test (required): <code>boolean</code></li>

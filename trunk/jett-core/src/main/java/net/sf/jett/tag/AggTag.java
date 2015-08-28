@@ -23,7 +23,7 @@ import net.sf.jett.util.AttributeUtil;
  * context.  It uses <code>jAgg</code> functionality and exposes the results
  * and <code>AggregateFunctions</code> used for display later.</p>
  *
- * <br/>Attributes:
+ * <br>Attributes:
  * <ul>
  * <li><em>Inherits all attributes from {@link BaseTag}.</em></li>
  * <li>items (required): <code>List</code></li>

@@ -5,8 +5,8 @@ import java.util.Map;
 
 /**
  * A <code>ResultSetRow</code> contains data from one row of a
- * <code>ResultSet</code>.  Its {@link #get <code>get</code>} and
- * {@link #set <code>set</code>} methods allow easy propery manipulation.
+ * <code>ResultSet</code>.  Its {@link #get get} and
+ * {@link #set set} methods allow easy propery manipulation.
  * Plus, the <code>get</code> method allows dynamic properties to be accessed
  * in JETT via JEXL Expressions, e.g <code>${employee.first_name}</code> is
  * accessed via a call to <code>employee.get("first_name")</code>, since the
