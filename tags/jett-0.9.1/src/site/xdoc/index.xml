@@ -1,0 +1,177 @@
+<document>
+    <properties>
+        <author email="rgettman@users.sourceforge.net">Randy Gettman</author>
+        <title>Welcome to JETT</title>
+    </properties>
+    <body>
+        <section name="News">
+            <p><strong>JETT 0.9.1 (Beta) Released</strong></p>
+            <p>New in JETT 0.9.1:</p>
+            <ul>
+                <li>Ticket #43: Brackets <code>[]</code> messed up the parsing of JETT Formulas.
+                    Now, JETT takes into account JETT formulas that have bracket characters
+                    <code>[]</code>, such as <code>$[TEXT(39300.625, "[h]")]</code>.  Previously,
+                    the internal <code>]</code> character would be considered the end of the JETT
+                    Formula incorrectly.  Now it is recognized to be part of the formula.</li>
+                <li>Ticket #44: Hide columns, rows, and entire sheets.  This build introduces the
+                    <a href="tags/hide.html">hideCols tag</a>, the
+                    <a href="tags/hide.html">hideRows tag</a>, and the
+                    <a href="tags/hide.html">hideSheet tag</a>.  All 3 tags take one required
+                    attribute, <code>test</code>, with a boolean value, to determine whether to
+                    hide (or show on <code>false</code>) the columns/rows in the tag body, or the
+                    entire sheet.</li>
+                <li>Ticket #45: When using the <a href="tags/span.html">span tag</a>, if a border
+                    color on a .xls template spreadsheet uses the "normal" color, an
+                    <code>ArrayIndexOutOfBoundsException</code> occurred during an internal lookup
+                    on index <code>32767</code>.  When using a .xlsx spreadsheet, this error wasn't
+                    seen.  Now JETT considers this case and returns the appropriate color.</li>
+                <li>Ticket #46: Using a <a href="tags/span.html">span tag</a> next to
+                    <a href="collections/implicit.html">implicit collections processing</a> results
+                    in the content below being shifted down too much.  This was caused by two
+                    independent blocks each determining that they needed to shift the below content
+                    downward to make room for their own content.  While implicit collections
+                    processing has the "fixed" metadata key (and all looping tags also have their
+                    "fixed" attribute), the span tag didn't have a "fixed" attribute.  The span tag
+                    now has the "fixed" attribute.</li>
+                <li>Ticket #48: If a looping tag needs to shift content below the tag downward, but
+                    that content consists solely of styling (no content), then that cell was not
+                    recognized, and it wasn't shifted, resulting in it being overwritten.  JETT now
+                    recognizes style-only content and shifts it appropriately.</li>
+                <li>Ticket #49: Introduce <a href="collections/sheet.html">implicit sheet cloning</a>.
+                    A collection expression, e.g. <code>${orders.invoiceNbr}</code> in a sheet
+                    normally triggers <a href="collections/implicit.html">implicit collections
+                        processing</a>.  Now, if such an expression is encountered on the sheet name,
+                    implicit sheet cloning takes place, with one resultant sheet per collection
+                    item.  Only a limited set of metadata keys are available, and they are
+                    abbreviated due to the consideration of Excel's 31-character sheet name limit.</li>
+                <li>Ticket #50: Include the option for a status variable on looping tags that
+                    provides more information than the simple <code>indexVar</code> attribute.  The
+                    <code>varStatus</code> attribute is now supported on all
+                    <a href="tags/looping.html">looping tags</a> and as the <code>varStatus</code>
+                    metadata key in <a href="collections/implicit.html">implicit collections
+                        processing</a>.  The value is the name of the status variable added to the
+                    beans map.  It supplies not just the current iteration index (0-based), but
+                    also the first and last indices.  The <a href="tags/for.html">for tag</a>'s
+                    <code>varStatus</code></li> also supplies the start, end, and step values.
+                <li>Ticket #53: The internal cell style cache was incorrectly caching style
+                    combinations that included a foreground color.  This is now corrected.</li>
+                <li>Ticket #54: Expose a setter for the "debug" property in the internal
+                    <code>JexlEngine</code> that JETT uses.  For some reason, "debug" is by default
+                    true in the <code>JexlEngine</code>, but JEXL exposes this property via a
+                    setter.  JETT now allows control via a setter method in
+                    <a href="apidocs/net/sf/jett/transform/ExcelTransformer.html"><code>ExcelTransformer</code></a>.</li>
+                <li>Ticket #55: Cache JEXL Expression objects.  JETT now caches JEXL expression
+                    objects, keyed by the expression text.  This allows JETT to bypass JEXL parsing
+                    when the expression has been encountered before.  This is like a "soft parse"
+                    that an Oracle database performs when it has seen query text before.  This
+                    should result in a performance boost, especially on transformations with loops
+                    over large collections.</li>
+                <li>JETT is now tested using Apache POI 3.12.  JETT now requires Apache POI 3.12
+                    (or greater).</li>
+            </ul>
+            <p>View a history of all changes at the <a href="changelog.html">Change Log</a>.</p>
+        </section>
+        <section name="Overview">
+            <p>JETT (Java Excel Template Translator) is a Java 5.0 API that allows speedy creation
+            of Excel spreadsheet reports using Excel spreadsheet templates.</p>
+            <p>JETT is built on top of the <a href="http://poi.apache.org/">Apache POI</a> library,
+            which gives almost total control to the developer over the reading, creation, and
+            modification of Excel spreadsheets.  This includes the very tedious, verbose, and
+            error-prone process of coding cell and text formatting, including font, color,
+            highlighting, borders, alignment, header/footer, etc.</p>
+            <p>JETT is also built on top of the <a href="http://commons.apache.org/jexl/">Apache
+            Commons JEXL library</a> (Java Expression Language), which allows expressions to be
+            evaluated easily.</p>
+            <p>Additionally, JETT uses the <a href="http://jagg.sourceforge.net">jAgg</a> library
+            (Java Aggregations) to perform aggregate operations, such as Sum and Average, and
+            super-aggregation operations, such as rollups and cubes, and display the calculations
+            in the spreadsheet.  It also uses jAgg to perform analytic operations, such as Lag,
+            Lead, and RatioToReport.</p>
+            <p>JETT allows the developer to follow the MVC pattern easily.  JETT is the Controller,
+            the developer creates the Model, and either the developer or another party controls the
+            Excel spreadsheet template, which acts as the View.</p>
+            <p>To summarize JETT, the developer supplies an Excel spreadsheet <em>template</em>,
+            which provides the structure, layout, and styling of the resultant spreadsheet.  Then,
+            the developer creates <em>beans</em> that contain the actual data to be populated in
+            the spreadsheet.  Finally, the developer uses an
+            <a href="apidocs/net/sf/jett/transform/ExcelTransformer.html"><code>ExcelTransformer</code></a>,
+            the JETT API entry point, to transform the template spreadsheet into the resultant
+            spreadsheet, complete with the desired data, which can then be published.</p>
+        </section>
+        <section name="Main Features">
+            <ul>
+                <li>Integration with <a href="http://commons.apache.org/jexl/">Apache Commons JEXL
+                    </a> 2.1.1 (Java Expression Language).  This allows for easy creation of
+                    expressions that are substituted with model data in the form of beans at
+                    runtime.</li>
+                <li>Integration with <a href="http://poi.apache.org/">Apache POI</a> 3.12.  JETT is
+                    built on top of the extensive Apache POI library with which it controls sheet
+                    transformations.</li>
+                <li>Integration with the SourceForge project
+                    <a href="http://jagg.sourceforge.net">jAgg</a> 0.9.0.  JETT uses this library
+                    to evaluate Aggregate Expressions, a JETT-based extension to JEXL that allows
+                    aggregate expressions to be evaluated, such as Sum, Count, Avg, etc.</li>
+                <li>Built-in Tag library that allows XML-like tags to be placed in template
+                    spreadsheets, allowing such simple programming-like constructs as “if”, “for”,
+                    “forEach”, and more.</li>
+                <li>Looping tags support “copy down” and “copy right” behavior for the display of
+                    Collections.</li>
+                <li>Custom Tag Libraries may be coded and supplied to JETT for execution.</li>
+                <li>Like Apache POI, JETT attempts as much as possible to keep existing Excel
+                    features intact, including Charts, Macros, etc.</li>
+                <li>The CellListener interface allows dynamic, custom processing of Cells, such as
+                    alternate row highlighting, value manipulation, etc.</li>
+                <li>Merged cell regions are shifted and copied as appropriate.</li>
+                <li>Row heights and columns widths are respected as best as possible.</li>
+                <li>Template sheets may be dynamically cloned and separately evaluated in the
+                    resultant spreadsheet.</li>
+                <li>Multiple collections may be implicitly processed using a single loop.</li>
+                <li>It is possible to implement and display adjacent, or side-by-side, lists.</li>
+                <li>Supports binary Excel (.xls) and XML Excel (.xlsx) documents.</li>
+                <li>RichTextStrings are supported, even within Expressions.</li>
+                <li>JETT gives access to POI Objects in JEXL Expressions, which in turn allows
+                    access to Workbook and Sheet properties, including the Header &amp; Footer, and
+                    PageSetup objects.</li>
+                <li>Excel Formula generation support.</li>
+                <li>JDBC Query Execution inside the template.</li>
+            </ul>
+        </section>
+        <section name="Requirements">
+            <p>JETT requires the following libraries:</p>
+            <ul>
+                <li>Apache POI 3.12</li>
+                <ul>
+                    <li>poi-3.12-20150511.jar</li>
+                    <li>poi-ooxml-3.12-20150511.jar</li>
+                    <li>poi-ooxml-schemas-3.12-20150511.jar</li>
+                    <li>Apache POI, in turn, depends on the following library: XML Beans 2.6.0.</li>
+                </ul>
+                <li>XML Beans 2.6.0</li>
+                <ul>
+                    <li>xmlbeans-2.6.0.jar</li>
+                </ul>
+                <li>Apache Commons JEXL 2.1.1</li>
+                <ul>
+                    <li>commons-jexl-2.1.1.jar</li>
+                    <li>Apache Commons JEXL 2.1.1 in turn depends on Commons Logging 1.1.1.</li>
+                </ul>
+                <li>Apache Commons Logging 1.1.1</li>
+                <ul>
+                    <li>commons-logging-1.1.1.jar</li>
+                </ul>
+                <li>SourceForge's jAgg 0.9.0</li>
+                <ul>
+                    <li>jagg-core-0.9.0.jar</li>
+                </ul>
+                <li>JUnit 4.8.2 (for testing only)</li>
+                <ul>
+                    <li>junit-4.8.2.jar</li>
+                </ul>
+                <li>HSQLDB 1.8.0.10 (for testing only)</li>
+                <ul>
+                    <li>hsqldb-1.8.0.10.jar</li>
+                </ul>
+            </ul>
+        </section>
+    </body>
+</document>

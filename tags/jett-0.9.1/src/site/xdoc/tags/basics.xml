@@ -1,0 +1,150 @@
+<document>
+    <properties>
+        <author email="rgettman@users.sourceforge.net">Randy Gettman</author>
+        <title>Tag Basics</title>
+    </properties>
+    <body>
+        <section name="The JETT Tag Library">
+            <p>A <em>tag</em> is a XML-like tag that may be inserted into template spreadsheet
+            cells to control how content is displayed during the transformation process.  All tags
+            are represented by Java classes that extend the built-in interface <code>Tag</code>.
+            In practice, all tags are subclasses of the abstract class <code>BaseTag</code>, which
+            implements the <code>Tag</code> interface and supplies common tag functionality.</p>
+            <p>JETT contains a built-in <em>tag library</em>.  A tag library is a mapping between
+            tag names and tag class objects.  JETT recognizes a tag library by its namespace.  The
+            built-in tag library for JETT is <code>JtTagLibrary</code>, known by its namespace
+            "jt".  Tag libraries allow XML-like tags to be placed in template spreadsheets,
+            offering a great deal of control over how content is produced in the resultant
+            spreadsheet.  Tags may also be nested.  That is, some tags may be part of the  body of
+            some other tags.</p>
+            <p>Here are all the tags in the JETT Tag Library:</p>
+            <ul>
+                <li><a href="agg.html">&lt;jt:agg&gt;</a></li>
+                <li><a href="ana.html">&lt;jt:ana&gt;</a></li>
+                <li><a href="comment.html">&lt;jt:comment&gt;</a></li>
+                <li><a href="for.html">&lt;jt:for&gt;</a></li>
+                <li><a href="formula.html">&lt;jt:formula&gt;</a></li>
+                <li><a href="forEach.html">&lt;jt:forEach&gt;</a></li>
+                <li><a href="group.html">&lt;jt:group&gt;</a></li>
+                <li><a href="hide.html">&lt;jt:hideCols&gt;</a></li>
+                <li><a href="hide.html">&lt;jt:hideRows&gt;</a></li>
+                <li><a href="hide.html">&lt;jt:hideSheet&gt;</a></li>
+                <li><a href="hyperlink.html">&lt;jt:hyperlink&gt;</a></li>
+                <li><a href="if.html">&lt;jt:if&gt;</a></li>
+                <li><a href="multiForEach.html">&lt;jt:multiForEach&gt;</a></li>
+                <li><a href="name.html">&lt;jt:name&gt;</a></li>
+                <li><a href="null.html">&lt;jt:null&gt;</a></li>
+                <li><a href="span.html">&lt;jt:span&gt;</a></li>
+                <li><a href="style.html">&lt;jt:style&gt;</a></li>
+                <li><a href="total.html">&lt;jt:total&gt;</a></li>
+            </ul>
+            <p>Like XML, attribute values are always enclosed in double-quote characters, e.g.
+            <code>attr="value"</code>.  JETT supports escaping literal double-quote characters with
+            a backslash, and escaping backslash characters as well:</p>
+            <ul>
+                <li><code>\"</code> => <code>"</code></li>
+                <li><code>\\</code> => <code>\</code></li>
+            </ul>
+            <p>All tags in the JETT Tag Library, and any custom tags that subclass
+            <code>BaseTag</code>, support the following common attribute:</p>
+            <h1>Attributes</h1>
+            <ul>
+                <li><strong>onProcessed: TagListener</strong> Optional.  Specify a
+                <code>TagListener</code> that will be called when the tag's processing has
+                finished.  Alternatively, a fully-qualified Java class name may be specified here,
+                and JETT will instantiate one, provided it has a no-argument public constructor.</li>
+            </ul>
+            <p>Additionally, <a href="custom.html">custom tag libraries</a> may be registered
+            with the <code>ExcelTransformer</code> prior to transformation, to allow the processing
+            of custom tags.</p>
+        </section>
+        <section name="Tag Bodies">
+            <p>Every tag implicitly defines a <em>block</em> of cells on which it operates.  A
+            block of cells is simply a rectangular block of cells, with one or more rows, and one
+            or more cells in each row.  Below, each block of cells defined by the tags is
+            highlighted in yellow (for descriptive purposes here, not in the actual spreadsheet!)
+            below for each case.  The two cases are described below.</p>
+            <h1>Tags With Bodies</h1>
+            <p>When the XML tag consists of a start tag and an end tag, and they lie in different
+            cells, then the tag has a body.  The ending tag must be located to the right of the
+            start tag, below the start tag, or both to the right of and below the start tag, or a
+            <code>TagParseException</code> will result at runtime.</p>
+            <table style="width: 750px;">
+                <tr>
+                    <td style="width: 50px;">&nbsp;</td>
+                    <td style="width: 250px;">&nbsp;</td>
+                    <td style="width: 75px;">&nbsp;</td>
+                    <td style="width: 60px;">&nbsp;</td>
+                    <td style="width: 115px;">&nbsp;</td>
+                    <td style="width: 150px;">&nbsp;</td>
+                    <td style="width: 50px;">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td style="width: 50px;">&nbsp;</td>
+                    <td class="yellow" style="width: 250px;">&lt;tag attr1="blah"&gt;Here's</td>
+                    <td class="yellow" style="width: 75px;">&nbsp;</td>
+                    <td class="yellow" style="width: 60px;">&nbsp;</td>
+                    <td class="yellow" style="width: 115px;">some</td>
+                    <td class="yellow" style="width: 150px;">&nbsp;</td>
+                    <td style="width: 50px;">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td style="width: 50px;">&nbsp;</td>
+                    <td class="yellow" style="width: 250px;">&nbsp;</td>
+                    <td class="yellow" style="width: 75px;">&nbsp;</td>
+                    <td class="yellow" style="width: 60px;">&nbsp;</td>
+                    <td class="yellow" style="width: 115px;">&nbsp;</td>
+                    <td class="yellow" style="width: 150px;">user</td>
+                    <td style="width: 50px;">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td style="width: 50px;">&nbsp;</td>
+                    <td class="yellow" style="width: 250px;">content</td>
+                    <td class="yellow" style="width: 75px;">&nbsp;</td>
+                    <td class="yellow" style="width: 60px;">inside</td>
+                    <td class="yellow" style="width: 115px;">&nbsp;</td>
+                    <td class="yellow" style="width: 150px;">&nbsp;</td>
+                    <td style="width: 50px;">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td style="width: 50px;">&nbsp;</td>
+                    <td class="yellow" style="width: 250px;">&nbsp;</td>
+                    <td class="yellow" style="width: 75px;">the</td>
+                    <td class="yellow" style="width: 60px;">&nbsp;</td>
+                    <td class="yellow" style="width: 115px;">&nbsp;</td>
+                    <td class="yellow" style="width: 150px;">block.&lt;/tag&gt;</td>
+                    <td style="width: 50px;">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td style="width: 50px;">&nbsp;</td>
+                    <td style="width: 250px;">&nbsp;</td>
+                    <td style="width: 75px;">&nbsp;</td>
+                    <td style="width: 60px;">&nbsp;</td>
+                    <td style="width: 115px;">&nbsp;</td>
+                    <td style="width: 250px;">&nbsp;</td>
+                    <td style="width: 50px;">&nbsp;</td>
+                </tr>
+            </table>
+            <h1>Bodiless Tags</h1>
+            <p>When the tag is wholly defined without a body, in one cell, then the tag is
+            <em>bodiless</em>.  Some tags can be placed in this way, and some cannot.</p>
+            <table style="width: 450px;">
+                <tr>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 200px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td class="yellow" style="width: 200px;">&lt;tag attr1="blah"/&gt;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td style="width: 125px;">&nbsp;</td>
+                    <td style="width: 200px;">&nbsp;</td>
+                    <td style="width: 125px;">&nbsp;</td>
+                </tr>
+            </table>
+        </section>
+    </body>
+</document>
