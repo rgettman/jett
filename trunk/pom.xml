@@ -156,7 +156,6 @@
                 <configuration>
                     <excludePackageNames>net.sf.jett.test:net.sf.jett.test.*</excludePackageNames>
                     <detectJavaApiLink>false</detectJavaApiLink>
-                    <additionalparam>-Xdoclint:none</additionalparam>
                 </configuration>
             </plugin>
         </plugins>
