@@ -70,6 +70,10 @@
                 <code>TagLoopListener</code> that will be called every time a loop's processing has
                 finished.  Alternatively, a fully-qualified Java class name may be specified here,
                 and JETT will instantiate one, provided it has a no-argument public constructor.</li>
+                <li><strong>varStatus: String</strong> Optional.  This specifies a variable name
+                for an object to be exposed in the beans map. This object exposes the 0-based
+                iteration index and whether it's the first iteration or the last iteration.  Use
+                the "index" (int), "first" (boolean), and "last" (boolean) properties.</li>
             </ul>
         </section>
     </body>

@@ -26,6 +26,9 @@
                 <li><a href="formula.html">&lt;jt:formula&gt;</a></li>
                 <li><a href="forEach.html">&lt;jt:forEach&gt;</a></li>
                 <li><a href="group.html">&lt;jt:group&gt;</a></li>
+                <li><a href="hide.html">&lt;jt:hideCols&gt;</a></li>
+                <li><a href="hide.html">&lt;jt:hideRows&gt;</a></li>
+                <li><a href="hide.html">&lt;jt:hideSheet&gt;</a></li>
                 <li><a href="hyperlink.html">&lt;jt:hyperlink&gt;</a></li>
                 <li><a href="if.html">&lt;jt:if&gt;</a></li>
                 <li><a href="multiForEach.html">&lt;jt:multiForEach&gt;</a></li>

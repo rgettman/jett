@@ -36,6 +36,10 @@
                 right instead of downward.  Content to the right of the merged region will be
                 shifted to the right to make way for the bigger merged region.  Default: false
                 (downward).</li>
+                <li><strong>fixed: Boolean</strong> Optional.  If true, then the tag will assume
+                that the proper space is present into which this merged region will expand, so it
+                will NOT shift other content out of the way to make room for it. Default: false
+                (shifting content out of the way will occur).</li>
             </ul>
         </section>
         <section name="Example">

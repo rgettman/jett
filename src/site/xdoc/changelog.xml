@@ -4,8 +4,73 @@
         <title>Change Log for JETT</title>
     </properties>
     <body>
+        <section name="JETT 0.9.1 (Beta) Released - 28 Aug 2015">
+            <p>New in JETT 0.9.1:</p>
+            <ul>
+                <li>Ticket #43: Brackets <code>[]</code> messed up the parsing of JETT Formulas.
+                    Now, JETT takes into account JETT formulas that have bracket characters
+                    <code>[]</code>, such as <code>$[TEXT(39300.625, "[h]")]</code>.  Previously,
+                    the internal <code>]</code> character would be considered the end of the JETT
+                    Formula incorrectly.  Now it is recognized to be part of the formula.</li>
+                <li>Ticket #44: Hide columns, rows, and entire sheets.  This build introduces the
+                    <a href="tags/hide.html">hideCols tag</a>, the
+                    <a href="tags/hide.html">hideRows tag</a>, and the
+                    <a href="tags/hide.html">hideSheet tag</a>.  All 3 tags take one required
+                    attribute, <code>test</code>, with a boolean value, to determine whether to
+                    hide (or show on <code>false</code>) the columns/rows in the tag body, or the
+                    entire sheet.</li>
+                <li>Ticket #45: When using the <a href="tags/span.html">span tag</a>, if a border
+                    color on a .xls template spreadsheet uses the "normal" color, an
+                    <code>ArrayIndexOutOfBoundsException</code> occurred during an internal lookup
+                    on index <code>32767</code>.  When using a .xlsx spreadsheet, this error wasn't
+                    seen.  Now JETT considers this case and returns the appropriate color.</li>
+                <li>Ticket #46: Using a <a href="tags/span.html">span tag</a> next to
+                    <a href="collections/implicit.html">implicit collections processing</a> results
+                    in the content below being shifted down too much.  This was caused by two
+                    independent blocks each determining that they needed to shift the below content
+                    downward to make room for their own content.  While implicit collections
+                    processing has the "fixed" metadata key (and all looping tags also have their
+                    "fixed" attribute), the span tag didn't have a "fixed" attribute.  The span tag
+                    now has the "fixed" attribute.</li>
+                <li>Ticket #48: If a looping tag needs to shift content below the tag downward, but
+                    that content consists solely of styling (no content), then that cell was not
+                    recognized, and it wasn't shifted, resulting in it being overwritten.  JETT now
+                    recognizes style-only content and shifts it appropriately.</li>
+                <li>Ticket #49: Introduce <a href="collections/sheet.html">implicit sheet cloning</a>.
+                    A collection expression, e.g. <code>${orders.invoiceNbr}</code> in a sheet
+                    normally triggers <a href="collections/implicit.html">implicit collections
+                    processing</a>.  Now, if such an expression is encountered on the sheet name,
+                    implicit sheet cloning takes place, with one resultant sheet per collection
+                    item.  Only a limited set of metadata keys are available, and they are
+                    abbreviated due to the consideration of Excel's 31-character sheet name limit.</li>
+                <li>Ticket #50: Include the option for a status variable on looping tags that
+                    provides more information than the simple <code>indexVar</code> attribute.  The
+                    <code>varStatus</code> attribute is now supported on all
+                    <a href="tags/looping.html">looping tags</a> and as the <code>varStatus</code>
+                    metadata key in <a href="collections/implicit.html">implicit collections
+                    processing</a>.  The value is the name of the status variable added to the
+                    beans map.  It supplies not just the current iteration index (0-based), but
+                    also the first and last indices.  The <a href="tags/for.html">for tag</a>'s
+                    <code>varStatus</code></li> also supplies the start, end, and step values.
+                <li>Ticket #53: The internal cell style cache was incorrectly caching style
+                    combinations that included a foreground color.  This is now corrected.</li>
+                <li>Ticket #54: Expose a setter for the "debug" property in the internal
+                    <code>JexlEngine</code> that JETT uses.  For some reason, "debug" is by default
+                    true in the <code>JexlEngine</code>, but JEXL exposes this property via a
+                    setter.  JETT now allows control via a setter method in
+                    <a href="apidocs/net/sf/jett/transform/ExcelTransformer.html"><code>ExcelTransformer</code></a>.</li>
+                <li>Ticket #55: Cache JEXL Expression objects.  JETT now caches JEXL expression
+                    objects, keyed by the expression text.  This allows JETT to bypass JEXL parsing
+                    when the expression has been encountered before.  This is like a "soft parse"
+                    that an Oracle database performs when it has seen query text before.  This
+                    should result in a performance boost, especially on transformations with loops
+                    over large collections.</li>
+                <li>JETT is now tested using Apache POI 3.12.  JETT now requires Apache POI 3.12
+                    (or greater).</li>
+            </ul>
+        </section>
         <section name="JETT 0.9.0 (Beta) Released - 19 Dec 2014">
-            <p>New In JETT 0.9.0:</p>
+            <p>New in JETT 0.9.0:</p>
             <ul>
                 <li>Ticket #35: Include more detail on original cell locations on
                     <code>TagParseExceptions</code>.  Now, <code>TagParseException</code> messages

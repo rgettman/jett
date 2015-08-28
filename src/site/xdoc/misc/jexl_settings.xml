@@ -6,16 +6,20 @@
     <body>
         <section name="JEXL Flags">
             <p>JETT uses an internal "JEXL Engine", supplied by the Apache Commons JEXL library, to
-            evaluate the expressions.  The <code>ExcelTransformer</code> passes two flags through
-            to the JexlEngine, "silent" and "lenient".  The "silent" flag tells the JexlEngine not
-            to write errors to standard output.  The "lenient" flag tells the JexlEngine to allow
-            such things as converting nulls to zeroes, NullPointerExceptions to null, etc.
-            Otherwise, JEXL might throw an Exception or write a log message to standard output.</p>
+            evaluate the expressions.  The <code>ExcelTransformer</code> passes three flags through
+            to the JexlEngine, "silent", "lenient", and "debug".  The "silent" flag tells the
+            JexlEngine not to write errors to standard output.  The "lenient" flag tells the
+            JexlEngine to allow such things as converting nulls to zeroes, NullPointerExceptions to
+            null, etc. Otherwise, JEXL might throw an Exception or write a log message to standard
+            output. The "debug" flag, which by default is set in the JexlEngine, controls debug
+            information.  Turning off "debug" may improve the performance of the JexlEngine and
+            therefore the performance of JETT.</p>
             <p>JETT exposes control of these flags through the following methods in the
             <code>ExcelTransformer</code> class.</p>
             <source>
 public void setLenient(boolean lenient);
 public void setSilent(boolean silent);
+public void setDebug(boolean debug);
             </source>
         </section>
         <section name="JEXL Cache">

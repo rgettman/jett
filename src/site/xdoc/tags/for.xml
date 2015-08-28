@@ -10,7 +10,11 @@
             <h1>Attributes</h1>
             <ul>
                 <li>The "for" tag supports all <a href="basics.html">base tag attributes</a>.</li>
-                <li>The "for" tag supports all <a href="looping.html">looping tag attributes</a>.</li>
+                <li>The "for" tag supports all <a href="looping.html">looping tag attributes</a>.
+                The <strong>varStatus</strong> attribute, exposes an object that, in addition to what
+                all <a href="looping.html">looping tags</a> already expose, exposes additional
+                "int" properties, "start", "end", and "step", as set by the corresponding
+                attributes below.</li>
                 <li><strong>start: int</strong> Required.  This is the starting value.</li>
                 <li><strong>end: int</strong> Required.  This is the ending value.  The loop
                 processing will terminate when it has passed this value.</li>

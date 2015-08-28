@@ -129,14 +129,19 @@
                 displayed to this number, for all collections found.  This acts just like the
                 "limit" attribute of the <a href="../tags/forEach.html">forEach tag</a> and of the
                 <a href="../tags/multiForEach.html">multiForEach tag</a>.</li>
-                <li><strong>onProcessed</strong> Optional.  Specify a <code>TagListener</code> or a
+                <li><strong>onProcessed: TagListener</strong> Optional.  Specify a <code>TagListener</code> or a
                 fully-qualified Java class name so that a <code>TagListener</code> will be called
                 when processing is complete.  This acts just like the "onProcessed" attribute of
                 all <a href="../tags/basics.html">built-in tags</a>.</li>
-                <li><strong>onLoopProcessed</strong> Optional.  Specify a
+                <li><strong>onLoopProcessed: TagLoopListener</strong> Optional.  Specify a
                 <code>TagLoopListener</code> or a fully-qualified Java class name so that a
                 <code>TagLoopListener</code> will be called each time a loop iteration has been
                 processed.  This acts just like the "onLoopProcessed" attribute of
+                <a href="../tags/looping.html">looping tags</a>.</li>
+                <li><strong>varStatus: String</strong> Optional.  Expose a variable in the beans map that
+                contains information about the current loop iteration -- the 0-based iteration
+                index, whether it's the first iteration, and whether it's the last iteration.
+                This acts just like the "varStatus" attribute of
                 <a href="../tags/looping.html">looping tags</a>.</li>
             </ul>
             <p>Once JETT has determined the desired block of cells, it will scan the entire block
