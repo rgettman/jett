@@ -73,9 +73,9 @@ public class HashMapWrapper<K, V> extends HashMap<K, V>
      * @return A <code>Set</code> of mappings in this map and the wrapped map.
      */
     @Override
-    public Set<Entry<K, V>> entrySet()
+    public Set<Map.Entry<K, V>> entrySet()
     {
-        Set<Entry<K, V>> entrySet = new HashSet<Entry<K, V>>(super.entrySet());
+        Set<Map.Entry<K, V>> entrySet = new HashSet<Map.Entry<K, V>>(super.entrySet());
         entrySet.addAll(myWrappedMap.entrySet());
         return entrySet;
     }
@@ -152,7 +152,7 @@ public class HashMapWrapper<K, V> extends HashMap<K, V>
     @Override
     public void putAll(Map<? extends K, ? extends V> map)
     {
-        for (Entry<? extends K, ? extends V> entry : map.entrySet())
+        for (Map.Entry<? extends K, ? extends V> entry : map.entrySet())
         {
             put(entry.getKey(), entry.getValue());
         }
@@ -202,7 +202,7 @@ public class HashMapWrapper<K, V> extends HashMap<K, V>
     public Collection<V> values()
     {
         List<V> values = new ArrayList<V>();
-        for (Entry<K, V> entry : entrySet())
+        for (Map.Entry<K, V> entry : entrySet())
         {
             values.add(entry.getValue());
         }
