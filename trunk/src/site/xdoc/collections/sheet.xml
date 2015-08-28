@@ -1,0 +1,159 @@
+<document>
+    <properties>
+        <author email="rgettman@users.sourceforge.net">Randy Gettman</author>
+        <title>Implicit Sheet Cloning</title>
+    </properties>
+    <body>
+        <section name="Implicit Sheet Cloning">
+            <p>When a collection expression such as those used in <a href="implicit.html">implicit
+            collections processing</a> appears in a sheet name, <em>implicit sheet cloning</em> is
+            the result.</p>
+            <p>If JETT detects that an Expression on a sheet name contains operations on a
+            Collection, then it clones the sheet, resulting in one cloned sheet per collection
+            item.</p>
+            <p>In this example, "emps" is a List of Employees.  The List doesn't have the
+            properties "lastName", "firstName", "salary", and "manager" (methods
+            <code>getLastName()</code>, <code>getFirstName()</code>, <code>getSalary()</code>,
+            and <code>getManager()</code>).  The implicit sheet cloning gets these properties from
+            each item of the "employees" list.  The sheet name here, <code>${emps.fullName}</code>,
+            contains the collection expression.  One sheet is created for each of the 4 employees.</p>
+            <table style="width: 500px;">
+                <tr>
+                    <td class="bold" style="width: 250px;" colspan="2">Employee</td>
+                    <td style="width: 250px;" colspan="2">${emps.lastName}, ${emps.firstName}</td>
+                </tr>
+                <tr>
+                    <td class="bold" style="width: 250px;" colspan="2">Salary</td>
+                    <td style="width: 250px;" colspan="2">${emps.salary}</td>
+                </tr>
+                <tr>
+                    <td class="bold" style="width: 250px;" colspan="2">Manager</td>
+                    <td style="width: 250px;" colspan="2">&lt;jt:if test="${emps.getManager() != null}" then="${emps.manager.lastName}, ${emps.manager.firstName}"/&gt;</td>
+                </tr>
+                <tr>
+                    <td class="bold" style="width: 125px;">${emps.fullName}</td>
+                    <td style="width: 375px;" colspan="3">&nbsp;</td>
+                </tr>
+            </table>
+            <p>...gets transformed into the four sheets...</p>
+            <table style="width: 500px;">
+                <tr>
+                    <td class="bold" style="width: 250px;" colspan="2">Employee</td>
+                    <td style="width: 250px;" colspan="2">Stack, Robert</td>
+                </tr>
+                <tr>
+                    <td class="bold" style="width: 250px;" colspan="2">Salary</td>
+                    <td style="width: 250px;" colspan="2">$1000.00</td>
+                </tr>
+                <tr>
+                    <td class="bold" style="width: 250px;" colspan="2">Manager</td>
+                    <td style="width: 250px;" colspan="2">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td class="bold" style="width: 125px;">Robert Stack</td>
+                    <td style="width: 125px;">Suzie Queue</td>
+                    <td style="width: 125px;">Elmer Fudd</td>
+                    <td style="width: 125px;">Bugs Bunny</td>
+                </tr>
+            </table>
+            <p>&nbsp;</p>
+            <table style="width: 500px;">
+                <tr>
+                    <td class="bold" style="width: 250px;" colspan="2">Employee</td>
+                    <td style="width: 250px;" colspan="2">Queue, Suzie</td>
+                </tr>
+                <tr>
+                    <td class="bold" style="width: 250px;" colspan="2">Salary</td>
+                    <td style="width: 250px;" colspan="2">$900.00</td>
+                </tr>
+                <tr>
+                    <td class="bold" style="width: 250px;" colspan="2">Manager</td>
+                    <td style="width: 250px;" colspan="2">Stack, Robert</td>
+                </tr>
+                <tr>
+                    <td style="width: 125px;">Robert Stack</td>
+                    <td class="bold" style="width: 125px;">Suzie Queue</td>
+                    <td style="width: 125px;">Elmer Fudd</td>
+                    <td style="width: 125px;">Bugs Bunny</td>
+                </tr>
+            </table>
+            <p>&nbsp;</p>
+            <table style="width: 500px;">
+                <tr>
+                    <td class="bold" style="width: 250px;" colspan="2">Employee</td>
+                    <td style="width: 250px;" colspan="2">Fudd, Elmer</td>
+                </tr>
+                <tr>
+                    <td class="bold" style="width: 250px;" colspan="2">Salary</td>
+                    <td style="width: 250px;" colspan="2">$800.00</td>
+                </tr>
+                <tr>
+                    <td class="bold" style="width: 250px;" colspan="2">Manager</td>
+                    <td style="width: 250px;" colspan="2">Stack, Robert</td>
+                </tr>
+                <tr>
+                    <td style="width: 125px;">Robert Stack</td>
+                    <td style="width: 125px;">Suzie Queue</td>
+                    <td class="bold" style="width: 125px;">Elmer Fudd</td>
+                    <td style="width: 125px;">Bugs Bunny</td>
+                </tr>
+            </table>
+            <p>&nbsp;</p>
+            <table style="width: 500px;">
+                <tr>
+                    <td class="bold" style="width: 250px;" colspan="2">Employee</td>
+                    <td style="width: 250px;" colspan="2">Bunny, Bugs</td>
+                </tr>
+                <tr>
+                    <td class="bold" style="width: 250px;" colspan="2">Salary</td>
+                    <td style="width: 250px;" colspan="2">$1500.00</td>
+                </tr>
+                <tr>
+                    <td class="bold" style="width: 250px;" colspan="2">Manager</td>
+                    <td style="width: 250px;" colspan="2">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td style="width: 125px;">Robert Stack</td>
+                    <td style="width: 125px;">Suzie Queue</td>
+                    <td style="width: 125px;">Elmer Fudd</td>
+                    <td class="bold" style="width: 125px;">Bugs Bunny</td>
+                </tr>
+            </table>
+        </section>
+        <section name="Changing Behavior with Metadata">
+            <p>To change the default behavior of implicit sheet cloning, include <em>metadata</em>
+            at the end of an Expression that contains a reference to a Collection.  Metadata may
+            influence the affected sheet, by limiting the number of collection items and/or
+            introducing status variables.  The metadata key "?@" cannot be used in implicit sheet
+            cloning, because Excel prevents the "?" character from being used in sheet names.
+            Instead, append the string "$@" plus key/value pairs to the end of the Expression,
+            separated by semicolons.</p>
+            <h1>Metadata Keys</h1>
+            <p>Most metadata keys that exist in <a href="implicit.html">implicit collections
+            processing</a> don't make sense in this context, but a few do.  The keys that do apply
+            here are abbreviated to one character, to maximize the space utilized by Excel's
+            31-character limit on sheet names.</p>
+            <ul>
+                <li><strong>r: String</strong> Optional.  All <strong>pastEndAction</strong> values
+                    are implicitly <em>replaceExpr</em> in implicit sheet cloning.  All expressions
+                    that reference collections that have been exhausted are replaced with this
+                    value.  Default: an empty string.  This acts just like the "replaceExpr"
+                    metadata key of implicit collections processing.</li>
+                <li><strong>i: int</strong> Optional.  Expose a zero-based "looping" variable name
+                    in the beans map.  This acts just like the "indexVar" metadata key of implicit
+                    collections processing.</li>
+                <li><strong>l: int</strong> Optional.  Limit the number of collection items
+                    displayed to this number, for all collections found.  This acts just like the
+                    "limit" metadata key of implicit collections processing.</li>
+                <li><strong>v: String</strong> Optional.  Expose a variable in the beans map that contains
+                    information about the current loop iteration -- the 0-based iteration index,
+                    whether it's the first iteration, and whether it's the last iteration.  This
+                    acts just like the "varStatus" metadata key of implicit collections processing.</li>
+            </ul>
+            <p>Once JETT has determined that it will perform implicit sheet cloning, it will scan
+            the entire sheet for any references to any Collections in any Expression.  Then, it
+            will clone the sheet as many times as necessary.  Each sheet receives the appropriate
+            collection item exposed in the beans map for transformation.</p>
+        </section>
+    </body>
+</document>

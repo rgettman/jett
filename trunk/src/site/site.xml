@@ -36,6 +36,9 @@
             <item name="&amp;lt;jt:comment&amp;gt; Tag" href="tags/comment.html"/>
             <item name="&amp;lt;jt:formula&amp;gt; Tag" href="tags/formula.html"/>
             <item name="&amp;lt;jt:group&amp;gt; Tag" href="tags/group.html"/>
+            <item name="&amp;lt;jt:hideCols&amp;gt; Tag" href="tags/hide.html"/>
+            <item name="&amp;lt;jt:hideRows&amp;gt; Tag" href="tags/hide.html"/>
+            <item name="&amp;lt;jt:hideSheet&amp;gt; Tag" href="tags/hide.html"/>
             <item name="&amp;lt;jt:hyperlink&amp;gt; Tag" href="tags/hyperlink.html"/>
             <item name="&amp;lt;jt:if&amp;gt; Tag" href="tags/if.html"/>
             <item name="&amp;lt;jt:name&amp;gt; Tag" href="tags/name.html"/>
@@ -50,7 +53,8 @@
             <item name="Custom Tag Libraries" href="tags/custom.html"/>
         </menu>
         <menu name="Collections">
-            <item name="Implicit Processing" href="collections/implicit.html"/>
+            <item name="Implicit Collections" href="collections/implicit.html"/>
+            <item name="Sheet Cloning" href="collections/sheet.html"/>
             <item name="Fixed Size" href="collections/fixed_size.html"/>
         </menu>
         <menu name="Listeners">

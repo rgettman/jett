@@ -1,0 +1,57 @@
+<document>
+    <properties>
+        <author email="rgettman@users.sourceforge.net">Randy Gettman</author>
+        <title>Hide Tags</title>
+    </properties>
+    <body>
+        <section name="The Hide Tags">
+            <p>The "hide" tags are a group of tags that hide parts of a workbook.  All hide tags must
+            contain a body.  There are tags for hiding columns, hiding rows, and hiding an entire
+            sheet.</p>
+            <h1>Attributes</h1>
+            <ul>
+                <li>All "hide" tags support all <a href="basics.html">base tag attributes</a>.</li>
+                <li><strong>test: boolean</strong> Required.  If <code>true</code>, hide the
+                columns/rows/sheet, else show the columns/rows/sheet.</li>
+            </ul>
+        </section>
+        <section name="The HideCols Tag">
+            <p>The <code>jt:hideCols</code> tag will hide (or show) all columns in the tag's body.</p>
+            <p>In this example, the cell B1 contains the text <code>&lt;hideCols test="true"&gt;</code>.
+            This tag will affect columns B-E.  Column D is hidden.  The cell H1 contains the text
+            <code>&lt;jt:hideCols test="false"&gt;</code>.  This tag will affect columns H-K.
+            Column J is hidden.</p>
+            <img src="../images/template_hidecols.gif" alt="HideCols Template"/>
+            <p>When transformed, columns B-E are hidden.  Column D, which was already hidden in the
+            template, remains hidden.  Columns H-K are visible.  Column J, which was hidden in the
+            template, is now visible.</p>
+            <img src="../images/result_hidecols.gif" alt="HideCols Result"/>
+        </section>
+        <section name="The HideRows Tag">
+            <p>The <code>jt:hideRows</code> tag will hide (or show) all rows in the tag's body.</p>
+            <p>In this example, the cell A2 contains the text <code>&lt;jt:hideRows test="true"&gt;</code>.
+            This tag will affect rows 2-5.  Row 4 is hidden.  The cell A8 contains the text
+            <code>&lt;jt:hideRows test="false"&gt;</code>.  This tag will affect rows 8-11.
+            Row 10 is hidden.</p>
+            <img src="../images/template_hiderows.gif" alt="HideRows Template"/>
+            <p>When transformed, rows 2-5 are hidden.  Row 4, which was already hidden in the
+            template, remains hidden.  Rows 8-11 are visible.  Column 10, which was hidden in the
+            template, is now visible.</p>
+            <img src="../images/result_hiderows.gif" alt="HideRows Result"/>
+        </section>
+        <section name="The HideSheet Tag">
+            <p>The <code>jt:hideSheet</code> tag will hide (or show) the entire sheet on which the
+            tag is found.</p>
+            <p>In this example, the cell B2 in the sheet "HideSheet" contains the text
+            <code>&lt;jt:hideSheet test="true"&gt;</code>.  This tag will affect the entire sheet.
+            There is a sheet hidden in the template workbook called "ShowSheet".  In that sheet,
+            the cell B2 contains the text <code>&lt;jt:hideSheet test="false"&gt;</code>.  This tag
+            will affect the entire sheet.
+            </p>
+            <img src="../images/template_hidesheet.gif" alt="HideSheet Template"/>
+            <p>When transformed, the entire sheet "HideSheet" is hidden.  The previously hidden
+            sheet, "ShowSheet", is now visible.</p>
+            <img src="../images/result_hidesheet.gif" alt="HideSheet Result"/>
+        </section>
+    </body>
+</document>

@@ -68,7 +68,7 @@ Repository.
 <dependency>
     <groupId>net.sf.jett</groupId>
     <artifactId>jett-core</artifactId>
-    <version>0.9.0</version>
+    <version>0.9.1</version>
 </dependency>
 
 Dependencies
@@ -77,17 +77,13 @@ Dependencies
 JETT can be used with Java 1.5+.  JETT depends on several external libraries:
 
 The following libraries are required, as they are used by JETT:
-- Apache POI 3.10 (http://poi.apache.org/download.html) (or higher)
-   - poi-3.10-FINAL.jar
-   - poi-ooxml-3.10-FINAL.jar
-   - poi-ooxml-schemas-3.10-FINAL.jar
-   - Apache POI, in turn, depends on the following libraries: XML Beans 2.3.0, Dom4j 1.6.1, and StAX 1.0.1.
-- XML Beans 2.3.0
-   - xmlbeans-2.3.0.jar (Comes with Apache POI distribution)
-- Dom4J 1.6.1
-   - dom4j-1.6.1.jar (Comes with Apache POI distribution)
-- StAX 1.0.1
-   - stax-api-1.0.1.jar (Comes with Apache POI distribution)
+- Apache POI 3.12 (http://poi.apache.org/download.html) (or higher)
+   - poi-3.12-20150511.jar
+   - poi-ooxml-3.12-20150511.jar
+   - poi-ooxml-schemas-3.12-20150511.jar
+   - Apache POI, in turn, depends on the following library: XML Beans 2.6.0.
+- XML Beans 2.6.0
+   - xmlbeans-2.6.0.jar (Comes with Apache POI distribution)
 - Apache Commons JEXL 2.1.1 (http://commons.apache.org/jexl/download_jexl.cgi)
    - commons-jexl-2.1.1.jar
    - Apache Commons JEXL 2.1.1 in turn depends on Commons Logging 1.1.1.

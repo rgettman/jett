@@ -71,6 +71,28 @@
                         will be called when processing is complete.</li>
                         <li><code>onLoopProcessed=var</code> Specify a <code>TagLoopListener</code>
                         that will be called when the processing of each loop iteration is complete.</li>
+                        <li><code>varStatus=var</code> Place an looping variable with this name in
+                        the beans map that contains the current iteration index, plus the start and
+                        end indices.</li>
+                    </ul>
+                </td>
+            </tr>
+            <tr>
+                <td>Tagless Export of Collections - Implicit Sheet Cloning</td>
+                <td>Not supported</td>
+                <td><p>Supported; can be disabled on a per-collection name basis.  It can be
+                    controlled in the following ways:</p>
+                    <p>Include a "$@" metadata suffix, plus key/value pairs, e.g.
+                        <code>${coll.prop}$@i=n;l=10</code>.</p>
+                    <ul>
+                        <li><code>i=n</code> Like <code>indexVar</code> from implicit collections
+                            processing.</li>
+                        <li><code>l=n</code> Like <code>limit</code> from implicit collections
+                            processing.</li>
+                        <li><code>r=value</code> Like <code>replaceValue</code> from implicit
+                            collections processing.  (pastEndAction=replaceValue is assumed.)</li>
+                        <li><code>v=n</code> Like <code>varStatus</code> from implicit collections
+                            processing.</li>
                     </ul>
                 </td>
             </tr>
@@ -234,6 +256,8 @@
                         Group (Outline) around all of the processed data, in rows or columns.</li>
                         <li><code>collapse</code> attribute - If creating an Excel Group (Outline),
                         decide whether to collapse the group.</li>
+                        <li><code>varStatus</code> attribute - Object indicating iteration index,
+                        start index, and end index of the loop.</li>
                     </ul>
                 </td>
             </tr>
@@ -373,6 +397,12 @@
                 <td>${expression} only</td>
             </tr>
             <tr>
+                <td>Hide Columns, Rows, and Sheets</td>
+                <td><ul><li>Before jXLS 2: could hide individual columns</li>
+                        <li>jXLS 2: can hide entire sheets</li></ul></td>
+                <td>jt:hideCols, jt:hideRows, jt:hideSheet tags</td>
+            </tr>
+            <tr>
                 <td>Perform SQL-like "group by" Operations on Data</td>
                 <td>Not supported</td>
                 <td>jt:agg tag, which also supports super-aggregate operations such as rollups and
@@ -428,8 +458,8 @@
             <tr>
                 <td>Expose JEXL Engine Properties</td>
                 <td>Not supported.</td>
-                <td>Silent and Lenient flags are exposed.  Controlling the size of the JEXL Engine
-                parse cache is exposed.  Adding JEXL custom namespace functions is exposed.</td>
+                <td>Silent, Lenient, and Debug flags are exposed.  Controlling the size of the JEXL
+                Engine parse cache is exposed.  Adding JEXL custom namespace functions is exposed.</td>
             </tr>
         </table>
         </section>
