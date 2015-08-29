@@ -336,16 +336,17 @@ public abstract class BaseLoopTag extends BaseTag
     * needed.</li>
     * <li>Copy the Block the needed number of times.</li>
     * <li>Get the loop iterator by calling <code>getLoopIterator()</code>.</li>
-    * <li>Over each loop of the iterator...</li>
+    * <li>Over each loop of the iterator...
     * <ol>
     * <li>Create a <code>Block</code> for the iteration.</li>
     * <li>If the collection values are exhausted, apply any "past end actions".
     * </li>
-    * <li>Call <code>beforeBlockProcessed()</code></li>.
+    * <li>Call <code>beforeBlockProcessed()</code>.</li>
     * <li>Process the current <code>Block</code> with a
     * <code>BlockTransformer</code>.</li>
-    * <li>Call <code>afterBlockProcessed()</code></li>.
+    * <li>Call <code>afterBlockProcessed()</code>.</li>
     * </ol>
+    * </li>
     * </ol>
     * @return Whether the first <code>Cell</code> in the <code>Block</code>
     *    associated with this <code>Tag</code> was processed.
