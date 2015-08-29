@@ -12,7 +12,7 @@ import net.sf.jett.transform.BlockTransformer;
 import net.sf.jett.util.AttributeUtil;
 
 /**
- * A <code>BaseHideTag</code> represents something that can be hidden conditionally.</p>
+ * <p>A <code>BaseHideTag</code> represents something that can be hidden conditionally.</p>
  *
  * <br>Attributes:
  * <ul>
