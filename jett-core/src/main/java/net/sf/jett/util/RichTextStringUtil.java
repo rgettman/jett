@@ -14,7 +14,10 @@ import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
+
 import net.sf.jett.expression.Expression;
+import net.sf.jett.model.CellStyleCache;
+import net.sf.jett.model.FontCache;
 
 /**
  * The <code>RichTextStringUtil</code> utility class provides methods for
@@ -598,9 +601,14 @@ public class RichTextStringUtil
     * @param cell The <code>Cell</code>.
     * @param richTextString The <code>RichTextString</code> that contains the
     *    desired <code>Font</code>.
+    * @param cellStyleCache The <code>CellStyleCache</code> in which to look
+    *    for another <code>CellStyle</code>.
+    * @param fontCache The <code>FontCache</code> in which to look for another
+    *    <code>Font</code>.
     * @since 0.2.0
     */
-   public static void applyFont(RichTextString richTextString, Cell cell)
+   public static void applyFont(RichTextString richTextString, Cell cell,
+      CellStyleCache cellStyleCache, FontCache fontCache)
    {
       if (DEBUG)
          System.err.println("RTSU.aF: richTextString = " + richTextString +
@@ -647,105 +655,18 @@ public class RichTextStringUtil
          }
          CellStyle cellStyle = cell.getCellStyle();
          Workbook workbook = cell.getSheet().getWorkbook();
-         CellStyle newCellStyle = findCellStyle(workbook, cellStyle, font);
+         CellStyle newCellStyle = cellStyleCache.findCellStyleWithFont(cellStyle, font);
          if (newCellStyle == null)
          {
             newCellStyle = workbook.createCellStyle();
             newCellStyle.cloneStyleFrom(cellStyle);
             // For some reason, just setting the Font directly doesn't work.
             //newCellStyle.setFont(font);
-            Font foundFont = findFont(workbook, font);
+            Font foundFont = fontCache.findFont(font);
             newCellStyle.setFont(foundFont);
          }
          cell.setCellStyle(newCellStyle);
       }
-   }
-
-   /**
-    * Find a <code>CellStyle</code> with all the same attributes as the given
-    * <code>CellStyle</code> but with the given font index.
-    * @param workbook The <code>Workbook</code>.
-    * @param cellStyle The <code>CellStyle</code> to find.
-    * @param font The <code>Font</code> to find.
-    * @return The <code>CellStyle</code> from the <code>Workbook</code> if
-    *    found, or <code>null</code> if not found.
-    */
-   private static CellStyle findCellStyle(Workbook workbook, CellStyle cellStyle, Font font)
-   {
-      int numCellStyles = workbook.getNumCellStyles();
-      for (short i = 0; i < numCellStyles; i++)
-      {
-         CellStyle cs = workbook.getCellStyleAt(i);
-         Font f = workbook.getFontAt(cs.getFontIndex());
-         if (cs.getFillForegroundColor() == cellStyle.getFillForegroundColor() &&
-             cs.getFillBackgroundColor() == cellStyle.getFillBackgroundColor() &&
-             cs.getDataFormat() == cellStyle.getDataFormat() &&
-             cs.getAlignment() == cellStyle.getAlignment() &&
-             cs.getBorderBottom() == cellStyle.getBorderBottom() &&
-             cs.getBorderLeft() == cellStyle.getBorderLeft() &&
-             cs.getBorderRight() == cellStyle.getBorderRight() &&
-             cs.getBorderTop() == cellStyle.getBorderTop() &&
-             cs.getFillPattern() == cellStyle.getFillPattern() &&
-             cs.getWrapText() == cellStyle.getWrapText() &&
-             cs.getRotation() == cellStyle.getRotation() &&
-             cs.getBottomBorderColor() == cellStyle.getBottomBorderColor() &&
-             cs.getTopBorderColor() == cellStyle.getTopBorderColor() &&
-             cs.getLeftBorderColor() == cellStyle.getLeftBorderColor() &&
-             cs.getRightBorderColor() == cellStyle.getRightBorderColor() &&
-             cs.getVerticalAlignment() == cellStyle.getVerticalAlignment() &&
-             cs.getIndention() == cellStyle.getIndention() &&
-             cs.getLocked() == cellStyle.getLocked() &&
-             cs.getHidden() == cellStyle.getHidden() &&
-             f.getBoldweight() == font.getBoldweight() &&
-             f.getItalic() == font.getItalic() &&
-             f.getColor() == font.getColor() &&
-             f.getFontHeight() == font.getFontHeight() &&
-             f.getUnderline() == font.getUnderline() &&
-             f.getFontName().equals(font.getFontName()) &&
-             f.getTypeOffset() == font.getTypeOffset()
-            )
-         {
-            if (!(font instanceof XSSFFont && f instanceof XSSFFont) ||
-                ((XSSFFont) font).getXSSFColor().getARGBHex().equals(((XSSFFont) f).getXSSFColor().getARGBHex()))
-            {
-               if (DEBUG)
-                  System.err.println("    Found existing, matching CellStyle with the Font!");
-               return cs;
-            }
-         }
-      }
-      if (DEBUG)
-         System.err.println("    Did NOT find existing, matching CellStyle with the Font!");
-      return null;
-   }
-
-   private static Font findFont(Workbook workbook, Font font)
-   {
-      int numFonts = workbook.getNumberOfFonts();
-      for (short i = 0; i < numFonts; i++)
-      {
-         Font f = workbook.getFontAt(i);
-         if (f.getBoldweight() == font.getBoldweight() &&
-             f.getItalic() == font.getItalic() &&
-             f.getColor() == font.getColor() &&
-             f.getFontHeight() == font.getFontHeight() &&
-             f.getUnderline() == font.getUnderline() &&
-             f.getFontName().equals(font.getFontName()) &&
-             f.getTypeOffset() == font.getTypeOffset()
-            )
-         {
-            if (!(font instanceof XSSFFont && f instanceof XSSFFont) ||
-                ((XSSFFont) font).getXSSFColor().getARGBHex().equals(((XSSFFont) f).getXSSFColor().getARGBHex()))
-            {
-               if (DEBUG)
-                  System.err.println("    Found existing, matching Font!");
-               return f;
-            }
-         }
-      }
-      if (DEBUG)
-         System.err.println("    Did NOT find existing, matching Font!");
-      return null;
    }
 
    /**

@@ -583,18 +583,22 @@ public class SheetUtil
    /**
     * Sets the cell value on the given <code>Cell</code> to the given
     * <code>value</code>, regardless of data type.
+    * @param context The <code>WorkbookContext</code>; access to the
+    *     <code>CellStyleCache</code> and <code>FontCache</code> is used.
     * @param cell The <code>Cell</code> on which to set the value.
     * @param value The value.
     * @return The actual value set in the <code>Cell</code>.
     */
-   public static Object setCellValue(Cell cell, Object value)
+   public static Object setCellValue(WorkbookContext context, Cell cell, Object value)
    {
-      return setCellValue(cell, value, null);
+      return setCellValue(context, cell, value, null);
    }
 
    /**
     * Sets the cell value on the given <code>Cell</code> to the given
     * <code>value</code>, regardless of data type.
+    * @param context The <code>WorkbookContext</code>; access to the
+    *     <code>CellStyleCache</code> and <code>FontCache</code> is used.
     * @param cell The <code>Cell</code> on which to set the value.
     * @param value The value.
     * @param origRichString The original <code>RichTextString</code>, to be
@@ -602,7 +606,7 @@ public class SheetUtil
     *    string (<code>String</code> or <code>RichTextString</code>).
     * @return The actual value set in the <code>Cell</code>.
     */
-   public static Object setCellValue(Cell cell, Object value, RichTextString origRichString)
+   public static Object setCellValue(WorkbookContext context, Cell cell, Object value, RichTextString origRichString)
    {
       CreationHelper helper = cell.getSheet().getWorkbook().getCreationHelper();
       Object newValue = value;
@@ -679,7 +683,7 @@ public class SheetUtil
       }
       if (applyStyle)
       {
-         RichTextStringUtil.applyFont(origRichString, cell);
+         RichTextStringUtil.applyFont(origRichString, cell, context.getCellStyleCache(), context.getFontCache());
       }
       return newValue;
    }
@@ -2062,7 +2066,7 @@ public class SheetUtil
                            currSuffix = "";
                      }
                      String newFormula = cellText + newSuffix;
-                     setCellValue(newCell, newFormula);
+                     setCellValue(context, newCell, newFormula);
                   }
                }
             }
@@ -2153,7 +2157,7 @@ public class SheetUtil
                            currSuffix = "";
                      }
                      String newFormula = cellText + newSuffix;
-                     setCellValue(newCell, newFormula);
+                     setCellValue(context, newCell, newFormula);
                   }
                }
             }
@@ -2426,7 +2430,7 @@ public class SheetUtil
       }
       else if (color == null)
       {
-         return "null";
+         return "000000";
       }
       else
       {

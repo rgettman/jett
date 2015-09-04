@@ -114,6 +114,20 @@ public class FontCache
    }
 
    /**
+    * Finds the given cached <code>Font</code> with the font characteristics of
+    * the given <code>Font</code>.
+    * @param f A <code>Font</code> which may not be in the cache.
+    * @return The <code>Font</code> in the cache that matches <code>f</code>'s
+    *    font characteristics, if it exists, else <code>null</code>.
+    * @since 0.9.2
+    */
+   public Font findFont(Font f)
+   {
+      String representation = getRepresentation(f);
+      return myFontMap.get(representation);
+   }
+
+   /**
     * Gets the string representation of the given <code>Font</code>.
     * @param f A <code>Font</code>.
     * @return The string representation.

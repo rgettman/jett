@@ -11,6 +11,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
 import net.sf.jett.model.Block;
+import net.sf.jett.model.WorkbookContext;
 import net.sf.jett.transform.BlockTransformer;
 import net.sf.jett.util.AttributeUtil;
 import net.sf.jett.util.SheetUtil;
@@ -171,6 +172,7 @@ public class IfTag extends BaseTag
       Sheet sheet = context.getSheet();
       Block block = context.getBlock();
       Map<String, Object> beans = context.getBeans();
+      WorkbookContext workbookContext = getWorkbookContext();
 
       Map<String, RichTextString> attributes = getAttributes();
 
@@ -186,17 +188,17 @@ public class IfTag extends BaseTag
          // Replace the bodiless tag text with the proper result.
          Row row = sheet.getRow(block.getTopRowNum());
          Cell cell = row.getCell(block.getLeftColNum());
-         SheetUtil.setCellValue(cell, result, result);
+         SheetUtil.setCellValue(workbookContext, cell, result, result);
 
          BlockTransformer transformer = new BlockTransformer();
-         transformer.transform(context, getWorkbookContext());
+         transformer.transform(context, workbookContext);
       }
       else
       {
          if (condition)
          {
             BlockTransformer transformer = new BlockTransformer();
-            transformer.transform(context, getWorkbookContext());
+            transformer.transform(context, workbookContext);
          }
          else
          {

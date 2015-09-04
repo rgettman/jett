@@ -16,6 +16,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 
 import net.sf.jett.exception.TagParseException;
 import net.sf.jett.model.Block;
+import net.sf.jett.model.WorkbookContext;
 import net.sf.jett.transform.BlockTransformer;
 import net.sf.jett.util.AttributeUtil;
 import net.sf.jett.util.SheetUtil;
@@ -139,10 +140,11 @@ public class TotalTag extends BaseTag
       // Replace the bodiless tag text with the proper result.
       Row row = sheet.getRow(block.getTopRowNum());
       Cell cell = row.getCell(block.getLeftColNum());
-      SheetUtil.setCellValue(cell, value, getAttributes().get(ATTR_VALUE));
+      WorkbookContext workbookContext = getWorkbookContext();
+      SheetUtil.setCellValue(workbookContext, cell, value, getAttributes().get(ATTR_VALUE));
 
       BlockTransformer transformer = new BlockTransformer();
-      transformer.transform(context, getWorkbookContext());
+      transformer.transform(context, workbookContext);
       return true;
    }
 }

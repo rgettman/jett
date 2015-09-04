@@ -38,6 +38,7 @@ public class CellStyleCache
    /**
     * Constructs a <code>CellStyleCache</code> on a <code>Workbook</code>.
     * Caches all <code>CellStyles</code> found within.
+    *
     * @param workbook A <code>Workbook</code>.
     */
    public CellStyleCache(Workbook workbook)
@@ -65,6 +66,7 @@ public class CellStyleCache
 
    /**
     * Returns the number of entries in this cache.
+    *
     * @return The number of entries in this cache.
     */
    public int getNumEntries()
@@ -75,6 +77,7 @@ public class CellStyleCache
    /**
     * Retrieve a <code>CellStyle</code> from the cache with the given
     * properties.
+    *
     * @param fontBoldweight The font boldweight.
     * @param fontItalic Whether the font is italic.
     * @param fontColor The font color.
@@ -104,20 +107,20 @@ public class CellStyleCache
     * @param locked Whether the cell is "locked".
     * @param hidden Whether the cell is "hidden".
     * @return A <code>CellStyle</code> that matches all given properties, or
-    *    <code>null</code> if it doesn't exist.
+    * <code>null</code> if it doesn't exist.
     */
    public CellStyle retrieveCellStyle(short fontBoldweight, boolean fontItalic, Color fontColor, String fontName,
-       short fontHeightInPoints, short alignment, short borderBottom, short borderLeft, short borderRight,
-       short borderTop, String dataFormat, byte fontUnderline, boolean fontStrikeout, boolean wrapText,
-       Color fillBackgroundColor, Color fillForegroundColor, short fillPattern, short verticalAlignment,
-       short indention, short rotation, Color bottomBorderColor, Color leftBorderColor, Color rightBorderColor,
-       Color topBorderColor, int fontCharset, short fontTypeOffset, boolean locked, boolean hidden)
+                                      short fontHeightInPoints, short alignment, short borderBottom, short borderLeft, short borderRight,
+                                      short borderTop, String dataFormat, byte fontUnderline, boolean fontStrikeout, boolean wrapText,
+                                      Color fillBackgroundColor, Color fillForegroundColor, short fillPattern, short verticalAlignment,
+                                      short indention, short rotation, Color bottomBorderColor, Color leftBorderColor, Color rightBorderColor,
+                                      Color topBorderColor, int fontCharset, short fontTypeOffset, boolean locked, boolean hidden)
    {
       String representation = getRepresentation(fontBoldweight, fontItalic, fontColor, fontName, fontHeightInPoints,
-         alignment, borderBottom, borderLeft, borderRight, borderTop, dataFormat, fontUnderline, fontStrikeout,
-         wrapText, fillBackgroundColor, fillForegroundColor, fillPattern, verticalAlignment, indention, rotation,
-         bottomBorderColor, leftBorderColor, rightBorderColor, topBorderColor, fontCharset, fontTypeOffset, locked,
-         hidden
+              alignment, borderBottom, borderLeft, borderRight, borderTop, dataFormat, fontUnderline, fontStrikeout,
+              wrapText, fillBackgroundColor, fillForegroundColor, fillPattern, verticalAlignment, indention, rotation,
+              bottomBorderColor, leftBorderColor, rightBorderColor, topBorderColor, fontCharset, fontTypeOffset, locked,
+              hidden
       );
       CellStyle cs = myCellStyleMap.get(representation);
       if (DEBUG)
@@ -132,6 +135,7 @@ public class CellStyleCache
 
    /**
     * Caches the given <code>CellStyle</code>.
+    *
     * @param cs A <code>CellStyle</code>.
     */
    public void cacheCellStyle(CellStyle cs)
@@ -143,13 +147,47 @@ public class CellStyleCache
    }
 
    /**
-    * Gets the string representation of the given <code>CellStyle</code>.
+    * Finds the given <code>CellStyle</code>, but with the font characteristics
+    * of the given <code>Font</code>, not its own <code>Font</code>.
+    * @param cs The <code>CellStyle</code>.  Cell style characteristics are
+    *    used, but the font characteristics are not used.
+    * @param f The <code>Font</code>.  These font characteristics are used
+    *    instead of the font characteristics on the <code>CellStyle</code>.
+    * @return The <code>CellStyle</code> with the cell style characteristics of
+    *    <code>cs</code> and the font characteristics of <code>f</code>, if
+    *    found, else <code>null</code>.
+    * @since 0.9.2
+    */
+   public CellStyle findCellStyleWithFont(CellStyle cs, Font f)
+   {
+      String representation = getRepresentation(cs, f);
+      return myCellStyleMap.get(representation);
+   }
+
+   /**
+    * Gets the string representation of the given <code>CellStyle</code>, using
+    * its own font characteristics.
     * @param cs A <code>CellStyle</code>.
     * @return The string representation.
     */
    private String getRepresentation(CellStyle cs)
    {
-      Font f = myWorkbook.getFontAt(cs.getFontIndex());
+      return getRepresentation(cs, myWorkbook.getFontAt(cs.getFontIndex()));
+   }
+
+   /**
+    * Gets the string representation of the given <code>CellStyle</code>, using
+    * the cell style characteristics of the <code>CellStyle</code> and the font
+    * characteristics of the given <code>Font</code>.
+    * @param cs The <code>CellStyle</code>.  Cell style characteristics are
+    *    used, but the font characteristics are not used.
+    * @param f The <code>Font</code>.  These font characteristics are used
+    *    instead of the font characteristics on the <code>CellStyle</code>.
+    * @return The string representation.
+    * @since 0.9.2
+    */
+   private String getRepresentation(CellStyle cs, Font f)
+   {
       // Colors that need an instanceof check
       Color fontColor;
       Color bottomColor = null;

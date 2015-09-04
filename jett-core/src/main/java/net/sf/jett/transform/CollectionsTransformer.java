@@ -81,7 +81,7 @@ public class CollectionsTransformer
          // Remove the metadata text from the Cell.
          RichTextString metadataRemoved = RichTextStringUtil.replaceAll(richString,
             helper, BEGIN_METADATA + metadata, "");
-         SheetUtil.setCellValue(cell, metadataRemoved);
+         SheetUtil.setCellValue(workbookContext, cell, metadataRemoved);
       }
 
       // Construct a Block with this context's Block as its parent.

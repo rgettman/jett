@@ -354,7 +354,7 @@ public class ForEachTag extends BaseLoopTag
       for (AggregateValue aggValue : aggValues)
       {
          Group g = new Group();
-         g.setItems((List) aggValue.getAggregateValue(0));
+         g.setItems((List<?>) aggValue.getAggregateValue(0));
          g.setObj(aggValue.getObject());
          groups.add(g);
       }
