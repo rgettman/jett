@@ -100,7 +100,7 @@ public class AddOneTag extends BaseTag
 
       // Replace the bodiless tag text with the proper result.
       Cell cell = sheet.getRow(block.getTopRowNum()).getCell(block.getLeftColNum());
-      SheetUtil.setCellValue(cell, myValue + 1, getAttributes().get(ATTR_VALUE));
+      SheetUtil.setCellValue(getWorkbookContext(), cell, myValue + 1, getAttributes().get(ATTR_VALUE));
 
       return true;
    }

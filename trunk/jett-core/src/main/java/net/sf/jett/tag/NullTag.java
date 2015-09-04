@@ -8,9 +8,10 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
+import net.sf.jett.model.Block;
+import net.sf.jett.model.WorkbookContext;
 import net.sf.jett.transform.BlockTransformer;
 import net.sf.jett.util.SheetUtil;
-import net.sf.jett.model.Block;
 
 /**
  * <p>A <code>NullTag</code> does nothing to its <code>Block</code> except mark
@@ -85,18 +86,19 @@ public class NullTag extends BaseTag
       Block block = context.getBlock();
       int left = block.getLeftColNum();
       int top = block.getTopRowNum();
+      WorkbookContext workbookContext = getWorkbookContext();
 
       if (isBodiless())
       {
          // It should exist in this Cell; this Tag was found in it.
          Row row = sheet.getRow(top);
          Cell cell = row.getCell(left);
-         SheetUtil.setCellValue(cell, getAttributes().get(ATTR_TEXT));
+         SheetUtil.setCellValue(workbookContext, cell, getAttributes().get(ATTR_TEXT));
       }
       else
       {
          BlockTransformer transformer = new BlockTransformer();
-         transformer.transform(context, getWorkbookContext(), false);
+         transformer.transform(context, workbookContext, false);
       }  // End else of isBodiless
       return true;
    }

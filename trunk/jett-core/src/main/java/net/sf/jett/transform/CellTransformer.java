@@ -145,7 +145,7 @@ public class CellTransformer
                   System.err.println("  CT: Transforming string cell.");
                CreationHelper helper = sheet.getWorkbook().getCreationHelper();
                Object result = Expression.evaluateString(richString, helper, workbookContext.getExpressionFactory(), beans);
-               newValue = SheetUtil.setCellValue(cell, result, richString);
+               newValue = SheetUtil.setCellValue(workbookContext, cell, result, richString);
             }
          }
          break;
@@ -256,12 +256,12 @@ public class CellTransformer
       else
       {
          // Remove start tag text.
-         SheetUtil.setCellValue(cell, RichTextStringUtil.replaceAll(richTextString,
+         SheetUtil.setCellValue(workbookContext, cell, RichTextStringUtil.replaceAll(richTextString,
             sheet.getWorkbook().getCreationHelper(), parser.getTagText(), "", true));
          if (DEBUG_TAG)
             System.err.println("Cell text after tag removal is \"" + cell.getStringCellValue() + "\".");
          // Search for matching end tag.
-         Cell match = findMatchingEndTag(cell, parentBlock, parser.getNamespaceAndTagName());
+         Cell match = findMatchingEndTag(workbookContext, cell, parentBlock, parser.getNamespaceAndTagName());
          if (match == null)
             throw new TagParseException("Matching tag not found for tag: " + parser.getTagText() +
                ", located" + SheetUtil.getCellLocation(cell) + ", within block " + parentBlock);
@@ -308,6 +308,7 @@ public class CellTransformer
    /**
     * Finds the end tag that matches the given start tag.  The end tag must
     * reside inside the given <code>parentBlock</code>.
+    * @param context The <code>WorkbookContext</code>.
     * @param startTag The <code>Cell</code> with the start tag.
     * @param parentBlock The parent <code>Block</code> in which the given
     *    <code>Cell</code> is contained.  The end tag must also be contained
@@ -317,7 +318,7 @@ public class CellTransformer
     * @return The <code>Cell</code> containing the matching end tag, or
     *    <code>null</code> if there is no matching end tag.
     */
-   private Cell findMatchingEndTag(Cell startTag, Block parentBlock, String namespaceAndTagName)
+   private Cell findMatchingEndTag(WorkbookContext context, Cell startTag, Block parentBlock, String namespaceAndTagName)
    {
       int startColumnIndex = startTag.getColumnIndex();
       int startRowIndex = startTag.getRowIndex();
@@ -343,7 +344,7 @@ public class CellTransformer
                if (DEBUG_TAG)
                   System.err.println("  Trying row: row " + rowNum + ", col " + cellNum);
                Cell candidate = row.getCell(cellNum);
-               if (candidate != null && isMatchingEndTag(candidate, namespaceAndTagName, innerTags))
+               if (candidate != null && isMatchingEndTag(context, candidate, namespaceAndTagName, innerTags))
                   return candidate;
             }
          }
@@ -357,6 +358,7 @@ public class CellTransformer
     * end tag that matches the given namespace and tag name, considering the
     * given <code>List</code> of unmatched inner tags already encountered.
     *
+    * @param context The <code>WorkbookContext</code>.
     * @param candidate The candidate <code>Cell</code>.
     * @param namespaceAndTagName The namespace and tag name to match.
     * @param innerTags A <code>List</code> of inner tags which must be matched
@@ -365,7 +367,7 @@ public class CellTransformer
     *    <code>candidate</code> is an end tag that matches an inner tag.
     * @return <code>true</code> if it matches, <code>false</code> otherwise.
     */
-   private boolean isMatchingEndTag(Cell candidate, String namespaceAndTagName,
+   private boolean isMatchingEndTag(WorkbookContext context, Cell candidate, String namespaceAndTagName,
       List<TagParser> innerTags)
    {
       if (candidate.getCellType() != Cell.CELL_TYPE_STRING)
@@ -388,7 +390,7 @@ public class CellTransformer
                 doAllInnerTagsMatch(innerTags, rightMostCol))
             {
                // This is the matching end tag.  Remove it from the Cell.
-               SheetUtil.setCellValue(candidate, RichTextStringUtil.replaceAll(candidate.getRichStringCellValue(),
+               SheetUtil.setCellValue(context, candidate, RichTextStringUtil.replaceAll(candidate.getRichStringCellValue(),
                   candidate.getSheet().getWorkbook().getCreationHelper(), candidateParser.getTagText(), "", true, afterTagIdx));
                return true;
             }

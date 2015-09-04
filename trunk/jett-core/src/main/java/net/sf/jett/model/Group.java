@@ -15,7 +15,7 @@ import java.util.List;
 public class Group
 {
    private Object myObj;
-   private List myItems;
+   private List<?> myItems;
 
    /**
     * Constructs a <code>Group</code> without a representative object or a list
@@ -50,7 +50,7 @@ public class Group
     * Returns the <code>List</code> of items in the group.
     * @return The <code>List</code> of items in the group.
     */
-   public List getItems()
+   public List<?> getItems()
    {
       return myItems;
    }
@@ -59,7 +59,7 @@ public class Group
     * Sets the <code>List</code> of items in the group.
     * @param items The <code>List</code> of items in the group.
     */
-   public void setItems(List items)
+   public void setItems(List<?> items)
    {
       myItems = items;
    }

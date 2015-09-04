@@ -21,6 +21,7 @@ import net.sf.jett.exception.TagParseException;
 import net.sf.jett.model.Block;
 import net.sf.jett.model.CellStyleCache;
 import net.sf.jett.model.ExcelColor;
+import net.sf.jett.model.WorkbookContext;
 import net.sf.jett.transform.BlockTransformer;
 import net.sf.jett.util.AttributeUtil;
 import net.sf.jett.util.SheetUtil;
@@ -325,7 +326,8 @@ public class SpanTag extends BaseTag
       // Set the value.
       Row row = sheet.getRow(top);
       Cell cell = row.getCell(left);
-      SheetUtil.setCellValue(cell, myValue);
+      WorkbookContext workbookContext = getWorkbookContext();
+      SheetUtil.setCellValue(workbookContext, cell, myValue);
 
       // Create the replacement merged region, or the new merged region if it
       // didn't exist before.
@@ -338,7 +340,7 @@ public class SpanTag extends BaseTag
       }
 
       BlockTransformer transformer = new BlockTransformer();
-      transformer.transform(context, getWorkbookContext());
+      transformer.transform(context, workbookContext);
 //
 //      long end = System.nanoTime();
 //      System.out.println("findMergedRegionAtCell: " + (end - start) + " ns");

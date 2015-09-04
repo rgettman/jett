@@ -14,6 +14,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 
 import net.sf.jett.exception.TagParseException;
 import net.sf.jett.model.Block;
+import net.sf.jett.model.WorkbookContext;
 import net.sf.jett.transform.BlockTransformer;
 import net.sf.jett.util.AttributeUtil;
 import net.sf.jett.util.SheetUtil;
@@ -166,7 +167,8 @@ public class HyperlinkTag extends BaseTag
       // It should exist in this Cell; this Tag was found in it.
       Row row = sheet.getRow(top);
       Cell cell = row.getCell(left);
-      SheetUtil.setCellValue(cell, myValue);
+      WorkbookContext workbookContext = getWorkbookContext();
+      SheetUtil.setCellValue(workbookContext, cell, myValue);
 
       CreationHelper helper = sheet.getWorkbook().getCreationHelper();
       Hyperlink hyperlink = helper.createHyperlink(myLinkType);
@@ -174,7 +176,7 @@ public class HyperlinkTag extends BaseTag
       cell.setHyperlink(hyperlink);
 
       BlockTransformer transformer = new BlockTransformer();
-      transformer.transform(context, getWorkbookContext());
+      transformer.transform(context, workbookContext);
 
       return true;
    }

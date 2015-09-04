@@ -18,6 +18,7 @@ import org.apache.poi.xssf.usermodel.XSSFCell;
 
 import net.sf.jett.exception.TagParseException;
 import net.sf.jett.model.Block;
+import net.sf.jett.model.WorkbookContext;
 import net.sf.jett.transform.BlockTransformer;
 import net.sf.jett.util.AttributeUtil;
 import net.sf.jett.util.SheetUtil;
@@ -149,7 +150,8 @@ public class CommentTag extends BaseTag
       // It should exist in this Cell; this Tag was found in it.
       Row row = sheet.getRow(top);
       Cell cell = row.getCell(left);
-      SheetUtil.setCellValue(cell, myValue);
+      WorkbookContext workbookContext = getWorkbookContext();
+      SheetUtil.setCellValue(workbookContext, cell, myValue);
 
       Drawing drawing = context.createDrawing();
       CreationHelper helper = sheet.getWorkbook().getCreationHelper();
@@ -214,7 +216,7 @@ public class CommentTag extends BaseTag
       cell.setCellComment(comment);
 
       BlockTransformer transformer = new BlockTransformer();
-      transformer.transform(context, getWorkbookContext());
+      transformer.transform(context, workbookContext);
 
       return true;
    }

@@ -1,16 +1,19 @@
 package net.sf.jett.test;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.io.IOException;
 
+import static org.junit.Assert.*;
+import org.junit.Test;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.junit.Test;
-import static org.junit.Assert.*;
+
+import net.sf.jett.model.FontBoldweight;
 
 /**
  * This JUnit Test class tests the evaluation of the "if" tag in entire rows,
@@ -207,6 +210,12 @@ public class IfTagTest extends TestCase
       cell = TestUtility.getCell(rts, 1, 0);
       assertEquals("ff0000", TestUtility.getFontColorString(workbook,
          workbook.getFontAt(cell.getCellStyle().getFontIndex())));
+      cell = TestUtility.getCell(rts, 2, 0);
+      Font f = workbook.getFontAt(TestUtility.getCellStyle(rts, 2, 0).getFontIndex());
+            assertEquals(FontBoldweight.BOLD.getIndex(), f.getBoldweight());
+      assertEquals("000000", TestUtility.getFontColorString(workbook,
+              workbook.getFontAt(cell.getCellStyle().getFontIndex())));
+      assertEquals(6, TestUtility.getNumericCellValue(rts, 2, 0), DELTA);
    }
 
    /**
@@ -229,6 +238,7 @@ public class IfTagTest extends TestCase
       beans.put("condTrue", true);
       beans.put("condFalse", false);
       beans.put("pi", Math.PI);
+      beans.put("num", 6);
 
       return beans;
    }

@@ -19,6 +19,8 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 
+import net.sf.jett.model.CellStyleCache;
+import net.sf.jett.model.FontCache;
 import net.sf.jett.util.RichTextStringUtil;
 
 /**
@@ -65,6 +67,9 @@ public class RichTextStringUtilTest
    private static InputStream theXlsxInputStream;
    private static Workbook theXlsxWorkbook;
 
+   private CellStyleCache myCellStyleCache;
+   private FontCache myFontCache;
+
    /**
     * Before running any of the tests, open a spreadsheet full of test cases.
     * @throws java.io.IOException If there is a problem opening the spreadsheet file.
@@ -97,6 +102,8 @@ public class RichTextStringUtilTest
    @Test
    public void testXls()
    {
+      myCellStyleCache = new CellStyleCache(theXlsWorkbook);
+      myFontCache = new FontCache(theXlsWorkbook);
       genericTest(theXlsWorkbook);
    }
 
@@ -106,6 +113,8 @@ public class RichTextStringUtilTest
    @Test
    public void testXlsx()
    {
+      myCellStyleCache = new CellStyleCache(theXlsxWorkbook);
+      myFontCache = new FontCache(theXlsxWorkbook);
       genericTest(theXlsxWorkbook);
    }
 
@@ -145,7 +154,7 @@ public class RichTextStringUtilTest
       assertEquals(GREEN_HEX_STRING, TestUtility.getFontColorString(workbook, font));
       // Apply Font 1
       cell = TestUtility.getCell(sheet, 1, 0);
-      RichTextStringUtil.applyFont(rtsResult, cell);
+      RichTextStringUtil.applyFont(rtsResult, cell, myCellStyleCache, myFontCache);
       font = workbook.getFontAt(cell.getCellStyle().getFontIndex());
       assertEquals(GREEN_HEX_STRING, TestUtility.getFontColorString(workbook, font));
 
@@ -170,7 +179,7 @@ public class RichTextStringUtilTest
       assertTrue(RED_HEX_STRING.equals(TestUtility.getFontColorString(workbook, font)));
       // Apply Font 2
       cell = TestUtility.getCell(sheet, 2, 0);
-      RichTextStringUtil.applyFont(rtsResult, cell);
+      RichTextStringUtil.applyFont(rtsResult, cell, myCellStyleCache, myFontCache);
       font = workbook.getFontAt(cell.getCellStyle().getFontIndex());
       assertEquals(RED_HEX_STRING, TestUtility.getFontColorString(workbook, font));
    }
