@@ -280,6 +280,7 @@ public class CellTransformer
       context.setProcessedCellsMap(processedCells);
       context.setDrawing(cellContext.getDrawing());
       context.setMergedRegions(cellContext.getMergedRegions());
+      context.setFormulaSuffix(cellContext.getFormulaSuffix());
 
       Tag tag = registry.createTag(parser, context, workbookContext);
       if (tag == null)

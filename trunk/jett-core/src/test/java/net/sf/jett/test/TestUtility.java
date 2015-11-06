@@ -31,8 +31,10 @@ import net.sf.jett.test.model.Division;
 import net.sf.jett.test.model.Element;
 import net.sf.jett.test.model.Employee;
 import net.sf.jett.test.model.HyperlinkData;
+import net.sf.jett.test.model.Region;
 import net.sf.jett.test.model.State;
 import net.sf.jett.test.model.Team;
+import net.sf.jett.test.model.WorkOrder;
 import net.sf.jett.util.SheetUtil;
 
 /**
@@ -661,6 +663,69 @@ public class TestUtility
       elements.add(new Element("TITLE1", subElements1));
       elements.add(new Element("TITLE2", subElements2));
       return elements;
+   }
+
+   /**
+    * Gets a beans map with <code>WorkOrder</code> data, exposed as "workOrders".
+    * @return A <code>Map</code> of <code>WorkOrder</code> beans.
+    * @since 0.9.2
+    */
+   public static Map<String, Object> getWorkOrderData()
+   {
+      Map<String, Object> beans = new HashMap<String, Object>();
+      beans.put("workOrders", getWorkOrders());
+      return beans;
+   }
+
+   /**
+    * Returns a <code>List</code> of <code>WorkOrders</code>.
+    * @return A <code>List</code> of <code>WorkOrders</code>.
+    * @since 0.9.2
+    */
+   public static List<WorkOrder> getWorkOrders()
+   {
+      List<WorkOrder> workOrders = new ArrayList<WorkOrder>();
+      // Must have at least 2 work orders with the same department, location,
+      // and installation for this particular test to test its target issue
+      // properly.
+      workOrders.add(new WorkOrder("Hardware", "6th floor", "Linux Computers", "2015-11-03", 7800, 25500));
+      workOrders.add(new WorkOrder("Hardware", "6th floor", "Windows Computers", "2015-11-02", 5500, 17500));
+      workOrders.add(new WorkOrder("Hardware", "6th floor", "Windows Computers", "2015-11-03", 6000, 20000));
+      workOrders.add(new WorkOrder("Hardware", "7th floor", "Linux Computers", "2015-11-04", 8200, 27400));
+      workOrders.add(new WorkOrder("Hardware", "7th floor", "Windows Computers", "2015-11-04", 11200, 36500));
+      workOrders.add(new WorkOrder("Software", "6th floor", "Open Office", "2015-11-03", 250, 0));
+      workOrders.add(new WorkOrder("Software", "6th floor", "MS Office", "2015-11-03", 1000, 10000));
+      workOrders.add(new WorkOrder("Software", "7th floor", "Open Office", "2015-11-04", 300, 0));
+      workOrders.add(new WorkOrder("Software", "7th floor", "MS Office", "2015-11-04", 900, 10000));
+      return workOrders;
+   }
+
+   /**
+    * Gets a beans map with <code>Region</code> data, exposed as "regions".
+    * Also exposes "dates" as the list of dates.
+    * @return A <code>Map</code> of <code>Region</code> beans and date strings.
+    * @since 0.9.2
+    */
+   public static Map<String, Object> getRegionSalesData()
+   {
+      Map<String, Object> beans = new HashMap<String, Object>();
+      beans.put("regions", getRegions());
+      beans.put("dates", Arrays.asList("1/1/2015", "2/1/2015", "3/1/2015"));
+      return beans;
+   }
+
+   /**
+    * Returns a <code>List</code> of <code>Regions</code>.
+    * @return A <code>List</code> of <code>Regions</code>.
+    * @since 0.9.2
+    */
+   public static List<Region> getRegions()
+   {
+      List<Region> regions = new ArrayList<Region>();
+      regions.add(new Region("USA", Arrays.asList(50, 51, 52)));
+      regions.add(new Region("ASIA", Arrays.asList(25, 26, 27)));
+      regions.add(new Region("EMEA", Arrays.asList(15, 16, 17)));
+      return regions;
    }
 
    /**

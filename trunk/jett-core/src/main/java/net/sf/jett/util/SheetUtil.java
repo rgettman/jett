@@ -1981,7 +1981,7 @@ public class SheetUtil
       Block newBlock = null;
       String sheetName = sheet.getSheetName();
       int seqNbr = context.getSequenceNbr();
-      String currSuffix = null;
+      String currSuffix = tagContext.getFormulaSuffix();
       String newSuffix = "[" + seqNbr + "," + numBlocksAway + "]";
       Map<String, String> tagLocationsMap = context.getTagLocationsMap();
       if (DEBUG)
@@ -2055,16 +2055,6 @@ public class SheetUtil
                         if (idx > -1)
                            cellText = cellText.substring(0, idx);  // Lose the last suffix.
                      }
-                     // All formulas found should have the same current suffix.
-                     // Find it once.
-                     if (currSuffix == null)
-                     {
-                        int idx = cellText.indexOf("[", Formula.BEGIN_FORMULA.length());  // Skip the initial $[.
-                        if (idx > -1)
-                           currSuffix = cellText.substring(idx);
-                        else
-                           currSuffix = "";
-                     }
                      String newFormula = cellText + newSuffix;
                      setCellValue(context, newCell, newFormula);
                   }
@@ -2087,8 +2077,6 @@ public class SheetUtil
          else
             newBlock = block;
 
-         if (currSuffix == null)
-            currSuffix = "";
          FormulaUtil.copyCellReferencesInRange(sheetName, context,
             left, right, top, bottom, 0, translateDown, currSuffix, newSuffix);
          break;
@@ -2146,16 +2134,6 @@ public class SheetUtil
                         if (idx > -1)
                            cellText = cellText.substring(0, idx);  // Lose the last suffix.
                      }
-                     // All formulas found should have the same current suffix.
-                     // Find it once.
-                     if (currSuffix == null)
-                     {
-                        int idx = cellText.indexOf("[", Formula.BEGIN_FORMULA.length());  // Skip the initial $[.
-                        if (idx > -1)
-                           currSuffix = cellText.substring(idx);
-                        else
-                           currSuffix = "";
-                     }
                      String newFormula = cellText + newSuffix;
                      setCellValue(context, newCell, newFormula);
                   }
@@ -2177,8 +2155,6 @@ public class SheetUtil
          else
             newBlock = block;
 
-         if (currSuffix == null)
-            currSuffix = "";
          FormulaUtil.copyCellReferencesInRange(sheetName, context,
             left, right, top, bottom, translateRight, 0, currSuffix, newSuffix);
          break;
