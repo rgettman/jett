@@ -365,6 +365,7 @@ public abstract class BaseLoopTag extends BaseTag
       // Important for formulas, so different cell reference map entries from
       // different loops can be distinguished.
       workbookContext.incrSequenceNbr();
+      int seqNbr = workbookContext.getSequenceNbr();
 
       Sheet sheet = context.getSheet();
       Map<String, Object> beans = context.getBeans();
@@ -501,6 +502,9 @@ public abstract class BaseLoopTag extends BaseTag
                blockContext.setDrawing(context.getDrawing());
                blockContext.setMergedRegions(context.getMergedRegions());
                blockContext.setCurrentTag(this);
+               String suffix = context.getFormulaSuffix() + "[" + seqNbr + "," + index + "]";
+               blockContext.setFormulaSuffix(suffix);
+
                if (DEBUG)
                   System.err.println("  Block Before: " + currBlock);
                right = currBlock.getRightColNum();

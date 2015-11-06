@@ -247,6 +247,55 @@ public class FormulaTest extends TestCase
       assertEquals("A1*B9*D11", TestUtility.getFormulaCellValue(outsideReference, 10, 4));
       assertEquals("A1*B9*D12", TestUtility.getFormulaCellValue(outsideReference, 11, 4));
 
+      Sheet multiLevel2 = workbook.getSheetAt(13);
+      assertEquals("SUM(B4)", TestUtility.getFormulaCellValue(multiLevel2, 4, 1));
+      assertEquals("SUM(C4)", TestUtility.getFormulaCellValue(multiLevel2, 4, 2));
+      assertEquals("SUM(D4)", TestUtility.getFormulaCellValue(multiLevel2, 4, 3));
+      assertEquals("SUM(B7:B8)", TestUtility.getFormulaCellValue(multiLevel2, 8, 1));
+      assertEquals("SUM(C7:C8)", TestUtility.getFormulaCellValue(multiLevel2, 8, 2));
+      assertEquals("SUM(D7:D8)", TestUtility.getFormulaCellValue(multiLevel2, 8, 3));
+      assertEquals("SUM(B5,B9)", TestUtility.getFormulaCellValue(multiLevel2, 10, 1));
+      assertEquals("SUM(C5,C9)", TestUtility.getFormulaCellValue(multiLevel2, 10, 2));
+      assertEquals("SUM(D5,D9)", TestUtility.getFormulaCellValue(multiLevel2, 10, 3));
+      assertEquals("SUM(B13)", TestUtility.getFormulaCellValue(multiLevel2, 13, 1));
+      assertEquals("SUM(C13)", TestUtility.getFormulaCellValue(multiLevel2, 13, 2));
+      assertEquals("SUM(D13)", TestUtility.getFormulaCellValue(multiLevel2, 13, 3));
+      assertEquals("SUM(B16)", TestUtility.getFormulaCellValue(multiLevel2, 16, 1));
+      assertEquals("SUM(C16)", TestUtility.getFormulaCellValue(multiLevel2, 16, 2));
+      assertEquals("SUM(D16)", TestUtility.getFormulaCellValue(multiLevel2, 16, 3));
+      assertEquals("SUM(B14,B17)", TestUtility.getFormulaCellValue(multiLevel2, 18, 1));
+      assertEquals("SUM(C14,C17)", TestUtility.getFormulaCellValue(multiLevel2, 18, 2));
+      assertEquals("SUM(D14,D17)", TestUtility.getFormulaCellValue(multiLevel2, 18, 3));
+      assertEquals("SUM(B21)", TestUtility.getFormulaCellValue(multiLevel2, 21, 1));
+      assertEquals("SUM(C21)", TestUtility.getFormulaCellValue(multiLevel2, 21, 2));
+      assertEquals("SUM(D21)", TestUtility.getFormulaCellValue(multiLevel2, 21, 3));
+      assertEquals("SUM(B24)", TestUtility.getFormulaCellValue(multiLevel2, 24, 1));
+      assertEquals("SUM(C24)", TestUtility.getFormulaCellValue(multiLevel2, 24, 2));
+      assertEquals("SUM(D24)", TestUtility.getFormulaCellValue(multiLevel2, 24, 3));
+      assertEquals("SUM(B22,B25)", TestUtility.getFormulaCellValue(multiLevel2, 26, 1));
+      assertEquals("SUM(C22,C25)", TestUtility.getFormulaCellValue(multiLevel2, 26, 2));
+      assertEquals("SUM(D22,D25)", TestUtility.getFormulaCellValue(multiLevel2, 26, 3));
+      assertEquals("SUM(B29)", TestUtility.getFormulaCellValue(multiLevel2, 29, 1));
+      assertEquals("SUM(C29)", TestUtility.getFormulaCellValue(multiLevel2, 29, 2));
+      assertEquals("SUM(D29)", TestUtility.getFormulaCellValue(multiLevel2, 29, 3));
+      assertEquals("SUM(B32)", TestUtility.getFormulaCellValue(multiLevel2, 32, 1));
+      assertEquals("SUM(C32)", TestUtility.getFormulaCellValue(multiLevel2, 32, 2));
+      assertEquals("SUM(D32)", TestUtility.getFormulaCellValue(multiLevel2, 32, 3));
+      assertEquals("SUM(B30,B33)", TestUtility.getFormulaCellValue(multiLevel2, 34, 1));
+      assertEquals("SUM(C30,C33)", TestUtility.getFormulaCellValue(multiLevel2, 34, 2));
+      assertEquals("SUM(D30,D33)", TestUtility.getFormulaCellValue(multiLevel2, 34, 3));
+      assertEquals("SUM(B11,B19,B27,B35)", TestUtility.getFormulaCellValue(multiLevel2, 36, 1));
+      assertEquals("SUM(C11,C19,C27,C35)", TestUtility.getFormulaCellValue(multiLevel2, 36, 2));
+      assertEquals("SUM(D11,D19,D27,D35)", TestUtility.getFormulaCellValue(multiLevel2, 36, 3));
+
+      Sheet grid = workbook.getSheetAt(14);
+      assertEquals("SUM(B2:D2)", TestUtility.getFormulaCellValue(grid, 1, 4));
+      assertEquals("SUM(B3:D3)", TestUtility.getFormulaCellValue(grid, 2, 4));
+      assertEquals("SUM(B4:D4)", TestUtility.getFormulaCellValue(grid, 3, 4));
+      assertEquals("SUM(OFFSET(B2,0,0,3,1))", TestUtility.getFormulaCellValue(grid, 4, 1));
+      assertEquals("SUM(OFFSET(B2,0,1,3,1))", TestUtility.getFormulaCellValue(grid, 4, 2));
+      assertEquals("SUM(OFFSET(B2,0,2,3,1))", TestUtility.getFormulaCellValue(grid, 4, 3));
+      assertEquals("SUM(E2:E4)", TestUtility.getFormulaCellValue(grid, 4, 4));
    }
 
    /**
@@ -265,13 +314,15 @@ public class FormulaTest extends TestCase
     */
    protected List<String> getListOfTemplateSheetNames()
    {
-      String[] templateSheetNameArray = new String[13];
+      String[] templateSheetNameArray = new String[15];
       Arrays.fill(templateSheetNameArray, "Cloning");
       templateSheetNameArray[0] = "Formula Test";
       templateSheetNameArray[9] = "MultiLevel";
       templateSheetNameArray[10] = "Copy Right";
       templateSheetNameArray[11] = "ReplaceTest";
       templateSheetNameArray[12] = "Outside Reference";
+      templateSheetNameArray[13] = "MultiLevel2";
+      templateSheetNameArray[14] = "Grid";
       return Arrays.asList(templateSheetNameArray);
    }
 
@@ -284,7 +335,7 @@ public class FormulaTest extends TestCase
    {
       return Arrays.asList("Formula Test", "Atlantic", "Central", "Southeast", "Northwest",
          "Pacific", "Southwest", "Empty", "Of Their Own", "MultiLevel", "Copy Right", "ReplaceTest",
-         "Outside Reference");
+         "Outside Reference", "MultiLevel2", "Grid");
    }
 
    /**
@@ -309,6 +360,10 @@ public class FormulaTest extends TestCase
       outsideRefsBeans.put("primes", Arrays.asList(3, 5, 7));
       outsideRefsBeans.put("morePrimes", Arrays.asList(11, 13, 17, 19));
       beansList.add(outsideRefsBeans);
+      // For "Multilevel2"
+      beansList.add(TestUtility.getWorkOrderData());
+      // For "Grid"
+      beansList.add(TestUtility.getRegionSalesData());
 
       return beansList;
    }

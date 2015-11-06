@@ -582,7 +582,7 @@ public class FormulaUtil
       for (String key : cellRefMap.keySet())
       {
          List<CellRef> cellRefs = cellRefMap.get(key);
-         List<CellRef> newCellRefs = null;  // Set if a new entry will be made.
+         List<CellRef> newCellRefs;  // Set if a new entry will be made.
          index = key.indexOf("!");  // Expected to be present in all cell keys
          boolean isExplicit = key.startsWith(EXPLICIT_REF_PREFIX);
          // Bypass explicit/implicit indicator.

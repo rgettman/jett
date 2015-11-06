@@ -26,6 +26,7 @@ public class TagContext
    private List<CellRangeAddress> myMergedRegions;
    private List<List<CellRangeAddress>> myConditionalFormattingRegions;
    private Tag myCurrTag;
+   private String myFormulaSuffix;
 
    /**
     * Construct a <code>TagContext</code>, initializing things to null.
@@ -38,6 +39,7 @@ public class TagContext
       myDrawing = null;
       myMergedRegions = null;
       myConditionalFormattingRegions = null;
+      myFormulaSuffix = "";
    }
 
    /**
@@ -233,5 +235,29 @@ public class TagContext
    public void setCurrentTag(Tag tag)
    {
       myCurrTag = tag;
+   }
+
+   /**
+    * Returns the formula suffix.  This is useful for formulas, where keeping
+    * track of adjusted cell references in all loop levels is vital.
+    * @return The formula suffix, e.g. "[1,0][2,1]".  This would
+    *    be read as loop 1, iteration 0, subloop 2, iteration 1.
+    * @since 0.9.2
+    */
+   public String getFormulaSuffix()
+   {
+      return myFormulaSuffix;
+   }
+
+   /**
+    * Sets the formula suffix.  This is useful for formulas, where keeping
+    * track of adjusted cell references in all loop levels is vital.
+    * @param formulaSuffix The formula suffix, e.g. "[1,0][2,1]".  This would
+    *    be read as loop 1, iteration 0, subloop 2, iteration 1.
+    * @since 0.9.2
+    */
+   public void setFormulaSuffix(String formulaSuffix)
+   {
+      myFormulaSuffix = formulaSuffix;
    }
 }
