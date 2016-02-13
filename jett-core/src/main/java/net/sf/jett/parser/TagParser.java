@@ -9,6 +9,7 @@ import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.RichTextString;
 
 import net.sf.jett.exception.TagParseException;
+import net.sf.jett.formula.Formula;
 import net.sf.jett.util.RichTextStringUtil;
 import net.sf.jett.util.SheetUtil;
 
@@ -106,15 +107,34 @@ public class TagParser
    public void parse()
    {
       TagScanner scanner = new TagScanner(myCellText);
+      boolean insideJettFormula = false;
 
       // Tags must begin with "<" or "</", else it's not a tag (and it's not an error).
       // Text may occur before an ending tag or after a starting tag.
       TagScanner.Token token = scanner.getNextToken();
-      while (token != TagScanner.Token.TOKEN_BEGIN_ANGLE_BRACKET &&
-             token != TagScanner.Token.TOKEN_BEGIN_ANGLE_BRACKET_SLASH &&
-             token != TagScanner.Token.TOKEN_EOI &&
-             token != TagScanner.Token.TOKEN_ERROR_EOI_IN_DQUOTES)
+      while ((token != TagScanner.Token.TOKEN_BEGIN_ANGLE_BRACKET &&
+              token != TagScanner.Token.TOKEN_BEGIN_ANGLE_BRACKET_SLASH &&
+              token != TagScanner.Token.TOKEN_EOI &&
+              token != TagScanner.Token.TOKEN_ERROR_EOI_IN_DQUOTES) ||
+             insideJettFormula)
       {
+         String lexeme = scanner.getCurrLexeme();
+         //System.err.println(lexeme);
+         // Bypass any tokens normally indicating beginning of a tag if found
+         // inside a JETT Formula.
+         if (token == TagScanner.Token.TOKEN_STRING)
+         {
+            if (lexeme.contains(Formula.BEGIN_FORMULA))
+            {
+               insideJettFormula = true;
+            }
+            if (lexeme.contains(Formula.END_FORMULA))
+            {
+               insideJettFormula = false;
+            }
+         }
+
+         // Prepare for next loop.
          token = scanner.getNextToken();
       }
       int begPos = scanner.getNextPosition();
