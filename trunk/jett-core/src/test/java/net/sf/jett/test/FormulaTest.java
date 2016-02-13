@@ -296,6 +296,9 @@ public class FormulaTest extends TestCase
       assertEquals("SUM(OFFSET(B2,0,1,3,1))", TestUtility.getFormulaCellValue(grid, 4, 2));
       assertEquals("SUM(OFFSET(B2,0,2,3,1))", TestUtility.getFormulaCellValue(grid, 4, 3));
       assertEquals("SUM(E2:E4)", TestUtility.getFormulaCellValue(grid, 4, 4));
+
+      Sheet tagParseInFormula = workbook.getSheetAt(15);
+      assertEquals("MIN((N2>=$P$1)*(N2<$R$1))", TestUtility.getFormulaCellValue(tagParseInFormula, 1, 0));
    }
 
    /**
@@ -314,7 +317,7 @@ public class FormulaTest extends TestCase
     */
    protected List<String> getListOfTemplateSheetNames()
    {
-      String[] templateSheetNameArray = new String[15];
+      String[] templateSheetNameArray = new String[16];
       Arrays.fill(templateSheetNameArray, "Cloning");
       templateSheetNameArray[0] = "Formula Test";
       templateSheetNameArray[9] = "MultiLevel";
@@ -323,6 +326,7 @@ public class FormulaTest extends TestCase
       templateSheetNameArray[12] = "Outside Reference";
       templateSheetNameArray[13] = "MultiLevel2";
       templateSheetNameArray[14] = "Grid";
+      templateSheetNameArray[15] = "TagParseInFormula";
       return Arrays.asList(templateSheetNameArray);
    }
 
@@ -335,7 +339,7 @@ public class FormulaTest extends TestCase
    {
       return Arrays.asList("Formula Test", "Atlantic", "Central", "Southeast", "Northwest",
          "Pacific", "Southwest", "Empty", "Of Their Own", "MultiLevel", "Copy Right", "ReplaceTest",
-         "Outside Reference", "MultiLevel2", "Grid");
+         "Outside Reference", "MultiLevel2", "Grid", "TagParseInFormula");
    }
 
    /**
@@ -351,9 +355,10 @@ public class FormulaTest extends TestCase
       for (int i = 0; i < 8; i++)
          beansList.add(TestUtility.getSpecificDivisionData(i));
       beansList.add(TestUtility.getDivisionData());
+      Map<String, Object> emptyBeans = new HashMap<String, Object>();
       // For "Copy Right" and "ReplaceTest".
       for (int f = 0; f < 2; f++)
-         beansList.add(new HashMap<String, Object>());
+         beansList.add(emptyBeans);
       // For "Outside Reference"
       Map<String, Object> outsideRefsBeans = new HashMap<String, Object>();
       outsideRefsBeans.put("two", 2);
@@ -364,6 +369,8 @@ public class FormulaTest extends TestCase
       beansList.add(TestUtility.getWorkOrderData());
       // For "Grid"
       beansList.add(TestUtility.getRegionSalesData());
+      // For "TagParseInFormula"
+      beansList.add(emptyBeans);
 
       return beansList;
    }
