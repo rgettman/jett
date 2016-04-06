@@ -32,6 +32,7 @@ public class JtTagLibrary implements TagLibrary
       myTagMap.put("hideSheet"   , HideSheetTag.class);
       myTagMap.put("hyperlink"   , HyperlinkTag.class);
       myTagMap.put("if"          , IfTag.class);
+      myTagMap.put("image"       , ImageTag.class);
       myTagMap.put("multiForEach", MultiForEachTag.class);
       myTagMap.put("name"        , NameTag.class);
       myTagMap.put("null"        , NullTag.class);

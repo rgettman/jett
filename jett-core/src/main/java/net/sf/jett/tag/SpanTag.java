@@ -421,6 +421,7 @@ public class SpanTag extends BaseTag
                      cs.getFillPattern(), cs.getVerticalAlignment(), cs.getIndention(), cs.getRotation(),
                      null, null, null, null, cs.getLocked(), cs.getHidden());
                   foundStyle.setFont(f);
+                  csCache.cacheCellStyle(foundStyle);
                }
                cell.setCellStyle(foundStyle);
             }
@@ -500,6 +501,7 @@ public class SpanTag extends BaseTag
                   newBorderBottomColor, newBorderLeftColor, newBorderRightColor, newBorderTopColor,
                   cs.getLocked(), cs.getHidden());
                foundStyle.setFont(f);
+               csCache.cacheCellStyle(foundStyle);
             }
             cell.setCellStyle(foundStyle);
          }
