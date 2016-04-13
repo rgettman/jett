@@ -9,6 +9,7 @@ import java.util.Map;
 import org.apache.poi.ss.usermodel.ClientAnchor;
 import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.DataFormat;
+import org.apache.poi.ss.usermodel.ExtendedColor;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Hyperlink;
 import org.apache.poi.ss.usermodel.RichTextString;
@@ -49,6 +50,7 @@ public class AttributeUtilTest
       public DataFormat createDataFormat() { return null; }
       public FormulaEvaluator createFormulaEvaluator() { return null; }
       public Hyperlink createHyperlink(int type) { return null; }
+      public ExtendedColor createExtendedColor() { return null; }
       public RichTextString createRichTextString(String text)
       {
          return new XSSFRichTextString(text);

@@ -53,10 +53,10 @@ public class CellStyleCache
     */
    private void cachePreExistingCellStyles()
    {
-      short numCellStyles = myWorkbook.getNumCellStyles();
+      int numCellStyles = myWorkbook.getNumCellStyles();
       if (DEBUG)
          System.err.println("CSC: Caching " + numCellStyles + " pre-existing cell styles.");
-      for (short i = 0; i < numCellStyles; i++)
+      for (int i = 0; i < numCellStyles; i++)
       {
          cacheCellStyle(myWorkbook.getCellStyleAt(i));
       }

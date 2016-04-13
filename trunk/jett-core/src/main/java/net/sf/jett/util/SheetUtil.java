@@ -2460,7 +2460,7 @@ public class SheetUtil
       // Solution: Correct the font color on the way out for themed colors
       // only.  For unthemed colors, bypass the "correction".
       if (xssfColor.getCTColor().isSetTheme())
-         bytes = xssfColor.getRgb();
+         bytes = xssfColor.getRGB();
       else
          bytes = xssfColor.getCTColor().getRgb();
       // End of workaround for Bugs 51236 and 52079.
@@ -2637,7 +2637,7 @@ public class SheetUtil
             if (xssfFontColor.getCTColor().isSetTheme())
                xf.setColor(xssfFontColor);
             else
-               xf.setColor(new XSSFColor(xssfFontColor.getRgb()));
+               xf.setColor(new XSSFColor(xssfFontColor.getRGB()));
             // End of workaround for Bugs 51236 and 52079.
          }
       }
