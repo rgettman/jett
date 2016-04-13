@@ -157,7 +157,7 @@ public class StyleFontCacheTest extends TestCase
          // XSSFWorkbook
          // See StyleTag.java comments for why we're creating a new XSSFColor
          // instead of just using the font-supplied XSSFColor.
-         fontColor = new XSSFColor(((XSSFFont) fNormal).getXSSFColor().getRgb());
+         fontColor = new XSSFColor(((XSSFFont) fNormal).getXSSFColor().getRGB());
       }
       short fontHeightInPoints = fNormal.getFontHeightInPoints();
       String fontName = fNormal.getFontName();
