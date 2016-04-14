@@ -82,6 +82,12 @@ public enum ExcelColor
     */
    public static final HSSFColor HSSF_COLOR_AUTOMATIC = new HSSFColor.AUTOMATIC();
 
+   /**
+    * The color index used by comments in XSSF (.xlsx).
+    * @since 0.10.0
+    */
+   public static final short XSSF_COLOR_COMMENT = 81;
+
    private HSSFColor myHssfColor;
    private XSSFColor myXssfColor;
    private IndexedColors myIndexedColor;
@@ -241,7 +247,7 @@ public enum ExcelColor
     */
    public static HSSFColor getHssfColorByIndex(short index)
    {
-      if (index == Font.COLOR_NORMAL)
+      if (index == Font.COLOR_NORMAL || index == XSSF_COLOR_COMMENT)
       {
          return HSSF_COLOR_AUTOMATIC;
       }
