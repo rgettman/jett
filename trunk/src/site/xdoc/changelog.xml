@@ -4,6 +4,38 @@
         <title>Change Log for JETT</title>
     </properties>
     <body>
+        <section name="JETT 0.10.0 (Beta) Released - 05 May 2016">
+            <p>New in JETT 0.10.0:</p>
+            <ul>
+                <li>Ticket #56: Rich text strings using the "automatic" Excel color crashes JETT.
+                    Now, JETT takes into account the "automatic" Excel color to avoid the crash.</li>
+                <li>Ticket #57: Two or more levels of nested forEach tags with a JETT Formula that
+                    refers to cells at least 2 levels deeper than the formula result in an
+                    incorrect Excel formula.  There was a problem in the algorithm that JETT relied
+                    upon to keep track of cell updates across 2 or more levels of nested looping
+                    tags.  The formula nesting level is now kept track in the <code>TagContext</code>
+                    object, and this bug is fixed.</li>
+                <li>Ticket #58: A "&lt;" character inside a JETT Formula triggers a
+                    <code>TagParseException</code> when the <code>TagParser</code> attempts to
+                    parse it as a tag.  Now JETT skips over JETT Formula text when scanning cell
+                    text looking for tags.</li>
+                <li>Ticket #60: Excel 2007+ (.xlsx) templates with Excel comments in them cause
+                    JETT to crash when it is cacheing pre-existing fonts when it first reads the
+                    spreadsheet.  An unexpected color index, 81, was outside the normal range of
+                    Excel indexed colors, causing the crash.  JETT now takes into account this
+                    index to avoid the crash.</li>
+                <li>Ticket #65: Using a lot of span tags, especially in a loop, causes an
+                    <code>IllegalStateException</code> from Apache POI because the maximum number
+                    of cell styles was exceeded.  This was caused because JETT didn't cache the new
+                    <code>CellStyle</code> objects, resulting in an excessive number of similar or
+                    identical cell styles.  The span tag is now caching any new cell styles it
+                    creates, so it can find that same existing cell style later.</li>
+                <li>Ticket #67: Create a tag that can supply a dynamic image to the resultant
+                    spreadsheet.  JETT now has the <a href="tags/image.html">image tag</a>.</li>
+                <li>JETT is now tested using Apache POI 3.14.  JETT now requires Apache POI 3.14
+                    (or greater).</li>
+            </ul>
+        </section>
         <section name="JETT 0.9.1 (Beta) Released - 28 Aug 2015">
             <p>New in JETT 0.9.1:</p>
             <ul>

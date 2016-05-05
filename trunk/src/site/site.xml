@@ -41,6 +41,7 @@
             <item name="&amp;lt;jt:hideSheet&amp;gt; Tag" href="tags/hide.html"/>
             <item name="&amp;lt;jt:hyperlink&amp;gt; Tag" href="tags/hyperlink.html"/>
             <item name="&amp;lt;jt:if&amp;gt; Tag" href="tags/if.html"/>
+            <item name="&amp;lt;jt:image&amp;gt; Tag" href="tags/image.html"/>
             <item name="&amp;lt;jt:name&amp;gt; Tag" href="tags/name.html"/>
             <item name="&amp;lt;jt:null&amp;gt; Tag" href="tags/null.html"/>
             <item name="&amp;lt;jt:span&amp;gt; Tag" href="tags/span.html"/>

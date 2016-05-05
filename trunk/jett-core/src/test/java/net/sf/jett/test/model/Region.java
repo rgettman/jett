@@ -6,7 +6,7 @@ import java.util.List;
  * This class helps test a grid-like summation.
  *
  * @author Randy Gettman
- * @since 0.9.2.
+ * @since 0.10.0
  */
 public class Region
 {

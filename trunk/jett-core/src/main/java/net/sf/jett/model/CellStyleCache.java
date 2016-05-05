@@ -156,7 +156,7 @@ public class CellStyleCache
     * @return The <code>CellStyle</code> with the cell style characteristics of
     *    <code>cs</code> and the font characteristics of <code>f</code>, if
     *    found, else <code>null</code>.
-    * @since 0.9.2
+    * @since 0.10.0
     */
    public CellStyle findCellStyleWithFont(CellStyle cs, Font f)
    {
@@ -184,7 +184,7 @@ public class CellStyleCache
     * @param f The <code>Font</code>.  These font characteristics are used
     *    instead of the font characteristics on the <code>CellStyle</code>.
     * @return The string representation.
-    * @since 0.9.2
+    * @since 0.10.0
     */
    private String getRepresentation(CellStyle cs, Font f)
    {
