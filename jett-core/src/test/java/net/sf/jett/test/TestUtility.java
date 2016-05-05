@@ -668,7 +668,7 @@ public class TestUtility
    /**
     * Gets a beans map with <code>WorkOrder</code> data, exposed as "workOrders".
     * @return A <code>Map</code> of <code>WorkOrder</code> beans.
-    * @since 0.9.2
+    * @since 0.10.0
     */
    public static Map<String, Object> getWorkOrderData()
    {
@@ -680,7 +680,7 @@ public class TestUtility
    /**
     * Returns a <code>List</code> of <code>WorkOrders</code>.
     * @return A <code>List</code> of <code>WorkOrders</code>.
-    * @since 0.9.2
+    * @since 0.10.0
     */
    public static List<WorkOrder> getWorkOrders()
    {
@@ -704,7 +704,7 @@ public class TestUtility
     * Gets a beans map with <code>Region</code> data, exposed as "regions".
     * Also exposes "dates" as the list of dates.
     * @return A <code>Map</code> of <code>Region</code> beans and date strings.
-    * @since 0.9.2
+    * @since 0.10.0
     */
    public static Map<String, Object> getRegionSalesData()
    {
@@ -717,7 +717,7 @@ public class TestUtility
    /**
     * Returns a <code>List</code> of <code>Regions</code>.
     * @return A <code>List</code> of <code>Regions</code>.
-    * @since 0.9.2
+    * @since 0.10.0
     */
    public static List<Region> getRegions()
    {

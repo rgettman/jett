@@ -33,7 +33,7 @@
             String formatting is preserved for both the Cell contents and the Comment contents.</p>
             <p>Here is the template spreadsheet:</p>
             <img src="../images/template_comment.gif" alt="Comment Template"/>
-            <p>.. gets transformed into...</p>
+            <p>... gets transformed into...</p>
             <img src="../images/result_comment1.gif" alt="Comment Result"/>
             <p>When the viewer places the mouse over the Cell, the Comment pops up.</p>
             <img src="../images/result_comment2.gif" alt="Comment Mouseover"/>

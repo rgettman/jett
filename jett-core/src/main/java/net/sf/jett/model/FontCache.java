@@ -119,7 +119,7 @@ public class FontCache
     * @param f A <code>Font</code> which may not be in the cache.
     * @return The <code>Font</code> in the cache that matches <code>f</code>'s
     *    font characteristics, if it exists, else <code>null</code>.
-    * @since 0.9.2
+    * @since 0.10.0
     */
    public Font findFont(Font f)
    {

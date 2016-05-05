@@ -5,7 +5,7 @@ package net.sf.jett.test.model;
  * Ticket 57.
  *
  * @author Randy Gettman
- * @since 0.9.2
+ * @since 0.10.0
  */
 public class WorkOrder
 {

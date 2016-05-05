@@ -31,6 +31,7 @@
                 <li><a href="hide.html">&lt;jt:hideSheet&gt;</a></li>
                 <li><a href="hyperlink.html">&lt;jt:hyperlink&gt;</a></li>
                 <li><a href="if.html">&lt;jt:if&gt;</a></li>
+                <li><a href="image.html">&lt;jt:image&gt;</a></li>
                 <li><a href="multiForEach.html">&lt;jt:multiForEach&gt;</a></li>
                 <li><a href="name.html">&lt;jt:name&gt;</a></li>
                 <li><a href="null.html">&lt;jt:null&gt;</a></li>

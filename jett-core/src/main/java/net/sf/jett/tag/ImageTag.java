@@ -35,15 +35,16 @@ import net.sf.jett.util.AttributeUtil;
  * <li>rows (optional): <code>int</code></li>
  * <li>cols (optional): <code>int</code></li>
  * <li>pathname (required): <code>String</code></li>
- * <li>type (optional): <code>String</code></li>
+ * <li>type (optional): <code>String</code>
  *     <ul>
- *     <li><em>png</em> The image is a PNG.</li>
+ *     <li><em>png</em> The image is a PNG. (default)</li>
  *     <li><em>jpeg</em> The image is a JPG.</li>
  *     <li><em>dib</em> The image is a device-independent bitmap (or a .bmp).</li>
  *     <li><em>pict</em> The image is a Mac PICT.</li>
  *     <li><em>wmf</em> The image is a Windows Metafile.</li>
  *     <li><em>emf</em> The image is an enhanced Windows Metafile.</li>
  *     </ul>
+ *     </li>
  * </ul>
  *
  * @author Randy Gettman

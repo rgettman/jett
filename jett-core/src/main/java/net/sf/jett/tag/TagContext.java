@@ -242,7 +242,7 @@ public class TagContext
     * track of adjusted cell references in all loop levels is vital.
     * @return The formula suffix, e.g. "[1,0][2,1]".  This would
     *    be read as loop 1, iteration 0, subloop 2, iteration 1.
-    * @since 0.9.2
+    * @since 0.10.0
     */
    public String getFormulaSuffix()
    {
@@ -254,7 +254,7 @@ public class TagContext
     * track of adjusted cell references in all loop levels is vital.
     * @param formulaSuffix The formula suffix, e.g. "[1,0][2,1]".  This would
     *    be read as loop 1, iteration 0, subloop 2, iteration 1.
-    * @since 0.9.2
+    * @since 0.10.0
     */
    public void setFormulaSuffix(String formulaSuffix)
    {
