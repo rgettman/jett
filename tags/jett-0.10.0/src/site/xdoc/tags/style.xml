@@ -1,0 +1,586 @@
+<document>
+    <properties>
+        <author email="rgettman@users.sourceforge.net">Randy Gettman</author>
+        <title>Style Tag</title>
+    </properties>
+    <body>
+        <section name="The Style Tag">
+            <p>Normally, JETT preserves Excel formatting and styling as much as possible during
+            transformation.  Static Excel formatting and styling can be done with Excel itself in
+            the template spreadsheet.  However, to style a cell dynamically, JETT provides the
+            "style" tag.  It alters whatever styling and formatting properties exist in the Cells
+            in its block.  This tag was designed to look similar to in-line CSS styling in HTML.
+            Style tags must have a body.</p>
+            <p>Multiple properties may be specified, separated by semicolons, e.g.
+            <code>style="font-weight: bold; font-height-in-points: 20"</code>.</p>
+            <h1>Attributes</h1>
+            <ul>
+                <li>The "style" tag supports all <a href="basics.html">base tag attributes</a>.</li>
+                <li><strong>style: String</strong> Optional.  This attribute works like the "style"
+                    attribute in HTML, in that one can specify one or more style elements in a
+                    <code>property: value;property: value</code> style.  If a property is
+                    specified, then it will override whatever value is already present in the
+                    <code>Cell</code>.  If a property value is an empty string or the property is
+                    not present, then it will be ignored and it will not override whatever value is
+                    already present in the <code>Cell</code>.  Unrecognized property names and
+                    unrecognized values for a property are ignored and do not override whatever
+                    value is already present in the <code>Cell</code>.  Property names and values
+                    may be specified in a case insensitive-fashion, i.e. "CENTER" = "Center" =
+                    "center".</li>
+                <li><strong>class: String</strong> Optional.  This attribute works like the "class"
+                    attribute in HTML, in that one can specify one or more pre-defined
+                    <em>style classes</em> that contain style elements to apply, in a
+                    semicolon-delimited list of class names.  Style classes are defined in CSS-like
+                    files that are registered with the <code>ExcelTransformer</code> prior to
+                    transformation, with the <code>addCssFile(String filename)</code> or
+                    <code>addCssText(String cssText)</code> methods.  Each subsequent class name
+                    overrides the previous class name.  The <code>style</code> attribute overrides
+                    any class specified here.</li>
+            </ul>
+            <h1>Properties</h1>
+            <p>The following properties control alignment, borders, colors, etc., everything but
+            the font characteristics.</p>
+            <ul>
+                <li><code>alignment</code> - Controls horizontal alignment, with one of the
+                    <a href="#alignment_values">values</a> taken from
+                    <code>Alignment.toString()</code>.</li>
+                <li><code>border</code> - Controls all 4 borders for the cell, with one
+                    of the <a href="#border_values">values</a> taken from
+                <code>BorderType.toString()</code>.</li>
+                <li><code>border-bottom</code> - Controls the bottom border for the cell,
+                    with one of the <a href="#border_values">values</a> taken from
+                    <code>BorderType.toString()</code>.</li>
+                <li><code>border-left</code> - Controls the left border for the cell,
+                    with one of the <a href="#border_values">values</a> taken from
+                    <code>BorderType.toString()</code>.</li>
+                <li><code>border-right</code> - Controls the right border for the cell,
+                    with one of the <a href="#border_values">values</a> taken from
+                    <code>BorderType.toString()</code>.</li>
+                <li><code>border-top</code> - Controls the top border for the cell,
+                    with one of the <a href="#border_values">values</a> taken from
+                    <code>BorderType.toString()</code>.</li>
+                <li><code>border-color</code> - Controls the
+                    <a href="#border_color_values">color</a> of all 4 borders for
+                    the cell, with a hex value ("#rrggbb") or one of 48 Excel-based color
+                    names defined by <code>ExcelColor.toString()</code>.  For ".xls" files,
+                    if a hex value is supplied, then the supported color name that is closest
+                    to the given value is used.</li>
+                <li><code>bottom-border-color</code> - Controls the
+                    <a href="#border_color_values">color</a> of the bottom
+                    border for the cell, with a hex value ("#rrggbb") or one of the above 48
+                    color names mentioned above.</li>
+                <li><code>left-border-color</code> - Controls the
+                    <a href="#border_color_values">color</a> of the left
+                    border for the cell, with a hex value ("#rrggbb") or one of the above 48
+                    color names mentioned above.</li>
+                <li><code>right-border-color</code> - Controls the
+                    <a href="#border_color_values">color</a> of the right
+                    border for the cell, with a hex value ("#rrggbb") or one of the above 48
+                    color names mentioned above.</li>
+                <li><code>top-border-color</code> - Controls the
+                    <a href="#border_color_values">color</a> of the top
+                    border for the cell, with a hex value ("#rrggbb") or one of the above 48
+                    color names mentioned above.</li>
+                <li><code>column-width-in-chars</code> - Controls the
+                    <a href="#column_width_in_chars_values">width</a> of the cell's
+                    column, in number of characters.</li>
+                <li><code>data-format</code> - Controls the Excel
+                    <a href="#data_format_values">numeric or date format string</a>.</li>
+                <li><code>fill-background-color</code> - Controls the
+                    <a href="#fill_colors_values">background color</a>
+                    of the fill pattern, with one of the color values mentioned above.</li>
+                <li><code>fill-foreground-color</code> - Controls the
+                    <a href="#fill_colors_values">foreground color</a>
+                    of the fill pattern, with one of the color values mentioned above.</li>
+                <li><code>fill-pattern</code> - Controls the
+                    <a href="#fill_pattern_values">fill pattern</a>, with one of
+                    the values taken from <code>FillPattern.toString()</code>:</li>
+                <li><code>hidden</code> - Controls the <a href="#hidden_values">hidden</a> property
+                    with a <code>true</code> or <code>false</code> value.</li>
+                <li><code>indention</code> - Controls the
+                    <a href="#indention_values">number of characters</a> that the
+                    text is indented.</li>
+                <li><code>locked</code> - Controls the <a href="#locked_values">locked</a> property
+                    with a <code>true</code> or <code>false</code> value.</li>
+                <li><code>rotation</code> - Controls the <a href="#rotation_values">number of
+                    degrees</a> the text is rotated, from -90 to +90, or <code>ROTATION_STACKED</code>
+                    for stacked text.</li>
+                <li><code>row-height-in-points</code> - Controls the
+                    <a href="#row_height_in_points_values">height</a> of the cell's row, in points.</li>
+                <li><code>vertical-alignment</code> - Controls horizontal alignment, with
+                    one of the <a href="#vertical_alignment_values">values</a> taken from
+                    <code>VerticalAlignment.toString()</code>:</li>
+                <li><code>wrap-text</code> - Controls whether long text values are
+                    <a href="#wrap_text_values">wrapped</a> onto the next physical line with a
+                    cell, with a <code>true</code> or <code>false</code> value.</li>
+             </ul>
+             <p>The following properties control the font characteristics.</p>
+             <ul>
+                <li><code>font-weight</code> - Controls how <strong>bold</strong> the text appears,
+                    with the <a href="#font_weight_values">values</a> taken from
+                    <code>FontBoldweight.toString()</code>.</li>
+                <li><code>font-charset</code> - Controls the character set, with the
+                    <a href="#font_charset_values">values</a> taken from
+                    <code>Charset.toString()</code>.</li>
+                <li><code>font-color</code> - Controls the <a href="#font_color_values">color</a>
+                    of the text, with a hex value ("#rrggbb") or one of the color names mentioned
+                    above.</li>
+                <li><code>font-height-in-points</code> - Controls the font
+                    <a href="#font_height_in_points_values">height</a>, in points.</li>
+                <li><code>font-name</code> - Controls the font
+                    <a href="#font_name_values">name</a>, e.g. "Arial".</li>
+                <li><code>font-italic</code> - Controls whether the text is <em>italic</em>, with a
+                    <code>true</code> or <code>false</code>
+                    <a href="#font_italic_values">value</a>.</li>
+                <li><code>font-strikeout</code> - Controls whether the text is
+                    <span style="text-decoration: line-through">strikeout</span>, with a
+                    <code>true</code> or <code>false</code>
+                    <a href="#font_strikeout_values">value</a>.</li>
+                <li><code>font-type-offset</code> - Controls the text offset, e.g.
+                    <sup>superscript</sup> and <sub>subscript</sub>, with the
+                    <a href="#font_type_offset_values">values</a> taken from
+                    <code>FontTypeOffset.toString()</code>.</li>
+                <li><code>font-underline</code> - Controls whether and how the text is
+                    <span style="text-decoration: underline">underlined</span>, with the
+                    <a href="#font_underline_values">values</a> taken from
+                    <code>Underline.toString()</code>.</li>
+             </ul>
+            <h1>CSS Files</h1>
+            <p>CSS Files in JETT work similarly to CSS files in HTML -- supply class names, along
+            with properties and values inside braces:</p>
+            <source>
+.redBoxCenter
+{
+   border: thin;
+   border-color: red;
+   alignment: center;
+}
+.blueBoldBigText
+{
+   font-color: blue;
+   font-weight: bold;
+   font-height-in-points: 24;
+}
+            </source>
+            <p>However, JETT only recognizes class selectors, and the properties must be taken from
+            the list of JETT style properties defined above.</p>
+            <p>To use classes defined in a CSS file, register the CSS file with the
+            <code>ExcelTransformer</code> prior to transformation.</p>
+            <source>
+excelTransformer.addCssFile("styles.css");
+            </source>
+            <p>Alternatively, supply CSS text directly to the <code>ExcelTransformer</code>.</p>
+            <source>
+String cssTextString = ".redBoxCenter {border: thin; border-color: red; alignment: center;} " +
+                       ".blueBoldBigText {font-color: blue; font-weight: bold; font-height-in-points: 24;}";
+excelTransformer.addCssText(cssTextString);
+            </source>
+        </section>
+        <section name="Property Values">
+            <p>Each property has its own set of values that it recognizes in a case insensitive
+            fashion.  If a value is empty or it is unrecognized, then it has no effect.</p>
+            <a id="alignment_values"/>
+            <h1>The alignment property</h1>
+            <p>These values control how text is aligned horizontally within the cells.</p>
+            <table style="width: 750 px;">
+                <tr>
+                    <td class="bold" style="width: 100px;">Value</td>
+                    <td class="bold" style="width: 200px;">Example</td>
+                    <td class="bold" style="width: 450px;">Description</td>
+                </tr>
+                <tr>
+                    <td style="width: 100px;">center</td>
+                    <td style="width: 200px; text-align: center;">Centered Text</td>
+                    <td style="width: 450px;">Content is centered horizontally.</td>
+                </tr>
+                <tr>
+                    <td style="width: 100px;">centerSelection</td>
+                    <td style="width: 200px; text-align: center;">Center Selection Text</td>
+                    <td style="width: 450px;">Content is centered horizontally across a selection.
+                    This has more meaning in Excel itself when one can center text across multiple
+                    cells.</td>
+                </tr>
+                <tr>
+                    <td style="width: 100px;">distributed</td>
+                    <td style="width: 200px; text-align: justify;">This sentence, long enough to
+                    cover 2 lines, is distributed text.</td>
+                    <td style="width: 450px;">Content is distributed horizontally.  Content with
+                    multiple words yields content on the left edge and on the right edge of the
+                    cell.  This works like "justify" in CSS.</td>
+                </tr>
+                <tr>
+                    <td style="width: 100px;">fill</td>
+                    <td style="width: 200px;">Fill text Fill text Fill text Fill text Fill text</td>
+                    <td style="width: 450px;">With the "fill" value, content is repeated until it
+                    would run over the end of the cell.</td>
+                </tr>
+                <tr>
+                    <td style="width: 100px;">general</td>
+                    <td style="width: 200px;">General Text</td>
+                    <td style="width: 450px;">Content is not explicitly aligned; text is
+                    left-aligned and numbers are right-aligned.</td>
+                </tr>
+                <tr>
+                    <td style="width: 100px;">left</td>
+                    <td style="width: 200px; text-align: left">Left-Aligned Text</td>
+                    <td style="width: 450px;">Content is aligned to the left of the cell.</td>
+                </tr>
+                <tr>
+                    <td style="width: 100px;">right</td>
+                    <td style="width: 200px; text-align: right">Right-Aligned text.</td>
+                    <td style="width: 450px;">Content is aligned to the right of the cell.</td>
+                </tr>
+            </table>
+            <a id="border_values"/>
+            <h1>The border properties</h1>
+            <p>These values control the type of cell border, for the properties "border",
+            "border-bottom", "border-left", "border-right", and "border-top".</p>
+            <ul>
+                <li><code>none</code> No border.</li>
+                <li><code>thin</code> A thin border.</li>
+                <li><code>medium</code> A medium-sized border.</li>
+                <li><code>dashed</code> A thin dashed border.</li>
+                <li><code>hair</code> A "hair" border, somewhere in between "dashed" and "dotted".</li>
+                <li><code>thick</code> A thick border.</li>
+                <li><code>double</code> A double border.</li>
+                <li><code>dotted</code> A thin dotted border.</li>
+                <li><code>mediumdashed</code> A medium-sized dashed border.</li>
+                <li><code>dashdot</code> A thin border with a dash-dot pattern.</li>
+                <li><code>mediumdashdot</code> A medium-sized border with a dash-dot pattern.</li>
+                <li><code>dashdotdot</code> A thin border with a dash-dot-dot pattern.</li>
+                <li><code>mediumdashdotdot</code> A medium-sized border with a dash-dot-dot
+                    pattern.</li>
+                <li><code>slanteddashdot</code> A medium-sized border with a slatned dash-dot
+                    pattern.</li>
+            </ul>
+            <p>Here are examples of all the above values.</p>
+            <img src="../images/result_style_border.gif" alt="Borders Results"/>
+            <a id="border_color_values"/>
+            <h1>The border-color properties</h1>
+            <p>These values control the color of the cell border, for the properties
+            "border-color", "bottom-border-color", "left-border-color", "right-border-color", and
+            "top-border-color".</p>
+            <p>Any colors specified in the style tag can take one of two forms:</p>
+            <a id="color_values"/>
+            <ul>
+                <li>One of 48 pre-defined Excel color names identifying the desired color.  These
+                color names do NOT necessarily match the color names defined in HTML.</li>
+                <table style="width: 750px">
+                    <tr>
+                        <td style="width: 150px; background-color: rgb(51, 204, 204)">aqua</td>
+                        <td style="width: 150px; background-color: rgb(0, 0, 0); color: white">automatic</td>
+                        <td style="width: 150px; background-color: rgb(0, 0, 0); color: white">black</td>
+                        <td style="width: 150px; background-color: rgb(0, 0, 255); color: white">blue</td>
+                        <td style="width: 150px; background-color: rgb(102, 102, 153)">bluegrey</td>
+                        <td style="width: 150px; background-color: rgb(0, 255, 0)">brightgreen</td>
+                    </tr>
+                    <tr>
+                        <td style="width: 150px; background-color: rgb(153, 51, 0)">brown</td>
+                        <td style="width: 150px; background-color: rgb(255, 128, 128)">coral</td>
+                        <td style="width: 150px; background-color: rgb(153, 153, 255)">cornflowerblue</td>
+                        <td style="width: 150px; background-color: rgb(0, 0, 128); color: white">darkblue</td>
+                        <td style="width: 150px; background-color: rgb(0, 51, 0); color: white">darkgreen</td>
+                        <td style="width: 150px; background-color: rgb(128, 0, 0); color: white">darkred</td>
+                    </tr>
+                    <tr>
+                        <td style="width: 150px; background-color: rgb(0, 51, 102); color: white">darkteal</td>
+                        <td style="width: 150px; background-color: rgb(128, 128, 0); color: white">darkyellow</td>
+                        <td style="width: 150px; background-color: rgb(255, 204, 0)">gold</td>
+                        <td style="width: 150px; background-color: rgb(0, 128, 0); color: white">green</td>
+                        <td style="width: 150px; background-color: rgb(192, 192, 192)">grey25percent</td>
+                        <td style="width: 150px; background-color: rgb(150, 150, 150)">grey40percent</td>
+                    </tr>
+                    <tr>
+                        <td style="width: 150px; background-color: rgb(128, 128, 128)">grey50percent</td>
+                        <td style="width: 150px; background-color: rgb(51, 51, 51); color: white">grey80percent</td>
+                        <td style="width: 150px; background-color: rgb(51, 51, 153); color: white">indigo</td>
+                        <td style="width: 150px; background-color: rgb(204, 153, 255)">lavender</td>
+                        <td style="width: 150px; background-color: rgb(255, 255, 204)">lemonchiffon</td>
+                        <td style="width: 150px; background-color: rgb(51, 102, 255)">lightblue</td>
+                    </tr>
+                    <tr>
+                        <td style="width: 150px; background-color: rgb(204, 204, 255)">lightcornflowerblue</td>
+                        <td style="width: 150px; background-color: rgb(204, 255, 204)">lightgreen</td>
+                        <td style="width: 150px; background-color: rgb(255, 153, 0);">lightorange</td>
+                        <td style="width: 150px; background-color: rgb(204, 255, 255)">lightturquoise</td>
+                        <td style="width: 150px; background-color: rgb(255, 255, 153)">lightyellow</td>
+                        <td style="width: 150px; background-color: rgb(153, 204, 0)">lime</td>
+                    </tr>
+                    <tr>
+                        <td style="width: 150px; background-color: rgb(128, 0, 0); color: white">maroon</td>
+                        <td style="width: 150px; background-color: rgb(51, 51, 0); color: white">olivegreen</td>
+                        <td style="width: 150px; background-color: rgb(255, 102, 0);">orange</td>
+                        <td style="width: 150px; background-color: rgb(102, 0, 102); color: white">orchid</td>
+                        <td style="width: 150px; background-color: rgb(153, 204, 255)">paleblue</td>
+                        <td style="width: 150px; background-color: rgb(255, 0, 255)">pink</td>
+                    </tr>
+                    <tr>
+                        <td style="width: 150px; background-color: rgb(153, 51, 102)">plum</td>
+                        <td style="width: 150px; background-color: rgb(255, 0, 0)">red</td>
+                        <td style="width: 150px; background-color: rgb(255, 102, 204);">rose</td>
+                        <td style="width: 150px; background-color: rgb(0, 102, 204)">royalblue</td>
+                        <td style="width: 150px; background-color: rgb(51, 153, 102)">seagreen</td>
+                        <td style="width: 150px; background-color: rgb(0, 204, 255)">skyblue</td>
+                    </tr>
+                    <tr>
+                        <td style="width: 150px; background-color: rgb(255, 204, 153)">tan</td>
+                        <td style="width: 150px; background-color: rgb(0, 128, 128)">teal</td>
+                        <td style="width: 150px; background-color: rgb(0, 255, 255);">turquoise</td>
+                        <td style="width: 150px; background-color: rgb(128, 0, 128); color: white">violet</td>
+                        <td style="width: 150px; background-color: rgb(255, 255, 255)">white</td>
+                        <td style="width: 150px; background-color: rgb(255, 255, 0)">yellow</td>
+                    </tr>
+                </table>
+                <li>A hex-string color value, in the format "#RRGGBB", e.g. "#000000" for black,
+                "#FFFFFF" for white, and "#0000FF" for blue.  For .xls spreadsheets, the closest
+                of the 48 pre-defined Excel colors is used.</li>
+            </ul>
+            <p>Here are examples of some of the above values.</p>
+            <img src="../images/result_style_border_color.gif"/>
+            <a id="column_width_in_chars_values"/>
+            <h1>The column-width-in-chars property</h1>
+            <p>These floating-point values control the width of the column in which the cell is
+            found, in number of characters.  This controls the width of the entire column, and all
+            cells in it, not just the cell in which this is found.</p>
+            <a id="data_format_values"/>
+            <h1>The data-format property</h1>
+            <p>These values control how the data in the cell is formatted.  One can control zeroes
+            beyond the decimal point, thousands separators, percentages, fractions, date and time
+            formatting, and more.  Any data format string that can be typed into Excel can be used
+            here.  Here are some examples that format the number "42140.629247":</p>
+            <ul>
+                <li><code>#,###.00</code> => 41,240.63</li>
+                <li><code>0.00%</code> => 4124062.92%</li>
+                <li><code>???.???</code> => 41240.629</li>
+                <li><code>[Red][&lt;=100]General\\;[Blue][>100]General</code> =>
+                    <span style="color: blue">41240.62925</span></li>
+                <li><code>## ???/???</code> => 41240 426/677</li>
+                <li><code>yyyy-mm-dd hh:mm:ss</code> => 2012-11-27 15:06:07</li>
+                <li><code>mmmm d, yyyy h:mm:ss AM/PM</code> => November 27, 2012 3:06:07 PM</li>
+            </ul>
+            <p>The semicolon in the red/blue example above needs to be escaped, so that the
+            <code>StyleTag</code> doesn't interpret that as the end of the key-value pair.  Then
+            Java requires that the backslash is itself escaped.</p>
+            <a id="fill_colors_values"/>
+            <h1>The fill-background-color and fill-foreground color properties</h1>
+            <p>These values control the background and foreground colors that are used when a fill
+            pattern is applied.  Colors may be <a href="#color_values">specified in the same
+            way</a> as for the "border-color" properties (see above).  These only take effect in
+            Excel when the fill pattern is not "nofill".</p>
+            <a id="fill_pattern_values"/>
+            <h1>The fill-pattern property</h1>
+            <p>These values define a pattern that is visible behind any text or value in a cell.
+            The pattern is colored using the "fill-background-color" and "fill-foreground-color"
+            properties.</p>
+            <ul>
+                <li><code>nofill</code> - No pattern fill.  Background and forground color settings
+                    have no effect.  This is the default.</li>
+                <li><code>solid</code> - Solid foreground color.</li>
+                <li><code>gray50percent</code> - The pixels alternate between the background and
+                    foreground colors.</li>
+                <li><code>gray75percent</code> - In a pattern, 75% of the pixels are the foreground
+                    color; the rest are the background color.</li>
+                <li><code>gray25percent</code> - In a pattern, 25% of the pixels are the foreground
+                    color; the rest are the background color.</li>
+                <li><code>horizontalstripe</code> - Horizontal stripe pattern.</li>
+                <li><code>verticalstripe</code> - Vertical stripe pattern.</li>
+                <li><code>reversediagonalstripe</code> - Diagonal stripe pattern, going from the
+                    upper-left to the lower-right.</li>
+                <li><code>diagonalstripe</code> - Diagonal stripe pattern, going from the
+                    lower-left to the upper-right.</li>
+                <li><code>diagonalcrosshatch</code> - Diagonal crosshatch pattern.</li>
+                <li><code>thickdiagonalcrosshatch</code> - Diagonal crosshatch pattern, using
+                    mostly the foreground color.</li>
+                <li><code>thinhorizontalstripe</code> - Thin horizontal stripe pattern; mostly the
+                    background color shows.</li>
+                <li><code>thinverticalstripe</code> - Thin vertical stripe pattern; mostly the
+                    background color shows.</li>
+                <li><code>thinreversediagonalstripe</code> - Thin diagonal stripe pattern, going
+                    from the upper-left to the lower-right; mostly the background color shows.</li>
+                <li><code>thindiagonalstripe</code> - Thin diagonal stripe pattern, going from the
+                    lower-left to the upper-right; mostly the background color shows.</li>
+                <li><code>thinhorizontalcrosshatch</code> - Thin horizontal and vertical crosshatch
+                    pattern; mostly the background color shows.</li>
+                <li><code>thindiagonalcrosshatch</code> - Thin diagonal crosshatch pattern; mostly
+                    the background color shows.</li>
+                <li><code>gray12percent</code> - In a pattern, 12.5% of the pixels are the
+                    foreground color; the rest are the background color.</li>
+                <li><code>gray6percent</code> - In a pattern, 6.25% of the pixels are the
+                    foreground color; the rest are the background color.</li>
+            </ul>
+            <p>Here are examples of all the above values.</p>
+            <img src="../images/result_style_fill_pattern.gif"/>
+            <a id="hidden_values"/>
+            <h1>The hidden property</h1>
+            <p>These values determine whether the cell is "hidden", which only has an effect if the
+            workbook is "protected".</p>
+            <ul>
+                <li><code>true</code> - This cell is "hidden".  Users cannot see the formula or
+                    edit the cell.  This has no effect if the spreadsheet is not "protected".</li>
+                <li><code>false</code> - This cell is not "hidden".  This is the default.</li>
+            </ul>
+            <a id="indention_values"/>
+            <h1>The indention property</h1>
+            <p>These values determine by how many characters the cell text is indented.</p>
+            <table style="width: 300 px;">
+                <tr>
+                    <td class="bold" style="width: 100px;">Value</td>
+                    <td class="bold" style="width: 200px;">Example</td>
+                </tr>
+                <tr>
+                    <td style="width: 100px;">0</td>
+                    <td style="width: 200px; text-indent: 0px;">Indented 0 characters</td>
+                </tr>
+                <tr>
+                    <td style="width: 100px;">1</td>
+                    <td style="width: 200px; text-indent: 10px;">Indented 1 character</td>
+                </tr>
+                <tr>
+                    <td style="width: 100px;">3</td>
+                    <td style="width: 200px; text-indent: 30px;">Indented 3 characters</td>
+                </tr>
+                <tr>
+                    <td style="width: 100px;">10</td>
+                    <td style="width: 200px; text-indent: 70px;">Indented 10 characters</td>
+                </tr>
+            </table>
+            <a id="locked_values"/>
+            <h1>The locked property</h1>
+            <p>These values determine whether the cell is "locked", which only has an effect if the
+            workbook is "protected".</p>
+            <ul>
+                <li><code>true</code> - This cell is "locked".  It appears that all cells are
+                    "locked" by default in Excel.  This has no effect if the spreadsheet is not
+                    "protected".</li>
+                <li><code>false</code> - This cell is not "locked".</li>
+            </ul>
+            <a id="rotation_values"/>
+            <h1>The rotation property</h1>
+            <p>These values (-90 to 90) represent the number of degrees to rotate the text of the
+            cell.  Normal text is represented by 0 degrees (the default).  Negative numbers rotate
+            the text clockwise, and positive numbers rotate the text counter-clockwise.  Use the
+            special value "255" to make the cell text stacked (letters oriented as normal, but one
+            letter is on top of the next).</p>
+            <p>Here are some examples of this property:</p>
+            <img src="../images/result_style_rotation.gif"/>
+            <a id="row_height_in_points_values"/>
+            <h1>The row-height-in-points property</h1>
+            <p>These floating-point values control the height of the row in which the cell is
+            found, in points.  This controls the height of the entire row, and all cells in it, not
+            just the cell in which this is found.</p>
+            <a id="vertical_alignment_values"/>
+            <h1>The vertical-alignment property</h1>
+            <p>These values control how text is aligned vertically within the cells.</p>
+            <ul>
+                <li><code>bottom</code> - Align cell text at the bottom of the cell.</li>
+                <li><code>center</code> - Align cell text at the middle of the cell.</li>
+                <li><code>distributed</code> - Vertically distribute text in the cell.</li>
+                <li><code>justify</code> - Vertically justify text in the cell.</li>
+                <li><code>top</code> - Align cell text at the top of the cell.</li>
+            </ul>
+            <img src="../images/result_style_vertical_alignment.gif" />
+            <a id="wrap_text_values"/>
+            <h1>The wrap-text property</h1>
+            <p>These values control whether text is wrapped onto the next line within the cell or
+            not.  If not, then overflowing text runs on into the next cell (or is cut off if the
+            next cell has its own content).</p>
+            <ul>
+                <li><code>true</code> - Wrap long content onto the next logical line in the cell.</li>
+                <li><code>false</code> - Don't wrap long content onto the next logical line in the
+                    cell.  This is the default.  Content will "spill over" into the next cell, or
+                    if the next cell has its own content, then it will be cut off.</li>
+            </ul>
+            <p>Here are some examples.</p>
+            <img src="../images/result_style_wrap_text.gif" />
+            <a id="font_weight_values"/>
+            <h1>The font-weight property</h1>
+            <p>These values control how <strong>bold</strong> the cell content appears.</p>
+            <ul>
+                <li><code>bold</code> - The text appears <strong>bold</strong>.</li>
+                <li><code>normal</code> - The text appears normal.  This is the default.</li>
+            </ul>
+            <a id="font_charset_values"/>
+            <h1>The font-charset property</h1>
+            <p>These values determine the Excel character set of the content in the cell.</p>
+            <ul>
+                <li><code>ansi</code></li>
+                <li><code>default</code></li>
+                <li><code>symbol</code></li>
+                <li><code>mac</code></li>
+                <li><code>shiftjis</code></li>
+                <li><code>hangeul</code></li>
+                <li><code>johab</code></li>
+                <li><code>gb2312</code></li>
+                <li><code>chinesebig5</code></li>
+                <li><code>greek</code></li>
+                <li><code>turkish</code></li>
+                <li><code>vietnamese</code></li>
+                <li><code>hebrew</code></li>
+                <li><code>arabic</code></li>
+                <li><code>baltic</code></li>
+                <li><code>russian</code></li>
+                <li><code>thai</code></li>
+                <li><code>easteurope</code></li>
+                <li><code>oem</code></li>
+            </ul>
+            <a id="font_color_values"/>
+            <h1>The font-color property</h1>
+            <p>These values control the color of the text content of the cell.  Colors may be
+            <a href="#color_values">specified in the same way</a> as for the "border-color"
+            properties (see above).</p>
+            <a id="font_height_in_points_values"/>
+            <h1>The font-height-in-points property</h1>
+            <p>These floating-point values control the size of the font being used for the text in
+            the cell.</p>
+            <img src="../images/result_style_font_height_in_points.gif"/>
+            <a id="font_name_values"/>
+            <h1>The font-name property</h1>
+            <p>These font name string values control the font used for the text in the cell.</p>
+            <p>Here are some examples:</p>
+            <ul>
+                <li><code>Arial</code> - <span style="font-family: Arial">Arial</span></li>
+                <li><code>Courier New</code> - <span style="font-family: 'Courier New'">Courier New</span></li>
+                <li><code>Tahoma</code> - <span style="font-family: Tahoma">Tahoma</span></li>
+                <li><code>Times New Roman</code> - <span style="font-family: 'Times New Roman'">Times New Roman</span></li>
+                <li><code>Verdana</code> - <span style="font-family: Verdana">Verdana</span></li>
+            </ul>
+            <a id="font_italic_values"/>
+            <h1>The font-italic property</h1>
+            <p>These values control whether the text renders in <em>italic</em>.</p>
+            <ul>
+                <li><code>true</code> - Text is rendered <em>italic</em>.</li>
+                <li><code>false</code> - Text is rendered normal.  This is the default.</li>
+            </ul>
+            <a id="font_strikeout_values"/>
+            <h1>The font-strikeout property</h1>
+            <p>These values control whether the text renders in
+            <span style="text-decoration: line-through">strikeout</span>.</p>
+            <ul>
+                <li><code>true</code> - Text is rendered
+                    <span style="text-decoration: line-through">strikeout</span>.</li>
+                <li><code>false</code> - Text is rendered normal.  This is the default.</li>
+            </ul>
+            <a id="font_type_offset_values"/>
+            <h1>The font-type-offset property</h1>
+            <p>These values control whether the text renders as subscript or superscript.</p>
+            <ul>
+                <li><code>none</code> - Text is rendered normal.  This is the default.</li>
+                <li><code>sub</code> - Text is rendered in <sub>subscript</sub>.</li>
+                <li><code>sup</code> - Text is rendered in <sup>superscript</sup>.</li>
+            </ul>
+            <a id="font_underline_values"/>
+            <h1>The font-underline property</h1>
+            <p>These values control whether the text is
+            <span style="text-decoration: underline">underlined</span>.</p>
+            <ul>
+                <li><code>single</code> - A single underline.</li>
+                <li><code>double</code> - A double underline.</li>
+                <li><code>singleaccounting</code> - A single underline, accounting style.</li>
+                <li><code>doubleaccounting</code> - A double underline, accounting style.</li>
+                <li><code>none</code> - No underline.  This is the default.</li>
+            </ul>
+            <p>Here are some examples:</p>
+            <img src="../images/result_style_underline.gif"/>
+        </section>
+    </body>
+</document>

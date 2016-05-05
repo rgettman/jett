@@ -1,0 +1,52 @@
+<document>
+    <properties>
+        <author email="rgettman@users.sourceforge.net">Randy Gettman</author>
+        <title>Name Tag</title>
+    </properties>
+    <body>
+        <section name="The Name Tag">
+            <p>During transformation, Excel named ranges may have their reference formulas changed
+            using the "name" tag. This tag must be used in the bodiless form.  When processed, the
+            "name" tag associates the given named range with a
+            <a href="../expressions/jett_formulas.html">JETT formula</a>.  After transformation is
+            complete, JETT formula processing recognizes that a named range is associated with the
+            JETT formula, and it replaces the named range's formula with the proper Excel formula
+            generated based on the JETT formula.  The "name" tag is used in an otherwise blank
+            cell, and the end result is that the cell that contained the "name" tag is cleared of
+            content.</p>
+            <h1>Attributes</h1>
+            <ul>
+                <li>The "name" tag supports all <a href="basics.html">base tag attributes</a>.</li>
+                <li><strong>name: String</strong> Required.  This is the name of the named range.</li>
+                <li><strong>preferWorkbookScope: boolean</strong> Optional.  Excel supports the
+                    concept of scope for named ranges, allowing the same named range name on
+                    different scopes.  A scope can be for the entire workbook or for one particular
+                    sheet.  A value of <code>true</code> here means that JETT will find a named
+                    range in the workbook scope over one scoped to the sheet on which this tag is
+                    found.  The default value is <code>false</code>, to prefer a named range scoped
+                    to the current sheet over one scoped to the workbook.</li>
+                <li><strong>formula: String</strong> Required.  A JETT formula (e.g. "$[SUM(B2)]")
+                    that is to be associated with the given named range.</li>
+            </ul>
+        </section>
+        <section name="Example">
+            <p>This example demonstrates how "name" tags work with named ranges and charts.  The
+            chart has its series ranges referring to named ranges.  The "name" tags associate a
+            JETT formula with the named ranges that are used by the chart.</p>
+            <p>Here is the template.</p>
+            <img src="../images/template_name1.gif" alt="Names Template"/>
+            <p>The chart has one series, and its values are taken from "Employees!employee_salaries".
+            The x-axis values are taken from "Employees!employee_names".  Note that it doesn't
+            matter what the named ranges refer to in the template, because the "name" tags will
+            cause their ranges to be overwritten by the JETT formulas.  But it does matter that
+            the named ranges are created in the template.  The "name" tag won't create a named
+            range; it will only modify the formula for an existing named range.</p>
+            <p>This template gets transformed into...</p>
+            <img src="../images/result_name1.gif" alt="Names Result"/>
+            <p>No complicated "offset" formulas are needed to fool Excel into taking the proper
+            ranges for the chart.  There is no need to hard-code the number of rows into the chart
+            series.  Here are the named ranges in the resultant spreadsheet:</p>
+            <img src="../images/result_name2.gif" alt="Named Ranges"/>
+        </section>
+    </body>
+</document>

@@ -1,0 +1,76 @@
+<document>
+    <properties>
+        <author email="rgettman@users.sourceforge.net">Randy Gettman</author>
+        <title>For Tag</title>
+    </properties>
+    <body>
+        <section name="The For Tag">
+            <p>The "for" tag is a <a href="looping.html">looping tag</a> that allows looping
+            between certain values with an optional increment value.  This tag must contain a body.</p>
+            <h1>Attributes</h1>
+            <ul>
+                <li>The "for" tag supports all <a href="basics.html">base tag attributes</a>.</li>
+                <li>The "for" tag supports all <a href="looping.html">looping tag attributes</a>.
+                The <strong>varStatus</strong> attribute, exposes an object that, in addition to what
+                all <a href="looping.html">looping tags</a> already expose, exposes additional
+                "int" properties, "start", "end", and "step", as set by the corresponding
+                attributes below.</li>
+                <li><strong>start: int</strong> Required.  This is the starting value.</li>
+                <li><strong>end: int</strong> Required.  This is the ending value.  The loop
+                processing will terminate when it has passed this value.</li>
+                <li><strong>var: String</strong> Required.  This is the name of the variable that
+                is exposed in the beans map for reference in the loop.</li>
+                <li><strong>step: int</strong> Optional.  This specifies the increment to add
+                between loops.  It defaults to one, and it is an error for it to be zero.  However,
+                it can be negative.  It is possible to loop zero times if "start" is greater than
+                "end" and "step" is positive, or if "start" is less than "end" and "step" is
+                negative.  That is not an error.  In that case, the block is removed, and content
+                below is shifted up (or, content to the right is shifted left, depending on the
+                <a href="looping.html">"copyRight" attribute</a> value).</li>
+            </ul>
+        </section>
+        <section name="Example">
+            <table style="width: 500px;">
+                <tr>
+                    <td class="boldItalic" style="width: 300px;">x</td>
+                    <td class="boldItalic" style="width: 200px;">x<span class="sup">2</span></td>
+                </tr>
+                <tr>
+                    <td class="right" style="width: 300px;">&lt;jt:for start="10" end="0" step="-2" var="n"&gt;${n}</td>
+                    <td class="right" style="width: 200px; text-align: right;">${n * n}&lt;/jt:for&gt;</td>
+                </tr>
+            </table>
+            <p>...gets transformed into...</p>
+            <table style="width: 500px;">
+                <tr>
+                    <td class="boldItalic" style="width: 300px;">x</td>
+                    <td class="boldItalic" style="width: 200px;">x<span class="sup">2</span></td>
+                </tr>
+                <tr>
+                    <td class="right" style="width: 300px;">10</td>
+                    <td class="right" style="width: 200px;">100</td>
+                </tr>
+                <tr>
+                    <td class="right" style="width: 300px;">8</td>
+                    <td class="right" style="width: 200px;">64</td>
+                </tr>
+                <tr>
+                    <td class="right" style="width: 300px;">6</td>
+                    <td class="right" style="width: 200px;">36</td>
+                </tr>
+                <tr>
+                    <td class="right" style="width: 300px;">4</td>
+                    <td class="right" style="width: 200px;">16</td>
+                </tr>
+                <tr>
+                    <td class="right" style="width: 300px;">2</td>
+                    <td class="right" style="width: 200px;">4</td>
+                </tr>
+                <tr>
+                    <td class="right" style="width: 300px;">0</td>
+                    <td class="right" style="width: 200px;">0</td>
+                </tr>
+            </table>
+        </section>
+    </body>
+</document>

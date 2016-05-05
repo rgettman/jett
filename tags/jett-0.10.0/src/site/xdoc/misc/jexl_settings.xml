@@ -1,0 +1,68 @@
+<document>
+    <properties>
+        <author email="rgettman@users.sourceforge.net">Randy Gettman</author>
+        <title>JEXL Settings</title>
+    </properties>
+    <body>
+        <section name="JEXL Flags">
+            <p>JETT uses an internal "JEXL Engine", supplied by the Apache Commons JEXL library, to
+            evaluate the expressions.  The <code>ExcelTransformer</code> passes three flags through
+            to the JexlEngine, "silent", "lenient", and "debug".  The "silent" flag tells the
+            JexlEngine not to write errors to standard output.  The "lenient" flag tells the
+            JexlEngine to allow such things as converting nulls to zeroes, NullPointerExceptions to
+            null, etc. Otherwise, JEXL might throw an Exception or write a log message to standard
+            output. The "debug" flag, which by default is set in the JexlEngine, controls debug
+            information.  Turning off "debug" may improve the performance of the JexlEngine and
+            therefore the performance of JETT.</p>
+            <p>JETT exposes control of these flags through the following methods in the
+            <code>ExcelTransformer</code> class.</p>
+            <source>
+public void setLenient(boolean lenient);
+public void setSilent(boolean silent);
+public void setDebug(boolean debug);
+            </source>
+        </section>
+        <section name="JEXL Cache">
+            <p>The <code>ExcelTransformer</code> passes the "cache" parameter to its internal JEXL
+            Engine.  This parameter controls the size of the JEXL Engine's parse cache.  It will
+            cache the parse tree for a certain number of Expressions.  It is not a result cache;
+            even on a cache hit, it will still need to evaluate the Expression.  However, it won't
+            need to parse the Expression, unless it is aged out or memory concerns remove cache
+            entries.</p>
+            <p>JETT exposes the cache parameter through the following method in the
+            <code>ExcelTransformer</code> class.</p>
+            <source>
+public void setCache(int size);
+            </source>
+        </section>
+        <section name="Registering Functions in Custom Namespaces">
+            <p>It is possible to pass objects that represent custom functionality to the JEXL
+            Engine.  The JEXL Engine associates a namespace with the object, and the developer is
+            able to reference the custom functionality within Expressions.</p>
+            <source>
+ExcelTransformer transformer = new ExcelTransformer();
+transformer.registerFuncs("custom", new AnyObject());
+            </source>
+            <table style="width: 175px;">
+                <tr><td>${custom:method('custom method')}</td></tr>
+            </table>
+            <p>...gets transformed into...</p>
+            <table style="width: 175px;">
+                <tr><td>I am a custom method!</td></tr>
+            </table>
+            <p>... or, for static methods...</p>
+            <source>
+ExcelTransformer transformer = new ExcelTransformer();
+transformer.registerFuncs("math", Math.class);
+            </source>
+            <p>Here, the "pi" bean has the value <code>Math.PI</code>.</p>
+            <table style="width: 175px;">
+                <tr><td>${math:cos(pi)}</td></tr>
+            </table>
+            <p>...gets transformed into...</p>
+            <table style="width: 175px;">
+                <tr><td>-1</td></tr>
+            </table>
+        </section>
+    </body>
+</document>

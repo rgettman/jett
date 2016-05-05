@@ -1,0 +1,58 @@
+<document>
+    <properties>
+        <author email="rgettman@users.sourceforge.net">Randy Gettman</author>
+        <title>Null Tag</title>
+    </properties>
+    <body>
+        <section name="The Null Tag">
+            <p>The "null" tag allows text that would normally be interpreted as Expressions not to
+            be evaluated.  This tag, in its form with a body, accepts no attributes.  Without such
+            a tag, an Expression that is not meant to be evaluated would be evaluated, and an error
+            could result.</p>
+            <h1>Attributes</h1>
+            <ul>
+                <li>The "null" tag supports all <a href="basics.html">base tag attributes</a>.</li>
+                <li><strong>text: List</strong> Required, bodiless only.  The text not to be
+                evaluated, which gets left in the cell.  Rich Text String formatting is preserved.</li>
+            </ul>
+        </section>
+        <section name="With a Body">
+            <table style="width: 750px;">
+                <tr>
+                    <td style="width: 1500px;">&lt;jt:null&gt;</td>
+                    <td style="width: 150px;">${NotEvaluated}!</td>
+                    <td style="width: 300px;">&lt;/jt:null&gt;</td>
+                    <td style="width: 150px;">&nbsp;</td>
+                </tr>
+            </table>
+            <p>...gets transformed into...</p>
+            <table style="width: 750px;">
+                <tr>
+                    <td style="width: 1500px;">&nbsp;</td>
+                    <td style="width: 150px;">${NotEvaluated}!</td>
+                    <td style="width: 300px;">&nbsp;</td>
+                    <td style="width: 150px;">&nbsp;</td>
+                </tr>
+            </table>
+        </section>
+        <section name="Bodiless">
+            <table style="width: 750px;">
+                <tr>
+                    <td style="width: 150px;">&nbsp;</td>
+                    <td style="width: 150px;">&lt;jt:null text="This is <span class="boldText">${NotEvaluated}</span>!"/&gt;</td>
+                    <td style="width: 300px;">&nbsp;</td>
+                    <td style="width: 150px;">&nbsp;</td>
+                </tr>
+            </table>
+            <p>...gets transformed into...</p>
+            <table style="width: 750px;">
+                <tr>
+                    <td style="width: 150px;">&nbsp;</td>
+                    <td style="width: 150px;">This is <span class="boldText">${NotEvaluated}</span>!</td>
+                    <td style="width: 300px;">&nbsp;</td>
+                    <td style="width: 150px;">&nbsp;</td>
+                </tr>
+            </table>
+        </section>
+    </body>
+</document>
