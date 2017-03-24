@@ -37,6 +37,21 @@ public class AttributeUtil
     * @since 0.4.0
     */
    public static final String SPEC_SEP_2 = ",";
+   /**
+    * Regex to validate a JEXL
+    * <a href="http://commons.apache.org/proper/commons-jexl/reference/syntax.html#Language_Elements">variable name</a>.
+    * @since 0.11.0
+    */
+   private static final String REGEX_JEXL_VARNAME = "[A-Za-z_][A-Za-z0-9_]*";
+   /**
+    * List of
+    * <a href="http://commons.apache.org/proper/commons-jexl/reference/syntax.html#Language_Elements">JEXL reserved words</a>.
+    * @since 0.11.0
+    */
+   private static final List<String> JEXL_RESERVED_WORDS = Arrays.asList(
+           "or", "and", "eq", "ne", "lt", "gt", "le", "ge", "div", "mod", "not", "null",
+           "true", "false", "new", "var", "return"
+   );
 
    /**
     * Don't allow instances.
@@ -388,6 +403,41 @@ public class AttributeUtil
       throw attributeValidationFailure(tag, text.toString(),
           "Unknown value for \"" + attrName + "\": " + result +
           " (expected one of " + legalValues.toString() + ").");
+   }
+
+   /**
+    * Evaluates the given text, which may have embedded
+    * <code>Expressions</code>, and attempts to extract a <code>String</code>
+    * result, calling <code>toString()</code> on the result.  Enforces that the
+    * result is a valid JEXL variable name, which contains only the following
+    * characters: <code>[A-Z][a-z][0-9][_]</code>, and not starting with a
+    * number.
+    * @param tag The <code>Tag</code>.
+    * @param text Text which may have embedded <code>Expressions</code>.
+    * @param beans A <code>Map</code> of bean names to bean values.
+    * @param attrName The attribute name.  This is only used when constructing
+    *    an exception message.
+    * @return The <code>String</code> result.
+    * @throws AttributeExpressionException If the result isn't a legal JEXL
+    *    variable name.
+    * @since 0.11.0
+    */
+   public static String evaluateStringVarName(Tag tag,
+      RichTextString text, Map<String, Object> beans, String attrName)
+   {
+      String result = evaluateStringNotNull(tag, text, beans, attrName, null);
+
+      if (!result.matches(REGEX_JEXL_VARNAME))
+      {
+         throw attributeValidationFailure(tag, text.toString(),
+                 "Not a valid JEXL variable name: " + result);
+      }
+      if (JEXL_RESERVED_WORDS.contains(result))
+      {
+         throw attributeValidationFailure(tag, text.toString(),
+                 "Can't use a JEXL reserved word: " + result);
+      }
+      return result;
    }
 
    /**

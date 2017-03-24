@@ -260,7 +260,7 @@ public class CellTransformer
             sheet.getWorkbook().getCreationHelper(), parser.getTagText(), "", true));
          if (DEBUG_TAG)
             System.err.println("Cell text after tag removal is \"" + cell.getStringCellValue() + "\".");
-         // Search for matching end tag.
+         // Search for matching end tag.  If found, remove the end tag.
          Cell match = findMatchingEndTag(workbookContext, cell, parentBlock, parser.getNamespaceAndTagName());
          if (match == null)
             throw new TagParseException("Matching tag not found for tag: " + parser.getTagText() +
@@ -343,7 +343,7 @@ public class CellTransformer
             for (int cellNum = startColumnIndex; cellNum <= right; cellNum++)
             {
                if (DEBUG_TAG)
-                  System.err.println("  Trying row: row " + rowNum + ", col " + cellNum);
+                  System.err.println("  Trying cell: row " + rowNum + ", col " + cellNum);
                Cell candidate = row.getCell(cellNum);
                if (candidate != null && isMatchingEndTag(context, candidate, namespaceAndTagName, innerTags))
                   return candidate;

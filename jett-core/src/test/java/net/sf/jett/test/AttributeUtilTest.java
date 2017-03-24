@@ -79,8 +79,8 @@ public class AttributeUtilTest
       bugs.setSalary(1500);
       myBeans.put("bugs", bugs);
       myBeans.put("acronym", Arrays.asList("Java", "Excel", "Template", "Translator"));
-      myBeans.put("integerArray", new Integer[] {4, 8, 15, 16, 23, 42});
-      myBeans.put("integerArrayArray", new Integer[][] {new Integer[] {4, 8}, new Integer[] {15, 16, 23}, new Integer[] {42}});
+      myBeans.put("integerArray", new Integer[]{4, 8, 15, 16, 23, 42});
+      myBeans.put("integerArrayArray", new Integer[][]{new Integer[]{4, 8}, new Integer[]{15, 16, 23}, new Integer[]{42}});
 
       myTag = new BaseTag() {
          public String getName() { return "AttributeUtilTestTag"; }
@@ -279,6 +279,7 @@ public class AttributeUtilTest
 
    /**
     * Tests RichTextStrings.
+    *
     * @since 0.9.0
     */
    @Test
@@ -292,7 +293,6 @@ public class AttributeUtilTest
 
    /**
     * Ensures that if a <code>null</code> is passed, the exception is thrown.
-    *
     */
    @Test(expected = AttributeExpressionException.class)
    public void testEvaluateRichTextStringNull()
@@ -597,5 +597,46 @@ public class AttributeUtilTest
             assertEquals(expectedInternalList.get(j), internalList.get(j));
          }
       }
+   }
+
+   /**
+    * Parse a valid variable name.
+    */
+   @Test
+   public void testEvaluateStringVarName()
+   {
+      String varName = AttributeUtil.evaluateStringVarName(myTag, new XSSFRichTextString("_varUpper123"), myBeans, null);
+      assertNotNull(varName);
+      assertEquals("_varUpper123", varName);
+   }
+
+   /**
+    * Make sure that a variable name starting with a number yields an
+    * <code>AttributeExpressionException</code>.
+    */
+   @Test(expected = AttributeExpressionException.class)
+   public void testEvaluateStringVarNameStartNumber()
+   {
+      AttributeUtil.evaluateStringVarName(myTag, new XSSFRichTextString("1a"), myBeans, null);
+   }
+
+   /**
+    * Make sure that a variable name with punctuation yields an
+    * <code>AttributeExpressionException</code>.
+    */
+   @Test(expected = AttributeExpressionException.class)
+   public void testEvaluateStringVarNamePunctInName()
+   {
+      AttributeUtil.evaluateStringVarName(myTag, new XSSFRichTextString("abc-def"), myBeans, null);
+   }
+
+   /**
+    * Make sure that a variable name that is a JEXL reserved word yields an
+    * <code>AttributeExpressionException</code>.
+    */
+   @Test(expected = AttributeExpressionException.class)
+   public void testEvaluateStringVarNameReservedWord()
+   {
+      AttributeUtil.evaluateStringVarName(myTag, new XSSFRichTextString("var"), myBeans, null);
    }
 }
