@@ -37,6 +37,7 @@ public class JtTagLibrary implements TagLibrary
       myTagMap.put("name"        , NameTag.class);
       myTagMap.put("null"        , NullTag.class);
       myTagMap.put("rickroll"    , RickrollTag.class);
+      myTagMap.put("set"         , SetTag.class);
       myTagMap.put("span"        , SpanTag.class);
       myTagMap.put("style"       , StyleTag.class);
       myTagMap.put("total"       , TotalTag.class);

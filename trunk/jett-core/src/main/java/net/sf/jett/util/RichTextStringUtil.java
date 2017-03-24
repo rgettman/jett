@@ -664,6 +664,7 @@ public class RichTextStringUtil
             //newCellStyle.setFont(font);
             Font foundFont = fontCache.findFont(font);
             newCellStyle.setFont(foundFont);
+            cellStyleCache.cacheCellStyle(newCellStyle);
          }
          cell.setCellStyle(newCellStyle);
       }

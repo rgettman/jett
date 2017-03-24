@@ -112,63 +112,66 @@ public class TagParser
       // Tags must begin with "<" or "</", else it's not a tag (and it's not an error).
       // Text may occur before an ending tag or after a starting tag.
       TagScanner.Token token = scanner.getNextToken();
-      while ((token != TagScanner.Token.TOKEN_BEGIN_ANGLE_BRACKET &&
-              token != TagScanner.Token.TOKEN_BEGIN_ANGLE_BRACKET_SLASH &&
-              token != TagScanner.Token.TOKEN_EOI &&
-              token != TagScanner.Token.TOKEN_ERROR_EOI_IN_DQUOTES) ||
-             insideJettFormula)
+      // If we found a <, but it wasn't a tag, keep looking!
+      while (!amIATag)
       {
-         String lexeme = scanner.getCurrLexeme();
-         //System.err.println(lexeme);
-         // Bypass any tokens normally indicating beginning of a tag if found
-         // inside a JETT Formula.
-         if (token == TagScanner.Token.TOKEN_STRING)
+         while ((token != TagScanner.Token.TOKEN_BEGIN_ANGLE_BRACKET &&
+                 token != TagScanner.Token.TOKEN_BEGIN_ANGLE_BRACKET_SLASH &&
+                 token != TagScanner.Token.TOKEN_EOI &&
+                 token != TagScanner.Token.TOKEN_ERROR_EOI_IN_DQUOTES) ||
+                 insideJettFormula)
          {
-            if (lexeme.contains(Formula.BEGIN_FORMULA))
-            {
-               insideJettFormula = true;
+            String lexeme = scanner.getCurrLexeme();
+            //System.err.println(lexeme);
+            // Bypass any tokens normally indicating beginning of a tag if found
+            // inside a JETT Formula.
+            if (token == TagScanner.Token.TOKEN_STRING) {
+               if (lexeme.contains(Formula.BEGIN_FORMULA)) {
+                  insideJettFormula = true;
+               }
+               if (lexeme.contains(Formula.END_FORMULA)) {
+                  insideJettFormula = false;
+               }
             }
-            if (lexeme.contains(Formula.END_FORMULA))
-            {
-               insideJettFormula = false;
-            }
+
+            // Prepare for next loop.
+            token = scanner.getNextToken();
+         }
+         int begPos = scanner.getNextPosition();
+         switch (token)
+         {
+            case TOKEN_BEGIN_ANGLE_BRACKET:
+               // Start at the "<" position.
+               myTagStartIdx = begPos - 1;
+               amIEndTag = false;
+               amIATag = true;
+               break;
+            case TOKEN_BEGIN_ANGLE_BRACKET_SLASH:
+               // Start at the "</" position.
+               myTagStartIdx = begPos - 2;
+               amIEndTag = true;
+               amIATag = true;
+               break;
+            default:
+               myTagStartIdx = -1;
+               myTagEndIdx = -1;
+               amIATag = false;
+               return;
          }
 
-         // Prepare for next loop.
+         // Extract possible namespace and tag name.
          token = scanner.getNextToken();
-      }
-      int begPos = scanner.getNextPosition();
-      switch(token)
-      {
-      case TOKEN_BEGIN_ANGLE_BRACKET:
-         // Start at the "<" position.
-         myTagStartIdx = begPos - 1;
-         amIEndTag = false;
-         amIATag = true;
-         break;
-      case TOKEN_BEGIN_ANGLE_BRACKET_SLASH:
-         // Start at the "</" position.
-         myTagStartIdx = begPos - 2;
-         amIEndTag = true;
-         amIATag = true;
-         break;
-      default:
-         myTagStartIdx = -1;
-         myTagEndIdx = -1;
-         amIATag = false;
-         return;
+         // Not a tag: "<whitespace", "<=", "<<", "<>", "<\""
+         // But "<:" is a bad tag, with no namespace.
+         if (token != TagScanner.Token.TOKEN_STRING && token != TagScanner.Token.TOKEN_COLON)
+         {
+            //System.err.println("  \"<\" found but not a tag.  Continuing scan.");
+            myTagStartIdx = -1;
+            amIATag = false;
+         }
       }
 
-      // Extract possible namespace and tag name.
-      token = scanner.getNextToken();
-      // Not a tag: "<whitespace", "<=", "<<", "<>", "<\""
-      // But "<:" is a bad tag, with no namespace.
-      if (token != TagScanner.Token.TOKEN_STRING && token != TagScanner.Token.TOKEN_COLON)
-      {
-         myTagStartIdx = -1;
-         amIATag = false;
-         return;
-      }
+      // At this point, we know we have a tag, good or not.
 
       if (token == TagScanner.Token.TOKEN_STRING)
       {

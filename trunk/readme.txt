@@ -68,7 +68,7 @@ Repository.
 <dependency>
     <groupId>net.sf.jett</groupId>
     <artifactId>jett-core</artifactId>
-    <version>0.10.0</version>
+    <version>0.11.0</version>
 </dependency>
 
 Dependencies
