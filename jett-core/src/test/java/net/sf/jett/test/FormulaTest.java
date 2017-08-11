@@ -299,6 +299,13 @@ public class FormulaTest extends TestCase
 
       Sheet tagParseInFormula = workbook.getSheetAt(15);
       assertEquals("MIN((N2>=$P$1)*(N2<$R$1))", TestUtility.getFormulaCellValue(tagParseInFormula, 1, 0));
+
+      Sheet noSpaceAfterParen = workbook.getSheetAt(16);
+      for (int r = 1; r <= 10; r++)
+      {
+         int er = r + 1;
+         assertEquals("A" + er + "-(IF(B" + er + "=\"-\",0,B" + er + ")+C" + er + ")", TestUtility.getFormulaCellValue(noSpaceAfterParen, r, 3));
+      }
    }
 
    /**
@@ -317,7 +324,7 @@ public class FormulaTest extends TestCase
     */
    protected List<String> getListOfTemplateSheetNames()
    {
-      String[] templateSheetNameArray = new String[16];
+      String[] templateSheetNameArray = new String[17];
       Arrays.fill(templateSheetNameArray, "Cloning");
       templateSheetNameArray[0] = "Formula Test";
       templateSheetNameArray[9] = "MultiLevel";
@@ -327,6 +334,7 @@ public class FormulaTest extends TestCase
       templateSheetNameArray[13] = "MultiLevel2";
       templateSheetNameArray[14] = "Grid";
       templateSheetNameArray[15] = "TagParseInFormula";
+      templateSheetNameArray[16] = "NoSpaceAfterParen";
       return Arrays.asList(templateSheetNameArray);
    }
 
@@ -339,7 +347,7 @@ public class FormulaTest extends TestCase
    {
       return Arrays.asList("Formula Test", "Atlantic", "Central", "Southeast", "Northwest",
          "Pacific", "Southwest", "Empty", "Of Their Own", "MultiLevel", "Copy Right", "ReplaceTest",
-         "Outside Reference", "MultiLevel2", "Grid", "TagParseInFormula");
+         "Outside Reference", "MultiLevel2", "Grid", "TagParseInFormula", "NoSpaceAfterParen");
    }
 
    /**
@@ -369,7 +377,8 @@ public class FormulaTest extends TestCase
       beansList.add(TestUtility.getWorkOrderData());
       // For "Grid"
       beansList.add(TestUtility.getRegionSalesData());
-      // For "TagParseInFormula"
+      // For "TagParseInFormula", "NoSpaceAfterParen"
+      beansList.add(emptyBeans);
       beansList.add(emptyBeans);
 
       return beansList;

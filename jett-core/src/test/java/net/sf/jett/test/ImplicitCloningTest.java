@@ -73,5 +73,9 @@ public abstract class ImplicitCloningTest extends TestCase
         Sheet empty_1 = workbook.getSheetAt(12);
         assertEquals("empty-1", empty_1.getSheetName());
         assertEquals("COUNTA($Z$1)", TestUtility.getFormulaCellValue(empty_1, 2, 1));
+
+        Sheet atlantic1 = workbook.getSheetAt(14);
+        assertEquals("Atlantic-1", atlantic1.getSheetName());
+        assertEquals("Division: Atlantic", TestUtility.getStringCellValue(atlantic1, 0, 0));
     }
 }

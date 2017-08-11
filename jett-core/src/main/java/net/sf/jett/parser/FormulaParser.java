@@ -163,6 +163,8 @@ public class FormulaParser
          case TOKEN_DOUBLE_QUOTE:
             // Just delimiters between strings.  Validate the cell reference.
             addCellReferenceIfFound();
+            mySheetName = null;
+            myCellReference = null;
             break;
          case TOKEN_SINGLE_QUOTE:
             // Must keep track of whether a sheet reference occurs within single quotes.

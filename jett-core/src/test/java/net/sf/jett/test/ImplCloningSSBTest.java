@@ -22,7 +22,7 @@ public class ImplCloningSSBTest extends ImplicitCloningTest
     /**
      * Tests the .xls template spreadsheet.
      *
-     * @throws IOException                                        If an I/O error occurs.
+     * @throws IOException If an I/O error occurs.
      * @throws InvalidFormatException If the input spreadsheet is invalid.
      */
     @Test
@@ -72,7 +72,7 @@ public class ImplCloningSSBTest extends ImplicitCloningTest
      */
     protected List<String> getListOfTemplateSheetNames()
     {
-       return Arrays.asList("Static1", "${dvs.name}$@i=n;l=10;v=s;r=DNE", "Static2", "${dvs.name}$@l=0", "Static3");
+       return Arrays.asList("Static1", "${dvs.name}$@i=n;l=10;v=s;r=DNE", "Static2", "${dvs.name}$@l=0", "Static3", "${dvs.name}$@l=1");
     }
 
     /**
@@ -82,7 +82,7 @@ public class ImplCloningSSBTest extends ImplicitCloningTest
      */
     protected List<String> getListOfResultSheetNames()
     {
-        return Arrays.asList("Static1", "${dvs.name}$@i=n;l=10;v=s;r=DNE", "Static2", "${dvs.name}$@l=0", "Static3");
+        return Arrays.asList("Static1", "${dvs.name}$@i=n;l=10;v=s;r=DNE", "Static2", "${dvs.name}$@l=0", "Static3", "${dvs.name}$@l=1");
     }
 
     /**
@@ -98,7 +98,7 @@ public class ImplCloningSSBTest extends ImplicitCloningTest
         dvs.put("dvs", dvs.get("divisionsList"));
         dvs.remove("divisionsList");
         List<Map<String, Object>> beansList = new ArrayList<Map<String, Object>>();
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < 6; i++)
         {
             if (i % 2 > 0)
             {
