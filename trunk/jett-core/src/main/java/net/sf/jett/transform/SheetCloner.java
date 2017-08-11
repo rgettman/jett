@@ -411,7 +411,7 @@ public class SheetCloner
             myMissingPropertiesList.add(getMissingCloneSheetProperties(myWorkbook.getSheetAt(index)));
         }
 
-        if (limit > 1)
+        if (limit >= 1)
         {
             // Find the sheet.
             if (index == -1)

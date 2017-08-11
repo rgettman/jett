@@ -27,6 +27,7 @@ import org.apache.poi.ss.usermodel.Sheet;
  * <li><em>Inherits all attributes from {@link BaseTag}.</em></li>
  * <li>var (required): <code>String</code></li>
  * <li>value (required): <code>Object</code></li>
+ * <li>display (optional): <code>RichTextString</code></li>
  * </ul>
  *
  * @author Randy Gettman

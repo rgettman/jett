@@ -36,6 +36,7 @@ public class JtTagLibrary implements TagLibrary
       myTagMap.put("multiForEach", MultiForEachTag.class);
       myTagMap.put("name"        , NameTag.class);
       myTagMap.put("null"        , NullTag.class);
+      myTagMap.put("pageBreak"   , PageBreakTag.class);
       myTagMap.put("rickroll"    , RickrollTag.class);
       myTagMap.put("set"         , SetTag.class);
       myTagMap.put("span"        , SpanTag.class);
