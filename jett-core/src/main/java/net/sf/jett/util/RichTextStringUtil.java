@@ -437,7 +437,8 @@ public class RichTextStringUtil
             {
                XSSFFont currFontIndex = (XSSFFont) getFontAtIndex(xssfRichTextString, j);
                if (DEBUG)
-                  System.err.println("    Comparing j=" + j + ", currFont=" + currFontIndex +
+                  System.err.println("    Comparing j=" + j + ", currFont=" +
+                          ((currFontIndex != null) ? currFontIndex.toString() : "(null)") +
                      ", font=" + fontIndex);
                if ((currFontIndex == null && fontIndex == null) ||
                    (currFontIndex != null && currFontIndex.equals(fontIndex)))

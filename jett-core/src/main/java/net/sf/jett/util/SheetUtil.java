@@ -1699,6 +1699,7 @@ public class SheetUtil
       int top = block.getTopRowNum();
       int bottom = block.getBottomRowNum();
       Block ancestor, prevAncestor;
+      Block parent = block.getParent();
 
       if (DEBUG)
          System.err.println("shiftForBlock: " + sheet.getSheetName() + ": " + block + ", numBlocksAway=" + numBlocksAway + ".");
@@ -1795,7 +1796,15 @@ public class SheetUtil
             Block toShift = blocksToShift.pop();
             translateDown = shiftAmounts.pop();
 
-            copyRowHeightsDown(sheet, toShift.getTopRowNum(), toShift.getBottomRowNum(), translateDown);
+            // Don't copy the same row heights down again.  This would occur if
+            // the parent is horizontal and already past its first iteration, e.g.
+            //   |     |
+            //   |     |
+            //   v     v
+            if (parent == null || parent.getDirection() != Block.Direction.HORIZONTAL || parent.getIterationNbr() == 0)
+            {
+               copyRowHeightsDown(sheet, toShift.getTopRowNum(), toShift.getBottomRowNum(), translateDown);
+            }
             shiftCellsDown(sheet, tagContext, context, toShift.getLeftColNum(), toShift.getRightColNum(),
                toShift.getTopRowNum(), toShift.getBottomRowNum(), translateDown);
             FormulaUtil.shiftCellReferencesInRange(sheet.getSheetName(), context,
@@ -1875,7 +1884,14 @@ public class SheetUtil
             Block toShift = blocksToShift.pop();
             translateRight = shiftAmounts.pop();
 
-            copyColumnWidthsRight(sheet, toShift.getLeftColNum(), toShift.getRightColNum(), translateRight);
+            // Don't copy the same column widths right again.  This would occur if
+            // the parent is vertical and already past its first iteration, e.g.
+            //   ----->
+            //   ----->
+            if (parent == null || parent.getDirection() != Block.Direction.VERTICAL || parent.getIterationNbr() == 0)
+            {
+               copyColumnWidthsRight(sheet, toShift.getLeftColNum(), toShift.getRightColNum(), translateRight);
+            }
             shiftCellsRight(sheet, tagContext, context, toShift.getLeftColNum(), toShift.getRightColNum(),
                toShift.getTopRowNum(), toShift.getBottomRowNum(), translateRight);
             FormulaUtil.shiftCellReferencesInRange(sheet.getSheetName(), context,
@@ -2070,8 +2086,16 @@ public class SheetUtil
             // Copy conditional formatting regions down.
             //copyConditionalFormattingRegionsInRange(sheet, left, right,
             //   top, bottom, 0, translateDown);
-            copyRowHeightsDown(sheet, top, bottom, translateDown);
-            newBlock = new Block(parent, left, right, newTop, newBottom);
+            // Don't copy the same row heights down again.  This would occur if
+            // the parent is horizontal and already past its first iteration, e.g.
+            //   |     |
+            //   |     |
+            //   v     v
+            if (parent == null || parent.getDirection() != Block.Direction.HORIZONTAL || parent.getIterationNbr() == 0)
+            {
+               copyRowHeightsDown(sheet, top, bottom, translateDown);
+            }
+            newBlock = new Block(parent, left, right, newTop, newBottom, numBlocksAway);
             newBlock.setDirection(block.getDirection());
          }
          else
@@ -2148,8 +2172,15 @@ public class SheetUtil
             // Copy conditional formatting regions down.
             //copyConditionalFormattingRegionsInRange(sheet, left, right,
             //   top, bottom, translateRight, 0);
-            copyColumnWidthsRight(sheet, left, right, translateRight);
-            newBlock = new Block(parent, newLeft, newRight, top, bottom);
+            // Don't copy the same column widths right again.  This would occur if
+            // the parent is vertical and already past its first iteration, e.g.
+            //   ----->
+            //   ----->
+            if (parent == null || parent.getDirection() != Block.Direction.VERTICAL || parent.getIterationNbr() == 0)
+            {
+               copyColumnWidthsRight(sheet, left, right, translateRight);
+            }
+            newBlock = new Block(parent, newLeft, newRight, top, bottom, numBlocksAway);
             newBlock.setDirection(block.getDirection());
          }
          else
