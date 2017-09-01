@@ -34,6 +34,7 @@ public class Block
    private int myBottomRowNum;
    private Direction myDirection;
    private Block myParent;
+   private int myIterationNbr;
 
    /**
     * Construct a <code>Block</code> that lies in between the given start and
@@ -50,6 +51,7 @@ public class Block
       myRightColNum = endTag.getColumnIndex();
       myDirection = Direction.VERTICAL;
       myParent = parent;
+      myIterationNbr = 0;
    }
 
    /**
@@ -67,6 +69,7 @@ public class Block
       myRightColNum = tag.getColumnIndex();
       myDirection = Direction.NONE;
       myParent = parent;
+      myIterationNbr = 0;
    }
 
    /**
@@ -80,12 +83,30 @@ public class Block
     */
    public Block(Block parent, int left, int right, int top, int bottom)
    {
+      this(parent, left, right, top, bottom, 0);
+   }
+
+   /**
+    * Construct a <code>Block</code> at the given boundary column and row
+    * numbers, with a 0-based iteration number.
+    * @param parent The <code>Block's</code> parent.
+    * @param left The left-most column number (0-based).
+    * @param right The right-most column index (0-based).
+    * @param top The top-most row number (0-based).
+    * @param bottom The bottom-most row number (0-based).
+    * @param iterationNbr The 0-based iteration number, which will be non-zero
+    *                     only if created as part of processing a looping tag.
+    * @since 0.11.0
+    */
+   public Block(Block parent, int left, int right, int top, int bottom, int iterationNbr)
+   {
       myLeftColNum = left;
       myRightColNum = right;
       myTopRowNum = top;
       myBottomRowNum = bottom;
       myDirection = Direction.VERTICAL;
       myParent = parent;
+      myIterationNbr = iterationNbr;
    }
 
    /**
@@ -198,6 +219,8 @@ public class Block
       buf.append(myBottomRowNum);
       buf.append(", direction=");
       buf.append(myDirection);
+      buf.append(", iteration=");
+      buf.append(myIterationNbr);
       return buf.toString();
    }
 
@@ -209,6 +232,15 @@ public class Block
    {
       return myParent;
    }
+
+   /**
+    * Returns this <code>Block's</code> iteration number, which is non-zero
+    * only for blocks copied for processing a looping tag.
+    * @return The 0-based iteration number, i.e. "I'm twin number 0" or
+    *     "I'm twin number 9".
+    * @since 0.11.0
+    */
+   public int getIterationNbr() { return myIterationNbr; }
 
    /**
     * When this <code>Block</code> is a copy, it may have to react to "sibling"

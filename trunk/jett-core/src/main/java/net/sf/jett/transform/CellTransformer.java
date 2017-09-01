@@ -14,7 +14,9 @@ import org.apache.poi.ss.usermodel.Sheet;
 
 import net.sf.jett.event.CellEvent;
 import net.sf.jett.event.CellListener;
+import net.sf.jett.exception.ParseException;
 import net.sf.jett.exception.TagParseException;
+import net.sf.jett.exception.TransformException;
 import net.sf.jett.expression.Expression;
 import net.sf.jett.model.Block;
 import net.sf.jett.model.WorkbookContext;
@@ -248,62 +250,85 @@ public class CellTransformer
       String value = cell.getStringCellValue();
       RichTextString richTextString = cell.getRichStringCellValue();
       Block newBlock;
-      if (parser.isBodiless())
+      Tag tag = null;
+      try
       {
-         // Results in a 1x1 block of 1 cell.
-         newBlock = new Block(parentBlock, cell);
-      }
-      else
-      {
-         // Remove start tag text.
-         SheetUtil.setCellValue(workbookContext, cell, RichTextStringUtil.replaceAll(richTextString,
-            sheet.getWorkbook().getCreationHelper(), parser.getTagText(), "", true));
-         if (DEBUG_TAG)
-            System.err.println("Cell text after tag removal is \"" + cell.getStringCellValue() + "\".");
-         // Search for matching end tag.  If found, remove the end tag.
-         Cell match = findMatchingEndTag(workbookContext, cell, parentBlock, parser.getNamespaceAndTagName());
-         if (match == null)
-            throw new TagParseException("Matching tag not found for tag: " + parser.getTagText() +
-               ", located" + SheetUtil.getCellLocation(cell) + ", within block " + parentBlock);
-
-         if (DEBUG_TAG)
+         if (parser.isBodiless())
          {
-            System.err.println("  Match found at row " + match.getRowIndex() +
-               " and column " + match.getColumnIndex());
+            // Results in a 1x1 block of 1 cell.
+            newBlock = new Block(parentBlock, cell);
          }
-         newBlock = new Block(parentBlock, cell, match);
-      }
-      TagContext context = new TagContext();
-      context.setBeans(beans);
-      context.setBlock(newBlock);
-      context.setSheet(sheet);
-      context.setProcessedCellsMap(processedCells);
-      context.setDrawing(cellContext.getDrawing());
-      context.setMergedRegions(cellContext.getMergedRegions());
-      context.setFormulaSuffix(cellContext.getFormulaSuffix());
-
-      Tag tag = registry.createTag(parser, context, workbookContext);
-      if (tag == null)
-      {
-         Map<String, String> tagLocationsMap = workbookContext.getTagLocationsMap();
-         String cellRef = SheetUtil.getCellKey(cell);
-         String location = " at " + cellRef;
-         String origCellRef = tagLocationsMap.get(cellRef);
-         if (origCellRef != null)
+         else
          {
-            location += " (originally located at " + origCellRef + ")";
-         }
-         throw new TagParseException("Invalid tag: " + value + location + 
-                 SheetUtil.getTagLocationWithHierarchy(cellContext.getCurrentTag()));
-      }
-      else
-      {
-         context.setCurrentTag(tag);
-         tag.setParentTag(cellContext.getCurrentTag());
-      }
+            // Remove start tag text.
+            SheetUtil.setCellValue(workbookContext, cell, RichTextStringUtil.replaceAll(richTextString,
+                    sheet.getWorkbook().getCreationHelper(), parser.getTagText(), "", true));
+            if (DEBUG_TAG)
+               System.err.println("Cell text after tag removal is \"" + cell.getStringCellValue() + "\".");
+            // Search for matching end tag.  If found, remove the end tag.
+            Cell match = findMatchingEndTag(workbookContext, cell, parentBlock, parser.getNamespaceAndTagName());
+            if (match == null)
+               throw new TagParseException("Matching tag not found for tag: " + parser.getTagText() +
+                       ", located" + SheetUtil.getCellLocation(cell) + ", within block " + parentBlock);
 
-      // Process the Tag.
-      return tag.processTag();
+            if (DEBUG_TAG)
+            {
+               System.err.println("  Match found at row " + match.getRowIndex() +
+                       " and column " + match.getColumnIndex());
+            }
+            newBlock = new Block(parentBlock, cell, match);
+         }
+         TagContext context = new TagContext();
+         context.setBeans(beans);
+         context.setBlock(newBlock);
+         context.setSheet(sheet);
+         context.setProcessedCellsMap(processedCells);
+         context.setDrawing(cellContext.getDrawing());
+         context.setMergedRegions(cellContext.getMergedRegions());
+         context.setFormulaSuffix(cellContext.getFormulaSuffix());
+
+         tag = registry.createTag(parser, context, workbookContext);
+         if (tag == null)
+         {
+            Map<String, String> tagLocationsMap = workbookContext.getTagLocationsMap();
+            String cellRef = SheetUtil.getCellKey(cell);
+            String location = " at " + cellRef;
+            String origCellRef = tagLocationsMap.get(cellRef);
+            if (origCellRef != null)
+            {
+               location += " (originally located at " + origCellRef + ")";
+            }
+            throw new TagParseException("Invalid tag: " + value + location +
+                    SheetUtil.getTagLocationWithHierarchy(cellContext.getCurrentTag()));
+         }
+         else
+         {
+            context.setCurrentTag(tag);
+            tag.setParentTag(cellContext.getCurrentTag());
+         }
+
+         // Process the Tag.
+         return tag.processTag();
+      }
+      catch (ParseException te)
+      {
+         // Don't re-wrap.
+         throw te;
+      }
+      catch (TransformException te)
+      {
+         // Don't re-wrap.
+         throw te;
+      }
+      catch (RuntimeException re)
+      {
+         throw new TransformException("A " + re.getClass().getName() +
+                 " was caught during transformation" +
+                 ((tag != null) ?
+                  SheetUtil.getTagLocationWithHierarchy(tag) :
+                  SheetUtil.getCellLocation(cell)),
+                 re);
+      }
    }
 
    /**
