@@ -470,31 +470,34 @@ public class SheetUtil
          for (int colIndex = colStart; colIndex <= colEnd; colIndex++)
          {
             cell = oldRow.getCell(colIndex);
-            if (cell == null)
-               cell = oldRow.createCell(colIndex);
             newCell = newRow.getCell(colIndex);
-            if (newCell == null)
-               newCell = newRow.createCell(colIndex);
-            copyCell(cell, newCell);
-
-            String cellRef = getCellKey(cell);
-            String newCellRef = getCellKey(newCell);
-            String origCellRef = tagLocationsMap.get(cellRef);
-            if (origCellRef != null)
+            if (cell == null && newCell != null)
+               removeCell(newRow, newCell);
+            else if (cell != null)
             {
-               tagLocationsMap.remove(cellRef);
-               tagLocationsMap.put(newCellRef, origCellRef);
+               if (newCell == null)
+                  newCell = newRow.createCell(colIndex);
+               copyCell(cell, newCell);
 
-               if (DEBUG)
+               String cellRef = getCellKey(cell);
+               String newCellRef = getCellKey(newCell);
+               String origCellRef = tagLocationsMap.get(cellRef);
+               if (origCellRef != null)
                {
-                   System.err.println("SU.sD: Replacing " + cellRef + " => " + origCellRef + " with " +
-                         newCellRef + " => " + origCellRef);
+                  tagLocationsMap.remove(cellRef);
+                  tagLocationsMap.put(newCellRef, origCellRef);
+
+                  if (DEBUG)
+                  {
+                     System.err.println("SU.sD: Replacing " + cellRef + " => " + origCellRef + " with " +
+                             newCellRef + " => " + origCellRef);
+                  }
                }
             }
 
             // Remove the just copied Cell if we detect that it won't be
             // overwritten by future loops.
-            if (rowIndex < rowStart + numRows && rowIndex <= rowEnd)
+            if (rowIndex < rowStart + numRows && rowIndex <= rowEnd && cell != null)
                removeCell(oldRow, cell);
          }
       }
@@ -524,6 +527,11 @@ public class SheetUtil
     */
    private static void copyCell(Cell oldCell, Cell newCell)
    {
+      if (DEBUG)
+      {
+         System.err.println("      cC: oldCell(" + oldCell.getAddress().formatAsString() +
+                 ") to newCell(" + newCell.getAddress().formatAsString() + ")");
+      }
       newCell.setCellStyle(oldCell.getCellStyle());
 
       switch(oldCell.getCellType())
@@ -1702,7 +1710,10 @@ public class SheetUtil
       Block parent = block.getParent();
 
       if (DEBUG)
+      {
          System.err.println("shiftForBlock: " + sheet.getSheetName() + ": " + block + ", numBlocksAway=" + numBlocksAway + ".");
+         System.err.println("  parent: " + parent);
+      }
 
       // Below this point!
 
@@ -1755,14 +1766,13 @@ public class SheetUtil
             // Empty rows at the bottom mean less rows to shift and future
             // shifts will be smaller.  Only do this in the first loop.
             int emptyRowsAtBottom = 0;
-            if (prevAncestor == block)
-            {
-               emptyRowsAtBottom = getEmptyRowsAtBottom(sheet, startCellNum, endCellNum, startRowNum, endRowNum);
-               if (emptyRowsAtBottom > 0)
-                  endRowNum -= emptyRowsAtBottom;
-               if (DEBUG)
-                  System.err.println("    emptyRowsAtBottom: " + emptyRowsAtBottom);
-            }
+
+            emptyRowsAtBottom = getEmptyRowsAtBottom(sheet, startCellNum, endCellNum, startRowNum, endRowNum);
+            if (emptyRowsAtBottom > 0)
+               endRowNum -= emptyRowsAtBottom;
+            if (DEBUG)
+               System.err.println("    emptyRowsAtBottom: " + emptyRowsAtBottom);
+
             if (translateDown > 0)
             {
                Block toShift = new Block(null, startCellNum, endCellNum, startRowNum, endRowNum);
@@ -1843,14 +1853,13 @@ public class SheetUtil
             // Empty cols at the right mean less cols to shift and future
             // shifts will be smaller.   Only do this in the first loop.
             int emptyColsAtRight = 0;
-            if (prevAncestor == block)
-            {
-               emptyColsAtRight = getEmptyColumnsAtRight(sheet, startCellNum, endCellNum, startRowNum, endRowNum);
-               if (emptyColsAtRight > 0)
-                  endCellNum -= emptyColsAtRight;
-               if (DEBUG)
-                  System.err.println("    emptyColsAtRight: " + emptyColsAtRight);
-            }
+
+            emptyColsAtRight = getEmptyColumnsAtRight(sheet, startCellNum, endCellNum, startRowNum, endRowNum);
+            if (emptyColsAtRight > 0)
+               endCellNum -= emptyColsAtRight;
+            if (DEBUG)
+               System.err.println("    emptyColsAtRight: " + emptyColsAtRight);
+
             if (translateRight > 0)
             {
                Block toShift = new Block(null, startCellNum, endCellNum, startRowNum, endRowNum);
