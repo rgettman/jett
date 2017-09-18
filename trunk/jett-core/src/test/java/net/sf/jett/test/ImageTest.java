@@ -103,6 +103,9 @@ public class ImageTest extends TestCase
      */
     protected Map<String, Object> getBeansMap()
     {
-       return new HashMap<String, Object>();
+        Map<String, Object> beans = new HashMap<String, Object>();
+        beans.put("width", 4);
+        beans.put("height", 6);
+        return beans;
     }
 }

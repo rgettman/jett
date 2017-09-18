@@ -182,6 +182,7 @@ public class ImageTag extends BaseTag
             {
                 myCols = AttributeUtil.evaluatePositiveInt(this, rtsCols, beans, ATTR_COLS, 1);
             }
+            amISizing = true;
         }
 
         myPathname = AttributeUtil.evaluateStringNotNull(this, attributes.get(ATTR_PATHNAME), beans, ATTR_PATHNAME, "");
@@ -245,8 +246,8 @@ public class ImageTag extends BaseTag
         anchor.setRow1(top);
         if (amISizing)
         {
-            anchor.setCol2(left + myCols - 1);
-            anchor.setRow2(top + myRows - 1);
+            anchor.setCol2(left + myCols);
+            anchor.setRow2(top + myRows);
         }
         Picture pict = drawing.createPicture(anchor, pictIdx);
         if (!amISizing)
