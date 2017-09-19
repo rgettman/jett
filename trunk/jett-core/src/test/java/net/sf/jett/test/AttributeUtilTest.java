@@ -299,6 +299,17 @@ public class AttributeUtilTest
    }
 
    /**
+    * Make sure that a negative <code>double</code> yields an
+    * <code>AttributeExpressionException</code>.
+    * @since 0.11.0
+    */
+   @Test(expected = AttributeExpressionException.class)
+   public void testEvaluateNonNegativeDoubleNegative()
+   {
+      AttributeUtil.evaluateNonNegativeDouble(myTag, new XSSFRichTextString("${-question}"), myBeans, "attr_name", 0);
+   }
+
+   /**
     * Tests RichTextStrings.
     *
     * @since 0.9.0
