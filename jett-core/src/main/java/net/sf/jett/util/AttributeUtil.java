@@ -307,6 +307,34 @@ public class AttributeUtil
     * Evaluates the given text, which may have embedded
     * <code>Expressions</code>, and attempts to extract a double value from
     * the result, calling <code>toString()</code> on the result and parsing it
+    * if necessary.  Enforce the result to be non-negative.
+    * @param tag The <code>Tag</code>.
+    * @param text Text which may have embedded <code>Expressions</code>.
+    * @param beans A <code>Map</code> of bean names to bean values.
+    * @param attrName The attribute name.  This is only used when constructing
+    *    an exception message.
+    * @param def The default value if the text is null.
+    * @return The double result.
+    * @throws AttributeExpressionException If the result of the evaluation of the text is
+    *    not a number, or if the result is negative.
+    * @since 0.11.0
+    */
+   public static double evaluateNonNegativeDouble(Tag tag,
+      RichTextString text, Map<String, Object> beans, String attrName, double def)
+   {
+      double result = evaluateDouble(tag, text, beans, attrName, def);
+      if (result < 0)
+      {
+         throw attributeValidationFailure(tag, text.toString(),
+                 "The \"" + attrName + "\" attribute must be non-negative");
+      }
+      return result;
+   }
+
+   /**
+    * Evaluates the given text, which may have embedded
+    * <code>Expressions</code>, and attempts to extract a double value from
+    * the result, calling <code>toString()</code> on the result and parsing it
     * if necessary.  Enforce the result to be positive.
     * @param tag The <code>Tag</code>.
     * @param text Text which may have embedded <code>Expressions</code>.
