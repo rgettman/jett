@@ -57,7 +57,6 @@ public class AttributeUtilTest
       }
    }
 
-
    /**
     * Set up by creating the beans map.
     */
@@ -275,6 +274,28 @@ public class AttributeUtilTest
    public void testEvaluateDoubleDNE()
    {
       AttributeUtil.evaluateDouble(myTag, new XSSFRichTextString("${dne}"), myBeans, "attr_name", 0);
+   }
+
+   /**
+    * Make sure that a negative <code>double</code> yields an
+    * <code>AttributeExpressionException</code>.
+    * @since 0.11.0
+    */
+   @Test(expected = AttributeExpressionException.class)
+   public void testEvaluatePositiveDoubleNegative()
+   {
+      AttributeUtil.evaluatePositiveDouble(myTag, new XSSFRichTextString("${-question}"), myBeans, "attr_name", 1);
+   }
+
+   /**
+    * Make sure that a zero <code>double</code> yields an
+    * <code>AttributeExpressionException</code>.
+    * @since 0.11.0
+    */
+   @Test(expected = AttributeExpressionException.class)
+   public void testEvaluatePositiveDoubleZero()
+   {
+      AttributeUtil.evaluatePositiveDouble(myTag, new XSSFRichTextString("${zero}"), myBeans, "attr_name", 1);
    }
 
    /**
