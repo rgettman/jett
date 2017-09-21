@@ -16,41 +16,41 @@ import org.apache.poi.ss.usermodel.HorizontalAlignment;
  */
 public enum Alignment
 {
-   CENTER         ((short) HorizontalAlignment.CENTER.ordinal()),
-   CENTERSELECTION((short) HorizontalAlignment.CENTER_SELECTION.ordinal()),
-   DISTRIBUTED    ((short) HorizontalAlignment.DISTRIBUTED.ordinal()),
-   FILL           ((short) HorizontalAlignment.FILL.ordinal()),
-   GENERAL        ((short) HorizontalAlignment.GENERAL.ordinal()),
-   JUSTIFY        ((short) HorizontalAlignment.JUSTIFY.ordinal()),
-   LEFT           ((short) HorizontalAlignment.LEFT.ordinal()),
-   RIGHT          ((short) HorizontalAlignment.RIGHT.ordinal());
+    CENTER         ((short) HorizontalAlignment.CENTER.ordinal()),
+    CENTERSELECTION((short) HorizontalAlignment.CENTER_SELECTION.ordinal()),
+    DISTRIBUTED    ((short) HorizontalAlignment.DISTRIBUTED.ordinal()),
+    FILL           ((short) HorizontalAlignment.FILL.ordinal()),
+    GENERAL        ((short) HorizontalAlignment.GENERAL.ordinal()),
+    JUSTIFY        ((short) HorizontalAlignment.JUSTIFY.ordinal()),
+    LEFT           ((short) HorizontalAlignment.LEFT.ordinal()),
+    RIGHT          ((short) HorizontalAlignment.RIGHT.ordinal());
 
-   private short myIndex;
+    private short myIndex;
 
-   /**
-    * Constructs an <code>Alignment</code>.
-    * @param index The index.
-    */
-   Alignment(short index)
-   {
-      myIndex = index;
-   }
+    /**
+     * Constructs an <code>Alignment</code>.
+     * @param index The index.
+     */
+    Alignment(short index)
+    {
+        myIndex = index;
+    }
 
-   /**
-    * Returns the index.
-    * @return The index.
-    */
-   public short getIndex()
-   {
-      return myIndex;
-   }
+    /**
+     * Returns the index.
+     * @return The index.
+     */
+    public short getIndex()
+    {
+        return myIndex;
+    }
 
-   /**
-    * Returns the name, in all lowercase, no underscores or spaces.
-    * @return The name, in all lowercase, no underscores or spaces.
-    */
-   public String toString()
-   {
-      return name().trim().toLowerCase().replace("_", "");
-   }
+    /**
+     * Returns the name, in all lowercase, no underscores or spaces.
+     * @return The name, in all lowercase, no underscores or spaces.
+     */
+    public String toString()
+    {
+        return name().trim().toLowerCase().replace("_", "");
+    }
 }

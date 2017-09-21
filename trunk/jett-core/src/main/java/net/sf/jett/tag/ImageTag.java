@@ -106,9 +106,9 @@ public class ImageTag extends BaseTag
     public static final String DEF_TYPE = TYPE_PNG;
 
     private static final List<String> REQ_ATTRS =
-            new ArrayList<String>(Arrays.asList(ATTR_PATHNAME));
+            new ArrayList<>(Arrays.asList(ATTR_PATHNAME));
     private static final List<String> OPT_ATTRS =
-            new ArrayList<String>(Arrays.asList(
+            new ArrayList<>(Arrays.asList(
                     ATTR_ROWS, ATTR_COLS, ATTR_TYPE));
 
     private String myPathname;
@@ -121,6 +121,7 @@ public class ImageTag extends BaseTag
      * Returns this <code>Tag's</code> name.
      * @return This <code>Tag's</code> name.
      */
+    @Override
     public String getName()
     {
         return "image";
@@ -133,7 +134,7 @@ public class ImageTag extends BaseTag
     @Override
     public List<String> getRequiredAttributes()
     {
-        List<String> reqAttrs = new ArrayList<String>(super.getRequiredAttributes());
+        List<String> reqAttrs = new ArrayList<>(super.getRequiredAttributes());
         reqAttrs.addAll(REQ_ATTRS);
         return reqAttrs;
     }
@@ -145,7 +146,7 @@ public class ImageTag extends BaseTag
     @Override
     public List<String> getOptionalAttributes()
     {
-        List<String> optAttrs = new ArrayList<String>(super.getOptionalAttributes());
+        List<String> optAttrs = new ArrayList<>(super.getOptionalAttributes());
         optAttrs.addAll(OPT_ATTRS);
         return optAttrs;
     }
@@ -219,6 +220,7 @@ public class ImageTag extends BaseTag
      * @return Whether the first <code>Cell</code> in the <code>Block</code>
      *    associated with this <code>Tag</code> was processed.
      */
+    @Override
     public boolean process()
     {
         TagContext context = getContext();
@@ -229,9 +231,8 @@ public class ImageTag extends BaseTag
         int top = block.getTopRowNum();
 
         int pictIdx;
-        try
+        try (InputStream is = new FileInputStream(myPathname))
         {
-            InputStream is = new FileInputStream(myPathname);
             byte[] imageData = IOUtils.toByteArray(is);
             pictIdx = workbook.addPicture(imageData, myType);
         }

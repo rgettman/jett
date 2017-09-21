@@ -29,6 +29,7 @@ public class ImageTest extends TestCase
      * @throws java.io.IOException If an I/O error occurs.
      * @throws org.apache.poi.openxml4j.exceptions.InvalidFormatException If the input spreadsheet is invalid.
      */
+    @Override
     @Test
     public void testXls() throws IOException, InvalidFormatException
     {
@@ -41,6 +42,7 @@ public class ImageTest extends TestCase
      * @throws java.io.IOException If an I/O error occurs.
      * @throws org.apache.poi.openxml4j.exceptions.InvalidFormatException If the input spreadsheet is invalid.
      */
+    @Override
     @Test
     public void testXlsx() throws IOException, InvalidFormatException
     {
@@ -53,6 +55,7 @@ public class ImageTest extends TestCase
      *
      * @return The Excel name base for this test.
      */
+    @Override
     protected String getExcelNameBase()
     {
         return "ImageTag";
@@ -64,6 +67,7 @@ public class ImageTest extends TestCase
      *
      * @param workbook A <code>Workbook</code>.
      */
+    @Override
     protected void check(Workbook workbook)
     {
         List<? extends PictureData> pictures = workbook.getAllPictures();
@@ -91,6 +95,7 @@ public class ImageTest extends TestCase
      * This test is a single map test.
      * @return <code>false</code>.
      */
+    @Override
     protected boolean isMultipleBeans()
     {
        return false;
@@ -101,9 +106,10 @@ public class ImageTest extends TestCase
      * bean values.
      * @return A <code>Map</code> of bean names to bean values.
      */
+    @Override
     protected Map<String, Object> getBeansMap()
     {
-        Map<String, Object> beans = new HashMap<String, Object>();
+        Map<String, Object> beans = new HashMap<>();
         beans.put("width", 4);
         beans.put("height", 6);
         return beans;

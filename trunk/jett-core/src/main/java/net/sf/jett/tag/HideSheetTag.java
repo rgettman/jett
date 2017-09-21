@@ -22,6 +22,7 @@ public class HideSheetTag extends BaseHideTag
     * Returns this <code>Tag's</code> name.
     * @return This <code>Tag's</code> name.
     */
+    @Override
     public String getName()
     {
         return "hideSheet";
@@ -31,6 +32,7 @@ public class HideSheetTag extends BaseHideTag
      * Hide/show the entire sheet where this tag is located.
      * @param hide Whether to hide or show.
      */
+    @Override
     public void setHidden(boolean hide)
     {
         TagContext context = getContext();
@@ -38,6 +40,6 @@ public class HideSheetTag extends BaseHideTag
         Workbook workbook = sheet.getWorkbook();
         int index = workbook.getSheetIndex(sheet);
 
-        workbook.setSheetHidden(workbook.getSheetIndex(sheet), hide);
+        workbook.setSheetHidden(index, hide);
     }
 }

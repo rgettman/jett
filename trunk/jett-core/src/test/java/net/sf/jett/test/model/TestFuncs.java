@@ -12,38 +12,38 @@ import org.junit.Ignore;
 @Ignore
 public class TestFuncs
 {
-   /**
-    * Just a test answer.
-    */
-   public static final int THE_ANSWER = 42;
+    /**
+     * Just a test answer.
+     */
+    public static final int THE_ANSWER = 42;
 
-   private static int numCalls = 0;
+    private static int numCalls = 0;
 
-   /**
-    * A test method that keeps track of the number of times it's been called.
-    * @return 42
-    */
-   public int testMethod()
-   {
-      numCalls++;
-      return THE_ANSWER;
-   }
+    /**
+     * A test method that keeps track of the number of times it's been called.
+     * @return 42
+     */
+    public int testMethod()
+    {
+        numCalls++;
+        return THE_ANSWER;
+    }
 
-   /**
-    * Returns the number of times that <code>testMethod</code> has been called.
-    * @return The number of times that <code>testMethod</code> has been called.
-    */
-   public int getCalls()
-   {
-      return numCalls;
-   }
+    /**
+     * Returns the number of times that <code>testMethod</code> has been called.
+     * @return The number of times that <code>testMethod</code> has been called.
+     */
+    public int getCalls()
+    {
+        return numCalls;
+    }
 
-   /**
-    * Resets the number of times that <code>testMethod</code> has been called
-    * to zero.
-    */
-   public void resetCalls()
-   {
-      numCalls = 0;
-   }
+    /**
+     * Resets the number of times that <code>testMethod</code> has been called
+     * to zero.
+     */
+    public void resetCalls()
+    {
+        numCalls = 0;
+    }
 }

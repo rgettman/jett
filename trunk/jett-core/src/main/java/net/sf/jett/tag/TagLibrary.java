@@ -10,11 +10,11 @@ import java.util.Map;
  */
 public interface TagLibrary
 {
-   /**
-    * Returns the <code>Map</code> of tag names to tag <code>Class</code>
-    * objects, e.g. <code>"if" =&gt; IfTag.class</code>.
-    * @return A <code>Map</code> of tag names to tag <code>Class</code>
-    *    objects.
-    */
-   public Map<String, Class<? extends Tag>> getTagMap();
+    /**
+     * Returns the <code>Map</code> of tag names to tag <code>Class</code>
+     * objects, e.g. <code>"if" =&gt; IfTag.class</code>.
+     * @return A <code>Map</code> of tag names to tag <code>Class</code>
+     *    objects.
+     */
+    public Map<String, Class<? extends Tag>> getTagMap();
 }

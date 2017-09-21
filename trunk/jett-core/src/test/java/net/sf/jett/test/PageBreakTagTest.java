@@ -23,6 +23,7 @@ public class PageBreakTagTest extends TestCase
      * @throws java.io.IOException If an I/O error occurs.
      * @throws org.apache.poi.openxml4j.exceptions.InvalidFormatException If the input spreadsheet is invalid.
      */
+    @Override
     @Test
     public void testXls() throws IOException, InvalidFormatException
     {
@@ -34,6 +35,7 @@ public class PageBreakTagTest extends TestCase
      * @throws IOException If an I/O error occurs.
      * @throws InvalidFormatException If the input spreadsheet is invalid.
      */
+    @Override
     @Test
     public void testXlsx() throws IOException, InvalidFormatException
     {
@@ -45,6 +47,7 @@ public class PageBreakTagTest extends TestCase
      * for this test.
      * @return The Excel name base for this test.
      */
+    @Override
     protected String getExcelNameBase()
     {
         return "PageBreakTag";
@@ -55,6 +58,7 @@ public class PageBreakTagTest extends TestCase
      * assertions.
      * @param workbook A <code>Workbook</code>.
      */
+    @Override
     protected void check(Workbook workbook)
     {
         Sheet pageBreak = workbook.getSheetAt(0);
@@ -72,6 +76,7 @@ public class PageBreakTagTest extends TestCase
      * This test is a single map test.
      * @return <code>false</code>.
      */
+    @Override
     protected boolean isMultipleBeans()
     {
         return false;
@@ -82,8 +87,9 @@ public class PageBreakTagTest extends TestCase
      * bean values.
      * @return A <code>Map</code> of bean names to bean values.
      */
+    @Override
     protected Map<String, Object> getBeansMap()
     {
-        return new HashMap<String, Object>();
+        return new HashMap<>();
     }
 }

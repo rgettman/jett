@@ -16,28 +16,28 @@ import org.apache.poi.ss.usermodel.Sheet;
  */
 public class TagLoopEvent extends TagEvent
 {
-   private int myLoopIndex;
+    private int myLoopIndex;
 
-   /**
-    * Constructs a <code>TagLoopEvent</code> built using the given
-    * <code>TagContext</code> and zero-based loop index.
-    * @param sheet A <code>Sheet</code>.
-    * @param block A <code>Block</code>.
-    * @param beans A <code>Map</code> of bean names to values.
-    * @param index The loop index.
-    */
-   public TagLoopEvent(Sheet sheet, Block block, Map<String, Object> beans, int index)
-   {
-      super(sheet, block, beans);
-      myLoopIndex = index;
-   }
+    /**
+     * Constructs a <code>TagLoopEvent</code> built using the given
+     * <code>TagContext</code> and zero-based loop index.
+     * @param sheet A <code>Sheet</code>.
+     * @param block A <code>Block</code>.
+     * @param beans A <code>Map</code> of bean names to values.
+     * @param index The loop index.
+     */
+    public TagLoopEvent(Sheet sheet, Block block, Map<String, Object> beans, int index)
+    {
+        super(sheet, block, beans);
+        myLoopIndex = index;
+    }
 
-   /**
-    * Returns the current loop index (zero-based).
-    * @return The current loop index (zero-based).
-    */
-   public int getLoopIndex()
-   {
-      return myLoopIndex;
-   }
+    /**
+     * Returns the current loop index (zero-based).
+     * @return The current loop index (zero-based).
+     */
+    public int getLoopIndex()
+    {
+        return myLoopIndex;
+    }
 }

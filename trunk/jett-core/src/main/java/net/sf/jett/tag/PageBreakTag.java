@@ -71,9 +71,9 @@ public class PageBreakTag extends BaseTag
     public static final String TYPE_BOTH = "both";
 
     private static final List<String> REQ_ATTRS =
-            new ArrayList<String>(Arrays.asList(ATTR_TYPE));
+            new ArrayList<>(Arrays.asList(ATTR_TYPE));
     private static final List<String> OPT_ATTRS =
-            new ArrayList<String>(Arrays.asList(ATTR_DISPLAY));
+            new ArrayList<>(Arrays.asList(ATTR_DISPLAY));
 
     private String myType;
     private RichTextString myDisplay;
@@ -82,6 +82,7 @@ public class PageBreakTag extends BaseTag
      * Returns this <code>Tag's</code> name.
      * @return This <code>Tag's</code> name.
      */
+    @Override
     public String getName()
     {
         return "pageBreak";
@@ -94,7 +95,7 @@ public class PageBreakTag extends BaseTag
     @Override
     protected List<String> getRequiredAttributes()
     {
-        List<String> reqAttrs = new ArrayList<String>(super.getRequiredAttributes());
+        List<String> reqAttrs = new ArrayList<>(super.getRequiredAttributes());
         if (isBodiless())
             reqAttrs.addAll(REQ_ATTRS);
         return reqAttrs;
@@ -107,7 +108,7 @@ public class PageBreakTag extends BaseTag
     @Override
     protected List<String> getOptionalAttributes()
     {
-        List<String> optAttrs = new ArrayList<String>(super.getOptionalAttributes());
+        List<String> optAttrs = new ArrayList<>(super.getOptionalAttributes());
         optAttrs.addAll(OPT_ATTRS);
         return optAttrs;
     }
@@ -138,10 +139,10 @@ public class PageBreakTag extends BaseTag
      * @return Whether the first <code>Cell</code> in the <code>Block</code>
      *    associated with this <code>Tag</code> was processed.
      */
+    @Override
     public boolean process()
     {
         TagContext context = getContext();
-        Map<String, Object> beans = context.getBeans();
         Block block = context.getBlock();
         Sheet sheet = context.getSheet();
         int left = block.getLeftColNum();

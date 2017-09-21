@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.Name;
 import org.apache.poi.ss.usermodel.PrintSetup;
@@ -41,7 +43,7 @@ import net.sf.jett.util.SheetUtil;
  */
 public class SheetCloner
 {
-    private static final boolean DEBUG = false;
+    private static final Logger logger = LogManager.getLogger();
 
     /**
      * Determines the beginning of metadata text inside sheet names only.  It's
@@ -64,7 +66,7 @@ public class SheetCloner
     public SheetCloner(Workbook workbook)
     {
         myWorkbook = workbook;
-        myMissingPropertiesList = new ArrayList<MissingCloneSheetProperties>();
+        myMissingPropertiesList = new ArrayList<>();
     }
 
     /**
@@ -81,6 +83,7 @@ public class SheetCloner
              * @param sheet The given <code>Sheet</code>.
              * @since 0.7.0
              */
+            @Override
             public void applySettings(Sheet sheet)
             {
                 replaceMissingCloneSheetProperties(sheet, myMissingPropertiesList.get(sheet.getWorkbook().getSheetIndex(sheet)));
@@ -135,7 +138,7 @@ public class SheetCloner
      */
     public void cloneForSheetSpecificBeans(List<String> templateSheetNames, List<String> newSheetNames)
     {
-        Map<String, Integer> firstReferencedSheets = new HashMap<String, Integer>();
+        Map<String, Integer> firstReferencedSheets = new HashMap<>();
         // Note down any sheet properties that are known to be "messed up" when a
         // Sheet is cloned and/or moved.
         for (int i = 0; i < myWorkbook.getNumberOfSheets(); i++)
@@ -146,10 +149,11 @@ public class SheetCloner
         // Clone and/or move sheets.
         for (int i = 0; i < templateSheetNames.size(); i++)
         {
-            if (DEBUG)
+            if (logger.isTraceEnabled())
             {
                 for (int j = 0; j < myWorkbook.getNumberOfSheets(); j++)
-                    System.err.println("  Before: Sheet(" + j + "): \"" + myWorkbook.getSheetAt(j).getSheetName() + "\".");
+                    logger.trace("  Before: Sheet({}): \"{}\".",
+                            j, myWorkbook.getSheetAt(j).getSheetName());
             }
 
             String templateSheetName = templateSheetNames.get(i);
@@ -158,22 +162,20 @@ public class SheetCloner
             {
                 int prevIndex = firstReferencedSheets.get(templateSheetName);
                 // Clone the previously referenced sheet, name it, and reposition it.
-                if (DEBUG)
-                    System.err.println("Cloning sheet at position " + prevIndex + ".");
+                logger.debug("Cloning sheet at position {}.", prevIndex);
 
                 MissingCloneSheetProperties cloned = new MissingCloneSheetProperties(myMissingPropertiesList.get(prevIndex));
 
                 myWorkbook.cloneSheet(prevIndex);
-                if (DEBUG)
-                    System.err.println("Setting sheet name at position " +
-                            (myWorkbook.getNumberOfSheets() - 1) + " to \"" + newSheetName + "\".");
+                logger.debug("Setting sheet name at position {} to \"{}\".",
+                        myWorkbook.getNumberOfSheets() - 1, newSheetName);
 
                 int clonePos = myWorkbook.getNumberOfSheets() - 1;
                 newSheetName = SheetUtil.safeSetSheetName(myWorkbook, clonePos, newSheetName);
                 cloneNamedRanges(myWorkbook, prevIndex);
 
-                if (DEBUG)
-                    System.err.println("Moving sheet \"" + newSheetName + "\" to position " + i + ".");
+                logger.debug("Moving sheet \"{}\" to position {}.",
+                        newSheetName, i);
 
                 myWorkbook.setSheetOrder(newSheetName, i);
                 updateNamedRangesScope(myWorkbook, clonePos, i);
@@ -188,15 +190,14 @@ public class SheetCloner
                     throw new RuntimeException("Template Sheet \"" + templateSheetName + "\" not found!");
 
                 // Rename the sheet and move it to the current position.
-                if (DEBUG)
-                    System.err.println("Renaming sheet at position " + index + " to \"" + newSheetName + "\".");
+                logger.debug("Renaming sheet at position {} to \"{}\".",
+                        index, newSheetName);
 
                 newSheetName = SheetUtil.safeSetSheetName(myWorkbook, index, newSheetName);
 
                 if (index != i)
                 {
-                    if (DEBUG)
-                        System.err.println("Moving sheet at position " + index + " to " + i + ".");
+                    logger.debug("Moving sheet at position {} to {}.", index, i);
 
                     MissingCloneSheetProperties move = myMissingPropertiesList.remove(index);
 
@@ -207,10 +208,11 @@ public class SheetCloner
                 }
                 firstReferencedSheets.put(templateSheetName, i);
             }
-            if (DEBUG)
+            if (logger.isTraceEnabled())
             {
                 for (int j = 0; j < myWorkbook.getNumberOfSheets(); j++)
-                    System.err.println("  After: Sheet(" + j + "): \"" + myWorkbook.getSheetAt(j).getSheetName() + "\".");
+                    logger.trace("  After: Sheet({}): \"{}\".",
+                            j, myWorkbook.getSheetAt(j).getSheetName());
             }
         }
     }
@@ -360,11 +362,8 @@ public class SheetCloner
 
         // 3. Find all collection names in the current sheet name.
         List<String> collExprs = findCollectionsInSheetName(sheet, beans, context);
-        List<Collection<Object>> collections = new ArrayList<Collection<Object>>();
-        if (DEBUG)
-        {
-            System.err.println("collExprs: " + collExprs);
-        }
+        List<Collection<Object>> collections = new ArrayList<>();
+        logger.debug("collExprs: {}", collExprs);
         for (String collExpression : collExprs)
         {
             Object result = Expression.evaluateString(
@@ -374,7 +373,7 @@ public class SheetCloner
             if (result == null)
             {
                 // Allow null to be interpreted as an empty collection.
-                result = new ArrayList<Object>(0);
+                result = new ArrayList<>(0);
             }
             if (!(result instanceof Collection))
             {
@@ -425,8 +424,7 @@ public class SheetCloner
                 if (i > 0)
                 {
                     // Clone the sheet, and move it into position.
-                    if (DEBUG)
-                        System.err.println("Implicitly cloning sheet at position " + index + ".");
+                    logger.debug("Implicitly cloning sheet at position {}.", index);
 
                     cloned = new MissingCloneSheetProperties(myMissingPropertiesList.get(index));
                     myWorkbook.cloneSheet(index);
@@ -442,28 +440,22 @@ public class SheetCloner
 
                 if (i == 0)
                 {
-                    if (DEBUG)
-                    {
-                        System.err.println("Setting sheet name at position " +
-                                index + " to \"" + newSheetName + "\".");
-                    }
+                    logger.debug("Setting sheet name at position {} to \"{}\".",
+                            index, newSheetName);
                     newSheetName = SheetUtil.safeSetSheetName(myWorkbook, index, newSheetName);
                     FormulaUtil.replaceSheetNameRefs(context, sheetName, newSheetName);
                     origSheetName = newSheetName;
                 }
                 else
                 {
-                    if (DEBUG)
-                    {
-                        System.err.println("Setting new sheet name at position " +
-                                (myWorkbook.getNumberOfSheets() - 1) + " to \"" + newSheetName + "\".");
-                    }
+                    logger.debug("Setting new sheet name at position {} to \"{}\".",
+                            myWorkbook.getNumberOfSheets() - 1, newSheetName);
                     int clonePos = myWorkbook.getNumberOfSheets() - 1;
                     newSheetName = SheetUtil.safeSetSheetName(myWorkbook, clonePos, newSheetName);
                     cloneNamedRanges(myWorkbook, index);
 
-                    if (DEBUG)
-                        System.err.println("Moving sheet \"" + newSheetName + "\" to position " + (index + i) + ".");
+                    logger.debug("Moving sheet \"{}\" to position {}.",
+                            newSheetName, index + i);
 
                     myWorkbook.setSheetOrder(newSheetName, index + i);
                     updateNamedRangesScope(myWorkbook, clonePos, index + i);
@@ -476,7 +468,7 @@ public class SheetCloner
             // Set up sheets and beans.
             if (isSheetSpecificBeans)
             {
-                List<Iterator<Object>> iterators = new ArrayList<Iterator<Object>>();
+                List<Iterator<Object>> iterators = new ArrayList<>();
                 Map<String, Object> source = beansMaps.get(index);
                 for (Collection<Object> collection : collections)
                 {
@@ -487,7 +479,7 @@ public class SheetCloner
                     Sheet cloned = myWorkbook.getSheetAt(index + i);
                     // Expose indexVar/varStatus.
                     List<String> varNames = CollectionsTransformer.getImplicitVarNames(collExprs);
-                    Map<String, Object> wrappingMap = new HashMapWrapper<String, Object>(source);
+                    Map<String, Object> wrappingMap = new HashMapWrapper<>(source);
                     for (int c = 0; c < collExprs.size(); c++)
                     {
                         Iterator<Object> itr = iterators.get(c);
@@ -522,7 +514,7 @@ public class SheetCloner
                     }
                     SheetUtil.setUpSheetForImplicitCloningAccess(cloned, collExprs, varNames);
 
-                    List<String> pastEndRefs = new ArrayList<String>();
+                    List<String> pastEndRefs = new ArrayList<>();
                     for (int c = 0; c < collections.size(); c++)
                     {
                         if (i >= collections.get(c).size())
@@ -546,7 +538,7 @@ public class SheetCloner
                 // Expose indexVar/varStatus.
                 if (indexVarName != null && !indexVarName.isEmpty())
                 {
-                    List<Integer> indexVars = new ArrayList<Integer>();
+                    List<Integer> indexVars = new ArrayList<>();
                     for (int i = 0; i < limit; i++)
                     {
                         indexVars.add(i);
@@ -555,7 +547,7 @@ public class SheetCloner
                 }
                 if (varStatusName != null && !varStatusName.isEmpty())
                 {
-                    List<BaseLoopTagStatus> varStatuses = new ArrayList<BaseLoopTagStatus>();
+                    List<BaseLoopTagStatus> varStatuses = new ArrayList<>();
                     for (int i = 0; i < limit; i++)
                     {
                         varStatuses.add(new BaseLoopTagStatus(i, limit));
@@ -567,8 +559,8 @@ public class SheetCloner
                     Sheet cloned = myWorkbook.getSheetAt(index + i);
 
                     // Set up the sheet for implicit cloning access.
-                    List<String> localCollExprs = new ArrayList<String>(collExprs);
-                    List<String> replacementExprs = new ArrayList<String>(localCollExprs.size());
+                    List<String> localCollExprs = new ArrayList<>(collExprs);
+                    List<String> replacementExprs = new ArrayList<>(localCollExprs.size());
                     for (String collExpr : localCollExprs)
                     {
                         replacementExprs.add(collExpr + "." + i);
@@ -585,7 +577,7 @@ public class SheetCloner
                         replacementExprs.add(varStatusName + "." + i);
                     }
                     SheetUtil.setUpSheetForImplicitCloningAccess(cloned, localCollExprs, replacementExprs);
-                    List<String> pastEndRefs = new ArrayList<String>();
+                    List<String> pastEndRefs = new ArrayList<>();
                     for (int c = 0; c < collections.size(); c++)
                     {
                         if (i >= collections.get(c).size())
@@ -608,7 +600,7 @@ public class SheetCloner
             // Sheet name uses replaceValue?
             Sheet toBlank = myWorkbook.getSheetAt(index);
             String oldSheetName = toBlank.getSheetName();
-            List<String> augmented = new ArrayList<String>(collExprs);
+            List<String> augmented = new ArrayList<>(collExprs);
             if (indexVarName != null && !indexVarName.isEmpty())
             {
                 augmented.add(indexVarName);
@@ -643,10 +635,8 @@ public class SheetCloner
         {
             // Evaluate any Expressions in the metadata.
             String metadata = name.substring(metadataIndIdx + BEGIN_METADATA.length());
-            if (DEBUG)
-            {
-                System.err.println("  SC: Metadata found: " + metadata + " on sheet " + sheet.getSheetName());
-            }
+            logger.debug("  SC: Metadata found: {} on sheet {}",
+                    metadata, sheet.getSheetName());
             // Parse the Metadata.
             parser = new SheetNameMetadataParser(metadata);
             parser.setCell(null);

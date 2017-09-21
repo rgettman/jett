@@ -50,174 +50,179 @@ import net.sf.jett.util.SheetUtil;
  */
 public class CommentTag extends BaseTag
 {
-   /**
-    * Attribute that specifies the value of the Cell itself after
-    * transformation.
-    */
-   public static final String ATTR_VALUE = "value";
-   /**
-    * Attribute that specifies the author of the Comment to be created.
-    */
-   public static final String ATTR_AUTHOR = "author";
-   /**
-    * Attribute that specifies the comment text.
-    */
-   public static final String ATTR_COMMENT = "comment";
-   /**
-    * Attribute that specifies whether the comment is initially visible.  Even
-    * if not initially visible, the user can mouseover a cell with a comment to
-    * view the comment text as a pop-up.
-    */
-   public static final String ATTR_VISIBLE = "visible";
+    /**
+     * Attribute that specifies the value of the Cell itself after
+     * transformation.
+     */
+    public static final String ATTR_VALUE = "value";
+    /**
+     * Attribute that specifies the author of the Comment to be created.
+     */
+    public static final String ATTR_AUTHOR = "author";
+    /**
+     * Attribute that specifies the comment text.
+     */
+    public static final String ATTR_COMMENT = "comment";
+    /**
+     * Attribute that specifies whether the comment is initially visible.  Even
+     * if not initially visible, the user can mouseover a cell with a comment to
+     * view the comment text as a pop-up.
+     */
+    public static final String ATTR_VISIBLE = "visible";
 
-   private static final List<String> REQ_ATTRS =
-      new ArrayList<String>(Arrays.asList(ATTR_VALUE, ATTR_AUTHOR, ATTR_COMMENT));
-   private static final List<String> OPT_ATTRS =
-      new ArrayList<String>(Arrays.asList(ATTR_VISIBLE));
+    private static final List<String> REQ_ATTRS =
+            new ArrayList<>(Arrays.asList(ATTR_VALUE, ATTR_AUTHOR, ATTR_COMMENT));
+    private static final List<String> OPT_ATTRS =
+            new ArrayList<>(Arrays.asList(ATTR_VISIBLE));
 
-   private RichTextString myValue;
-   private RichTextString myAuthor;
-   private RichTextString myComment;
-   private boolean amIVisible;
+    private RichTextString myValue;
+    private RichTextString myAuthor;
+    private RichTextString myComment;
+    private boolean amIVisible;
 
-   /**
-    * Returns this <code>Tag's</code> name.
-    * @return This <code>Tag's</code> name.
-    */
-   public String getName()
-   {
-      return "comment";
-   }
+    /**
+     * Returns this <code>Tag's</code> name.
+     * @return This <code>Tag's</code> name.
+     */
+    @Override
+    public String getName()
+    {
+        return "comment";
+    }
 
-   /**
-    * Returns a <code>List</code> of required attribute names.
-    * @return A <code>List</code> of required attribute names.
-    */
-   protected List<String> getRequiredAttributes()
-   {
-      List<String> reqAttrs = new ArrayList<String>(super.getRequiredAttributes());
-      reqAttrs.addAll(REQ_ATTRS);
-      return reqAttrs;
-   }
+    /**
+     * Returns a <code>List</code> of required attribute names.
+     * @return A <code>List</code> of required attribute names.
+     */
+    @Override
+    protected List<String> getRequiredAttributes()
+    {
+        List<String> reqAttrs = new ArrayList<>(super.getRequiredAttributes());
+        reqAttrs.addAll(REQ_ATTRS);
+        return reqAttrs;
+    }
 
-   /**
-    * Returns a <code>List</code> of optional attribute names.
-    * @return A <code>List</code> of optional attribute names.
-    */
-   protected List<String> getOptionalAttributes()
-   {
-      List<String> optAttrs = new ArrayList<String>(super.getOptionalAttributes());
-      optAttrs.addAll(OPT_ATTRS);
-      return optAttrs;
-   }
+    /**
+     * Returns a <code>List</code> of optional attribute names.
+     * @return A <code>List</code> of optional attribute names.
+     */
+    @Override
+    protected List<String> getOptionalAttributes()
+    {
+        List<String> optAttrs = new ArrayList<>(super.getOptionalAttributes());
+        optAttrs.addAll(OPT_ATTRS);
+        return optAttrs;
+    }
 
-   /**
-    * Validates the attributes for this <code>Tag</code>.  This tag must be
-    * bodiless.
-    */
-   @SuppressWarnings("unchecked")
-   public void validateAttributes() throws TagParseException
-   {
-      super.validateAttributes();
-      if (!isBodiless())
-         throw new TagParseException("Comment tags must not have a body.  Comment tag with body found" + getLocation());
+    /**
+     * Validates the attributes for this <code>Tag</code>.  This tag must be
+     * bodiless.
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public void validateAttributes() throws TagParseException
+    {
+        super.validateAttributes();
+        if (!isBodiless())
+            throw new TagParseException("Comment tags must not have a body.  Comment tag with body found" + getLocation());
 
-      TagContext context = getContext();
-      Map<String, Object> beans = context.getBeans();
-      Map<String, RichTextString> attributes = getAttributes();
+        TagContext context = getContext();
+        Map<String, Object> beans = context.getBeans();
+        Map<String, RichTextString> attributes = getAttributes();
 
-      myValue = attributes.get(ATTR_VALUE);
-      myAuthor = attributes.get(ATTR_AUTHOR);
-      myComment = attributes.get(ATTR_COMMENT);
+        myValue = attributes.get(ATTR_VALUE);
+        myAuthor = attributes.get(ATTR_AUTHOR);
+        myComment = attributes.get(ATTR_COMMENT);
 
-      amIVisible = AttributeUtil.evaluateBoolean(this, attributes.get(ATTR_VISIBLE), beans, false);
-   }
+        amIVisible = AttributeUtil.evaluateBoolean(this, attributes.get(ATTR_VISIBLE), beans, false);
+    }
 
-   /**
-    * <p>Place the "value" attribute in the cell, and the rest of the
-    * attributes control the creation of a cell comment.</p>
-    * @return Whether the first <code>Cell</code> in the <code>Block</code>
-    *    associated with this <code>Tag</code> was processed.
-    */
-   public boolean process()
-   {
-      TagContext context = getContext();
-      Sheet sheet = context.getSheet();
-      Block block = context.getBlock();
-      Map<String, Object> beans = context.getBeans();
-      int left = block.getLeftColNum();
-      int top = block.getTopRowNum();
-      // It should exist in this Cell; this Tag was found in it.
-      Row row = sheet.getRow(top);
-      Cell cell = row.getCell(left);
-      WorkbookContext workbookContext = getWorkbookContext();
-      SheetUtil.setCellValue(workbookContext, cell, myValue);
+    /**
+     * <p>Place the "value" attribute in the cell, and the rest of the
+     * attributes control the creation of a cell comment.</p>
+     * @return Whether the first <code>Cell</code> in the <code>Block</code>
+     *    associated with this <code>Tag</code> was processed.
+     */
+    @Override
+    public boolean process()
+    {
+        TagContext context = getContext();
+        Sheet sheet = context.getSheet();
+        Block block = context.getBlock();
+        Map<String, Object> beans = context.getBeans();
+        int left = block.getLeftColNum();
+        int top = block.getTopRowNum();
+        // It should exist in this Cell; this Tag was found in it.
+        Row row = sheet.getRow(top);
+        Cell cell = row.getCell(left);
+        WorkbookContext workbookContext = getWorkbookContext();
+        SheetUtil.setCellValue(workbookContext, cell, myValue);
 
-      Drawing drawing = context.createDrawing();
-      CreationHelper helper = sheet.getWorkbook().getCreationHelper();
-      ClientAnchor anchor = helper.createClientAnchor();
+        Drawing drawing = context.createDrawing();
+        CreationHelper helper = sheet.getWorkbook().getCreationHelper();
+        ClientAnchor anchor = helper.createClientAnchor();
 
-      Object commentString = AttributeUtil.evaluateRichTextStringNotNull(this, myComment, helper, beans, ATTR_COMMENT, "");
-      String author = AttributeUtil.evaluateStringNotNull(this, myAuthor, beans, ATTR_AUTHOR, "");
-      int commentLength;
-      if (commentString instanceof RichTextString)
-      {
-         commentLength = ((RichTextString) commentString).length();
-      }
-      else
-      {
-         commentLength = commentString.toString().length();
-      }
+        Object commentString = AttributeUtil.evaluateRichTextStringNotNull(this, myComment, helper, beans, ATTR_COMMENT, "");
+        String author = AttributeUtil.evaluateStringNotNull(this, myAuthor, beans, ATTR_AUTHOR, "");
+        int commentLength;
+        if (commentString instanceof RichTextString)
+        {
+            commentLength = ((RichTextString) commentString).length();
+        }
+        else
+        {
+            commentLength = commentString.toString().length();
+        }
 
-      // Calculate number of rows/cols to fit the comment text.  Try adding a
-      // column, then adding a row, repeatedly, until we are sure that a box of
-      // that size will hold the comment text.
-      int rows = 0;
-      int cols = 0;
-      double width = 0;
-      double height = 0;
-      double fontHeightPoints = (cell instanceof HSSFCell) ?
-         ((HSSFCell) cell).getCellStyle().getFont(sheet.getWorkbook()).getFontHeightInPoints() :
-         ((XSSFCell) cell).getCellStyle().getFont().getFontHeightInPoints();
-      while (width * height < commentLength)
-      {
-         cols++;
-         width += sheet.getColumnWidth(left + cols) / 256;
-         if (width * height >= commentLength)
-            break;
+        // Calculate number of rows/cols to fit the comment text.  Try adding a
+        // column, then adding a row, repeatedly, until we are sure that a box of
+        // that size will hold the comment text.
+        int rows = 0;
+        int cols = 0;
+        double width = 0;
+        double height = 0;
+        double fontHeightPoints = (cell instanceof HSSFCell) ?
+                ((HSSFCell) cell).getCellStyle().getFont(sheet.getWorkbook()).getFontHeightInPoints() :
+                ((XSSFCell) cell).getCellStyle().getFont().getFontHeightInPoints();
+        while (width * height < commentLength)
+        {
+            cols++;
+            width += sheet.getColumnWidth(left + cols) / 256;
+            if (width * height >= commentLength)
+                break;
 
-         Row r = sheet.getRow(top + rows);
-         if (r == null)
-            r = sheet.createRow(top + rows);
-         height += r.getHeightInPoints() / fontHeightPoints;
-         rows++;
-      }
+            Row r = sheet.getRow(top + rows);
+            if (r == null)
+                r = sheet.createRow(top + rows);
+            height += r.getHeightInPoints() / fontHeightPoints;
+            rows++;
+        }
 
-      // HSSFComments seem to need an extra row's worth of height.
-      if (cell instanceof HSSFCell)
-         rows++;
+        // HSSFComments seem to need an extra row's worth of height.
+        if (cell instanceof HSSFCell)
+            rows++;
 
-      anchor.setCol1(left);
-      anchor.setCol2(left + cols);
-      anchor.setRow1(top);
-      anchor.setRow2(top + rows);
-      
-      Comment comment = drawing.createCellComment(anchor);
-      comment.setAuthor(author);
-      if (commentString instanceof RichTextString)
-      {
-         comment.setString((RichTextString) commentString);
-      }
-      else
-      {
-         comment.setString(helper.createRichTextString(commentString.toString()));
-      }
-      comment.setVisible(amIVisible);
-      cell.setCellComment(comment);
+        anchor.setCol1(left);
+        anchor.setCol2(left + cols);
+        anchor.setRow1(top);
+        anchor.setRow2(top + rows);
 
-      BlockTransformer transformer = new BlockTransformer();
-      transformer.transform(context, workbookContext);
+        Comment comment = drawing.createCellComment(anchor);
+        comment.setAuthor(author);
+        if (commentString instanceof RichTextString)
+        {
+            comment.setString((RichTextString) commentString);
+        }
+        else
+        {
+            comment.setString(helper.createRichTextString(commentString.toString()));
+        }
+        comment.setVisible(amIVisible);
+        cell.setCellComment(comment);
 
-      return true;
-   }
+        BlockTransformer transformer = new BlockTransformer();
+        transformer.transform(context, workbookContext);
+
+        return true;
+    }
 }

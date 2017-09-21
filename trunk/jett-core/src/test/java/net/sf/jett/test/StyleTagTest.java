@@ -50,6 +50,7 @@ public class StyleTagTest extends TestCase
     * @throws java.io.IOException If an I/O error occurs.
     * @throws org.apache.poi.openxml4j.exceptions.InvalidFormatException If the input spreadsheet is invalid.
     */
+   @Override
    @Test
    public void testXls() throws IOException, InvalidFormatException
    {
@@ -61,6 +62,7 @@ public class StyleTagTest extends TestCase
     * @throws java.io.IOException If an I/O error occurs.
     * @throws org.apache.poi.openxml4j.exceptions.InvalidFormatException If the input spreadsheet is invalid.
     */
+   @Override
    @Test
    public void testXlsx() throws IOException, InvalidFormatException
    {
@@ -72,6 +74,7 @@ public class StyleTagTest extends TestCase
     * for this test.
     * @return The Excel name base for this test.
     */
+   @Override
    protected String getExcelNameBase()
    {
       return "StyleTag";
@@ -83,6 +86,7 @@ public class StyleTagTest extends TestCase
     * @param transformer The <code>ExcelTransformer</code> that will transform
     *    the template worksheet(s).
     */
+   @Override
    protected void setupTransformer(ExcelTransformer transformer)
    {
       try
@@ -100,6 +104,7 @@ public class StyleTagTest extends TestCase
     * assertions.
     * @param workbook A <code>Workbook</code>.
     */
+   @Override
    protected void check(Workbook workbook)
    {
       // Alignments
@@ -558,6 +563,7 @@ public class StyleTagTest extends TestCase
     * This test is a single map test.
     * @return <code>false</code>.
     */
+   @Override
    protected boolean isMultipleBeans()
    {
       return false;
@@ -568,16 +574,17 @@ public class StyleTagTest extends TestCase
     * bean values.
     * @return A <code>Map</code> of bean names to bean values.
     */
+   @Override
    protected Map<String, Object> getBeansMap()
    {
-      Map<String, Object> beans = new HashMap<String, Object>();
+      Map<String, Object> beans = new HashMap<>();
 
-      List<String> alignments = new ArrayList<String>();
+      List<String> alignments = new ArrayList<>();
       for (Alignment alignment : Alignment.values())
          alignments.add(alignment.toString());
       beans.put("alignments", alignments);
 
-      List<String> borderTypes = new ArrayList<String>();
+      List<String> borderTypes = new ArrayList<>();
       for (BorderType borderType : BorderType.values())
          borderTypes.add(borderType.toString());
       beans.put("borderTypes", borderTypes);
@@ -604,7 +611,7 @@ public class StyleTagTest extends TestCase
          ExcelColor.RED.toString(), ExcelColor.YELLOW.toString(), ExcelColor.BRIGHTGREEN.toString(), ExcelColor.BLACK.toString());
       List<String> foregroundColors = Arrays.asList(
          ExcelColor.TURQUOISE.toString(), ExcelColor.BLUE.toString(), ExcelColor.PINK.toString(), ExcelColor.WHITE.toString());
-      List<String> fillPatterns = new ArrayList<String>();
+      List<String> fillPatterns = new ArrayList<>();
       for (FillPattern fillPattern : FillPattern.values())
          fillPatterns.add(fillPattern.toString());
       beans.put("backgroundColors", backgroundColors);
@@ -619,12 +626,12 @@ public class StyleTagTest extends TestCase
       List<Object> rotations = Arrays.<Object>asList((short) 0, (short) 30, (short) 90, (short) -15, (short) -90, StyleParser.ROTATION_STACKED);
       beans.put("rotations", rotations);
 
-      List<String> vertAlignments = new ArrayList<String>();
+      List<String> vertAlignments = new ArrayList<>();
       for (net.sf.jett.model.VerticalAlignment vertAlignment : net.sf.jett.model.VerticalAlignment.values())
          vertAlignments.add(vertAlignment.toString());
       beans.put("vertAlignments", vertAlignments);
 
-      List<String> bolds = new ArrayList<String>();
+      List<String> bolds = new ArrayList<>();
       for (FontBoldweight boldweight : FontBoldweight.values())
          bolds.add(boldweight.toString());
       beans.put("bolds", bolds);
@@ -635,13 +642,13 @@ public class StyleTagTest extends TestCase
       beans.put("fontNames", fontNames);
       beans.put("fontSizes", fontSizes);
 
-      List<String> charsets = new ArrayList<String>();
+      List<String> charsets = new ArrayList<>();
       for (net.sf.jett.model.FontCharset charset : net.sf.jett.model.FontCharset.values())
          charsets.add(charset.toString());
       beans.put("charsets", charsets);
 
-      List<String> offsets = new ArrayList<String>();
-      List<String> underlines = new ArrayList<String>();
+      List<String> offsets = new ArrayList<>();
+      List<String> underlines = new ArrayList<>();
       for (FontTypeOffset offset : FontTypeOffset.values())
          offsets.add(offset.toString());
       for (net.sf.jett.model.FontUnderline underline : net.sf.jett.model.FontUnderline.values())
@@ -650,7 +657,7 @@ public class StyleTagTest extends TestCase
       beans.put("underlines", underlines);
 
       List<Integer> widths = Arrays.asList(10, 12, 15, 20, 50);
-      List<Integer> heights = new ArrayList<Integer>(widths);
+      List<Integer> heights = new ArrayList<>(widths);
       beans.put("widths", widths);
       beans.put("heights", heights);
       

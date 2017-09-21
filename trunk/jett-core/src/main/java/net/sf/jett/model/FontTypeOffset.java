@@ -16,36 +16,36 @@ import org.apache.poi.ss.usermodel.Font;
  */
 public enum FontTypeOffset
 {
-   NONE (Font.SS_NONE),
-   SUB  (Font.SS_SUB),
-   SUPER(Font.SS_SUPER);
+    NONE (Font.SS_NONE),
+    SUB  (Font.SS_SUB),
+    SUPER(Font.SS_SUPER);
 
-   private short myIndex;
+    private short myIndex;
 
-   /**
-    * Constructs a <code>FontTypeOffset</code>.
-    * @param index The index.
-    */
-   FontTypeOffset(short index)
-   {
-      myIndex = index;
-   }
+    /**
+     * Constructs a <code>FontTypeOffset</code>.
+     * @param index The index.
+     */
+    FontTypeOffset(short index)
+    {
+        myIndex = index;
+    }
 
-   /**
-    * Returns the index.
-    * @return The index.
-    */
-   public short getIndex()
-   {
-      return myIndex;
-   }
+    /**
+     * Returns the index.
+     * @return The index.
+     */
+    public short getIndex()
+    {
+        return myIndex;
+    }
 
-   /**
-    * Returns the name, in all lowercase, no underscores or spaces.
-    * @return The name, in all lowercase, no underscores or spaces.
-    */
-   public String toString()
-   {
-      return name().trim().toLowerCase().replace("_", "");
-   }
+    /**
+     * Returns the name, in all lowercase, no underscores or spaces.
+     * @return The name, in all lowercase, no underscores or spaces.
+     */
+    public String toString()
+    {
+        return name().trim().toLowerCase().replace("_", "");
+    }
 }

@@ -34,6 +34,7 @@ public class ExtraneousBlankCellsTest extends TestCase
      * @throws IOException If an I/O error occurs.
      * @throws InvalidFormatException If the input spreadsheet is invalid.
      */
+    @Override
     @Test
     public void testXls() throws IOException, InvalidFormatException
     {
@@ -45,6 +46,7 @@ public class ExtraneousBlankCellsTest extends TestCase
      * @throws IOException If an I/O error occurs.
      * @throws InvalidFormatException If the input spreadsheet is invalid.
      */
+    @Override
     @Test
     public void testXlsx() throws IOException, InvalidFormatException
     {
@@ -56,6 +58,7 @@ public class ExtraneousBlankCellsTest extends TestCase
      * for this test.
      * @return The Excel name base for this test.
      */
+    @Override
     protected String getExcelNameBase() { return "ExtraneousBlankCells"; }
 
     /**
@@ -64,16 +67,19 @@ public class ExtraneousBlankCellsTest extends TestCase
      * @param transformer The <code>ExcelTransformer</code> that will transform
      *    the template worksheet(s).
      */
+    @Override
     protected void setupTransformer(ExcelTransformer transformer)
     {
         // Make the phantom blank cells appear!
         transformer.addCellListener(new CellListener()
         {
+            @Override
             public boolean beforeCellProcessed(CellEvent event)
             {
                 return true;
             }
 
+            @Override
             public void cellProcessed(CellEvent event)
             {
                 Cell cell = event.getCell();
@@ -87,6 +93,7 @@ public class ExtraneousBlankCellsTest extends TestCase
      * assertions.
      * @param workbook A <code>Workbook</code>.
      */
+    @Override
     protected void check(Workbook workbook)
     {
         Sheet sheet = workbook.getSheetAt(0);
@@ -97,6 +104,7 @@ public class ExtraneousBlankCellsTest extends TestCase
      * This test is a single map test.
      * @return <code>false</code>.
      */
+    @Override
     protected boolean isMultipleBeans()
     {
         return false;
@@ -107,9 +115,10 @@ public class ExtraneousBlankCellsTest extends TestCase
      * bean values.
      * @return A <code>Map</code> of bean names to bean values.
      */
+    @Override
     protected Map<String, Object> getBeansMap()
     {
-        Map<String, Object> beans = new HashMap<String, Object>();
+        Map<String, Object> beans = new HashMap<>();
         beans.put("it1", listOf("i", SCALE));
         beans.put("it2", listOf("j", SCALE));
         beans.put("it3", listOf("k", SCALE));
@@ -126,7 +135,7 @@ public class ExtraneousBlankCellsTest extends TestCase
      */
     private static List<String> listOf(String prefix, int num)
     {
-        List<String> result = new ArrayList<String>(num);
+        List<String> result = new ArrayList<>(num);
         for (int i = 1; i <= num; i++)
         {
             result.add(String.format("%s%d", prefix, i));

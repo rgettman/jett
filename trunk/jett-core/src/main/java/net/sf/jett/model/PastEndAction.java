@@ -15,27 +15,27 @@ package net.sf.jett.model;
  */
 public enum PastEndAction
 {
-   /**
-    * Specifies that any <code>Cell</code> containing an expression that
-    * references a collection item beyond the end of the iteration should
-    * result in the entire <code>Cell</code> being blanked out.
-    */
-   CLEAR_CELL,
-   /**
-    * Specifies that any <code>Cell</code> containing an expression that
-    * references a collection item beyond the end of the iteration should
-    * result in the entire <code>Cell</code> being removed, formatting and all.
-    */
-   REMOVE_CELL,
-   /**
-    * Specifies that any <code>Cell</code> containing an expression that
-    * references a collection item beyond the end of the collection should
-    * result only in those expressions containing a reference to the collection
-    * item being replaced, e.g.
-    * <code>${notBeyondCollection} and ${beyondCollection}</code> becomes
-    * <code>NotBeyondValue and</code>, or <code>NotBeyondValue and -</code>,
-    * depending on whether a specific replacement value is given.
-    * @since 0.7.0
-    */
-   REPLACE_EXPR
+    /**
+     * Specifies that any <code>Cell</code> containing an expression that
+     * references a collection item beyond the end of the iteration should
+     * result in the entire <code>Cell</code> being blanked out.
+     */
+    CLEAR_CELL,
+    /**
+     * Specifies that any <code>Cell</code> containing an expression that
+     * references a collection item beyond the end of the iteration should
+     * result in the entire <code>Cell</code> being removed, formatting and all.
+     */
+    REMOVE_CELL,
+    /**
+     * Specifies that any <code>Cell</code> containing an expression that
+     * references a collection item beyond the end of the collection should
+     * result only in those expressions containing a reference to the collection
+     * item being replaced, e.g.
+     * <code>${notBeyondCollection} and ${beyondCollection}</code> becomes
+     * <code>NotBeyondValue and</code>, or <code>NotBeyondValue and -</code>,
+     * depending on whether a specific replacement value is given.
+     * @since 0.7.0
+     */
+    REPLACE_EXPR
 }
