@@ -31,7 +31,7 @@ public abstract class BaseHideTag extends BaseTag
     public static final String ATTR_TEST = "test";
 
     private static final List<String> REQ_ATTRS =
-            new ArrayList<String>(Arrays.asList(ATTR_TEST));
+            new ArrayList<>(Arrays.asList(ATTR_TEST));
 
     private boolean amIHiding;
 
@@ -43,7 +43,7 @@ public abstract class BaseHideTag extends BaseTag
     @Override
     protected List<String> getRequiredAttributes()
     {
-        List<String> reqAttrs = new ArrayList<String>(super.getRequiredAttributes());
+        List<String> reqAttrs = new ArrayList<>(super.getRequiredAttributes());
         reqAttrs.addAll(REQ_ATTRS);
         return reqAttrs;
     }
@@ -64,6 +64,7 @@ public abstract class BaseHideTag extends BaseTag
      * body.
      */
     @SuppressWarnings("unchecked")
+    @Override
     public void validateAttributes() throws TagParseException
     {
         super.validateAttributes();

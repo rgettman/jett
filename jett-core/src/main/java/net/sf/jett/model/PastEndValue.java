@@ -10,13 +10,13 @@ package net.sf.jett.model;
  */
 public class PastEndValue
 {
-   /**
-    * The singleton <code>PastEndValue</code> value.
-    */
-   public static final PastEndValue PAST_END_VALUE = new PastEndValue();
+    /**
+     * The singleton <code>PastEndValue</code> value.
+     */
+    public static final PastEndValue PAST_END_VALUE = new PastEndValue();
 
-   /**
-    * Don't instantiate directly.
-    */
-   private PastEndValue() {}
+    /**
+     * Don't instantiate directly.
+     */
+    private PastEndValue() {}
 }

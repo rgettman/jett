@@ -16,39 +16,40 @@ package net.sf.jett.exception;
  */
 public class AttributeExpressionException extends TagParseException
 {
-   /**
-    * Create a <code>AttributeExpressionException</code>.
-    */
-   public AttributeExpressionException()
-   {
-      super();
-   }
 
-   /**
-    * Create a <code>AttributeExpressionException</code> with the given message.
-    * @param message The message.
-    */
-   public AttributeExpressionException(String message)
-   {
-      super(message);
-   }
+    /**
+     * Create a <code>AttributeExpressionException</code>.
+     */
+    public AttributeExpressionException()
+    {
+        super();
+    }
 
-   /**
-    * Create a <code>AttributeExpressionException</code>.
-    * @param cause The cause.
-    */
-   public AttributeExpressionException(Throwable cause)
-   {
-      super(cause);
-   }
+    /**
+     * Create a <code>AttributeExpressionException</code> with the given message.
+     * @param message The message.
+     */
+    public AttributeExpressionException(String message)
+    {
+        super(message);
+    }
 
-   /**
-    * Create a <code>AttributeExpressionException</code> with the given message.
-    * @param message The message.
-    * @param cause The cause.
-    */
-   public AttributeExpressionException(String message, Throwable cause)
-   {
-      super(message, cause);
-   }
+    /**
+     * Create a <code>AttributeExpressionException</code>.
+     * @param cause The cause.
+     */
+    public AttributeExpressionException(Throwable cause)
+    {
+        super(cause);
+    }
+
+    /**
+     * Create a <code>AttributeExpressionException</code> with the given message.
+     * @param message The message.
+     * @param cause The cause.
+     */
+    public AttributeExpressionException(String message, Throwable cause)
+    {
+        super(message, cause);
+    }
 }

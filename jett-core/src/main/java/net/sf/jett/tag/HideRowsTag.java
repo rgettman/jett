@@ -24,6 +24,7 @@ public class HideRowsTag extends BaseHideTag
     * Returns this <code>Tag's</code> name.
     * @return This <code>Tag's</code> name.
     */
+    @Override
     public String getName()
     {
         return "hideRows";
@@ -33,6 +34,7 @@ public class HideRowsTag extends BaseHideTag
      * Hide/show the rows in this tag's block.
      * @param hide Whether to hide or show.
      */
+    @Override
     public void setHidden(boolean hide)
     {
         TagContext context = getContext();

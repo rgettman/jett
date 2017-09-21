@@ -51,9 +51,9 @@ public class SetTag extends BaseTag
      */
     public static final String ATTR_DISPLAY = "display";
     private static final List<String> REQ_ATTRS =
-            new ArrayList<String>(Arrays.asList(ATTR_VAR, ATTR_VALUE));
+            new ArrayList<>(Arrays.asList(ATTR_VAR, ATTR_VALUE));
     private static final List<String> OPT_ATTRS =
-            new ArrayList<String>(Arrays.asList(ATTR_DISPLAY));
+            new ArrayList<>(Arrays.asList(ATTR_DISPLAY));
 
     private String myVarName;
     private Object myValue;
@@ -63,6 +63,7 @@ public class SetTag extends BaseTag
      * Returns this <code>Tag's</code> name.
      * @return This <code>Tag's</code> name.
      */
+    @Override
     public String getName()
     {
         return "set";
@@ -75,7 +76,7 @@ public class SetTag extends BaseTag
     @Override
     protected List<String> getRequiredAttributes()
     {
-        List<String> reqAttrs = new ArrayList<String>(super.getRequiredAttributes());
+        List<String> reqAttrs = new ArrayList<>(super.getRequiredAttributes());
         if (isBodiless())
             reqAttrs.addAll(REQ_ATTRS);
         return reqAttrs;
@@ -88,7 +89,7 @@ public class SetTag extends BaseTag
     @Override
     protected List<String> getOptionalAttributes()
     {
-        List<String> optAttrs = new ArrayList<String>(super.getOptionalAttributes());
+        List<String> optAttrs = new ArrayList<>(super.getOptionalAttributes());
         optAttrs.addAll(OPT_ATTRS);
         return optAttrs;
     }
@@ -119,6 +120,7 @@ public class SetTag extends BaseTag
      * @return Whether the first <code>Cell</code> in the <code>Block</code>
      *    associated with this <code>Tag</code> was processed.
      */
+    @Override
     public boolean process()
     {
         TagContext context = getContext();

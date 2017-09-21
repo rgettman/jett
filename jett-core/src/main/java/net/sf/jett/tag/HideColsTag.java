@@ -23,6 +23,7 @@ public class HideColsTag extends BaseHideTag
     * Returns this <code>Tag's</code> name.
     * @return This <code>Tag's</code> name.
     */
+    @Override
     public String getName()
     {
         return "hideCols";
@@ -32,6 +33,7 @@ public class HideColsTag extends BaseHideTag
      * Hide/show the columns in this tag's block.
      * @param hide Whether to hide or show.
      */
+    @Override
     public void setHidden(boolean hide)
     {
         TagContext context = getContext();

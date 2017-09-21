@@ -20,47 +20,47 @@ import org.apache.poi.ss.usermodel.BorderStyle;
  */
 public enum BorderType
 {
-   NONE            ((short) BorderStyle.NONE.ordinal()),
-   THIN            ((short) BorderStyle.THIN.ordinal()),
-   MEDIUM          ((short) BorderStyle.MEDIUM.ordinal()),
-   DASHED          ((short) BorderStyle.DASHED.ordinal()),
-   HAIR            ((short) BorderStyle.HAIR.ordinal()),
-   THICK           ((short) BorderStyle.THICK.ordinal()),
-   DOUBLE          ((short) BorderStyle.DOUBLE.ordinal()),
-   DOTTED          ((short) BorderStyle.DOTTED.ordinal()),
-   MEDIUMDASHED    ((short) BorderStyle.MEDIUM_DASHED.ordinal()),
-   DASHDOT         ((short) BorderStyle.DASH_DOT.ordinal()),
-   MEDIUMDASHDOT   ((short) BorderStyle.MEDIUM_DASH_DOT.ordinal()),
-   DASHDOTDOT      ((short) BorderStyle.DASH_DOT_DOT.ordinal()),
-   MEDIUMDASHDOTDOT((short) BorderStyle.MEDIUM_DASH_DOT_DOTC.ordinal()),  // DOTC: [sic]
-   SLANTEDDASHDOT  ((short) BorderStyle.SLANTED_DASH_DOT.ordinal());
+    NONE            ((short) BorderStyle.NONE.ordinal()),
+    THIN            ((short) BorderStyle.THIN.ordinal()),
+    MEDIUM          ((short) BorderStyle.MEDIUM.ordinal()),
+    DASHED          ((short) BorderStyle.DASHED.ordinal()),
+    HAIR            ((short) BorderStyle.HAIR.ordinal()),
+    THICK           ((short) BorderStyle.THICK.ordinal()),
+    DOUBLE          ((short) BorderStyle.DOUBLE.ordinal()),
+    DOTTED          ((short) BorderStyle.DOTTED.ordinal()),
+    MEDIUMDASHED    ((short) BorderStyle.MEDIUM_DASHED.ordinal()),
+    DASHDOT         ((short) BorderStyle.DASH_DOT.ordinal()),
+    MEDIUMDASHDOT   ((short) BorderStyle.MEDIUM_DASH_DOT.ordinal()),
+    DASHDOTDOT      ((short) BorderStyle.DASH_DOT_DOT.ordinal()),
+    MEDIUMDASHDOTDOT((short) BorderStyle.MEDIUM_DASH_DOT_DOTC.ordinal()),  // DOTC: [sic]
+    SLANTEDDASHDOT  ((short) BorderStyle.SLANTED_DASH_DOT.ordinal());
 
-   private short myIndex;
+    private short myIndex;
 
-   /**
-    * Constructs a <code>BorderType</code>.
-    * @param index The index.
-    */
-   BorderType(short index)
-   {
-      myIndex = index;
-   }
+    /**
+     * Constructs a <code>BorderType</code>.
+     * @param index The index.
+     */
+    BorderType(short index)
+    {
+        myIndex = index;
+    }
 
-   /**
-    * Returns the index.
-    * @return The index.
-    */
-   public short getIndex()
-   {
-      return myIndex;
-   }
+    /**
+     * Returns the index.
+     * @return The index.
+     */
+    public short getIndex()
+    {
+        return myIndex;
+    }
 
-   /**
-    * Returns the name, in all lowercase, no underscores or spaces.
-    * @return The name, in all lowercase, no underscores or spaces.
-    */
-   public String toString()
-   {
-      return name().trim().toLowerCase().replace("_", "");
-   }
+    /**
+     * Returns the name, in all lowercase, no underscores or spaces.
+     * @return The name, in all lowercase, no underscores or spaces.
+     */
+    public String toString()
+    {
+        return name().trim().toLowerCase().replace("_", "");
+    }
 }

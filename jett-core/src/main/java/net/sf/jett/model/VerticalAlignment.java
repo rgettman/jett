@@ -14,38 +14,38 @@ package net.sf.jett.model;
  */
 public enum VerticalAlignment
 {
-   BOTTOM     ((short) org.apache.poi.ss.usermodel.VerticalAlignment.BOTTOM.ordinal()),
-   CENTER     ((short) org.apache.poi.ss.usermodel.VerticalAlignment.CENTER.ordinal()),
-   DISTRIBUTED((short) org.apache.poi.ss.usermodel.VerticalAlignment.DISTRIBUTED.ordinal()),
-   JUSTIFY    ((short) org.apache.poi.ss.usermodel.VerticalAlignment.JUSTIFY.ordinal()),
-   TOP        ((short) org.apache.poi.ss.usermodel.VerticalAlignment.TOP.ordinal());
+    BOTTOM     ((short) org.apache.poi.ss.usermodel.VerticalAlignment.BOTTOM.ordinal()),
+    CENTER     ((short) org.apache.poi.ss.usermodel.VerticalAlignment.CENTER.ordinal()),
+    DISTRIBUTED((short) org.apache.poi.ss.usermodel.VerticalAlignment.DISTRIBUTED.ordinal()),
+    JUSTIFY    ((short) org.apache.poi.ss.usermodel.VerticalAlignment.JUSTIFY.ordinal()),
+    TOP        ((short) org.apache.poi.ss.usermodel.VerticalAlignment.TOP.ordinal());
 
-   private short myIndex;
+    private short myIndex;
 
-   /**
-    * Constructs a <code>VerticalAlignment</code>.
-    * @param index The index.
-    */
-   VerticalAlignment(short index)
-   {
-      myIndex = index;
-   }
+    /**
+     * Constructs a <code>VerticalAlignment</code>.
+     * @param index The index.
+     */
+    VerticalAlignment(short index)
+    {
+        myIndex = index;
+    }
 
-   /**
-    * Returns the index.
-    * @return The index.
-    */
-   public short getIndex()
-   {
-      return myIndex;
-   }
+    /**
+     * Returns the index.
+     * @return The index.
+     */
+    public short getIndex()
+    {
+        return myIndex;
+    }
 
-   /**
-    * Returns the name, in all lowercase, no underscores or spaces.
-    * @return The name, in all lowercase, no underscores or spaces.
-    */
-   public String toString()
-   {
-      return name().trim().toLowerCase().replace("_", "");
-   }
+    /**
+     * Returns the name, in all lowercase, no underscores or spaces.
+     * @return The name, in all lowercase, no underscores or spaces.
+     */
+    public String toString()
+    {
+        return name().trim().toLowerCase().replace("_", "");
+    }
 }

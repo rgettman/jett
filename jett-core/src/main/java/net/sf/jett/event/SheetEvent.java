@@ -15,37 +15,37 @@ import org.apache.poi.ss.usermodel.Sheet;
  */
 public class SheetEvent
 {
-   private Sheet mySheet;
-   private Map<String, Object> myBeans;
+    private Sheet mySheet;
+    private Map<String, Object> myBeans;
 
-   /**
-    * Creates a <code>SheetEvent</code>.
-    * @param sheet The <code>Sheet</code> that was processed.
-    * @param beans The <code>Map</code> of bean names and values that was used
-    *    to process <code>cell</code>.
-    */
-   public SheetEvent(Sheet sheet, Map<String, Object> beans)
-   {
-      mySheet = sheet;
-      myBeans = beans;
-   }
+    /**
+     * Creates a <code>SheetEvent</code>.
+     * @param sheet The <code>Sheet</code> that was processed.
+     * @param beans The <code>Map</code> of bean names and values that was used
+     *    to process <code>cell</code>.
+     */
+    public SheetEvent(Sheet sheet, Map<String, Object> beans)
+    {
+        mySheet = sheet;
+        myBeans = beans;
+    }
 
-   /**
-    * Returns the <code>Sheet</code> that was processed.
-    * @return The <code>Sheet</code> that was processed.
-    */
-   public Sheet getSheet()
-   {
-      return mySheet;
-   }
+    /**
+     * Returns the <code>Sheet</code> that was processed.
+     * @return The <code>Sheet</code> that was processed.
+     */
+    public Sheet getSheet()
+    {
+        return mySheet;
+    }
 
-   /**
-    * Returns the <code>Map</code> of bean names and values that was used to
-    * process the <code>Sheet</code>.
-    * @return The <code>Map</code> of bean names and values.
-    */
-   public Map<String, Object> getBeans()
-   {
-      return myBeans;
-   }
+    /**
+     * Returns the <code>Map</code> of bean names and values that was used to
+     * process the <code>Sheet</code>.
+     * @return The <code>Map</code> of bean names and values.
+     */
+    public Map<String, Object> getBeans()
+    {
+        return myBeans;
+    }
 }

@@ -25,6 +25,7 @@ public class ImplCloningSSBTest extends ImplicitCloningTest
      * @throws IOException If an I/O error occurs.
      * @throws InvalidFormatException If the input spreadsheet is invalid.
      */
+    @Override
     @Test
     public void testXls() throws IOException, InvalidFormatException
     {
@@ -37,6 +38,7 @@ public class ImplCloningSSBTest extends ImplicitCloningTest
      * @throws IOException            If an I/O error occurs.
      * @throws InvalidFormatException If the input spreadsheet is invalid.
      */
+    @Override
     @Test
     public void testXlsx() throws IOException, InvalidFormatException
     {
@@ -49,6 +51,7 @@ public class ImplCloningSSBTest extends ImplicitCloningTest
      *
      * @return The Excel name base for this test.
      */
+    @Override
     protected String getExcelNameBase()
     {
         return "ImplCloningSSB";
@@ -59,6 +62,7 @@ public class ImplCloningSSBTest extends ImplicitCloningTest
      *
      * @return <code>false</code>.
      */
+    @Override
     protected boolean isMultipleBeans()
     {
         return true;
@@ -70,6 +74,7 @@ public class ImplCloningSSBTest extends ImplicitCloningTest
      * sheet names.
      * @return A <code>List</code> of template sheet names.
      */
+    @Override
     protected List<String> getListOfTemplateSheetNames()
     {
        return Arrays.asList("Static1", "${dvs.name}$@i=n;l=10;v=s;r=DNE", "Static2", "${dvs.name}$@l=0", "Static3", "${dvs.name}$@l=1");
@@ -80,6 +85,7 @@ public class ImplCloningSSBTest extends ImplicitCloningTest
      * sheet names.
      * @return A <code>List</code> of result sheet names.
      */
+    @Override
     protected List<String> getListOfResultSheetNames()
     {
         return Arrays.asList("Static1", "${dvs.name}$@i=n;l=10;v=s;r=DNE", "Static2", "${dvs.name}$@l=0", "Static3", "${dvs.name}$@l=1");
@@ -87,17 +93,18 @@ public class ImplCloningSSBTest extends ImplicitCloningTest
 
     /**
      * For multiple beans map tests, return the <code>List</code> of beans maps,
-     * which map bean names to bean values for each corresponsing sheet.
+     * which map bean names to bean values for each corresponding sheet.
      * @return A <code>List</code> of <code>Maps</code> of bean names to bean
      *    values.
      */
+    @Override
     protected List<Map<String, Object>> getListOfBeansMaps()
     {
         Map<String, Object> dvs = TestUtility.getDivisionData();
         // Space is at a premium in sheet names -- 31 characters.
         dvs.put("dvs", dvs.get("divisionsList"));
         dvs.remove("divisionsList");
-        List<Map<String, Object>> beansList = new ArrayList<Map<String, Object>>();
+        List<Map<String, Object>> beansList = new ArrayList<>();
         for (int i = 0; i < 6; i++)
         {
             if (i % 2 > 0)

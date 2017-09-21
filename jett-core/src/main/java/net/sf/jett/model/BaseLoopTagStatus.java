@@ -58,6 +58,7 @@ public class BaseLoopTagStatus implements LoopTagStatus
      * Returns the current index.
      * @return The current index.
      */
+    @Override
     public int getIndex()
     {
         return myCurrIndex;
@@ -67,6 +68,7 @@ public class BaseLoopTagStatus implements LoopTagStatus
      * Returns whether the current iteration is the first iteration.
      * @return Whether the current iteration is the first iteration.
      */
+    @Override
     public boolean isFirst()
     {
         return myCurrIndex == 0;
@@ -76,6 +78,7 @@ public class BaseLoopTagStatus implements LoopTagStatus
      * Returns whether the current iteration is the last iteration.
      * @return Whether the current iteration is the last iteration.
      */
+    @Override
     public boolean isLast()
     {
         return myCurrIndex + 1 == myNumIterations;

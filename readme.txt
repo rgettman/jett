@@ -74,7 +74,7 @@ Repository.
 Dependencies
 ----------------
 
-JETT can be used with Java 1.5+.  JETT depends on several external libraries:
+JETT can be used with Java 1.7+.  JETT depends on several external libraries:
 
 The following libraries are required, as they are used by JETT:
 - Apache POI 3.14 (http://poi.apache.org/download.html) (or higher)
@@ -96,6 +96,10 @@ The following libraries are required, as they are used by JETT:
    - junit-4.8.2.jar
 - HSQLDB 1.8.0.10 (for testing only)
    - hsqldb-1.8.0.10.jar
+- Apache Log4j2 (https://logging.apache.org/log4j/2.x/download.html) (or higher)
+   - log4j-api-2.9.0.jar
+   - log4j-core-2.9.0.jar
+   - log4j-jcl-2.9.0.jar (So JEXL's Commons Logging goes through Log4j2)
 
 Build Instructions
 ----------------

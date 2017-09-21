@@ -20,64 +20,66 @@ import net.sf.jett.model.Block;
  */
 public class ItalicTagListener implements TagListener
 {
-   /**
-    * Doesn't do anything.
-    * @param event A <code>TagEvent</code>.
-    * @return <code>true</code>.
-    * @since 0.8.0
-    */
-   public boolean beforeTagProcessed(TagEvent event)
-   {
-      return true;
-   }
+    /**
+     * Doesn't do anything.
+     * @param event A <code>TagEvent</code>.
+     * @return <code>true</code>.
+     * @since 0.8.0
+     */
+    @Override
+    public boolean beforeTagProcessed(TagEvent event)
+    {
+        return true;
+    }
 
-   /**
-    * Turns all cell text italic!
-    * @param event The <code>TagEvent</code>.
-    */
-   public void onTagProcessed(TagEvent event)
-   {
-      Block block = event.getBlock();
-      Sheet sheet = event.getSheet();
-      for (int r = block.getTopRowNum(); r <= block.getBottomRowNum(); r++)
-      {
-         Row row = sheet.getRow(r);
-         if (row != null)
-         {
-            for (int c = block.getLeftColNum(); c <= block.getRightColNum(); c++)
+    /**
+     * Turns all cell text italic!
+     * @param event The <code>TagEvent</code>.
+     */
+    @Override
+    public void onTagProcessed(TagEvent event)
+    {
+        Block block = event.getBlock();
+        Sheet sheet = event.getSheet();
+        for (int r = block.getTopRowNum(); r <= block.getBottomRowNum(); r++)
+        {
+            Row row = sheet.getRow(r);
+            if (row != null)
             {
-               Cell cell = row.getCell(c);
-               if (cell != null)
-               {
-                  Workbook workbook = sheet.getWorkbook();
-                  CellStyle style = cell.getCellStyle();
-                  short fontIdx = style.getFontIndex();
-                  Font font = workbook.getFontAt(fontIdx);
-                  if (!font.getItalic())
-                  {
-                     Font italicFont = workbook.findFont(font.getBoldweight(), font.getColor(), font.getFontHeight(),
-                        font.getFontName(), true /*italic*/, font.getStrikeout(), font.getTypeOffset(),
-                        font.getUnderline());
-                     CellStyle newStyle = workbook.createCellStyle();
-                     newStyle.cloneStyleFrom(style);
-                     if (italicFont == null)
-                     {
-                        italicFont = workbook.createFont();
-                        italicFont.setBoldweight(font.getBoldweight());
-                        italicFont.setColor(font.getColor());
-                        italicFont.setFontHeight(font.getFontHeight());
-                        italicFont.setFontName(font.getFontName());
-                        italicFont.setItalic(true);
-                        italicFont.setStrikeout(font.getStrikeout());
-                        italicFont.setTypeOffset(font.getTypeOffset());
-                        italicFont.setUnderline(font.getUnderline());
-                     }
-                     newStyle.setFont(italicFont);
-                     cell.setCellStyle(newStyle);
-                  }
-               }
+                for (int c = block.getLeftColNum(); c <= block.getRightColNum(); c++)
+                {
+                    Cell cell = row.getCell(c);
+                    if (cell != null)
+                    {
+                        Workbook workbook = sheet.getWorkbook();
+                        CellStyle style = cell.getCellStyle();
+                        short fontIdx = style.getFontIndex();
+                        Font font = workbook.getFontAt(fontIdx);
+                        if (!font.getItalic())
+                        {
+                            Font italicFont = workbook.findFont(font.getBoldweight(), font.getColor(), font.getFontHeight(),
+                                    font.getFontName(), true /*italic*/, font.getStrikeout(), font.getTypeOffset(),
+                                    font.getUnderline());
+                            CellStyle newStyle = workbook.createCellStyle();
+                            newStyle.cloneStyleFrom(style);
+                            if (italicFont == null)
+                            {
+                                italicFont = workbook.createFont();
+                                italicFont.setBoldweight(font.getBoldweight());
+                                italicFont.setColor(font.getColor());
+                                italicFont.setFontHeight(font.getFontHeight());
+                                italicFont.setFontName(font.getFontName());
+                                italicFont.setItalic(true);
+                                italicFont.setStrikeout(font.getStrikeout());
+                                italicFont.setTypeOffset(font.getTypeOffset());
+                                italicFont.setUnderline(font.getUnderline());
+                            }
+                            newStyle.setFont(italicFont);
+                            cell.setCellStyle(newStyle);
+                        }
+                    }
+                }
             }
-         }
-      }
-   }
+        }
+    }
 }

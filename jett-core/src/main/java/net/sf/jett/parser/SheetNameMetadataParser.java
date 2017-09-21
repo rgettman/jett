@@ -75,7 +75,7 @@ public class SheetNameMetadataParser extends MetadataParser
     @Override
     protected Map<String, String> getAbbreviations()
     {
-        Map<String, String> abbr = new HashMap<String, String>();
+        Map<String, String> abbr = new HashMap<>();
         abbr.put(ABBR_INDEX_VAR, VAR_NAME_INDEXVAR);
         abbr.put(ABBR_LIMIT, VAR_NAME_LIMIT);
         abbr.put(ABBR_REPLACE_VALUE, VAR_NAME_REPLACE_VALUE);

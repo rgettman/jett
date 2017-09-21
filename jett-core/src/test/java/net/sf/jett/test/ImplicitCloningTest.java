@@ -26,6 +26,7 @@ public abstract class ImplicitCloningTest extends TestCase
      *
      * @param workbook A <code>Workbook</code>.
      */
+    @Override
     protected void check(Workbook workbook)
     {
         Sheet static1 = workbook.getSheetAt(0);

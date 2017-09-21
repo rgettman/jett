@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Map;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.junit.Test;
 
 /**
@@ -22,6 +21,7 @@ public class ImplCloningNormalTest extends ImplicitCloningTest
      * @throws java.io.IOException                                        If an I/O error occurs.
      * @throws org.apache.poi.openxml4j.exceptions.InvalidFormatException If the input spreadsheet is invalid.
      */
+    @Override
     @Test
     public void testXls() throws IOException, InvalidFormatException
     {
@@ -34,6 +34,7 @@ public class ImplCloningNormalTest extends ImplicitCloningTest
      * @throws IOException            If an I/O error occurs.
      * @throws InvalidFormatException If the input spreadsheet is invalid.
      */
+    @Override
     @Test
     public void testXlsx() throws IOException, InvalidFormatException
     {
@@ -46,6 +47,7 @@ public class ImplCloningNormalTest extends ImplicitCloningTest
      *
      * @return The Excel name base for this test.
      */
+    @Override
     protected String getExcelNameBase()
     {
         return "ImplCloningNormal";
@@ -56,6 +58,7 @@ public class ImplCloningNormalTest extends ImplicitCloningTest
      *
      * @return <code>false</code>.
      */
+    @Override
     protected boolean isMultipleBeans()
     {
         return false;
@@ -67,6 +70,7 @@ public class ImplCloningNormalTest extends ImplicitCloningTest
      *
      * @return A <code>Map</code> of bean names to bean values.
      */
+    @Override
     protected Map<String, Object> getBeansMap()
     {
         Map<String, Object> beans = TestUtility.getDivisionData();

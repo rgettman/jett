@@ -26,6 +26,7 @@ public class CopyColumnWidthsRightTest extends TestCase
      * @throws IOException If an I/O error occurs.
      * @throws InvalidFormatException If the input spreadsheet is invalid.
      */
+    @Override
     @Test
     public void testXls() throws IOException, InvalidFormatException
     {
@@ -37,6 +38,7 @@ public class CopyColumnWidthsRightTest extends TestCase
      * @throws IOException If an I/O error occurs.
      * @throws InvalidFormatException If the input spreadsheet is invalid.
      */
+    @Override
     @Test
     public void testXlsx() throws IOException, InvalidFormatException
     {
@@ -48,6 +50,7 @@ public class CopyColumnWidthsRightTest extends TestCase
      * for this test.
      * @return The Excel name base for this test.
      */
+    @Override
     protected String getExcelNameBase() { return "CopyColumnWidthsRight"; }
 
     /**
@@ -55,6 +58,7 @@ public class CopyColumnWidthsRightTest extends TestCase
      * assertions.
      * @param workbook A <code>Workbook</code>.
      */
+    @Override
     protected void check(Workbook workbook)
     {
         Sheet crhd = workbook.getSheetAt(0);
@@ -70,6 +74,7 @@ public class CopyColumnWidthsRightTest extends TestCase
      * This test is a single map test.
      * @return <code>false</code>.
      */
+    @Override
     protected boolean isMultipleBeans()
     {
         return false;
@@ -80,8 +85,9 @@ public class CopyColumnWidthsRightTest extends TestCase
      * bean values.
      * @return A <code>Map</code> of bean names to bean values.
      */
+    @Override
     protected Map<String, Object> getBeansMap()
     {
-        return new HashMap<String, Object>();
+        return new HashMap<>();
     }
 }
