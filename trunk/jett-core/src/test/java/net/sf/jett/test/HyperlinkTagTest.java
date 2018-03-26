@@ -6,6 +6,7 @@ import java.util.Map;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Hyperlink;
 import org.apache.poi.ss.usermodel.RichTextString;
@@ -115,6 +116,29 @@ public class HyperlinkTagTest extends TestCase
         assertNotNull(h);
         assertEquals(Hyperlink.LINK_URL, h.getType());
         assertEquals("http://www.youtube.com/watch?v=dQw4w9WgXcQ", h.getAddress());
+
+        // Shift
+        Sheet shift = workbook.getSheetAt(2);
+        for (int r = 1; r <= 10; r++)
+        {
+            CellStyle cs = TestUtility.getCellStyle(shift, r, 1);
+            font = workbook.getFontAt(cs.getFontIndex());
+            assertEquals("0000ff", TestUtility.getFontColorString(workbook, font));
+            assertEquals(Font.U_SINGLE, font.getUnderline());
+            h = TestUtility.getHyperlink(shift, r, 1);
+            assertNotNull(h);
+            assertEquals(Hyperlink.LINK_URL, h.getType());
+            assertEquals("http://www.example.com/", h.getAddress());
+        }
+
+        CellStyle cs = TestUtility.getCellStyle(shift, 11, 1);
+        font = workbook.getFontAt(cs.getFontIndex());
+        assertEquals("0000ff", TestUtility.getFontColorString(workbook, font));
+        assertEquals(Font.U_SINGLE, font.getUnderline());
+        h = TestUtility.getHyperlink(shift, 11, 1);
+        assertNotNull(h);
+        assertEquals(Hyperlink.LINK_URL, h.getType());
+        assertEquals("http://jett.sourceforge.net/", h.getAddress());
     }
 
     /**

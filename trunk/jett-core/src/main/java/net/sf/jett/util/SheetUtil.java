@@ -25,6 +25,7 @@ import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Footer;
 import org.apache.poi.ss.usermodel.Header;
+import org.apache.poi.ss.usermodel.Hyperlink;
 import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -486,6 +487,7 @@ public class SheetUtil
     private static void removeCell(Row row, Cell cell)
     {
         cell.removeCellComment();
+        cell.removeHyperlink();
         row.removeCell(cell);
     }
 
@@ -502,6 +504,15 @@ public class SheetUtil
             oldCell.getAddress().formatAsString(), newCell.getAddress().formatAsString());
 
         newCell.setCellStyle(oldCell.getCellStyle());
+        Hyperlink h = oldCell.getHyperlink();
+        if (h != null)
+        {
+            CreationHelper helper = oldCell.getSheet().getWorkbook().getCreationHelper();
+            Hyperlink hyperlink = helper.createHyperlink(h.getType());
+            hyperlink.setAddress(h.getAddress());
+            // Insert into sheet.
+            newCell.setHyperlink(hyperlink);
+        }
 
         switch (oldCell.getCellType())
         {
@@ -1141,6 +1152,7 @@ public class SheetUtil
                     {
                         String cellRef = getCellKey(c);
                         c.setCellType(Cell.CELL_TYPE_BLANK);
+                        c.removeHyperlink();
                         tagLocationsMap.remove(cellRef);
                         logger.debug("cB: Removing {}", cellRef);
                     }
