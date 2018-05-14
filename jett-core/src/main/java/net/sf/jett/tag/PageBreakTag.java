@@ -23,13 +23,14 @@ import org.apache.poi.ss.usermodel.Sheet;
  * <br>Attributes:
  * <ul>
  * <li><em>Inherits all attributes from {@link BaseTag}.</em></li>
- * <li>type (required): <code>String</code></li>
+ * <li>type (required): <code>String</code>
  *     <ul>
  *         <li><strong>none</strong> - Clear any row and column breaks to the right/bottom of this cell.</li>
  *         <li><strong>rows</strong> - Set a row break and clear any column break to the right/bottom of this cell.</li>
  *         <li><strong>cols</strong> - Clear a row break and set a column break to the right/bottom of this cell.</li>
  *         <li><strong>both</strong> - Set a row break and a column break to the right/bottom of this cell.</li>
  *     </ul>
+ * </li>
  * <li>display (optional): <code>RichTextString</code></li>
  * </ul>
  *

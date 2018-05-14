@@ -158,7 +158,7 @@ public class CommentTag extends BaseTag
         WorkbookContext workbookContext = getWorkbookContext();
         SheetUtil.setCellValue(workbookContext, cell, myValue);
 
-        Drawing drawing = context.createDrawing();
+        Drawing drawing = context.getOrCreateDrawing();
         CreationHelper helper = sheet.getWorkbook().getCreationHelper();
         ClientAnchor anchor = helper.createClientAnchor();
 

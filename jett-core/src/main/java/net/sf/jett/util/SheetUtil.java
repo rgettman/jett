@@ -2683,7 +2683,7 @@ public class SheetUtil
      * <p>Returns a <code>String</code> formatted in the following way:</p>
      * <p>
      * <code>" at " + cellReference</code>
-     * <p>
+     * </p>
      * <p>e.g. <code>" at Sheet2!C3"</code>.</p>
      *
      * @param cell The <code>Cell</code>

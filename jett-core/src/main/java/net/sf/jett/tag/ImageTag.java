@@ -241,7 +241,7 @@ public class ImageTag extends BaseTag
             throw new TagParseException("Read of pathname \"" + myPathname + "\" failed.", e);
         }
 
-        Drawing drawing = context.createDrawing();
+        Drawing drawing = context.getOrCreateDrawing();
         ClientAnchor anchor = workbook.getCreationHelper().createClientAnchor();
         anchor.setCol1(left);
         anchor.setRow1(top);

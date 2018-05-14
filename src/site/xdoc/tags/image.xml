@@ -39,7 +39,8 @@
         </section>
         <section name="Example">
             <p>In this example, two different image types are used.  One specifies the rows and
-            columns, and the other one does not.</p>
+            columns, and the other one does not.  The variable <code>height</code> is <code>6</code>,
+            and the variable <code>width</code> is <code>4</code>.</p>
             <p>Here is the template spreadsheet:</p>
             <img src="../images/template_image.gif" alt="Image Template"/>
             <p>... gets transformed into...</p>

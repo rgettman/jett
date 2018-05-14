@@ -5,41 +5,49 @@
     </properties>
     <body>
         <section name="News">
-            <p><strong>JETT 0.10.0 (Beta) Released</strong></p>
-            <p>New in JETT 0.10.0:</p>
+            <p><strong>JETT 0.11.0 (Beta) Released</strong></p>
+            <p>New in JETT 0.11.0:</p>
             <ul>
-                <li>Ticket #56: Rich text strings using the "automatic" Excel color crashes JETT.
-                    Now, JETT takes into account the "automatic" Excel color to avoid the crash.</li>
-                <li>Ticket #57: Two or more levels of nested forEach tags with a JETT Formula that
-                    refers to cells at least 2 levels deeper than the formula result in an
-                    incorrect Excel formula.  There was a problem in the algorithm that JETT relied
-                    upon to keep track of cell updates across 2 or more levels of nested looping
-                    tags.  The formula nesting level is now kept track in the <code>TagContext</code>
-                    object, and this bug is fixed.</li>
-                <li>Ticket #58: A "&lt;" character inside a JETT Formula triggers a
-                    <code>TagParseException</code> when the <code>TagParser</code> attempts to
-                    parse it as a tag.  Now JETT skips over JETT Formula text when scanning cell
-                    text looking for tags.</li>
-                <li>Ticket #60: Excel 2007+ (.xlsx) templates with Excel comments in them cause
-                    JETT to crash when it is cacheing pre-existing fonts when it first reads the
-                    spreadsheet.  An unexpected color index, 81, was outside the normal range of
-                    Excel indexed colors, causing the crash.  JETT now takes into account this
-                    index to avoid the crash.</li>
-                <li>Ticket #65: Using a lot of span tags, especially in a loop, causes an
-                    <code>IllegalStateException</code> from Apache POI because the maximum number
-                    of cell styles was exceeded.  This was caused because JETT didn't cache the new
-                    <code>CellStyle</code> objects, resulting in an excessive number of similar or
-                    identical cell styles.  The span tag is now caching any new cell styles it
-                    creates, so it can find that same existing cell style later.</li>
-                <li>Ticket #67: Create a tag that can supply a dynamic image to the resultant
-                    spreadsheet.  JETT now has the <a href="tags/image.html">image tag</a>.</li>
-                <li>JETT is now tested using Apache POI 3.14.  JETT now requires Apache POI 3.14
-                    (or greater).</li>
+                <li>Ticket #68: If a "&lt;" character is inside the body of a tag, JETT had
+                    mistakenly parsed it as the beginning of a tag and thrown a
+                    <code>TagParseException</code>.  This is now parsed correctly.</li>
+                <li>Ticket #71: Create a tag to set the value of a variable.  JETT now has the new
+                    <a href="tags/set.html">set tag</a> to assign a value to a variable in the
+                    beans map.</li>
+                <li>Ticket #74: The "findCellStyleWithFont" method didn't cache a font object if
+                    the font was not found and a new one is created.  Now it does cache it.</li>
+                <li>Ticket #76: The "rows" and "cols" attributes on the
+                    <a href="tags/image.html">image tag</a> had no effect and weren't working.
+                    This is now fixed in JETT.</li>
+                <li>Ticket #77: Performance issues, calling "copyColumnWidthsRight" when a
+                    rightward looping tag is embedded in a downward looping tag.  Now JETT will only
+                    set column widths on the first iteration of the inner, rightward looping tag.</li>
+                <li>Ticket #78: Extraneous blank cells created upon processing of nested
+                    <code>jt:forEach</code> tags.  The logic has been updated and now this has been
+                    resolved.</li>
+                <li>Ticket #79: Implicit Sheet cloning fails if the collection contains exactly
+                    one element.  There was an off-by-one error in the logic.  This has been
+                    resolved.</li>
+                <li>Ticket #81: Add a "page break" tag.  JETT now has the new
+                    <a href="tags/pageBreak.html">pageBreak tag</a></li>
+                <li>Ticket #82: In JETT Formulas, a cell reference doesn't get updated unless there
+                    is a space in front of punctuation/operators.  The JETT formula parser has been
+                    fixed to recognize the case of a new cell reference following a comma, a right
+                    parenthesis, or a double-quote character.</li>
+                <li>Ticket #85: Use a logging library instead of printing to System.err.  JETT is
+                    now using Log4J 2, version 2.9.0.  Because Log4J 2 requires JDK 1.7, now JETT
+                    requires at least JDK 1.7 as well.</li>
+                <li>Ticket #86: Existing hyperlinks in a template spreadsheet are not shifted,
+                    copied, or moved.  JETT had ignored existing hyperlinks in a template
+                    spreadsheet; now they are shifted, copied, and moved when appropriate.</li>
+                <li>Ticket #87: Add an attribute evaluation method for non-negative doubles.  Now
+                    <code>AttributeUtil</code> has a method for validating that an attribute
+                    contains a non-negative double value.</li>
             </ul>
             <p>View a history of all changes at the <a href="changelog.html">Change Log</a>.</p>
         </section>
         <section name="Overview">
-            <p>JETT (Java Excel Template Translator) is a Java 5.0 API that allows speedy creation
+            <p>JETT (Java Excel Template Translator) is a Java 7 API that allows speedy creation
             of Excel spreadsheet reports using Excel spreadsheet templates.</p>
             <p>JETT is built on top of the <a href="http://poi.apache.org/">Apache POI</a> library,
             which gives almost total control to the developer over the reading, creation, and
@@ -71,7 +79,7 @@
                     </a> 2.1.1 (Java Expression Language).  This allows for easy creation of
                     expressions that are substituted with model data in the form of beans at
                     runtime.</li>
-                <li>Integration with <a href="http://poi.apache.org/">Apache POI</a> 3.12.  JETT is
+                <li>Integration with <a href="http://poi.apache.org/">Apache POI</a> 3.14.  JETT is
                     built on top of the extensive Apache POI library with which it controls sheet
                     transformations.</li>
                 <li>Integration with the SourceForge project
@@ -120,7 +128,7 @@
                 <li>Apache Commons JEXL 2.1.1</li>
                 <ul>
                     <li>commons-jexl-2.1.1.jar</li>
-                    <li>Apache Commons JEXL 2.1.1 in turn depends on Commons Logging 1.1.1.</li>
+                    <li>Apache Commons JEXL 2.1.1 in turn depends on Commons Logging 1.2.</li>
                 </ul>
                 <li>Apache Commons Logging 1.2</li>
                 <ul>
@@ -137,6 +145,11 @@
                 <li>HSQLDB 1.8.0.10 (for testing only)</li>
                 <ul>
                     <li>hsqldb-1.8.0.10.jar</li>
+                </ul>
+                <li>Log4J 2 (2.9)</li>
+                <ul>
+                    <li>log4j-api-2.9.0.jar</li>
+                    <li>log4j-core-2.9.0.jar</li>
                 </ul>
             </ul>
         </section>

@@ -44,6 +44,8 @@
             <item name="&amp;lt;jt:image&amp;gt; Tag" href="tags/image.html"/>
             <item name="&amp;lt;jt:name&amp;gt; Tag" href="tags/name.html"/>
             <item name="&amp;lt;jt:null&amp;gt; Tag" href="tags/null.html"/>
+            <item name="&amp;lt;jt:pageBreak&amp;gt; Tag" href="tags/pageBreak.html"/>
+            <item name="&amp;lt;jt:set&amp;gt; Tag" href="tags/set.html"/>
             <item name="&amp;lt;jt:span&amp;gt; Tag" href="tags/span.html"/>
             <item name="&amp;lt;jt:style&amp;gt; Tag" href="tags/style.html"/>
             <item name="&amp;lt;jt:total&amp;gt; Tag" href="tags/total.html"/>
