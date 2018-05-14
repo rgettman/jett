@@ -35,6 +35,8 @@
                 <li><a href="multiForEach.html">&lt;jt:multiForEach&gt;</a></li>
                 <li><a href="name.html">&lt;jt:name&gt;</a></li>
                 <li><a href="null.html">&lt;jt:null&gt;</a></li>
+                <li><a href="pageBreak.html">&lt;jt:pageBreak&gt;</a></li>
+                <li><a href="set.html">&lt;jt:set&gt;</a></li>
                 <li><a href="span.html">&lt;jt:span&gt;</a></li>
                 <li><a href="style.html">&lt;jt:style&gt;</a></li>
                 <li><a href="total.html">&lt;jt:total&gt;</a></li>

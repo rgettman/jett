@@ -4,6 +4,46 @@
         <title>Change Log for JETT</title>
     </properties>
     <body>
+        <section name="JETT 0.11.0 (Beta) Released - 14 May 2018">
+            <p>New in JETT 0.11.0:</p>
+            <ul>
+                <li>Ticket #68: If a "&lt;" character is inside the body of a tag, JETT had
+                    mistakenly parsed it as the beginning of a tag and thrown a
+                    <code>TagParseException</code>.  This is now parsed correctly.</li>
+                <li>Ticket #71: Create a tag to set the value of a variable.  JETT now has the new
+                    <a href="tags/set.html">set tag</a> to assign a value to a variable in the
+                    beans map.</li>
+                <li>Ticket #74: The "findCellStyleWithFont" method didn't cache a font object if
+                    the font was not found and a new one is created.  Now it does cache it.</li>
+                <li>Ticket #76: The "rows" and "cols" attributes on the
+                    <a href="tags/image.html">image tag</a> had no effect and weren't working.
+                    This is now fixed in JETT.</li>
+                <li>Ticket #77: Performance issues, calling "copyColumnWidthsRight" when a
+                    rightward looping tag is embedded in a downward looping tag.  Now JETT will only
+                    set column widths on the first iteration of the inner, rightward looping tag.</li>
+                <li>Ticket #78: Extraneous blank cells created upon processing of nested
+                    <code>jt:forEach</code> tags.  The logic has been updated and now this has been
+                    resolved.</li>
+                <li>Ticket #79: Implicit Sheet cloning fails if the collection contains exactly
+                    one element.  There was an off-by-one error in the logic.  This has been
+                    resolved.</li>
+                <li>Ticket #81: Add a "page break" tag.  JETT now has the new
+                    <a href="tags/pageBreak.html">pageBreak tag</a></li>
+                <li>Ticket #82: In JETT Formulas, a cell reference doesn't get updated unless there
+                    is a space in front of punctuation/operators.  The JETT formula parser has been
+                    fixed to recognize the case of a new cell reference following a comma, a right
+                    parenthesis, or a double-quote character.</li>
+                <li>Ticket #85: Use a logging library instead of printing to System.err.  JETT is
+                    now using Log4J 2, version 2.9.0.  Because Log4J 2 requires JDK 1.7, now JETT
+                    requires at least JDK 1.7 as well.</li>
+                <li>Ticket #86: Existing hyperlinks in a template spreadsheet are not shifted,
+                    copied, or moved.  JETT had ignored existing hyperlinks in a template
+                    spreadsheet; now they are shifted, copied, and moved when appropriate.</li>
+                <li>Ticket #87: Add an attribute evaluation method for non-negative doubles.  Now
+                    <code>AttributeUtil</code> has a method for validating that an attribute
+                    contains a non-negative double value.</li>
+            </ul>
+        </section>
         <section name="JETT 0.10.0 (Beta) Released - 05 May 2016">
             <p>New in JETT 0.10.0:</p>
             <ul>

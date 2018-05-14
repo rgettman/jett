@@ -118,9 +118,9 @@ public class TagContext
 
     /**
      * Returns the <code>Sheet's</code> <code>Drawing</code> object, creating it
-     * if it doesn't exist.  It is hoped that this would be replaced by a call
-     * to <code>getDrawingPatriarch</code> in the POI "ss" package, and that
-     * that call would NOT corrupt drawings, charts, etc.
+     * if it doesn't exist.  To avoid clobbering existing drawings, replace a
+     * call to this method with a call to <code>getDrawingPatriarch</code> in
+     * the POI "ss" package, because that call will NOT corrupt drawings, charts, etc.
      * @return A <code>Drawing</code>.
      * @since 0.2.0
      */
@@ -134,6 +134,25 @@ public class TagContext
     }
 
     /**
+     * Returns the <code>Sheet's</code> <code>Drawing</code>.  Creates the
+     * <code>Drawing</code> if it doesn't exist yet.
+     * @return A <code>Drawing</code>.
+     * @since 0.11.0
+     */
+    public Drawing getOrCreateDrawing()
+    {
+        if (myDrawing == null)
+        {
+            myDrawing = getDrawing();
+            if (myDrawing == null)
+            {
+                myDrawing = createDrawing();
+            }
+        }
+        return myDrawing;
+    }
+
+    /**
      * Returns the <code>Sheet's</code> <code>Drawing</code> object, if it
      * exists yet.
      * @return A <code>Drawing</code>, or <code>null</code> if it doesn't exist
@@ -142,6 +161,10 @@ public class TagContext
      */
     public Drawing getDrawing()
     {
+        if (myDrawing == null)
+        {
+            myDrawing = mySheet.getDrawingPatriarch();
+        }
         return myDrawing;
     }
 
