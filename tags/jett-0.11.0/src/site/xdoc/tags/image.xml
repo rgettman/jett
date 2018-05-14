@@ -1,0 +1,50 @@
+<document>
+    <properties>
+        <author email="rgettman@users.sourceforge.net">Randy Gettman</author>
+        <title>Image Tag</title>
+    </properties>
+    <body>
+        <section name="The Image Tag">
+            <p>During transformation, dynamic images may be inserted into the sheet by using the
+            "image" tag.  This tag must be used in the bodiless form.  When processed, the "image"
+            tag loads a file representing the image from the file system and adds the image to the
+            sheet at the tag's location.</p>
+            <p>In the internal Apache POI library's API, the method "createDrawingPatriarch" is
+            called in order to create the Image.  On older Excel spreadsheets (.xls, versions
+            97-2003), this appears to corrupt other existing drawings such as comments, shapes,
+            and charts. However, on newer Excel spreadsheets (.xlsx, versions 2007+), this leaves
+            existing drawings such as comments, shapes, and charts intact.</p>
+            <h1>Attributes</h1>
+            <ul>
+                <li>The "image" tag supports all <a href="basics.html">base tag attributes</a>.</li>
+                <li><strong>pathname: String</strong> Required.  Load the image from this pathname,
+                    either absolute or relative to the current working directory.</li>
+                <li><strong>type: String</strong> Optional.  Specify the type of the image to be
+                    loaded.</li>
+                    <ul>
+                        <li><em>png</em> The image is a PNG. This is the default.</li>
+                        <li><em>jpeg</em> The image is a JPG.</li>
+                        <li><em>dib</em> The image is a device-independent bitmap (or a .bmp).</li>
+                        <li><em>pict</em> The image is a Mac PICT.</li>
+                        <li><em>wmf</em> The image is a Windows Metafile.</li>
+                        <li><em>emf</em> The image is an enhanced Windows Metafile.</li>
+                    </ul>
+                <li><strong>rows: int</strong> Optional.  Specify the number of Excel rows tall the
+                    image should be.</li>
+                <li><strong>cols: int</strong> Optional.  Specify the number of Excel columns wide
+                    the image should be.</li>
+                <li>If neither <code>rows</code> nor <code>cols</code> is specified, then the size
+                    of the image in the spreadsheet is the natural size of the image.</li>
+            </ul>
+        </section>
+        <section name="Example">
+            <p>In this example, two different image types are used.  One specifies the rows and
+            columns, and the other one does not.  The variable <code>height</code> is <code>6</code>,
+            and the variable <code>width</code> is <code>4</code>.</p>
+            <p>Here is the template spreadsheet:</p>
+            <img src="../images/template_image.gif" alt="Image Template"/>
+            <p>... gets transformed into...</p>
+            <img src="../images/result_image.gif" alt="Image Result"/>
+        </section>
+    </body>
+</document>

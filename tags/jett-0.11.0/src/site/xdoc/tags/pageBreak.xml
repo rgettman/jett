@@ -1,0 +1,43 @@
+<document>
+    <properties>
+        <author email="rgettman@users.sourceforge.net">Randy Gettman</author>
+        <title>PageBreak Tag</title>
+    </properties>
+    <body>
+        <section name="The PageBreak Tag">
+            <p>During transformation, Page Breaks may created using the "pageBreak" tag.  This tag
+                must be bodiless.  Excel page breaks may be created horizontally below the tag cell
+                or vertically to the right of the tag cell.  It is possible to create both or
+                neither on the same cell.</p>
+            <p>Use the optional "display" attribute to display the contents of the cell, if any.</p>
+            <h1>Attributes</h1>
+            <ul>
+                <li>The "pageBreak" tag supports all <a href="basics.html">base tag attributes</a>.</li>
+                <li><strong>type: String</strong> Required.  Create an Excel Page Break on the row
+                    below or the column to the right of the cell.  Here are the possible values:</li>
+                <ul>
+                    <li><em>rows</em> Create a horizontal Excel Page Break below this cell.</li>
+                    <li><em>cols</em> Create a vertical Excel Page Break to the right of this cell.</li>
+                    <li><em>both</em> Create a horizontal Excel Page Break below this cell <em>and</em>
+                        a vertical Excel Page Break to the right of this cell.</li>
+                    <li><em>none</em> Do not create any Excel Page Break here.</li>
+                </ul>
+                <li><strong>display: RichTextString</strong> Optional.  This determines the contents
+                    of the cell.  The default is blank.</li>
+            </ul>
+        </section>
+        <section name="Example">
+            <p>In this example, horizontal and vertical Excel Page Breaks are created.  One tag
+                creates both on one cell.</p>
+            <img src="../images/template_pagebreak.gif" alt="Page Break Template"/>
+            <p>After transformation, horizontal and vertical Excel Page Breaks have been created.
+                Notice that on cell C3, both a horizontal and a vertical break are created.  Also
+                notice that on cell I9, no page breaks are created.  The break between columns H
+                and I was created by the tag on H4, and the break between rows 8 and 9 was created
+                by the tag at D8.</p>
+            <img src="../images/result_pagebreak.gif" alt="Page Break Result"/>
+            <p>When opening a JETT-created spreadsheet with page breaks created, the page breaks
+                may not be visible until after viewing a Print Preview in Excel.</p>
+        </section>
+    </body>
+</document>

@@ -1,0 +1,53 @@
+<document>
+    <properties>
+        <author email="rgettman@users.sourceforge.net">Randy Gettman</author>
+        <title>Installation</title>
+    </properties>
+    <body>
+        <section id="download" name="Download">
+            <p>Download the latest release version of the <a href="http://jett.sourceforge.net">JETT</a>
+                library from <a href="http://sourceforge.net/projects/jett/files/">SourceForge.net</a>.
+            </p>
+        </section>
+        <section id="installation" name="Installation">
+            <p>To use the JETT library, place the <strong><code>jett-core</code></strong> jar in
+            your classpath.</p>
+            <p>The following libraries are also required to exist on your classpath:</p>
+            <ul>
+                <li><a href="http://poi.apache.org/download.html">Apache POI 3.14</a> (or higher)</li>
+                <li><a href="http://commons.apache.org/jexl/download_jexl.cgi">Apache Commons JEXL 2.1.1</a></li>
+                <li><a href="http://commons.apache.org/logging/download_logging.cgi">Apache Commons Logging 1.2</a>
+                    (or higher)</li>
+                <li><a href="http://sourceforge.net/projects/jagg/files/">SourceForge jAgg 0.9.0</a>
+                    (or higher)</li>
+                <li><a href="https://logging.apache.org/log4j/2.0/download.html">Log4J 2 (2.9.0)</a>
+                    (or higher)</li>
+            </ul>
+            <p>The JETT library does rely on <a href="http://www.junit.org/node/588">JUnit 4.8.2</a>,
+            but only for JUnit test cases when building through Maven.</p>
+            <p>If you are using Maven 2+, then you may place the following dependency in your
+            pom.xml.  Since 0.3.0, JETT has been available in the Maven 2 Central Repository.</p>
+            <source>
+&lt;dependency&gt;
+    &lt;groupId&gt;net.sf.jett&lt;/groupId&gt;
+    &lt;artifactId&gt;jett-core&lt;/artifactId&gt;
+    &lt;version&gt;0.11.0&lt;/version&gt;
+&lt;/dependency&gt;
+            </source>
+        </section>
+        <section id="buildingFromSource" name="Building from source">
+            <p>It is possible to build JETT directly from its source code, if the latest unreleased
+                changes are needed.  Use a Subversion client to get the source code and
+                <a href="http://maven.apache.org/">Apache Maven</a> to build it.  Here are the steps:
+            </p>
+            <ol>
+                <li>Get the latest JETT source code from Sourceforge Subversion using the following command:
+                    <source>svn co https://jett.svn.sourceforge.net/svnroot/jett/trunk jett</source>
+                </li>
+                <li>Run the following Maven command to build JETT and install it into the local repository:
+                    <source>mvn clean install</source>
+                </li>
+            </ol>
+        </section>
+    </body>
+</document>

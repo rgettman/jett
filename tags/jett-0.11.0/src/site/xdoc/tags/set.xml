@@ -1,0 +1,41 @@
+<document>
+    <properties>
+        <author email="rgettman@users.sourceforge.net">Randy Gettman</author>
+        <title>Set Tag</title>
+    </properties>
+    <body>
+        <section name="The Set Tag">
+            <p>During transformation, is may be desirable occasionally to change or set the value
+                of a bean variable.  One use case would be to create a short cut for a verbose
+                expression that is commonly used, e.g. <code>shortcut</code> for
+                <code>x.foo.foo2.foo3.foo4.foo5</code>.  While one can define such a variable in
+                the beans map prior to transformation, the "set" tag allows one to do so during
+                transformation.</p>
+            <p>Use the optional "display" attribute to display the contents of the cell, if any.</p>
+            <h1>Attributes</h1>
+            <ul>
+                <li>The "set" tag supports all <a href="basics.html">base tag attributes</a>.</li>
+                <li><strong>var: String</strong> Required.  The name of the variable in the beans
+                    map to set to a new value.  If there is no such variable, it is created.  If
+                    there already is such a variable, its value is overwritten.</li>
+                <li><strong>value: Object</strong> Required.  The new value of the variable.</li>
+                <li><strong>display: RichTextString</strong> Optional.  This determines the contents
+                    of the cell.  The default is blank.</li>
+            </ul>
+        </section>
+        <section name="Example">
+            <p>In this example, a relatively complicated expression <code>employees[3].catchPhrase</code>
+                is assigned to a new variable <code>bugsCatchPhrase</code>, a new value is assigned to
+                <code>x</code>, and a new numeric value is assigned to <code>y</code>.  Subsequently,
+                each variable is displayed.  The tag in C2 is cut off; the full value of the cell is
+                <code>&lt;jt:set var="bugsCatchPhrase" value="${employees[3].catchPhrase}" display="${bugsCatchPhrase}"/&gt;</code>.</p>
+            <img src="../images/template_set.gif" alt="Set Template"/>
+            <p>After transformation, the new variables have their values.  Notice how <code>${1}</code>
+                was used to assign a numeric value to a variable; content outside of <code>${}</code>
+                is interpreted as text.</p>
+            <img src="../images/result_set.gif" alt="Set Result"/>
+            <p>The new values of variables are available in cells that are processed after the cell
+                in which the "set" tag was evaluated.</p>
+        </section>
+    </body>
+</document>
