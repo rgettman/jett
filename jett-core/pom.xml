@@ -40,7 +40,7 @@
         <dependency>
             <artifactId>poi</artifactId>
             <groupId>org.apache.poi</groupId>
-            <version>3.14</version>
+            <version>3.17</version>
         </dependency>
         <dependency>
             <artifactId>poi-ooxml</artifactId>
