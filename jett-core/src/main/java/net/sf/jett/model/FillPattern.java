@@ -16,44 +16,44 @@ import org.apache.poi.ss.usermodel.FillPatternType;
  */
 public enum FillPattern
 {
-    NOFILL                   ((short) FillPatternType.NO_FILL.ordinal()),
-    SOLID                    ((short) FillPatternType.SOLID_FOREGROUND.ordinal()),
-    GRAY50PERCENT            ((short) FillPatternType.FINE_DOTS.ordinal()),
-    GRAY75PERCENT            ((short) FillPatternType.ALT_BARS.ordinal()),
-    GRAY25PERCENT            ((short) FillPatternType.SPARSE_DOTS.ordinal()),
-    HORIZONTALSTRIPE         ((short) FillPatternType.THICK_HORZ_BANDS.ordinal()),
-    VERTICALSTRIPE           ((short) FillPatternType.THICK_VERT_BANDS.ordinal()),
-    REVERSEDIAGONALSTRIPE    ((short) FillPatternType.THICK_BACKWARD_DIAG.ordinal()),
-    DIAGONALSTRIPE           ((short) FillPatternType.THICK_FORWARD_DIAG.ordinal()),
-    DIAGONALCROSSHATCH       ((short) FillPatternType.BIG_SPOTS.ordinal()),
-    THICKDIAGONALCROSSHATCH  ((short) FillPatternType.BRICKS.ordinal()),
-    THINHORIZONTALSTRIPE     ((short) FillPatternType.THIN_HORZ_BANDS.ordinal()),
-    THINVERTICALSTRIPE       ((short) FillPatternType.THIN_VERT_BANDS.ordinal()),
-    THINREVERSEDIAGONALSTRIPE((short) FillPatternType.THIN_BACKWARD_DIAG.ordinal()),
-    THINDIAGONALSTRIPE       ((short) FillPatternType.THIN_FORWARD_DIAG.ordinal()),
-    THINHORIZONTALCROSSHATCH ((short) FillPatternType.SQUARES.ordinal()),
-    THINDIAGONALCROSSHATCH   ((short) FillPatternType.DIAMONDS.ordinal()),
-    GRAY12PERCENT            ((short) FillPatternType.LESS_DOTS.ordinal()),
-    GRAY6PERCENT             ((short) FillPatternType.LEAST_DOTS.ordinal());
+    NOFILL                   (FillPatternType.NO_FILL),
+    SOLID                    (FillPatternType.SOLID_FOREGROUND),
+    GRAY50PERCENT            (FillPatternType.FINE_DOTS),
+    GRAY75PERCENT            (FillPatternType.ALT_BARS),
+    GRAY25PERCENT            (FillPatternType.SPARSE_DOTS),
+    HORIZONTALSTRIPE         (FillPatternType.THICK_HORZ_BANDS),
+    VERTICALSTRIPE           (FillPatternType.THICK_VERT_BANDS),
+    REVERSEDIAGONALSTRIPE    (FillPatternType.THICK_BACKWARD_DIAG),
+    DIAGONALSTRIPE           (FillPatternType.THICK_FORWARD_DIAG),
+    DIAGONALCROSSHATCH       (FillPatternType.BIG_SPOTS),
+    THICKDIAGONALCROSSHATCH  (FillPatternType.BRICKS),
+    THINHORIZONTALSTRIPE     (FillPatternType.THIN_HORZ_BANDS),
+    THINVERTICALSTRIPE       (FillPatternType.THIN_VERT_BANDS),
+    THINREVERSEDIAGONALSTRIPE(FillPatternType.THIN_BACKWARD_DIAG),
+    THINDIAGONALSTRIPE       (FillPatternType.THIN_FORWARD_DIAG),
+    THINHORIZONTALCROSSHATCH (FillPatternType.SQUARES),
+    THINDIAGONALCROSSHATCH   (FillPatternType.DIAMONDS),
+    GRAY12PERCENT            (FillPatternType.LESS_DOTS),
+    GRAY6PERCENT             (FillPatternType.LEAST_DOTS);
 
-    private short myIndex;
+    private FillPatternType fillPatternType;
 
     /**
      * Constructs a <code>FillPattern</code>.
-     * @param index The index.
+     * @param fillPatternType The fill pattern type.
      */
-    FillPattern(short index)
+    FillPattern(FillPatternType fillPatternType)
     {
-        myIndex = index;
+        this.fillPatternType = fillPatternType;
     }
 
     /**
-     * Returns the index.
-     * @return The index.
+     * Returns the fill Pattern type.
+     * @return The fill Pattern Type.
      */
-    public short getIndex()
+    public FillPatternType getFillPatternType()
     {
-        return myIndex;
+        return fillPatternType;
     }
 
     /**

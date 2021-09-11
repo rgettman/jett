@@ -76,7 +76,7 @@ public class TagListenersTest extends TestCase
                 {
                     Cell cell = row.getCell(c);
                     Font f = workbook.getFontAt(cell.getCellStyle().getFontIndex());
-                    assertEquals(Font.BOLDWEIGHT_BOLD, f.getBoldweight());
+                    assertTrue(f.getBold());
                     boolean shouldBeItalic = ((s == 0 || s == 1) &&
                             (r == 4 || r == 6) &&
                             (c == 3));

@@ -1,5 +1,10 @@
 package net.sf.jett.model;
 
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.VerticalAlignment;
+
 /**
  * A <code>Style</code> object holds desired properties and property values for
  * later reference.  If a property value is <code>null</code>, then that
@@ -10,11 +15,11 @@ package net.sf.jett.model;
  */
 public class Style
 {
-    private Alignment myAlignment;
-    private BorderType myBorderBottomType;
-    private BorderType myBorderLeftType;
-    private BorderType myBorderRightType;
-    private BorderType myBorderTopType;
+    private HorizontalAlignment myAlignment;
+    private BorderStyle myBorderBottomStyle;
+    private BorderStyle myBorderLeftStyle;
+    private BorderStyle myBorderRightStyle;
+    private BorderStyle myBorderTopStyle;
     private String myBorderBottomColor;
     private String myBorderLeftColor;
     private String myBorderRightColor;
@@ -23,7 +28,7 @@ public class Style
     private String myDataFormat;
     private String myFillBackgroundColor;
     private String myFillForegroundColor;
-    private FillPattern myFillPatternType;
+    private FillPatternType myFillPatternType;
     private Boolean amIHidden;
     private Short myIndention;
     private Boolean amILocked;
@@ -31,7 +36,7 @@ public class Style
     private Short myRowHeight;
     private VerticalAlignment myVerticalAlignment;
     private Boolean amIWrappingText;
-    private FontBoldweight myFontBoldweight;
+    private Boolean amIFontBold;
     private FontCharset myFontCharset;
     private String myFontColor;
     private Short myFontHeightInPoints;
@@ -48,10 +53,10 @@ public class Style
     public Style()
     {
         myAlignment = null;
-        myBorderBottomType = null;
-        myBorderLeftType = null;
-        myBorderRightType = null;
-        myBorderTopType = null;
+        myBorderBottomStyle = null;
+        myBorderLeftStyle = null;
+        myBorderRightStyle = null;
+        myBorderTopStyle = null;
         myBorderBottomColor = null;
         myBorderLeftColor = null;
         myBorderRightColor = null;
@@ -68,7 +73,7 @@ public class Style
         myRowHeight = null;
         myVerticalAlignment = null;
         amIWrappingText = null;
-        myFontBoldweight = null;
+        amIFontBold = null;
         myFontCharset = null;
         myFontColor = null;
         myFontHeightInPoints = null;
@@ -84,7 +89,7 @@ public class Style
      * Returns the horizontal alignment.
      * @return The horizontal alignment.
      */
-    public Alignment getAlignment()
+    public HorizontalAlignment getAlignment()
     {
         return myAlignment;
     }
@@ -93,85 +98,85 @@ public class Style
      * Sets the horizontal alignment.
      * @param alignment The horizontal alignment.
      */
-    public void setAlignment(Alignment alignment)
+    public void setAlignment(HorizontalAlignment alignment)
     {
         myAlignment = alignment;
         doIHaveStylesToApply = true;
     }
 
     /**
-     * Returns the bottom border type.
-     * @return The bottom border type.
+     * Returns the bottom border style.
+     * @return The bottom border style.
      */
-    public BorderType getBorderBottomType()
+    public BorderStyle getBorderBottomStyle()
     {
-        return myBorderBottomType;
+        return myBorderBottomStyle;
     }
 
     /**
-     * Sets the bottom border type.
-     * @param borderBottomType The bottom border type.
+     * Sets the bottom border style.
+     * @param borderStyle The bottom border type.
      */
-    public void setBorderBottomType(BorderType borderBottomType)
+    public void setBorderBottomStyle(BorderStyle borderStyle)
     {
-        myBorderBottomType = borderBottomType;
+        myBorderBottomStyle = borderStyle;
         doIHaveStylesToApply = true;
     }
 
     /**
-     * Returns the left border type.
-     * @return The left border type.
+     * Returns the left border style.
+     * @return The left border style.
      */
-    public BorderType getBorderLeftType()
+    public BorderStyle getBorderLeftStyle()
     {
-        return myBorderLeftType;
+        return myBorderLeftStyle;
     }
 
     /**
-     * Sets the left border type.
-     * @param borderLeftType The left border type.
+     * Sets the left border style.
+     * @param borderLeftStyle The left border style.
      */
-    public void setBorderLeftType(BorderType borderLeftType)
+    public void setBorderLeftStyle(BorderStyle borderLeftStyle)
     {
-        myBorderLeftType = borderLeftType;
+        myBorderLeftStyle = borderLeftStyle;
         doIHaveStylesToApply = true;
     }
 
     /**
-     * Returns the right border type.
-     * @return The right border type.
+     * Returns the right border style.
+     * @return The right border style.
      */
-    public BorderType getBorderRightType()
+    public BorderStyle getBorderRightStyle()
     {
-        return myBorderRightType;
+        return myBorderRightStyle;
     }
 
     /**
-     * Sets the right border type.
-     * @param borderRightType The right border type.
+     * Sets the right border style.
+     * @param borderRightStyle The right border style.
      */
-    public void setBorderRightType(BorderType borderRightType)
+    public void setBorderRightType(BorderStyle borderRightStyle)
     {
-        myBorderRightType = borderRightType;
+        myBorderRightStyle = borderRightStyle;
         doIHaveStylesToApply = true;
     }
 
     /**
-     * Returns the top border type.
-     * @return The top border type.
+     * Returns the top border style.
+     * @return The top border style.
      */
-    public BorderType getBorderTopType()
+    public BorderStyle getBorderTopStyle()
     {
-        return myBorderTopType;
+        return myBorderTopStyle;
     }
 
     /**
-     * Sets the top border type.
-     * @param borderTopType The top border type.
+     * Sets the top border style.
+     * @param borderTopStyle The top border style.
      */
-    public void setBorderTopType(BorderType borderTopType)
+    public void setBorderTopStyle(BorderStyle borderTopStyle)
     {
-        myBorderTopType = borderTopType;
+        myBorderTopStyle = borderTopStyle;
         doIHaveStylesToApply = true;
     }
 
@@ -337,7 +342,7 @@ public class Style
      * Returns the fill pattern type.
      * @return The fill pattern type.
      */
-    public FillPattern getFillPatternType()
+    public FillPatternType getFillPatternType()
     {
         return myFillPatternType;
     }
@@ -346,7 +351,7 @@ public class Style
      * Sets the fill pattern type.
      * @param fillPatternType The fill pattern type.
      */
-    public void setFillPatternType(FillPattern fillPatternType)
+    public void setFillPatternType(FillPatternType fillPatternType)
     {
         myFillPatternType = fillPatternType;
         doIHaveStylesToApply = true;
@@ -486,21 +491,21 @@ public class Style
     }
 
     /**
-     * Returns the font boldweight.
-     * @return The font boldweight.
+     * Returns whether the font is bold.
+     * @return Whether the font is bold.
      */
-    public FontBoldweight getFontBoldweight()
+    public Boolean isFontBold()
     {
-        return myFontBoldweight;
+        return amIFontBold;
     }
 
     /**
-     * Sets the font boldweight.
-     * @param fontBoldweight The font boldweight.
+     * Sets whether the font is bold.
+     * @param fontBold Whether the font is bold.
      */
-    public void setFontBoldweight(FontBoldweight fontBoldweight)
+    public void setFontBold(Boolean fontBold)
     {
-        myFontBoldweight = fontBoldweight;
+        amIFontBold = fontBold;
         doIHaveStylesToApply = true;
     }
 
@@ -675,19 +680,19 @@ public class Style
     {
         if (style.getAlignment() != null)           setAlignment(style.getAlignment());
         if (style.getBorderBottomColor() != null)   setBorderBottomColor(style.getBorderBottomColor());
-        if (style.getBorderBottomType() != null)    setBorderBottomType(style.getBorderBottomType());
+        if (style.getBorderBottomStyle() != null)    setBorderBottomStyle(style.getBorderBottomStyle());
         if (style.getBorderLeftColor() != null)     setBorderLeftColor(style.getBorderLeftColor());
-        if (style.getBorderLeftType() != null)      setBorderLeftType(style.getBorderLeftType());
+        if (style.getBorderLeftStyle() != null)      setBorderLeftStyle(style.getBorderLeftStyle());
         if (style.getBorderRightColor() != null)    setBorderRightColor(style.getBorderRightColor());
-        if (style.getBorderRightType() != null)     setBorderRightType(style.getBorderRightType());
+        if (style.getBorderRightStyle() != null)     setBorderRightType(style.getBorderRightStyle());
         if (style.getBorderTopColor() != null)      setBorderTopColor(style.getBorderTopColor());
-        if (style.getBorderTopType() != null)       setBorderTopType(style.getBorderTopType());
+        if (style.getBorderTopStyle() != null)       setBorderTopStyle(style.getBorderTopStyle());
         if (style.getColumnWidth() != null)         setColumnWidth(style.getColumnWidth());
         if (style.getDataFormat() != null)          setDataFormat(style.getDataFormat());
         if (style.getFillBackgroundColor() != null) setFillBackgroundColor(style.getFillBackgroundColor());
         if (style.getFillForegroundColor() != null) setFillForegroundColor(style.getFillForegroundColor());
         if (style.getFillPatternType() != null)     setFillPatternType(style.getFillPatternType());
-        if (style.getFontBoldweight() != null)      setFontBoldweight(style.getFontBoldweight());
+        if (style.isFontBold() != null)             setFontBold(style.isFontBold());
         if (style.getFontCharset() != null)         setFontCharset(style.getFontCharset());
         if (style.getFontColor() != null)           setFontColor(style.getFontColor());
         if (style.getFontHeightInPoints() != null)  setFontHeightInPoints(style.getFontHeightInPoints());

@@ -13,6 +13,7 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Color;
 import org.apache.poi.ss.usermodel.Comment;
+import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Hyperlink;
 import org.apache.poi.ss.usermodel.RichTextString;
@@ -974,7 +975,7 @@ public class TestUtility
      * @return The cell fill pattern.
      * @since 0.3.0
      */
-    public static short getCellFillPattern(Sheet sheet, int row, int col)
+    public static FillPatternType getCellFillPattern(Sheet sheet, int row, int col)
     {
         Row r = sheet.getRow(row);
         if (r != null)
@@ -985,7 +986,7 @@ public class TestUtility
                 return c.getCellStyle().getFillPattern();
             }
         }
-        return CellStyle.NO_FILL;
+        return FillPatternType.NO_FILL;
     }
 
     /**

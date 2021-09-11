@@ -16,27 +16,27 @@ import org.apache.poi.ss.usermodel.Font;
  */
 public enum FontBoldweight
 {
-    NORMAL(Font.BOLDWEIGHT_NORMAL),
-    BOLD  (Font.BOLDWEIGHT_BOLD);
+    NORMAL(false),
+    BOLD  (true);
 
-    private short myIndex;
+    private boolean value;
 
     /**
      * Constructs a <code>FontBoldweight</code>.
-     * @param index The index.
+     * @param value Whether it is bold or not.
      */
-    FontBoldweight(short index)
+    FontBoldweight(boolean value)
     {
-        myIndex = index;
+        this.value = value;
     }
 
     /**
      * Returns the index.
      * @return The index.
      */
-    public short getIndex()
+    public boolean getValue()
     {
-        return myIndex;
+        return value;
     }
 
     /**

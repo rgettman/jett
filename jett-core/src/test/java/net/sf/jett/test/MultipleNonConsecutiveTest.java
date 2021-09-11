@@ -45,8 +45,7 @@ public class MultipleNonConsecutiveTest extends TestCase
      * @since 0.7.0
      */
     @Override
-    protected void genericTest(String inFilename, String outFilename)
-            throws IOException, InvalidFormatException
+    protected void genericTest(String inFilename, String outFilename) throws IOException
     {
         try (FileOutputStream fileOut = new FileOutputStream(outFilename);
              InputStream fileIn = new BufferedInputStream(new FileInputStream(inFilename)))
@@ -272,8 +271,18 @@ public class MultipleNonConsecutiveTest extends TestCase
         // "cloneSheet".  Test them by setting them in the template sheet.
         // The "checkSheet" method will check all resultant sheets to see if they
         // retain these settings.
-        assertEquals("org.apache.poi.ss.util.CellRangeAddress [A:A]", sheet.getRepeatingColumns().toString());
-        assertEquals("org.apache.poi.ss.util.CellRangeAddress [1:1]", sheet.getRepeatingRows().toString());
+        CellRangeAddress repeatingColumns = sheet.getRepeatingColumns();
+        CellRangeAddress repeatingRows = sheet.getRepeatingRows();
+
+        // Check for reference to A:A (first column has an index of 0)
+        assertEquals(0, repeatingColumns.getFirstColumn());
+        assertEquals(0, repeatingColumns.getLastColumn());
+        assertTrue(repeatingColumns.isFullColumnRange());
+
+        // Check for reference to 1:1 (first row has an index of 0)
+        assertEquals(0, repeatingRows.getFirstRow());
+        assertEquals(0, repeatingRows.getLastRow());
+        assertTrue(repeatingRows.isFullRowRange());
 
         assertEquals(2, ps.getCopies());
         assertTrue(ps.getDraft());

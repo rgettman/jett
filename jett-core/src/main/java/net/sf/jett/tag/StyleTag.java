@@ -9,13 +9,17 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Color;
+import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
@@ -252,24 +256,25 @@ public class StyleTag extends BaseTag
 
         logger.debug("eAAS: cell at ({}, {})", cell.getRowIndex(), cell.getColumnIndex());
 
-        short alignment = (myStyle.getAlignment() != null) ? myStyle.getAlignment().getIndex() : cs.getAlignment();
-        short borderBottom = (myStyle.getBorderBottomType() != null) ? myStyle.getBorderBottomType().getIndex() : cs.getBorderBottom();
-        short borderLeft = (myStyle.getBorderLeftType() != null) ? myStyle.getBorderLeftType().getIndex() : cs.getBorderLeft();
-        short borderRight = (myStyle.getBorderRightType() != null) ? myStyle.getBorderRightType().getIndex() : cs.getBorderRight();
-        short borderTop = (myStyle.getBorderTopType() != null) ? myStyle.getBorderTopType().getIndex() : cs.getBorderTop();
+        HorizontalAlignment alignment = (myStyle.getAlignment() != null) ? myStyle.getAlignment() : cs.getAlignment();
+        BorderStyle borderBottom = (myStyle.getBorderBottomStyle() != null) ? myStyle.getBorderBottomStyle() : cs.getBorderBottom();
+        BorderStyle borderLeft = (myStyle.getBorderLeftStyle() != null) ? myStyle.getBorderLeftStyle() : cs.getBorderLeft();
+        BorderStyle borderRight = (myStyle.getBorderRightStyle() != null) ? myStyle.getBorderRightStyle() : cs.getBorderRight();
+        BorderStyle borderTop = (myStyle.getBorderTopStyle() != null) ? myStyle.getBorderTopStyle() : cs.getBorderTop();
         String dataFormat = (myStyle.getDataFormat() != null) ? myStyle.getDataFormat() : cs.getDataFormatString();
         Color fillBackgroundColor = (myStyle.getFillBackgroundColor() != null) ?
                 SheetUtil.getColor(workbook, myStyle.getFillBackgroundColor()) : cs.getFillBackgroundColorColor();
         Color fillForegroundColor = (myStyle.getFillForegroundColor() != null) ?
                 SheetUtil.getColor(workbook, myStyle.getFillForegroundColor()): cs.getFillForegroundColorColor();
-        short fillPattern = (myStyle.getFillPatternType() != null) ? myStyle.getFillPatternType().getIndex() : cs.getFillPattern();
+        FillPatternType fillPattern = (myStyle.getFillPatternType() != null)
+            ? myStyle.getFillPatternType() : cs.getFillPattern();
         boolean hidden = (myStyle.isHidden() != null) ? myStyle.isHidden() : cs.getHidden();
         short indention = (myStyle.getIndention() != null) ? myStyle.getIndention() : cs.getIndention();
         boolean locked = (myStyle.isLocked() != null) ? myStyle.isLocked() : cs.getLocked();
-        short verticalAlignment = (myStyle.getVerticalAlignment() != null) ?
-                myStyle.getVerticalAlignment().getIndex() : cs.getVerticalAlignment();
+        VerticalAlignment verticalAlignment = (myStyle.getVerticalAlignment() != null) ?
+                myStyle.getVerticalAlignment() : cs.getVerticalAlignment();
         boolean wrapText = (myStyle.isWrappingText() != null) ? myStyle.isWrappingText() : cs.getWrapText();
-        short fontBoldweight = (myStyle.getFontBoldweight() != null) ? myStyle.getFontBoldweight().getIndex() : f.getBoldweight();
+        boolean fontBold = (myStyle.isFontBold() != null) ? myStyle.isFontBold() : f.getBold();
         int fontCharset = (myStyle.getFontCharset() != null) ? myStyle.getFontCharset().getIndex() : f.getCharSet();
         short fontHeightInPoints = (myStyle.getFontHeightInPoints() != null) ? myStyle.getFontHeightInPoints() : f.getFontHeightInPoints();
         String fontName = (myStyle.getFontName() != null) ? myStyle.getFontName() : f.getFontName();
@@ -346,7 +351,7 @@ public class StyleTag extends BaseTag
 
         // At this point, we have all of the desired CellStyle and Font
         // characteristics.  Find a CellStyle if it exists.
-        CellStyle foundStyle = csCache.retrieveCellStyle(fontBoldweight, fontItalic, fontColor, fontName,
+        CellStyle foundStyle = csCache.retrieveCellStyle(fontBold, fontItalic, fontColor, fontName,
                 fontHeightInPoints, alignment, borderBottom, borderLeft, borderRight, borderTop, dataFormat, fontUnderline,
                 fontStrikeout, wrapText, fillBackgroundColor, fillForegroundColor, fillPattern, verticalAlignment, indention,
                 rotationDegrees, bottomBorderColor, leftBorderColor, rightBorderColor, topBorderColor, fontCharset,
@@ -357,7 +362,7 @@ public class StyleTag extends BaseTag
         {
             //short numFonts = workbook.getNumberOfFonts();
             //long start = System.nanoTime();
-            Font foundFont = fCache.retrieveFont(fontBoldweight, fontItalic, fontColor, fontName,
+            Font foundFont = fCache.retrieveFont(fontBold, fontItalic, fontColor, fontName,
                     fontHeightInPoints, fontUnderline, fontStrikeout, fontCharset, fontTypeOffset);
             //long end = System.nanoTime();
             //System.err.println("Find Font: " + (end - start) + " ns");
@@ -366,7 +371,7 @@ public class StyleTag extends BaseTag
             if (foundFont == null)
             {
                 //start = System.nanoTime();
-                foundFont = SheetUtil.createFont(workbook, fontBoldweight, fontItalic, fontColor, fontName,
+                foundFont = SheetUtil.createFont(workbook, fontBold, fontItalic, fontColor, fontName,
                         fontHeightInPoints, fontUnderline, fontStrikeout, fontCharset, fontTypeOffset);
                 //end = System.nanoTime();
                 //System.err.println("Create Font: " + (end - start) + " ns");

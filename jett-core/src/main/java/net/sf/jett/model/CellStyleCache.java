@@ -8,9 +8,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Color;
+import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFFont;
@@ -78,7 +82,7 @@ public class CellStyleCache
      * Retrieve a <code>CellStyle</code> from the cache with the given
      * properties.
      *
-     * @param fontBoldweight The font boldweight.
+     * @param fontBold Whether the font is bold.
      * @param fontItalic Whether the font is italic.
      * @param fontColor The font color.
      * @param fontName The font name.
@@ -109,14 +113,15 @@ public class CellStyleCache
      * @return A <code>CellStyle</code> that matches all given properties, or
      * <code>null</code> if it doesn't exist.
      */
-    public CellStyle retrieveCellStyle(short fontBoldweight, boolean fontItalic, Color fontColor, String fontName,
-                                       short fontHeightInPoints, short alignment, short borderBottom, short borderLeft, short borderRight,
-                                       short borderTop, String dataFormat, byte fontUnderline, boolean fontStrikeout, boolean wrapText,
-                                       Color fillBackgroundColor, Color fillForegroundColor, short fillPattern, short verticalAlignment,
-                                       short indention, short rotation, Color bottomBorderColor, Color leftBorderColor, Color rightBorderColor,
-                                       Color topBorderColor, int fontCharset, short fontTypeOffset, boolean locked, boolean hidden)
+    public CellStyle retrieveCellStyle(boolean fontBold, boolean fontItalic, Color fontColor, String fontName,
+        short fontHeightInPoints, HorizontalAlignment alignment, BorderStyle borderBottom,
+        BorderStyle borderLeft, BorderStyle borderRight, BorderStyle borderTop, String dataFormat,
+        byte fontUnderline, boolean fontStrikeout, boolean wrapText, Color fillBackgroundColor,
+        Color fillForegroundColor, FillPatternType fillPattern, VerticalAlignment verticalAlignment,
+        short indention, short rotation, Color bottomBorderColor, Color leftBorderColor, Color rightBorderColor,
+        Color topBorderColor, int fontCharset, short fontTypeOffset, boolean locked, boolean hidden)
     {
-        String representation = getRepresentation(fontBoldweight, fontItalic, fontColor, fontName, fontHeightInPoints,
+        String representation = getRepresentation(fontBold, fontItalic, fontColor, fontName, fontHeightInPoints,
                 alignment, borderBottom, borderLeft, borderRight, borderTop, dataFormat, fontUnderline, fontStrikeout,
                 wrapText, fillBackgroundColor, fillForegroundColor, fillPattern, verticalAlignment, indention, rotation,
                 bottomBorderColor, leftBorderColor, rightBorderColor, topBorderColor, fontCharset, fontTypeOffset, locked,
@@ -198,13 +203,13 @@ public class CellStyleCache
             HSSFFont hf = (HSSFFont) f;
             fontColor = hf.getHSSFColor((HSSFWorkbook) myWorkbook);
             // HSSF only stores border colors if the borders aren't "NONE".
-            if (cs.getBorderBottom() != CellStyle.BORDER_NONE)
+            if (cs.getBorderBottom() != BorderStyle.NONE)
                 bottomColor = ExcelColor.getHssfColorByIndex(cs.getBottomBorderColor());
-            if (cs.getBorderLeft() != CellStyle.BORDER_NONE)
+            if (cs.getBorderLeft() != BorderStyle.NONE)
                 leftColor = ExcelColor.getHssfColorByIndex(cs.getLeftBorderColor());
-            if (cs.getBorderRight() != CellStyle.BORDER_NONE)
+            if (cs.getBorderRight() != BorderStyle.NONE)
                 rightColor = ExcelColor.getHssfColorByIndex(cs.getRightBorderColor());
-            if (cs.getBorderTop() != CellStyle.BORDER_NONE)
+            if (cs.getBorderTop() != BorderStyle.NONE)
                 topColor = ExcelColor.getHssfColorByIndex(cs.getTopBorderColor());
         }
         else if (cs instanceof XSSFCellStyle)
@@ -220,18 +225,20 @@ public class CellStyleCache
         else
             throw new IllegalArgumentException("Bad CellStyle type: " + cs.getClass().getName());
 
-        return getRepresentation(f.getBoldweight(), f.getItalic(), fontColor, f.getFontName(),
-                f.getFontHeightInPoints(), cs.getAlignment(), cs.getBorderBottom(), cs.getBorderLeft(), cs.getBorderRight(),
-                cs.getBorderTop(), cs.getDataFormatString(), f.getUnderline(), f.getStrikeout(), cs.getWrapText(),
-                cs.getFillBackgroundColorColor(), cs.getFillForegroundColorColor(), cs.getFillPattern(), cs.getVerticalAlignment(),
-                cs.getIndention(), cs.getRotation(), bottomColor, leftColor, rightColor,
-                topColor, f.getCharSet(), f.getTypeOffset(), cs.getLocked(), cs.getHidden());
+        return getRepresentation(f.getBold(), f.getItalic(), fontColor, f.getFontName(),
+            f.getFontHeightInPoints(), cs.getAlignment(), cs.getBorderBottom(),
+            cs.getBorderLeft(), cs.getBorderRight(), cs.getBorderTop(),
+            cs.getDataFormatString(), f.getUnderline(), f.getStrikeout(), cs.getWrapText(),
+            cs.getFillBackgroundColorColor(), cs.getFillForegroundColorColor(),
+            cs.getFillPattern(), cs.getVerticalAlignment(),
+            cs.getIndention(), cs.getRotation(), bottomColor, leftColor, rightColor,
+            topColor, f.getCharSet(), f.getTypeOffset(), cs.getLocked(), cs.getHidden());
     }
 
     /**
      * Return the string representation of a <code>CellStyle</code> with the
      * given properties.
-     * @param fontBoldweight The font boldweight.
+     * @param fontBold The font boldweight.
      * @param fontItalic Whether the font is italic.
      * @param fontColor The font color.
      * @param fontName The font name.
@@ -261,16 +268,17 @@ public class CellStyleCache
      * @param hidden Whether the cell is "hidden".
      * @return The string representation.
      */
-    private String getRepresentation(short fontBoldweight, boolean fontItalic, Color fontColor, String fontName,
-                                     short fontHeightInPoints, short alignment, short borderBottom, short borderLeft, short borderRight,
-                                     short borderTop, String dataFormat, byte fontUnderline, boolean fontStrikeout, boolean wrapText,
-                                     Color fillBackgroundColor, Color fillForegroundColor, short fillPattern, short verticalAlignment,
-                                     short indention, short rotation, Color bottomBorderColor, Color leftBorderColor, Color rightBorderColor,
-                                     Color topBorderColor, int fontCharset, short fontTypeOffset, boolean locked, boolean hidden)
+    private String getRepresentation(boolean fontBold, boolean fontItalic, Color fontColor, String fontName,
+        short fontHeightInPoints, HorizontalAlignment alignment, BorderStyle borderBottom,
+        BorderStyle borderLeft, BorderStyle borderRight, BorderStyle borderTop, String dataFormat,
+        byte fontUnderline, boolean fontStrikeout, boolean wrapText, Color fillBackgroundColor,
+        Color fillForegroundColor, FillPatternType fillPattern, VerticalAlignment verticalAlignment,
+        short indention, short rotation, Color bottomBorderColor, Color leftBorderColor, Color rightBorderColor,
+        Color topBorderColor, int fontCharset, short fontTypeOffset, boolean locked, boolean hidden)
     {
         StringBuilder buf = new StringBuilder();
 
-        buf.append(fontBoldweight).append(PROP_SEP);
+        buf.append(fontBold).append(PROP_SEP);
         // Font italic
         buf.append(fontItalic).append(PROP_SEP);
         // Font color

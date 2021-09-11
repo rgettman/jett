@@ -6,13 +6,18 @@ import java.io.InputStream;
 import java.io.IOException;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Color;
+import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.xssf.usermodel.DefaultIndexedColorMap;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.junit.Test;
@@ -114,20 +119,20 @@ public class StyleFontCacheTest extends TestCase
         //assertEquals(numCellStyles, csCache.getNumEntries());
 
         // Defaults.
-        short alignment = cs.getAlignment();
-        short borderBottom = cs.getBorderBottom();
-        short borderLeft = cs.getBorderLeft();
-        short borderRight = cs.getBorderRight();
-        short borderTop = cs.getBorderTop();
+        HorizontalAlignment alignment = cs.getAlignment();
+        BorderStyle borderBottom = cs.getBorderBottom();
+        BorderStyle borderLeft = cs.getBorderLeft();
+        BorderStyle borderRight = cs.getBorderRight();
+        BorderStyle borderTop = cs.getBorderTop();
         String dataFormat = cs.getDataFormatString();
         Color fillBackgroundColor = cs.getFillBackgroundColorColor();
         Color fillForegroundColor = cs.getFillForegroundColorColor();
-        short fillPattern = cs.getFillPattern();
+        FillPatternType fillPattern = cs.getFillPattern();
         boolean hidden = cs.getHidden();
         short indention = cs.getIndention();
         boolean locked = cs.getLocked();
         short rotationDegrees = cs.getRotation();
-        short verticalAlignment = cs.getVerticalAlignment();
+        VerticalAlignment verticalAlignment = cs.getVerticalAlignment();
         boolean wrapText = cs.getWrapText();
         // Don't bother actually getting it from the CellStyle here, which would
         // involve HSSF/XSSF-specific processing.
@@ -136,7 +141,7 @@ public class StyleFontCacheTest extends TestCase
         Color rightBorderColor = null;
         Color topBorderColor = null;
         // Font properties (shouldn't change at all for CellStyle tests).
-        short fontBoldweight = fNormal.getBoldweight();
+        boolean fontBold = fNormal.getBold();
         int fontCharset = fNormal.getCharSet();
         Color fontColor;
         if (workbook instanceof HSSFWorkbook)
@@ -148,7 +153,8 @@ public class StyleFontCacheTest extends TestCase
             // XSSFWorkbook
             // See StyleTag.java comments for why we're creating a new XSSFColor
             // instead of just using the font-supplied XSSFColor.
-            fontColor = new XSSFColor(((XSSFFont) fNormal).getXSSFColor().getRGB());
+            fontColor = XSSFColor.from(((XSSFFont) fNormal).getXSSFColor().getCTColor(),
+                new DefaultIndexedColorMap());
         }
         short fontHeightInPoints = fNormal.getFontHeightInPoints();
         String fontName = fNormal.getFontName();
@@ -159,30 +165,37 @@ public class StyleFontCacheTest extends TestCase
 
         // Alignment.
         // Expect a cache hit.
-        CellStyle cached = csCache.retrieveCellStyle(fontBoldweight, fontItalic, fontColor, fontName, fontHeightInPoints,
-                alignment, borderBottom, borderLeft, borderRight, borderTop, dataFormat, fontUnderline, fontStrikeout,
-                wrapText, fillBackgroundColor, fillForegroundColor, fillPattern, verticalAlignment, indention, rotationDegrees,
+        CellStyle cached = csCache.retrieveCellStyle(fontBold, fontItalic, fontColor, fontName, fontHeightInPoints,
+                alignment, borderBottom, borderLeft,
+                borderRight, borderTop, dataFormat, fontUnderline, fontStrikeout,
+                wrapText, fillBackgroundColor, fillForegroundColor, fillPattern,
+                verticalAlignment, indention, rotationDegrees,
                 bottomBorderColor, leftBorderColor, rightBorderColor, topBorderColor, fontCharset, fontTypeOffset,
                 locked, hidden);
         assertNotNull(cached);
-        short newAlignment = CellStyle.ALIGN_RIGHT;
+        HorizontalAlignment newAlignment = HorizontalAlignment.RIGHT;
         // Expect a cache miss.
-        CellStyle notCached = csCache.retrieveCellStyle(fontBoldweight, fontItalic, fontColor, fontName, fontHeightInPoints,
-         /* changed */ newAlignment, borderBottom, borderLeft, borderRight, borderTop, dataFormat, fontUnderline, fontStrikeout,
-                wrapText, fillBackgroundColor, fillForegroundColor, fillPattern, verticalAlignment, indention, rotationDegrees,
+        CellStyle notCached = csCache.retrieveCellStyle(fontBold, fontItalic, fontColor, fontName, fontHeightInPoints,
+         /* changed */ newAlignment, borderBottom, borderLeft, borderRight,
+                borderTop, dataFormat, fontUnderline, fontStrikeout,
+                wrapText, fillBackgroundColor, fillForegroundColor, fillPattern,
+                verticalAlignment, indention, rotationDegrees,
                 bottomBorderColor, leftBorderColor, rightBorderColor, topBorderColor, fontCharset, fontTypeOffset,
                 locked, hidden);
         assertNull(notCached);
-        CellStyle newStyle = SheetUtil.createCellStyle(workbook, newAlignment, borderBottom, borderLeft, borderRight,
-                borderTop, dataFormat, wrapText, fillBackgroundColor, fillForegroundColor, fillPattern, verticalAlignment,
+        CellStyle newStyle = SheetUtil.createCellStyle(workbook, newAlignment, borderBottom,
+                borderLeft, borderRight, borderTop, dataFormat,
+                wrapText, fillBackgroundColor, fillForegroundColor, fillPattern, verticalAlignment,
                 indention, rotationDegrees, bottomBorderColor, leftBorderColor, rightBorderColor, topBorderColor,
                 locked, hidden);
         csCache.cacheCellStyle(newStyle);
         numCellStyles++;
         assertEquals(numCellStyles, csCache.getNumEntries());
-        CellStyle nowCached = csCache.retrieveCellStyle(fontBoldweight, fontItalic, fontColor, fontName, fontHeightInPoints,
-         /* changed */ newAlignment, borderBottom, borderLeft, borderRight, borderTop, dataFormat, fontUnderline, fontStrikeout,
-                wrapText, fillBackgroundColor, fillForegroundColor, fillPattern, verticalAlignment, indention, rotationDegrees,
+        CellStyle nowCached = csCache.retrieveCellStyle(fontBold, fontItalic, fontColor, fontName, fontHeightInPoints,
+         /* changed */ newAlignment, borderBottom, borderLeft,
+                borderRight, borderTop, dataFormat, fontUnderline, fontStrikeout,
+                wrapText, fillBackgroundColor, fillForegroundColor, fillPattern,
+                verticalAlignment, indention, rotationDegrees,
                 bottomBorderColor, leftBorderColor, rightBorderColor, topBorderColor, fontCharset, fontTypeOffset,
                 locked, hidden);
         assertNotNull(nowCached);

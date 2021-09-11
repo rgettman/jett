@@ -15,7 +15,8 @@ import net.sf.jett.model.FontTypeOffset;
 import net.sf.jett.model.FontUnderline;
 import net.sf.jett.model.FillPattern;
 import net.sf.jett.model.Style;
-import net.sf.jett.model.VerticalAlignment;
+import net.sf.jett.model.ExcelVerticalAlignment;
+import org.apache.poi.ss.usermodel.BorderStyle;
 
 /**
  * <p>A <code>StyleParser</code> parses "CSS" text, from beginning to end, in a
@@ -223,7 +224,7 @@ public class StyleParser
     public static final String PROPERTY_ROW_HEIGHT_IN_POINTS = "row-height-in-points";
     /**
      * The property to specify the vertical alignment of the text.
-     * @see net.sf.jett.model.VerticalAlignment
+     * @see ExcelVerticalAlignment
      */
     public static final String PROPERTY_VERTICAL_ALIGNMENT = "vertical-alignment";
     /**
@@ -487,7 +488,7 @@ public class StyleParser
         {
             try
             {
-                style.setFontBoldweight(FontBoldweight.valueOf(value));
+                style.setFontBold(FontBoldweight.valueOf(value).getValue());
             }
             catch (IllegalArgumentException e)
             {
@@ -525,7 +526,7 @@ public class StyleParser
         {
             try
             {
-                style.setAlignment(Alignment.valueOf(value));
+                style.setAlignment(Alignment.valueOf(value).getAlignment());
             }
             catch (IllegalArgumentException e)
             {
@@ -536,11 +537,11 @@ public class StyleParser
         {
             try
             {
-                BorderType bt = BorderType.valueOf(value);
-                style.setBorderBottomType(bt);
-                style.setBorderLeftType(bt);
+                BorderStyle bt = BorderType.valueOf(value).getBorderStyle();
+                style.setBorderBottomStyle(bt);
+                style.setBorderLeftStyle(bt);
                 style.setBorderRightType(bt);
-                style.setBorderTopType(bt);
+                style.setBorderTopStyle(bt);
             }
             catch (IllegalArgumentException e)
             {
@@ -589,7 +590,7 @@ public class StyleParser
         {
             try
             {
-                style.setFillPatternType(FillPattern.valueOf(value));
+                style.setFillPatternType(FillPattern.valueOf(value).getFillPatternType());
             }
             catch (IllegalArgumentException e)
             {
@@ -600,7 +601,7 @@ public class StyleParser
         {
             try
             {
-                style.setVerticalAlignment(VerticalAlignment.valueOf(value));
+                style.setVerticalAlignment(ExcelVerticalAlignment.valueOf(value).getAlignment());
             }
             catch (IllegalArgumentException e)
             {
@@ -710,7 +711,7 @@ public class StyleParser
         {
             try
             {
-                style.setBorderBottomType(BorderType.valueOf(value));
+                style.setBorderBottomStyle(BorderType.valueOf(value).getBorderStyle());
             }
             catch (IllegalArgumentException e)
             {
@@ -721,7 +722,7 @@ public class StyleParser
         {
             try
             {
-                style.setBorderLeftType(BorderType.valueOf(value));
+                style.setBorderLeftStyle(BorderType.valueOf(value).getBorderStyle());
             }
             catch (IllegalArgumentException e)
             {
@@ -732,7 +733,7 @@ public class StyleParser
         {
             try
             {
-                style.setBorderRightType(BorderType.valueOf(value));
+                style.setBorderRightType(BorderType.valueOf(value).getBorderStyle());
             }
             catch (IllegalArgumentException e)
             {
@@ -743,7 +744,7 @@ public class StyleParser
         {
             try
             {
-                style.setBorderTopType(BorderType.valueOf(value));
+                style.setBorderTopStyle(BorderType.valueOf(value).getBorderStyle());
             }
             catch (IllegalArgumentException e)
             {

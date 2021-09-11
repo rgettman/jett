@@ -2,17 +2,15 @@ package net.sf.jett.model;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import org.apache.logging.log4j.Logger;
+import net.sf.jett.util.SheetUtil;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Color;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFFont;
-
-import net.sf.jett.util.SheetUtil;
 
 /**
  * <p>A <code>FontCache</code> is used internally to keep track of
@@ -51,7 +49,7 @@ public class FontCache
      */
     private void cachePreExistingFonts()
     {
-        short numFonts = myWorkbook.getNumberOfFonts();
+        int numFonts = myWorkbook.getNumberOfFonts();
         logger.trace("Caching {} pre-existing cell fonts.", numFonts);
         for (short i = 0; i < numFonts; i++)
         {
@@ -72,7 +70,7 @@ public class FontCache
     /**
      * Retrieve a <code>Font</code> from the cache with the given
      * properties.
-     * @param fontBoldweight The font boldweight.
+     * @param fontBold Whether the font is bold.
      * @param fontItalic Whether the font is italic.
      * @param fontColor The font color.
      * @param fontName The font name.
@@ -84,10 +82,10 @@ public class FontCache
      * @return A <code>Font</code> that matches all given properties, or
      *    <code>null</code> if it doesn't exist.
      */
-    public Font retrieveFont(short fontBoldweight, boolean fontItalic, Color fontColor, String fontName,
+    public Font retrieveFont(boolean fontBold, boolean fontItalic, Color fontColor, String fontName,
                              short fontHeightInPoints, byte fontUnderline, boolean fontStrikeout, int fontCharset, short fontTypeOffset)
     {
-        String representation = getRepresentation(fontBoldweight, fontItalic, fontColor, fontName, fontHeightInPoints,
+        String representation = getRepresentation(fontBold, fontItalic, fontColor, fontName, fontHeightInPoints,
                 fontUnderline, fontStrikeout, fontCharset, fontTypeOffset
         );
         Font f = myFontMap.get(representation);
@@ -148,14 +146,14 @@ public class FontCache
         else
             throw new IllegalArgumentException("Bad Font type: " + f.getClass().getName());
 
-        return getRepresentation(f.getBoldweight(), f.getItalic(), fontColor, f.getFontName(),
+        return getRepresentation(f.getBold(), f.getItalic(), fontColor, f.getFontName(),
                 f.getFontHeightInPoints(), f.getUnderline(), f.getStrikeout(), f.getCharSet(), f.getTypeOffset());
     }
 
     /**
      * Return the string representation of a <code>Font</code> with the
      * given properties.
-     * @param fontBoldweight The font boldweight.
+     * @param fontBold Whether the font is bold.
      * @param fontItalic Whether the font is italic.
      * @param fontColor The font color.
      * @param fontName The font name.
@@ -166,12 +164,12 @@ public class FontCache
      * @param fontTypeOffset The font type offset.
      * @return The string representation.
      */
-    private String getRepresentation(short fontBoldweight, boolean fontItalic, Color fontColor, String fontName,
+    private String getRepresentation(boolean fontBold, boolean fontItalic, Color fontColor, String fontName,
                                      short fontHeightInPoints, byte fontUnderline, boolean fontStrikeout, int fontCharset, short fontTypeOffset)
     {
         StringBuilder buf = new StringBuilder();
 
-        buf.append(fontBoldweight).append(PROP_SEP);
+        buf.append(fontBold).append(PROP_SEP);
         // Font italic
         buf.append(fontItalic).append(PROP_SEP);
         // Font color

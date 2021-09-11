@@ -74,16 +74,16 @@ Repository.
 Dependencies
 ----------------
 
-JETT can be used with Java 1.7+.  JETT depends on several external libraries:
+JETT can be used with Java 1.8+.  JETT depends on several external libraries:
 
 The following libraries are required, as they are used by JETT:
-- Apache POI 3.14 (http://poi.apache.org/download.html) (or higher)
-   - poi-3.14-20160307.jar
-   - poi-ooxml-3.14-20160307.jar
-   - poi-ooxml-schemas-3.14-20160307.jar
-   - Apache POI, in turn, depends on the following library: XML Beans 2.6.0.
-- XML Beans 2.6.0
-   - xmlbeans-2.6.0.jar (Comes with Apache POI distribution)
+- Apache POI 5.0.0 (http://poi.apache.org/download.html) (or higher)
+   - poi-5.0.0.jar
+   - poi-ooxml-5.0.0.jar
+   - poi-ooxml-lite-5.0.0.jar
+   - Apache POI, in turn, depends on the following library: XML Beans 4.0.0.
+- XML Beans 4.0.0
+   - xmlbeans-4.0.0.jar (Comes with Apache POI distribution)
 - Apache Commons JEXL 2.1.1 (http://commons.apache.org/jexl/download_jexl.cgi)
    - commons-jexl-2.1.1.jar
    - Apache Commons JEXL 2.1.1 in turn depends on Commons Logging 1.1.1.

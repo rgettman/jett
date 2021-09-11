@@ -719,7 +719,6 @@ public class ExcelTransformer
         }
         // Replaced named range formulas that had JETT formulas present in the
         // formula map.
-        int numNamedRanges = workbook.getNumberOfNames();
         for (String key : formulaMap.keySet())
         {
             // Look for a "?", which must be present in the keys for all formulas
@@ -747,13 +746,12 @@ public class ExcelTransformer
             }
 
             Name namedRange = null;
-            for (int i = 0; i < numNamedRanges; i++)
+            for (Name name : workbook.getAllNames())
             {
-                Name n = workbook.getNameAt(i);
-                if (n.getNameName().equals(namedRangeName) &&
-                        n.getSheetIndex() == sheetScopeIndex)
+                if (name.getNameName().equals(namedRangeName) &&
+                    name.getSheetIndex() == sheetScopeIndex)
                 {
-                    namedRange = n;
+                    namedRange = name;
                     break;
                 }
             }

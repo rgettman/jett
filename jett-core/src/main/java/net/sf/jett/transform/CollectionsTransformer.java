@@ -9,6 +9,7 @@ import java.util.Map;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Row;
@@ -390,7 +391,7 @@ public class CollectionsTransformer
             logger.trace("  Trying same row: row {}, col {}", startRowIndex, cellNum);
             // First, check remaining Cells in the same row.
             Cell cell = startRow.getCell(cellNum);
-            if (cell != null && cell.getCellType() == Cell.CELL_TYPE_STRING)
+            if (cell != null && cell.getCellType() == CellType.STRING)
             {
                 RichTextString richString = cell.getRichStringCellValue();
                 List<String> collExprs = Expression.getImplicitCollectionExpr(richString.toString(),
@@ -417,7 +418,7 @@ public class CollectionsTransformer
                 for (int cellNum = startCellNum; cellNum <= endCellNum; cellNum++)
                 {
                     Cell cell = row.getCell(cellNum);
-                    if (cell != null && cell.getCellType() == Cell.CELL_TYPE_STRING)
+                    if (cell != null && cell.getCellType() == CellType.STRING)
                     {
                         RichTextString richString = cell.getRichStringCellValue();
                         List<String> collExprs = Expression.getImplicitCollectionExpr(richString.toString(),

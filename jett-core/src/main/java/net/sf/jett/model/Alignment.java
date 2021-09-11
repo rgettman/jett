@@ -16,33 +16,33 @@ import org.apache.poi.ss.usermodel.HorizontalAlignment;
  */
 public enum Alignment
 {
-    CENTER         ((short) HorizontalAlignment.CENTER.ordinal()),
-    CENTERSELECTION((short) HorizontalAlignment.CENTER_SELECTION.ordinal()),
-    DISTRIBUTED    ((short) HorizontalAlignment.DISTRIBUTED.ordinal()),
-    FILL           ((short) HorizontalAlignment.FILL.ordinal()),
-    GENERAL        ((short) HorizontalAlignment.GENERAL.ordinal()),
-    JUSTIFY        ((short) HorizontalAlignment.JUSTIFY.ordinal()),
-    LEFT           ((short) HorizontalAlignment.LEFT.ordinal()),
-    RIGHT          ((short) HorizontalAlignment.RIGHT.ordinal());
+    CENTER         (HorizontalAlignment.CENTER),
+    CENTERSELECTION(HorizontalAlignment.CENTER_SELECTION),
+    DISTRIBUTED    (HorizontalAlignment.DISTRIBUTED),
+    FILL           (HorizontalAlignment.FILL),
+    GENERAL        (HorizontalAlignment.GENERAL),
+    JUSTIFY        (HorizontalAlignment.JUSTIFY),
+    LEFT           (HorizontalAlignment.LEFT),
+    RIGHT          (HorizontalAlignment.RIGHT);
 
-    private short myIndex;
+    private final HorizontalAlignment alignment;
 
     /**
      * Constructs an <code>Alignment</code>.
-     * @param index The index.
+     * @param alignment The horizontal alignment.
      */
-    Alignment(short index)
+    Alignment(HorizontalAlignment alignment)
     {
-        myIndex = index;
+        this.alignment = alignment;
     }
 
     /**
-     * Returns the index.
-     * @return The index.
+     * Returns the alignment.
+     * @return The alignment.
      */
-    public short getIndex()
+    public HorizontalAlignment getAlignment()
     {
-        return myIndex;
+        return alignment;
     }
 
     /**

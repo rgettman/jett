@@ -1,9 +1,12 @@
 package net.sf.jett.model;
 
 import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.hssf.util.HSSFColor.HSSFColorPredefined;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.xssf.usermodel.DefaultIndexedColorMap;
 import org.apache.poi.xssf.usermodel.XSSFColor;
+import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTColor;
 
 /**
  * <p><code>Colors</code> represent the built-in color names that correspond
@@ -27,60 +30,60 @@ import org.apache.poi.xssf.usermodel.XSSFColor;
  */
 public enum ExcelColor
 {
-    AQUA               (new HSSFColor.AQUA()                 , IndexedColors.AQUA                 , 51, 204, 204),
-    AUTOMATIC          (new HSSFColor.AUTOMATIC()            , IndexedColors.AUTOMATIC            , 0, 0, 0),
-    BLACK              (new HSSFColor.BLACK()                , IndexedColors.BLACK                , 0, 0, 0),
-    BLUE               (new HSSFColor.BLUE()                 , IndexedColors.BLUE                 , 0, 0, 255),
-    BLUEGREY           (new HSSFColor.BLUE_GREY()            , IndexedColors.BLUE_GREY            , 102, 102, 153),
-    BRIGHTGREEN        (new HSSFColor.BRIGHT_GREEN()         , IndexedColors.BRIGHT_GREEN         , 0, 255, 0),
-    BROWN              (new HSSFColor.BROWN()                , IndexedColors.BROWN                , 153, 51, 0),
-    CORAL              (new HSSFColor.CORAL()                , IndexedColors.CORAL                , 255, 128, 128),
-    CORNFLOWERBLUE     (new HSSFColor.CORNFLOWER_BLUE()      , IndexedColors.CORNFLOWER_BLUE      , 153, 153, 255),
-    DARKBLUE           (new HSSFColor.DARK_BLUE()            , IndexedColors.DARK_BLUE            , 0, 0, 128),
-    DARKGREEN          (new HSSFColor.DARK_GREEN()           , IndexedColors.DARK_GREEN           , 0, 51, 0),
-    DARKRED            (new HSSFColor.DARK_RED()             , IndexedColors.DARK_RED             , 128, 0, 0),
-    DARKTEAL           (new HSSFColor.DARK_TEAL()            , IndexedColors.DARK_TEAL            , 0, 51, 102),
-    DARKYELLOW         (new HSSFColor.DARK_YELLOW()          , IndexedColors.DARK_YELLOW          , 128, 128, 0),
-    GOLD               (new HSSFColor.GOLD()                 , IndexedColors.GOLD                 , 255, 204, 0),
-    GREEN              (new HSSFColor.GREEN()                , IndexedColors.GREEN                , 0, 128, 0),
-    GREY25PERCENT      (new HSSFColor.GREY_25_PERCENT()      , IndexedColors.GREY_25_PERCENT      , 192, 192, 192),
-    GREY40PERCENT      (new HSSFColor.GREY_40_PERCENT()      , IndexedColors.GREY_40_PERCENT      , 150, 150, 150),
-    GREY50PERCENT      (new HSSFColor.GREY_50_PERCENT()      , IndexedColors.GREY_50_PERCENT      , 128, 128, 128),
-    GREY80PERCENT      (new HSSFColor.GREY_80_PERCENT()      , IndexedColors.GREY_80_PERCENT      , 51, 51, 51),
-    INDIGO             (new HSSFColor.INDIGO()               , IndexedColors.INDIGO               , 51, 51, 153),
-    LAVENDER           (new HSSFColor.LAVENDER()             , IndexedColors.LAVENDER             , 204, 153, 255),
-    LEMONCHIFFON       (new HSSFColor.LEMON_CHIFFON()        , IndexedColors.LEMON_CHIFFON        , 255, 255, 204),
-    LIGHTBLUE          (new HSSFColor.LIGHT_BLUE()           , IndexedColors.LIGHT_BLUE           , 51, 102, 255),
-    LIGHTCORNFLOWERBLUE(new HSSFColor.LIGHT_CORNFLOWER_BLUE(), IndexedColors.LIGHT_CORNFLOWER_BLUE, 204, 204, 255),
-    LIGHTGREEN         (new HSSFColor.LIGHT_GREEN()          , IndexedColors.LIGHT_GREEN          , 204, 255, 204),
-    LIGHTORANGE        (new HSSFColor.LIGHT_ORANGE()         , IndexedColors.LIGHT_ORANGE         , 255, 153, 0),
-    LIGHTTURQUOISE     (new HSSFColor.LIGHT_TURQUOISE()      , IndexedColors.LIGHT_TURQUOISE      , 204, 255, 255),
-    LIGHTYELLOW        (new HSSFColor.LIGHT_YELLOW()         , IndexedColors.LIGHT_YELLOW         , 255, 255, 153),
-    LIME               (new HSSFColor.LIME()                 , IndexedColors.LIME                 , 153, 204, 0),
-    MAROON             (new HSSFColor.MAROON()               , IndexedColors.MAROON               , 128, 0, 0),
-    OLIVEGREEN         (new HSSFColor.OLIVE_GREEN()          , IndexedColors.OLIVE_GREEN          , 51, 51, 0),
-    ORANGE             (new HSSFColor.ORANGE()               , IndexedColors.ORANGE               , 255, 102, 0),
-    ORCHID             (new HSSFColor.ORCHID()               , IndexedColors.ORCHID               , 102, 0, 102),
-    PALEBLUE           (new HSSFColor.PALE_BLUE()            , IndexedColors.PALE_BLUE            , 153, 204, 255),
-    PINK               (new HSSFColor.PINK()                 , IndexedColors.PINK                 , 255, 0, 255),
-    PLUM               (new HSSFColor.PLUM()                 , IndexedColors.PLUM                 , 153, 51, 102),
-    RED                (new HSSFColor.RED()                  , IndexedColors.RED                  , 255, 0, 0),
-    ROSE               (new HSSFColor.ROSE()                 , IndexedColors.ROSE                 , 255, 103, 204),
-    ROYALBLUE          (new HSSFColor.ROYAL_BLUE()           , IndexedColors.ROYAL_BLUE           , 0, 102, 204),
-    SEAGREEN           (new HSSFColor.SEA_GREEN()            , IndexedColors.SEA_GREEN            , 51, 153, 102),
-    SKYBLUE            (new HSSFColor.SKY_BLUE()             , IndexedColors.SKY_BLUE             , 0, 204, 255),
-    TAN                (new HSSFColor.TAN()                  , IndexedColors.TAN                  , 255, 204, 153),
-    TEAL               (new HSSFColor.TEAL()                 , IndexedColors.TEAL                 , 0, 128, 128),
-    TURQUOISE          (new HSSFColor.TURQUOISE()            , IndexedColors.TURQUOISE            , 0, 255, 255),
-    VIOLET             (new HSSFColor.VIOLET()               , IndexedColors.VIOLET               , 128, 0, 128),
-    WHITE              (new HSSFColor.WHITE()                , IndexedColors.WHITE                , 255, 255, 255),
-    YELLOW             (new HSSFColor.YELLOW()               , IndexedColors.YELLOW               , 255, 255, 0);
+    AQUA               (HSSFColorPredefined.AQUA.getColor()                 , IndexedColors.AQUA                 , 51, 204, 204),
+    AUTOMATIC          (HSSFColorPredefined.AUTOMATIC.getColor()            , IndexedColors.AUTOMATIC            , 0, 0, 0),
+    BLACK              (HSSFColorPredefined.BLACK.getColor()                , IndexedColors.BLACK                , 0, 0, 0),
+    BLUE               (HSSFColorPredefined.BLUE.getColor()                 , IndexedColors.BLUE                 , 0, 0, 255),
+    BLUEGREY           (HSSFColorPredefined.BLUE_GREY.getColor()            , IndexedColors.BLUE_GREY            , 102, 102, 153),
+    BRIGHTGREEN        (HSSFColorPredefined.BRIGHT_GREEN.getColor()         , IndexedColors.BRIGHT_GREEN         , 0, 255, 0),
+    BROWN              (HSSFColorPredefined.BROWN.getColor()                , IndexedColors.BROWN                , 153, 51, 0),
+    CORAL              (HSSFColorPredefined.CORAL.getColor()                , IndexedColors.CORAL                , 255, 128, 128),
+    CORNFLOWERBLUE     (HSSFColorPredefined.CORNFLOWER_BLUE.getColor()      , IndexedColors.CORNFLOWER_BLUE      , 153, 153, 255),
+    DARKBLUE           (HSSFColorPredefined.DARK_BLUE.getColor()            , IndexedColors.DARK_BLUE            , 0, 0, 128),
+    DARKGREEN          (HSSFColorPredefined.DARK_GREEN.getColor()           , IndexedColors.DARK_GREEN           , 0, 51, 0),
+    DARKRED            (HSSFColorPredefined.DARK_RED.getColor()             , IndexedColors.DARK_RED             , 128, 0, 0),
+    DARKTEAL           (HSSFColorPredefined.DARK_TEAL.getColor()            , IndexedColors.DARK_TEAL            , 0, 51, 102),
+    DARKYELLOW         (HSSFColorPredefined.DARK_YELLOW.getColor()          , IndexedColors.DARK_YELLOW          , 128, 128, 0),
+    GOLD               (HSSFColorPredefined.GOLD.getColor()                 , IndexedColors.GOLD                 , 255, 204, 0),
+    GREEN              (HSSFColorPredefined.GREEN.getColor()                , IndexedColors.GREEN                , 0, 128, 0),
+    GREY25PERCENT      (HSSFColorPredefined.GREY_25_PERCENT.getColor()      , IndexedColors.GREY_25_PERCENT      , 192, 192, 192),
+    GREY40PERCENT      (HSSFColorPredefined.GREY_40_PERCENT.getColor()      , IndexedColors.GREY_40_PERCENT      , 150, 150, 150),
+    GREY50PERCENT      (HSSFColorPredefined.GREY_50_PERCENT.getColor()      , IndexedColors.GREY_50_PERCENT      , 128, 128, 128),
+    GREY80PERCENT      (HSSFColorPredefined.GREY_80_PERCENT.getColor()      , IndexedColors.GREY_80_PERCENT      , 51, 51, 51),
+    INDIGO             (HSSFColorPredefined.INDIGO.getColor()               , IndexedColors.INDIGO               , 51, 51, 153),
+    LAVENDER           (HSSFColorPredefined.LAVENDER.getColor()             , IndexedColors.LAVENDER             , 204, 153, 255),
+    LEMONCHIFFON       (HSSFColorPredefined.LEMON_CHIFFON.getColor()        , IndexedColors.LEMON_CHIFFON        , 255, 255, 204),
+    LIGHTBLUE          (HSSFColorPredefined.LIGHT_BLUE.getColor()           , IndexedColors.LIGHT_BLUE           , 51, 102, 255),
+    LIGHTCORNFLOWERBLUE(HSSFColorPredefined.LIGHT_CORNFLOWER_BLUE.getColor(), IndexedColors.LIGHT_CORNFLOWER_BLUE, 204, 204, 255),
+    LIGHTGREEN         (HSSFColorPredefined.LIGHT_GREEN.getColor()          , IndexedColors.LIGHT_GREEN          , 204, 255, 204),
+    LIGHTORANGE        (HSSFColorPredefined.LIGHT_ORANGE.getColor()         , IndexedColors.LIGHT_ORANGE         , 255, 153, 0),
+    LIGHTTURQUOISE     (HSSFColorPredefined.LIGHT_TURQUOISE.getColor()      , IndexedColors.LIGHT_TURQUOISE      , 204, 255, 255),
+    LIGHTYELLOW        (HSSFColorPredefined.LIGHT_YELLOW.getColor()         , IndexedColors.LIGHT_YELLOW         , 255, 255, 153),
+    LIME               (HSSFColorPredefined.LIME.getColor()                 , IndexedColors.LIME                 , 153, 204, 0),
+    MAROON             (HSSFColorPredefined.MAROON.getColor()               , IndexedColors.MAROON               , 128, 0, 0),
+    OLIVEGREEN         (HSSFColorPredefined.OLIVE_GREEN.getColor()          , IndexedColors.OLIVE_GREEN          , 51, 51, 0),
+    ORANGE             (HSSFColorPredefined.ORANGE.getColor()               , IndexedColors.ORANGE               , 255, 102, 0),
+    ORCHID             (HSSFColorPredefined.ORCHID.getColor()               , IndexedColors.ORCHID               , 102, 0, 102),
+    PALEBLUE           (HSSFColorPredefined.PALE_BLUE.getColor()            , IndexedColors.PALE_BLUE            , 153, 204, 255),
+    PINK               (HSSFColorPredefined.PINK.getColor()                 , IndexedColors.PINK                 , 255, 0, 255),
+    PLUM               (HSSFColorPredefined.PLUM.getColor()                 , IndexedColors.PLUM                 , 153, 51, 102),
+    RED                (HSSFColorPredefined.RED.getColor()                  , IndexedColors.RED                  , 255, 0, 0),
+    ROSE               (HSSFColorPredefined.ROSE.getColor()                 , IndexedColors.ROSE                 , 255, 103, 204),
+    ROYALBLUE          (HSSFColorPredefined.ROYAL_BLUE.getColor()           , IndexedColors.ROYAL_BLUE           , 0, 102, 204),
+    SEAGREEN           (HSSFColorPredefined.SEA_GREEN.getColor()            , IndexedColors.SEA_GREEN            , 51, 153, 102),
+    SKYBLUE            (HSSFColorPredefined.SKY_BLUE.getColor()             , IndexedColors.SKY_BLUE             , 0, 204, 255),
+    TAN                (HSSFColorPredefined.TAN.getColor()                  , IndexedColors.TAN                  , 255, 204, 153),
+    TEAL               (HSSFColorPredefined.TEAL.getColor()                 , IndexedColors.TEAL                 , 0, 128, 128),
+    TURQUOISE          (HSSFColorPredefined.TURQUOISE.getColor()            , IndexedColors.TURQUOISE            , 0, 255, 255),
+    VIOLET             (HSSFColorPredefined.VIOLET.getColor()               , IndexedColors.VIOLET               , 128, 0, 128),
+    WHITE              (HSSFColorPredefined.WHITE.getColor()                , IndexedColors.WHITE                , 255, 255, 255),
+    YELLOW             (HSSFColorPredefined.YELLOW.getColor()               , IndexedColors.YELLOW               , 255, 255, 0);
 
     /**
      * The "automatic" color in HSSF (.xls).
      * @since 0.9.1
      */
-    public static final HSSFColor HSSF_COLOR_AUTOMATIC = new HSSFColor.AUTOMATIC();
+    public static final HSSFColor HSSF_COLOR_AUTOMATIC = HSSFColorPredefined.AUTOMATIC.getColor();
 
     /**
      * The color index used by comments in XSSF (.xlsx).
@@ -89,7 +92,6 @@ public enum ExcelColor
     public static final short XSSF_COLOR_COMMENT = 81;
 
     private HSSFColor myHssfColor;
-    private XSSFColor myXssfColor;
     private IndexedColors myIndexedColor;
     private int myRed;
     private int myGreen;
@@ -118,7 +120,6 @@ public enum ExcelColor
     ExcelColor(HSSFColor hssfColor, IndexedColors indexedColor, int red, int green, int blue)
     {
         myHssfColor = hssfColor;
-        myXssfColor = new XSSFColor(new byte[] {(byte) red, (byte) green, (byte) blue});
         myIndexedColor = indexedColor;
         myRed = red;
         myGreen = green;
@@ -140,7 +141,7 @@ public enum ExcelColor
      */
     public XSSFColor getXssfColor()
     {
-        return myXssfColor;
+        return ExcelColor.createXSSFColor(myHssfColor.getTriplet());
     }
 
     /**
@@ -159,60 +160,6 @@ public enum ExcelColor
     public IndexedColors getIndexedColor()
     {
         return myIndexedColor;
-    }
-
-    /**
-     * Returns the red value, 0-255.
-     * @return The red value, 0-255.
-     */
-    public int getRed()
-    {
-        return myRed;
-    }
-
-    /**
-     * Returns the green value, 0-255.
-     * @return The green value, 0-255.
-     */
-    public int getGreen()
-    {
-        return myGreen;
-    }
-
-    /**
-     * Returns the blue value, 0-255.
-     * @return The blue value, 0-255.
-     */
-    public int getBlue()
-    {
-        return myBlue;
-    }
-
-    /**
-     * Returns the hex string, in the format "#RRGGBB".
-     * @return The hex string, in the format "#RRGGBB".
-     */
-    public String getHexString()
-    {
-        StringBuilder builder = new StringBuilder();
-        builder.append("#");
-
-        String value = Integer.toHexString(myRed);
-        if (value.length() == 1)
-            builder.append("0");
-        builder.append(value);
-
-        value = Integer.toHexString(myGreen);
-        if (value.length() == 1)
-            builder.append("0");
-        builder.append(value);
-
-        value = Integer.toHexString(myBlue);
-        if (value.length() == 1)
-            builder.append("0");
-        builder.append(value);
-
-        return builder.toString();
     }
 
     /**
@@ -252,5 +199,11 @@ public enum ExcelColor
             return HSSF_COLOR_AUTOMATIC;
         }
         return hssfColors[index];
+    }
+
+    public static XSSFColor createXSSFColor(short[] rgb) {
+        CTColor color = CTColor.Factory.newInstance();
+        color.setRgb(new byte[] { (byte) rgb[0], (byte) rgb[1], (byte) rgb[2] });
+        return XSSFColor.from(color, new DefaultIndexedColorMap());
     }
 }
