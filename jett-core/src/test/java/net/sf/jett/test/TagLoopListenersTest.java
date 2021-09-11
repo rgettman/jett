@@ -1,17 +1,18 @@
 package net.sf.jett.test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import java.io.IOException;
 import java.util.Map;
-
+import net.sf.jett.test.model.BlockShadingLoopListener;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.junit.Test;
-import static org.junit.Assert.*;
-
-import net.sf.jett.test.model.BlockShadingLoopListener;
 
 /**
  * This JUnit Test class tests the processing of "onLoopProcessed" on a looping
@@ -76,12 +77,12 @@ public class TagLoopListenersTest extends TestCase
                     if ((r - 1) / 2 % 2 == 0)
                     {
                         // r is 1, 2, 5, 6
-                        assertEquals(CellStyle.NO_FILL, TestUtility.getCellFillPattern(sheet, r, c));
+                        assertEquals(FillPatternType.NO_FILL, TestUtility.getCellFillPattern(sheet, r, c));
                     }
                     else
                     {
                         // r is 3, 4, 7, 8
-                        assertEquals(CellStyle.SOLID_FOREGROUND, TestUtility.getCellFillPattern(sheet, r, c));
+                        assertEquals(FillPatternType.SOLID_FOREGROUND, TestUtility.getCellFillPattern(sheet, r, c));
                         CellStyle cs = TestUtility.getCellStyle(sheet, r, c);
                         assertNotNull(cs);
                         assertEquals(IndexedColors.GREY_25_PERCENT.getIndex(), cs.getFillForegroundColor());

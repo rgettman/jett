@@ -222,7 +222,7 @@ public class IfTagTest extends TestCase
         CellStyle cs = TestUtility.getCellStyle(rts, 2, 0);
         assertNotNull(cs);
         Font f = workbook.getFontAt(cs.getFontIndex());
-        assertEquals(FontBoldweight.BOLD.getIndex(), f.getBoldweight());
+        assertEquals(FontBoldweight.BOLD.getValue(), f.getBold());
         assertEquals("000000", TestUtility.getFontColorString(workbook,
                 workbook.getFontAt(cell.getCellStyle().getFontIndex())));
         assertEquals(6, TestUtility.getNumericCellValue(rts, 2, 0), DELTA);

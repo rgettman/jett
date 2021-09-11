@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.poi.common.usermodel.HyperlinkType;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.Hyperlink;
@@ -83,7 +84,7 @@ public class HyperlinkTag extends BaseTag
     private static final List<String> OPT_ATTRS =
             new ArrayList<>(Arrays.asList(ATTR_TYPE));
 
-    private int myLinkType;
+    private HyperlinkType myLinkType;
     private String myAddress;
     private RichTextString myValue;
 
@@ -140,13 +141,13 @@ public class HyperlinkTag extends BaseTag
         String type = AttributeUtil.evaluateStringSpecificValues(this, attributes.get(ATTR_TYPE), beans, ATTR_TYPE,
                 Arrays.asList(TYPE_URL, TYPE_EMAIL, TYPE_FILE, TYPE_DOC), TYPE_URL);
         if (TYPE_URL.equals(type))
-            myLinkType = Hyperlink.LINK_URL;
+            myLinkType = HyperlinkType.URL;
         else if (TYPE_EMAIL.equals(type))
-            myLinkType = Hyperlink.LINK_EMAIL;
+            myLinkType = HyperlinkType.EMAIL;
         else if (TYPE_FILE.equals(type))
-            myLinkType = Hyperlink.LINK_FILE;
+            myLinkType = HyperlinkType.FILE;
         else if (TYPE_DOC.equals(type))
-            myLinkType = Hyperlink.LINK_DOCUMENT;
+            myLinkType = HyperlinkType.DOCUMENT;
 
         myAddress = AttributeUtil.evaluateStringNotNull(this, attributes.get(ATTR_ADDRESS), beans, ATTR_ADDRESS, null);
 

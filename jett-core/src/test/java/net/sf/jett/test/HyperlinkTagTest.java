@@ -3,6 +3,7 @@ package net.sf.jett.test;
 import java.io.IOException;
 import java.util.Map;
 
+import org.apache.poi.common.usermodel.HyperlinkType;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -73,7 +74,7 @@ public class HyperlinkTagTest extends TestCase
         assertEquals("0000ff", TestUtility.getFontColorString(workbook, font));
         Hyperlink h = TestUtility.getHyperlink(sheet, 1, 0);
         assertNotNull(h);
-        assertEquals(Hyperlink.LINK_URL, h.getType());
+        assertEquals(HyperlinkType.URL, h.getType());
         assertEquals("http://jett.sourceforge.net", h.getAddress());
 
         assertEquals(Font.U_SINGLE, font.getUnderline());
@@ -84,7 +85,7 @@ public class HyperlinkTagTest extends TestCase
         assertEquals(Font.U_SINGLE, font.getUnderline());
         h = TestUtility.getHyperlink(sheet, 2, 0);
         assertNotNull(h);
-        assertEquals(Hyperlink.LINK_EMAIL, h.getType());
+        assertEquals(HyperlinkType.EMAIL, h.getType());
         assertEquals("mailto:jett-users@lists.sourceforge.net", h.getAddress());
 
         assertEquals("Template For This Test (.xlsx)", TestUtility.getStringCellValue(sheet, 3, 0));
@@ -94,7 +95,7 @@ public class HyperlinkTagTest extends TestCase
         assertEquals(Font.U_SINGLE, font.getUnderline());
         h = TestUtility.getHyperlink(sheet, 3, 0);
         assertNotNull(h);
-        assertEquals(Hyperlink.LINK_FILE, h.getType());
+        assertEquals(HyperlinkType.FILE, h.getType());
         assertEquals("../templates/HyperlinkTagTemplate.xlsx", h.getAddress());
 
         assertEquals("Intra-spreadsheet Link", TestUtility.getStringCellValue(sheet, 4, 0));
@@ -104,7 +105,7 @@ public class HyperlinkTagTest extends TestCase
         assertEquals(Font.U_SINGLE, font.getUnderline());
         h = TestUtility.getHyperlink(sheet, 4, 0);
         assertNotNull(h);
-        assertEquals(Hyperlink.LINK_DOCUMENT, h.getType());
+        assertEquals(HyperlinkType.DOCUMENT, h.getType());
         assertEquals("'Target Sheet'!B3", h.getAddress());
 
         assertEquals("Additional Help", TestUtility.getStringCellValue(sheet, 5, 0));
@@ -114,7 +115,7 @@ public class HyperlinkTagTest extends TestCase
         assertEquals(Font.U_SINGLE, font.getUnderline());
         h = TestUtility.getHyperlink(sheet, 5, 0);
         assertNotNull(h);
-        assertEquals(Hyperlink.LINK_URL, h.getType());
+        assertEquals(HyperlinkType.URL, h.getType());
         assertEquals("http://www.youtube.com/watch?v=dQw4w9WgXcQ", h.getAddress());
 
         // Shift
@@ -127,7 +128,7 @@ public class HyperlinkTagTest extends TestCase
             assertEquals(Font.U_SINGLE, font.getUnderline());
             h = TestUtility.getHyperlink(shift, r, 1);
             assertNotNull(h);
-            assertEquals(Hyperlink.LINK_URL, h.getType());
+            assertEquals(HyperlinkType.URL, h.getType());
             assertEquals("http://www.example.com/", h.getAddress());
         }
 
@@ -137,7 +138,7 @@ public class HyperlinkTagTest extends TestCase
         assertEquals(Font.U_SINGLE, font.getUnderline());
         h = TestUtility.getHyperlink(shift, 11, 1);
         assertNotNull(h);
-        assertEquals(Hyperlink.LINK_URL, h.getType());
+        assertEquals(HyperlinkType.URL, h.getType());
         assertEquals("http://jett.sourceforge.net/", h.getAddress());
     }
 

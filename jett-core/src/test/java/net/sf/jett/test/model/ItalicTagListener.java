@@ -53,11 +53,11 @@ public class ItalicTagListener implements TagListener
                     {
                         Workbook workbook = sheet.getWorkbook();
                         CellStyle style = cell.getCellStyle();
-                        short fontIdx = style.getFontIndex();
+                        int fontIdx = style.getFontIndex();
                         Font font = workbook.getFontAt(fontIdx);
                         if (!font.getItalic())
                         {
-                            Font italicFont = workbook.findFont(font.getBoldweight(), font.getColor(), font.getFontHeight(),
+                            Font italicFont = workbook.findFont(font.getBold(), font.getColor(), font.getFontHeight(),
                                     font.getFontName(), true /*italic*/, font.getStrikeout(), font.getTypeOffset(),
                                     font.getUnderline());
                             CellStyle newStyle = workbook.createCellStyle();
@@ -65,7 +65,7 @@ public class ItalicTagListener implements TagListener
                             if (italicFont == null)
                             {
                                 italicFont = workbook.createFont();
-                                italicFont.setBoldweight(font.getBoldweight());
+                                italicFont.setBold(font.getBold());
                                 italicFont.setColor(font.getColor());
                                 italicFont.setFontHeight(font.getFontHeight());
                                 italicFont.setFontName(font.getFontName());

@@ -1,5 +1,7 @@
 package net.sf.jett.model;
 
+import org.apache.poi.ss.usermodel.VerticalAlignment;
+
 /**
  * <p><code>VerticalAlignments</code> represent the built-in vertical alignment
  * names that correspond with Excel's vertical alignment scheme.  These are
@@ -12,32 +14,32 @@ package net.sf.jett.model;
  * @see net.sf.jett.tag.StyleTag
  * @see net.sf.jett.parser.StyleParser#PROPERTY_VERTICAL_ALIGNMENT
  */
-public enum VerticalAlignment
+public enum ExcelVerticalAlignment
 {
-    BOTTOM     ((short) org.apache.poi.ss.usermodel.VerticalAlignment.BOTTOM.ordinal()),
-    CENTER     ((short) org.apache.poi.ss.usermodel.VerticalAlignment.CENTER.ordinal()),
-    DISTRIBUTED((short) org.apache.poi.ss.usermodel.VerticalAlignment.DISTRIBUTED.ordinal()),
-    JUSTIFY    ((short) org.apache.poi.ss.usermodel.VerticalAlignment.JUSTIFY.ordinal()),
-    TOP        ((short) org.apache.poi.ss.usermodel.VerticalAlignment.TOP.ordinal());
+    BOTTOM     (VerticalAlignment.BOTTOM),
+    CENTER     (VerticalAlignment.CENTER),
+    DISTRIBUTED(VerticalAlignment.DISTRIBUTED),
+    JUSTIFY    (VerticalAlignment.JUSTIFY),
+    TOP        (VerticalAlignment.TOP);
 
-    private short myIndex;
+    private VerticalAlignment verticalAlignment;
 
     /**
      * Constructs a <code>VerticalAlignment</code>.
-     * @param index The index.
+     * @param verticalAlignment The index.
      */
-    VerticalAlignment(short index)
+    ExcelVerticalAlignment(VerticalAlignment verticalAlignment)
     {
-        myIndex = index;
+        this.verticalAlignment = verticalAlignment;
     }
 
     /**
-     * Returns the index.
-     * @return The index.
+     * Returns the vertical alignment.
+     * @return The vertical alignment.
      */
-    public short getIndex()
+    public VerticalAlignment getAlignment()
     {
-        return myIndex;
+        return verticalAlignment;
     }
 
     /**

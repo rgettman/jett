@@ -2,10 +2,12 @@ package net.sf.jett.test;
 
 import java.util.Map;
 
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-import net.sf.jett.model.Alignment;
 import net.sf.jett.model.BorderType;
 import net.sf.jett.model.FontBoldweight;
 import net.sf.jett.model.FillPattern;
@@ -122,7 +124,7 @@ public class StyleParserTest
         Style style1 = styleMap.get("style1");
         assertNotNull(style1);
         assertTrue(style1.isStyleToApply());
-        assertEquals(FontBoldweight.BOLD, style1.getFontBoldweight());
+        assertEquals(FontBoldweight.BOLD.getValue(), style1.isFontBold());
         assertTrue(style1.isFontItalic());
     }
 
@@ -143,24 +145,24 @@ public class StyleParserTest
         Style style1 = styleMap.get("style1");
         assertNotNull(style1);
         assertTrue(style1.isStyleToApply());
-        assertEquals(FontBoldweight.BOLD, style1.getFontBoldweight());
+        assertEquals(FontBoldweight.BOLD.getValue(), style1.isFontBold());
         assertTrue(style1.isFontItalic());
 
         Style style2 = styleMap.get("style2");
         assertNotNull(style2);
         assertTrue(style2.isStyleToApply());
-        assertEquals(Alignment.CENTER, style2.getAlignment());
-        assertEquals(BorderType.THIN, style2.getBorderBottomType());
-        assertEquals(BorderType.THIN, style2.getBorderLeftType());
-        assertEquals(BorderType.THIN, style2.getBorderRightType());
-        assertEquals(BorderType.THIN, style2.getBorderTopType());
+        assertEquals(HorizontalAlignment.CENTER, style2.getAlignment());
+        assertEquals(BorderStyle.THIN, style2.getBorderBottomStyle());
+        assertEquals(BorderStyle.THIN, style2.getBorderLeftStyle());
+        assertEquals(BorderStyle.THIN, style2.getBorderRightStyle());
+        assertEquals(BorderStyle.THIN, style2.getBorderTopStyle());
 
         Style style3 = styleMap.get("style3");
         assertNotNull(style3);
         assertTrue(style3.isStyleToApply());
         assertEquals("BLUE", style3.getFillBackgroundColor());
         assertEquals("#FFFF00", style3.getFillForegroundColor());
-        assertEquals(FillPattern.HORIZONTALSTRIPE, style3.getFillPatternType());
+        assertEquals(FillPatternType.THICK_HORZ_BANDS, style3.getFillPatternType());
     }
 
     /**
@@ -178,7 +180,7 @@ public class StyleParserTest
         assertNotNull(style1);
         assertTrue(style1.isStyleToApply());
         assertEquals("ARIAL", style1.getFontName());
-        assertNull(style1.getFontBoldweight());
+        assertNull(style1.isFontBold());
         assertFalse(style1.isFontItalic());
     }
 

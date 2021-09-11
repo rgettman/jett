@@ -20,39 +20,39 @@ import org.apache.poi.ss.usermodel.BorderStyle;
  */
 public enum BorderType
 {
-    NONE            ((short) BorderStyle.NONE.ordinal()),
-    THIN            ((short) BorderStyle.THIN.ordinal()),
-    MEDIUM          ((short) BorderStyle.MEDIUM.ordinal()),
-    DASHED          ((short) BorderStyle.DASHED.ordinal()),
-    HAIR            ((short) BorderStyle.HAIR.ordinal()),
-    THICK           ((short) BorderStyle.THICK.ordinal()),
-    DOUBLE          ((short) BorderStyle.DOUBLE.ordinal()),
-    DOTTED          ((short) BorderStyle.DOTTED.ordinal()),
-    MEDIUMDASHED    ((short) BorderStyle.MEDIUM_DASHED.ordinal()),
-    DASHDOT         ((short) BorderStyle.DASH_DOT.ordinal()),
-    MEDIUMDASHDOT   ((short) BorderStyle.MEDIUM_DASH_DOT.ordinal()),
-    DASHDOTDOT      ((short) BorderStyle.DASH_DOT_DOT.ordinal()),
-    MEDIUMDASHDOTDOT((short) BorderStyle.MEDIUM_DASH_DOT_DOTC.ordinal()),  // DOTC: [sic]
-    SLANTEDDASHDOT  ((short) BorderStyle.SLANTED_DASH_DOT.ordinal());
+    NONE            (BorderStyle.NONE),
+    THIN            (BorderStyle.THIN),
+    MEDIUM          (BorderStyle.MEDIUM),
+    DASHED          (BorderStyle.DASHED),
+    HAIR            (BorderStyle.HAIR),
+    THICK           (BorderStyle.THICK),
+    DOUBLE          (BorderStyle.DOUBLE),
+    DOTTED          (BorderStyle.DOTTED),
+    MEDIUMDASHED    (BorderStyle.MEDIUM_DASHED),
+    DASHDOT         (BorderStyle.DASH_DOT),
+    MEDIUMDASHDOT   (BorderStyle.MEDIUM_DASH_DOT),
+    DASHDOTDOT      (BorderStyle.DASH_DOT_DOT),
+    MEDIUMDASHDOTDOT(BorderStyle.MEDIUM_DASH_DOT_DOT),
+    SLANTEDDASHDOT  (BorderStyle.SLANTED_DASH_DOT);
 
-    private short myIndex;
+    private BorderStyle borderStyle;
 
     /**
      * Constructs a <code>BorderType</code>.
      * @param index The index.
      */
-    BorderType(short index)
+    BorderType(BorderStyle borderStyle)
     {
-        myIndex = index;
+        this.borderStyle = borderStyle;
     }
 
     /**
      * Returns the index.
      * @return The index.
      */
-    public short getIndex()
+    public BorderStyle getBorderStyle()
     {
-        return myIndex;
+        return borderStyle;
     }
 
     /**

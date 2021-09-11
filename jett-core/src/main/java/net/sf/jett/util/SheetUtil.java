@@ -1,8 +1,8 @@
 package net.sf.jett.util;
 
-import java.util.ArrayList;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -11,34 +11,6 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.hssf.util.HSSFColor;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.Color;
-//import org.apache.poi.ss.usermodel.ConditionalFormatting;
-//import org.apache.poi.ss.usermodel.ConditionalFormattingRule;
-import org.apache.poi.ss.usermodel.CreationHelper;
-import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.Footer;
-import org.apache.poi.ss.usermodel.Header;
-import org.apache.poi.ss.usermodel.Hyperlink;
-import org.apache.poi.ss.usermodel.RichTextString;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-//import org.apache.poi.ss.usermodel.SheetConditionalFormatting;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.util.CellRangeAddress;
-import org.apache.poi.ss.util.CellReference;
-import org.apache.poi.ss.util.WorkbookUtil;
-import org.apache.poi.xssf.usermodel.XSSFColor;
-import org.apache.poi.xssf.usermodel.XSSFCellStyle;
-import org.apache.poi.xssf.usermodel.XSSFFont;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-
 import net.sf.jett.expression.Expression;
 import net.sf.jett.formula.Formula;
 import net.sf.jett.model.Block;
@@ -47,6 +19,36 @@ import net.sf.jett.model.PastEndAction;
 import net.sf.jett.model.WorkbookContext;
 import net.sf.jett.tag.Tag;
 import net.sf.jett.tag.TagContext;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Color;
+import org.apache.poi.ss.usermodel.CreationHelper;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.Footer;
+import org.apache.poi.ss.usermodel.Header;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.Hyperlink;
+import org.apache.poi.ss.usermodel.RichTextString;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.VerticalAlignment;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.ss.util.CellReference;
+import org.apache.poi.ss.util.WorkbookUtil;
+import org.apache.poi.xssf.usermodel.DefaultIndexedColorMap;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFColor;
+import org.apache.poi.xssf.usermodel.XSSFFont;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTColor;
 
 /**
  * The <code>SheetUtil</code> utility class provides methods for
@@ -516,22 +518,22 @@ public class SheetUtil
 
         switch (oldCell.getCellType())
         {
-        case Cell.CELL_TYPE_STRING:
+        case STRING:
             newCell.setCellValue(oldCell.getRichStringCellValue());
             break;
-        case Cell.CELL_TYPE_NUMERIC:
+        case NUMERIC:
             newCell.setCellValue(oldCell.getNumericCellValue());
             break;
-        case Cell.CELL_TYPE_BLANK:
-            newCell.setCellType(Cell.CELL_TYPE_BLANK);
+        case BLANK:
+            newCell.setBlank();
             break;
-        case Cell.CELL_TYPE_FORMULA:
+        case FORMULA:
             newCell.setCellFormula(oldCell.getCellFormula());
             break;
-        case Cell.CELL_TYPE_BOOLEAN:
+        case BOOLEAN:
             newCell.setCellValue(oldCell.getBooleanCellValue());
             break;
-        case Cell.CELL_TYPE_ERROR:
+        case ERROR:
             newCell.setCellErrorValue(oldCell.getErrorCellValue());
             break;
         default:
@@ -605,7 +607,7 @@ public class SheetUtil
         {
             newValue = helper.createRichTextString("");
             cell.setCellValue((RichTextString) newValue);
-            cell.setCellType(Cell.CELL_TYPE_BLANK);
+            cell.setBlank();
         }
         else if (value instanceof String)
         {
@@ -698,8 +700,8 @@ public class SheetUtil
             return true;
         Cell c = r.getCell(colNum);
         return (c == null ||
-                ((c.getCellType() == Cell.CELL_TYPE_BLANK ||
-                        (c.getCellType() == Cell.CELL_TYPE_STRING && "".equals(c.getStringCellValue()))) &&
+                ((c.getCellType() == CellType.BLANK ||
+                        (c.getCellType() == CellType.STRING && "".equals(c.getStringCellValue()))) &&
                         c.getCellStyle().getIndex() == 0
                 )
         );
@@ -723,8 +725,8 @@ public class SheetUtil
             return true;
         Cell c = r.getCell(colNum);
         return (c == null ||
-                c.getCellType() == Cell.CELL_TYPE_BLANK ||
-                (c.getCellType() == Cell.CELL_TYPE_STRING && "".equals(c.getStringCellValue())));
+                c.getCellType() == CellType.BLANK ||
+                (c.getCellType() == CellType.STRING && "".equals(c.getStringCellValue())));
     }
 
     /**
@@ -1151,7 +1153,7 @@ public class SheetUtil
                     if (c != null)
                     {
                         String cellRef = getCellKey(c);
-                        c.setCellType(Cell.CELL_TYPE_BLANK);
+                        c.setCellType(CellType.BLANK);
                         c.removeHyperlink();
                         tagLocationsMap.remove(cellRef);
                         logger.debug("cB: Removing {}", cellRef);
@@ -1327,7 +1329,7 @@ public class SheetUtil
     {
         String strValue;
         boolean takeAction = false;
-        if (cell.getCellType() == Cell.CELL_TYPE_STRING)
+        if (cell.getCellType() == CellType.STRING)
         {
             for (String pastEndRef : pastEndRefs)
             {
@@ -1344,7 +1346,7 @@ public class SheetUtil
             switch (pastEndAction)
             {
             case CLEAR_CELL:
-                cell.setCellType(Cell.CELL_TYPE_BLANK);
+                cell.setCellType(CellType.BLANK);
                 break;
             case REMOVE_CELL:
                 removeCell(cell.getRow(), cell);
@@ -1352,7 +1354,7 @@ public class SheetUtil
             case REPLACE_EXPR:
                 // Force any expressions containing collection references beyond
                 // the end of the collection to "evaluate" to null.  (They're removed.)
-                if (cell.getCellType() == Cell.CELL_TYPE_STRING)
+                if (cell.getCellType() == CellType.STRING)
                 {
                     CreationHelper helper = cell.getSheet().getWorkbook().getCreationHelper();
                     RichTextString rts = cell.getRichStringCellValue();
@@ -1971,7 +1973,7 @@ public class SheetUtil
                     }
 
                     // Append "[loop,iter]" on formulas.
-                    if (newCell.getCellType() == Cell.CELL_TYPE_STRING)
+                    if (newCell.getCellType() == CellType.STRING)
                     {
                         String cellText = newCell.getStringCellValue();
                         int startIdx = cellText.indexOf(Formula.BEGIN_FORMULA);
@@ -2052,7 +2054,7 @@ public class SheetUtil
                     }
 
                     // Append proper "[loop,iter]" on formulas.
-                    if (newCell.getCellType() == Cell.CELL_TYPE_STRING)
+                    if (newCell.getCellType() == CellType.STRING)
                     {
                         String cellText = newCell.getStringCellValue();
                         int startIdx = cellText.indexOf(Formula.BEGIN_FORMULA);
@@ -2130,7 +2132,7 @@ public class SheetUtil
                 for (int cellNum = left; cellNum <= right; cellNum++)
                 {
                     Cell cell = row.getCell(cellNum);
-                    if (cell != null && cell.getCellType() == Cell.CELL_TYPE_STRING)
+                    if (cell != null && cell.getCellType() == CellType.STRING)
                     {
                         RichTextString value = cell.getRichStringCellValue();
                         for (int i = 0; i < collExprs.size(); i++)
@@ -2177,7 +2179,7 @@ public class SheetUtil
         {
             for (Cell cell : row)
             {
-                if (cell.getCellType() == Cell.CELL_TYPE_STRING)
+                if (cell.getCellType() == CellType.STRING)
                 {
                     RichTextString value = cell.getRichStringCellValue();
                     value = replacementHelper(helper, value, collExprs, itemNames);
@@ -2460,11 +2462,12 @@ public class SheetUtil
      * @param hidden              Whether the cell is hidden.
      * @return A new <code>CellStyle</code>.
      */
-    public static CellStyle createCellStyle(Workbook workbook, short alignment, short borderBottom, short borderLeft,
-                                            short borderRight, short borderTop, String dataFormat, boolean wrapText, Color fillBackgroundColor,
-                                            Color fillForegroundColor, short fillPattern, short verticalAlignment, short indention,
-                                            short rotationDegrees, Color bottomBorderColor, Color leftBorderColor,
-                                            Color rightBorderColor, Color topBorderColor, boolean locked, boolean hidden)
+    public static CellStyle createCellStyle(Workbook workbook, HorizontalAlignment alignment,
+        BorderStyle borderBottom, BorderStyle borderLeft, BorderStyle borderRight,
+        BorderStyle borderTop, String dataFormat, boolean wrapText, Color fillBackgroundColor,
+        Color fillForegroundColor, FillPatternType fillPattern, VerticalAlignment verticalAlignment,
+        short indention, short rotationDegrees, Color bottomBorderColor, Color leftBorderColor,
+        Color rightBorderColor, Color topBorderColor, boolean locked, boolean hidden)
     {
         CellStyle cs = workbook.createCellStyle();
         cs.setAlignment(alignment);
@@ -2522,7 +2525,7 @@ public class SheetUtil
      * 0.5.0.
      *
      * @param workbook           A <code>Workbook</code>.
-     * @param fontBoldweight     A <code>short</code> boldweight constant.
+     * @param fontBold           Whether the text is bold.
      * @param fontItalic         Whether the text is italic.
      * @param fontColor          A color <code>Color</code> object.
      * @param fontName           A font name.
@@ -2533,18 +2536,18 @@ public class SheetUtil
      * @param fontTypeOffset     A <code>short</code> type offset constant.
      * @return A new <code>Font</code>.
      */
-    public static Font createFont(Workbook workbook, short fontBoldweight, boolean fontItalic, Color fontColor, String fontName, short fontHeightInPoints, byte fontUnderline,
+    public static Font createFont(Workbook workbook, boolean fontBold, boolean fontItalic, Color fontColor, String fontName, short fontHeightInPoints, byte fontUnderline,
                                   boolean fontStrikeout, int fontCharset, short fontTypeOffset)
     {
         logger.trace("createFont: {},{},{},{},{},{},{},{},{}",
-                fontBoldweight, fontItalic,
+                fontBold, fontItalic,
                 ((fontColor == null) ? "null" :
                         (fontColor instanceof HSSFColor) ? fontColor.toString() :
                                 ((XSSFColor) fontColor).getCTColor().toString()
                 ), fontName, fontHeightInPoints, fontUnderline, fontStrikeout, fontCharset, fontTypeOffset);
 
         Font f = workbook.createFont();
-        f.setBoldweight(fontBoldweight);
+        f.setBold(fontBold);
         f.setItalic(fontItalic);
         f.setFontName(fontName);
         f.setFontHeightInPoints(fontHeightInPoints);
@@ -2564,25 +2567,7 @@ public class SheetUtil
             XSSFColor xssfFontColor = (XSSFColor) fontColor;
             if (xssfFontColor != null)
             {
-                // As of Apache POI 3.8, there are Bugs 51236 and 52079 about font
-                // color where somehow black and white get switched.  It appears to
-                // have to do with the fact that black and white "theme" colors get
-                // flipped.  Be careful, because XSSFColor(byte[]) does NOT call
-                // "correctRGB", but XSSFColor.setRgb(byte[]) DOES call it, and so
-                // does XSSFColor.getRgb(byte[]).
-                // The private method "correctRGB" flips black and white, but no
-                // other colors.  However, correctRGB is its own inverse operation,
-                // i.e. correctRGB(correctRGB(rgb)) yields the same bytes as rgb.
-                // XSSFFont.setColor(XSSFColor) calls "getRGB", but
-                // XSSFCellStyle.set[Xx]BorderColor and
-                // XSSFCellStyle.setFill[Xx]Color do NOT.
-                // Solution: Let setColor correct a theme color on the way in.
-                // Un-correct other colors, so that setColor will correct it.
-                if (xssfFontColor.getCTColor().isSetTheme())
-                    xf.setColor(xssfFontColor);
-                else
-                    xf.setColor(new XSSFColor(xssfFontColor.getRGB()));
-                // End of workaround for Bugs 51236 and 52079.
+                xf.setColor(xssfFontColor);
             }
         }
 
@@ -2651,11 +2636,13 @@ public class SheetUtil
             if (value.startsWith("#") && value.length() == 7)
             {
                 // Create the corresponding XSSFColor.
-                color = new XSSFColor(new byte[] {
-                        Integer.valueOf(value.substring(1, 3), 16).byteValue(),
-                        Integer.valueOf(value.substring(3, 5), 16).byteValue(),
-                        Integer.valueOf(value.substring(5, 7), 16).byteValue()
+                CTColor ctColor = CTColor.Factory.newInstance();
+                ctColor.setRgb(new byte[] {
+                    Integer.valueOf(value.substring(1, 3), 16).byteValue(),
+                    Integer.valueOf(value.substring(3, 5), 16).byteValue(),
+                    Integer.valueOf(value.substring(5, 7), 16).byteValue()
                 });
+                color = XSSFColor.from(ctColor, new DefaultIndexedColorMap());
                 logger.debug("  XSSFColor created: {}", color);
             }
             else
@@ -2664,10 +2651,7 @@ public class SheetUtil
                 try
                 {
                     ExcelColor excelColor = ExcelColor.valueOf(value);
-
-                    color = new XSSFColor(new byte[]
-                            {(byte) excelColor.getRed(), (byte) excelColor.getGreen(), (byte) excelColor.getBlue()}
-                    );
+                    color = excelColor.getXssfColor();
                     logger.debug("  XSSFColor name matched: {}", value);
                 }
                 catch (IllegalArgumentException e)

@@ -69,22 +69,22 @@ public class CommentTagTest extends TestCase
         assertEquals("City: Boston", TestUtility.getStringCellValue(sComment, 2, 0));
         RichTextString rts = TestUtility.getRichTextStringCellValue(sComment, 2, 0);
         Font font = TestUtility.convertToFont(RichTextStringUtil.getFontAtIndex(rts, 0), workbook);
-        assertTrue(font.getBoldweight() == Font.BOLDWEIGHT_BOLD);
+        assertTrue(font.getBold());
         font = TestUtility.convertToFont(RichTextStringUtil.getFontAtIndex(rts, 4), workbook);
-        assertTrue(font.getBoldweight() == Font.BOLDWEIGHT_BOLD);
+        assertTrue(font.getBold());
         font = TestUtility.convertToFont(RichTextStringUtil.getFontAtIndex(rts, 5), workbook);
-        assertTrue(font == null || font.getBoldweight() == Font.BOLDWEIGHT_NORMAL);
+        assertTrue(font == null || !font.getBold());
         comment = TestUtility.getComment(sComment, 2, 0);
         assertNotNull(comment);
         assertFalse(comment.isVisible());
         assertEquals("Team Name: Celtics", comment.getString().getString());
         rts = comment.getString();
         font = TestUtility.convertToFont(RichTextStringUtil.getFontAtIndex(rts, 0), workbook);
-        assertTrue(font.getBoldweight() == Font.BOLDWEIGHT_BOLD);
+        assertTrue(font.getBold());
         font = TestUtility.convertToFont(RichTextStringUtil.getFontAtIndex(rts, 9), workbook);
-        assertTrue(font.getBoldweight() == Font.BOLDWEIGHT_BOLD);
+        assertTrue(font.getBold());
         font = TestUtility.convertToFont(RichTextStringUtil.getFontAtIndex(rts, 10), workbook);
-        assertTrue(font == null || font.getBoldweight() == Font.BOLDWEIGHT_NORMAL);
+        assertTrue(font == null || !font.getBold());
 
         assertEquals("Atlantic Division", comment.getAuthor());
         assertEquals("City: Toronto", TestUtility.getStringCellValue(sComment, 6, 0));

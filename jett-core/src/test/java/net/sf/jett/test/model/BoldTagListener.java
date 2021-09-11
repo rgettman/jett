@@ -64,11 +64,11 @@ public class BoldTagListener implements TagListener
                     {
                         Workbook workbook = sheet.getWorkbook();
                         CellStyle style = cell.getCellStyle();
-                        short fontIdx = style.getFontIndex();
+                        int fontIdx = style.getFontIndex();
                         Font font = workbook.getFontAt(fontIdx);
-                        if (font.getBoldweight() != Font.BOLDWEIGHT_BOLD)
+                        if (!font.getBold())
                         {
-                            Font boldFont = workbook.findFont(Font.BOLDWEIGHT_BOLD, font.getColor(), font.getFontHeight(),
+                            Font boldFont = workbook.findFont(true, font.getColor(), font.getFontHeight(),
                                     font.getFontName(), font.getItalic(), font.getStrikeout(), font.getTypeOffset(),
                                     font.getUnderline());
                             CellStyle newStyle = workbook.createCellStyle();
@@ -76,7 +76,7 @@ public class BoldTagListener implements TagListener
                             if (boldFont == null)
                             {
                                 boldFont = workbook.createFont();
-                                boldFont.setBoldweight(Font.BOLDWEIGHT_BOLD);
+                                boldFont.setBold(true);
                                 boldFont.setColor(font.getColor());
                                 boldFont.setFontHeight(font.getFontHeight());
                                 boldFont.setFontName(font.getFontName());

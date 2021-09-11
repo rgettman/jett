@@ -216,7 +216,7 @@ public class FormulaParser
 
                 logger.trace("    aCRIF: Cell Reference is \"{}\".", myCellReference);
                 if (mySheetName != null)
-                    ref = new CellRef(mySheetName + "!" + myCellReference);
+                    ref = new CellRef("'" + mySheetName + "'" + "!" + myCellReference);
                 else
                     ref = new CellRef(myCellReference);
                 if (myDefaultValue != null)

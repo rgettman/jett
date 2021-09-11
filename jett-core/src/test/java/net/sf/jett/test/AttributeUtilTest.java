@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.poi.common.usermodel.HyperlinkType;
 import org.apache.poi.ss.usermodel.ClientAnchor;
 import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.DataFormat;
@@ -13,6 +14,8 @@ import org.apache.poi.ss.usermodel.ExtendedColor;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Hyperlink;
 import org.apache.poi.ss.usermodel.RichTextString;
+import org.apache.poi.ss.util.AreaReference;
+import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 
 import static org.junit.Assert.*;
@@ -55,19 +58,28 @@ public class AttributeUtilTest
         }
 
         @Override
+        public AreaReference createAreaReference(String reference) {
+            return null;
+        }
+
+        @Override
+        public AreaReference createAreaReference(CellReference topLeft, CellReference bottomRight) {
+            return null;
+        }
+
+        @Override
         public DataFormat createDataFormat()
         {
             return null;
         }
 
         @Override
-        public FormulaEvaluator createFormulaEvaluator()
-        {
+        public Hyperlink createHyperlink(HyperlinkType type) {
             return null;
         }
 
         @Override
-        public Hyperlink createHyperlink(int type)
+        public FormulaEvaluator createFormulaEvaluator()
         {
             return null;
         }
